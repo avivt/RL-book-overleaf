@@ -1,0 +1,121 @@
+%\newpage
+\begin{leftbar}
+\section{Advanced topics}
+\label{sec:FA-Advanced}
+
+\subsection{Comparing $\weight_{min}$ and $\weight_{TD}$}
+
+The derivation follows \cite{TsitsiklisVR97}, however we limit
+ourselves to $TD(0)$ rather than $TD(\lambda)$.
+
+We will need to start with a few definitions. Given the steady state
+distribution $\mu(\state)$ for $s\in S$ we define a diagonal matrix
+$D$ of size $|S|\times|S|$ where $D(\state,\state)=\mu(\state)$. We
+define an inner-product $<\cdot,\cdot>_D$ where
+$<z_1,z_2>_D=z_1^\top Dz_2$ and a norm $\|z\|_D=\sqrt{<z,z>_D}$.
+
+We define $T^\policy(V)= r + \gamma PV$ and recall that: (1)
+$\Value^\policy = T^\policy(\Value^\policy)$, (2)
+$\|T^\policy(V_1)-T^\policy(V_2)\|_d\leq \gamma \|V_1-V_2\|_D$
+(actually we we need to prove that for $\|\cdot\|_D$).
+
+We will perform a linear function approximation where the attributes
+of state $\state$ are $x_s$. Define a matrix $X$ of size $|S|\times
+d$, where the $\state$ row is $x_s$. Then using a parameter
+$\weight$ our approximation is $\widehat{V}(\cdot;\weight)=Xw$. We
+now need to project vectors to an approximation $Xw$. Give a vector
+$V$, let $\Pi(V)=\arg\min_\weight \|Xw-V\|_D$. This projection
+operation can be written explicitly as
+\[
+\Pi(V)=X(X^\top DX)^{-1}X^\top D V.
+\]
+
+
+We can write the expected update as:
+\[
+\Delta w= X^\top D(T^\policy(X\weight_\ttime)-Xw)
+\]
+which is the gradient of
+\[
+\nabla_\weight \|T^\policy(X\weight_\ttime)-Xw\|_D^2
+\]
+note that the input to $T^\policy$ is fixed and we optimize over
+$\weight$ only. The minimization is
+\[
+\weight_{\ttime+1}=\Pi(T^\policy(X\weight_\ttime))
+\]
+
+We will need the following technical claim:
+\begin{claim}
+\[
+\|PV\|_D^2\leq \|V\|_D^2
+\]
+\end{claim}
+
+\begin{proof}
+\begin{align*}
+\|PV\|_D^2 & =\Value^\top P^\top D P V \\
+&= \sum_s \mu(\state) (\sum_{\state'} p(\state'|\state) V(\state'))^2\\
+&=\sum_s \mu(\state) \sum_{\state'} p(\state'|\state) \Value^2(\state')\\
+&=\sum_{\state'} \Value^2(\state') \sum_s \mu(\state)p(\state'|\state)\\
+&=\sum_{\state'} \mu(\state')\Value^2(\state')=\|V\|_D
+\end{align*}
+\end{proof}
+
+\begin{lemma}
+Let $\weight_{TD}$ be the limit of
+$\weight_{\ttime+1}=\Pi(T^\policy(X\weight_\ttime))$, i.e., using
+$TD(0)$. Then,
+\[
+\|X\weight_{TD}-\Value^\policy\|_D\leq
+\frac{1}{1-\gamma}\|X\weight_{min}-\Value^\policy\|_D
+\]
+\end{lemma}
+
+\begin{proof}
+By definition, $\weight_{min}$ is the projection of $\Value^\policy$
+to $X$, i.e., $\Pi(\Value^\policy)$. Note that we have
+$\Value^\policy=
+\Pi(\Value^\policy)+(\Value^\policy-\Pi(\Value^\policy))$ and
+$<\Pi(\Value^\policy),\Value^\policy-\Pi(\Value^\policy)>_D=0$,
+otherwise we can improve. This implies that
+$\|\Value^\policy\|_D=\|\Pi(\Value^\policy)\|_D+\|\Value^\policy-\Pi(\Value^\policy)\|_D$.
+\begin{align*}
+\|X\weight_{TD}-\Value^\policy\| &\leq
+\|X\weight_{TD}-\Pi(\Value^\policy\|_D+\|\Pi(\Value^\policy)-\Value^\policy\|_D\\
+&= \|\Pi(T^\policy(X\weight_{TD}))-\Pi(\Value^\policy)\|_D+\|\Pi(\Value^\policy)-\Value^\policy\|_D\\
+&\leq \|T^\policy(X\weight_{TD})-\Value^\policy\|_D+\|\Pi(\Value^\policy)-\Value^\policy\|_D\\
+&\leq \gamma \|X\weight_{TD}-\Value^\policy\|_D+\|\Pi(\Value^\policy)-\Value^\policy\|_D\\
+\end{align*}
+and the lemma follows since $\Pi(\Value^\policy)=X\weight_{min}$ be
+definition of $\weight_{min}$.
+\end{proof}
+
+
+\section{LSTD}
+
+
+We consider least Squares Temporal Difference (LSTD). We will
+analyze $LSTD(0)$.
+
+Let $x_\ttime=x_{\state_\ttime}$. The weights:
+\begin{align*}
+\weight_{\ttime+1} &= \weight_\ttime +\alpha (\reward_\ttime+\gamma
+\weight_\ttime^\top x_{\ttime+1}-\weight_\ttime^\top
+x_\ttime)x_\ttime\\
+\weight_{\ttime+1} &= \weight_\ttime +\alpha (\reward_\ttime
+x_\ttime-x_\ttime(x_\ttime-\gamma x_{\ttime+1})^\top \weight_\ttime)
+\end{align*}
+
+We have that
+\[
+E[\weight_{\ttime+1}|\weight_\ttime]=\weight_\ttime +\alpha
+(b-A\weight_\ttime)
+\]
+where $b=E[\reward_\ttime x_\ttime]\in \Reals^d$ and
+$A=E[x_\ttime(x_\ttime-\gamma x_{\ttime+1})^\top]\in\Reals^{d\times
+d}$.
+
+At convergence we have $\weight=A^{-1}b$.
+
+\end{leftbar}

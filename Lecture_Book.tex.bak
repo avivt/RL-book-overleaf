@@ -1,0 +1,170 @@
+%\documentclass[11pt]{report}
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ...
+%\geometry{landscape}                % Activate for for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+\usepackage{graphicx}
+\usepackage{amssymb}
+\usepackage{epstopdf}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{amsmath}
+\usepackage{tikz}
+\usepackage{algorithm2e}
+\usepackage{url}
+\usepackage{comment}
+\usepackage{color}
+
+\newcommand{\mdp}{\mathcal{M}}
+\newcommand{\Mdp}{\mathcal{M}}
+\newcommand{\Agent}{\mathcal{G}}
+\newcommand{\env}{\mdp}
+\newcommand{\Env}{\mdp}
+
+\newcommand{\Actions}{\mathcal{A}}
+\newcommand{\action}{{\tt a}}
+\newcommand{\actionp}{a^{\prime}}
+\newcommand{\actionpp}{a^{\prime\prime}}
+
+\newcommand{\States}{\mathcal{S}}
+\newcommand{\state}{{\tt s}}
+\newcommand{\statep}{\state^{\prime}}
+\newcommand{\statepp}{\state^{\prime\prime}}
+\newcommand{\eststate}{x}
+
+\newcommand{\transitionprob}{{\tt p}}
+
+
+\newcommand{\ttime}{{\tt t}}
+\newcommand{\tHorizon}{{\tt T}}
+
+\newcommand{\weight}{{\tt w}}
+
+\newcommand{\observation}{{\tt o}}
+\newcommand{\fObservation}{\mathcal{O}}
+
+\newcommand{\thistory}{{\tt h}}
+\newcommand{\Cost}{\mathcal{C}}
+\newcommand{\cost}{{\tt c}}
+%\newcommand{\Value}{V}
+%\newcommand{\reward}{r}
+\newcommand{\discount}{\gamma}
+\newcommand{\Rmax}{{\tt R}_{\max }}
+\newcommand{\Vmax}{{\tt V}_{\max }}
+
+
+
+\newcommand{\la}{\lambda}
+\newcommand{\om}{\omega}
+\newcommand{\ga}{\gamma}
+\newcommand{\al}{\alpha}
+\newcommand{\eps}{\epsilon}
+\newcommand{\dfn}{\triangleq}
+\newcommand{\cF}{\mathcal F}
+\newcommand{\cX}{\mathcal X}
+\newcommand{\negspace}{\!}
+\newcommand{\obs}{o}
+\newcommand{\Obs}{\mathcal{O}}
+\newcommand{\reward}{{\tt r}}
+\newcommand{\terminalreward}{r^T}
+\newcommand{\rew}{\reward}
+\newcommand{\Rewards}{{\tt R}} %
+\newcommand{\history}{{\tt h}} %
+\newcommand{\histories}{\mathcal{H}}
+\newcommand{\Histories}{\mathcal{H}}
+\newcommand{\Trans}{T}
+\newcommand{\Horizon}{t_f}
+\newcommand{\TUtility}{U_T}
+\newcommand{\Utility}{U_{\gamma}}
+\newcommand{\AUtility}{U_A}
+\newcommand{\TValue}{J}
+\newcommand{\TAValue}{K}
+\newcommand{\Value}{\mathcal{V}} %
+\newcommand{\Valuepi}{V^\policy} %
+
+\newcommand{\operator}{\mathcal{T}}
+
+\newcommand{\hatValue}{{\widehat{V}}}
+\newcommand{\AValue}{Q}
+\newcommand{\hatAValue}{{\widehat{Q}}}
+\newcommand{\AvgRValue}{\rho}
+\newcommand{\hatAvgRValue}{{\widehat{\rho}}}
+\newcommand{\RelValue}{W}
+\newcommand{\hatRelValue}{{\widehat{W}}}
+
+\newcommand{\stateestfunction}{f_{su}}
+\newcommand{\stateobsfunction}{f_{so}}
+\newcommand{\statetransfunction}{f_{ss}}
+\newcommand{\rewfunction}{f_r}
+\newcommand{\field}[1]{\mathbb{#1}}
+\newcommand{\Reals}{\field{R}}
+%\newcommand{\eqref}[1]{(\ref{#1})}
+\newcommand{\policy}{\pi}
+\newcommand{\hatpolicy}{{\widehat{\pi}}}
+\newcommand{\Policies}{\Pi}
+\newcommand{\nspolicy}{\mu}
+
+\newcommand{\union}{\ensuremath{\bigcup}}
+\newcommand{\comps}{\ensuremath{\mathbb{C}}}
+\newcommand{\reals}{\ensuremath{\mathbb{R}}}
+\newcommand{\Var}{\ensuremath{\mathrm{Var}}}
+\newcommand{\var}{\ensuremath{\mathrm{Var}}}
+\newcommand{\E}{\ensuremath{\mathbb{E}}}
+\renewcommand{\P}{\ensuremath{\mathbb{P}}}
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\T}{\ensuremath{\mathbb{T}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\I}{\ensuremath{\mathbb{I}}}
+
+
+\newcommand{\mixtime}{\tau}
+\newcommand{\epshorizon}{\tau}
+
+\def\argmax{\operatornamewithlimits{arg\,max}}
+\def\argmin{\operatornamewithlimits{arg\,min}}
+
+\newcommand{\bydef}{\stackrel{\bigtriangleup}{=}}
+\newcommand\defeq{\stackrel{\mathrm{def}}{=}}
+\newcommand{\half}{\frac{1}{2}}
+
+\newcommand{\coderemark}[1]{\textcolor{blue}{\% #1}}
+\newcommand{\itab}[1]{\hspace{0em}\rlap{#1}}
+\newcommand{\tab}[1]{\hspace{1em}\rlap{#1}}
+
+\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+%\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{theorem}{Theorem}
+\numberwithin{theorem}{chapter}
+\newtheorem*{theorem*}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+%\numberwithin{lemma}{chapter}
+\newtheorem{proposition}[theorem]{Proposition}
+%\numberwithin{proposition}{chapter}
+\newtheorem{corollary}[theorem]{Corollary}
+%\numberwithin{corollary}{chapter}
+\newtheorem{assumption}{Assumption}
+\numberwithin{assumption}{chapter}
+\newtheorem{definition}{Definition}
+\numberwithin{definition}{chapter}
+\newtheorem{example}{Example}
+\numberwithin{example}{chapter}
+\newtheorem{claim}[theorem]{Claim}
+%\numberwithin{claim}{chapter}
+
+\newtheorem{exercise}{Exercise}
+\numberwithin{exercise}{chapter}
+% no italics in exercise
+%YM: commented
+%\usepackage{xparse}
+%\let\oldexercise\exercise
+%\RenewDocumentCommand{\exercise}{o}{%
+%  \IfNoValueTF{#1}
+%    {\oldexercise}
+%    {\oldexercise[#1]}%
+%  \normalfont
+%}
+\newtheorem{remark}{Remark}
+\numberwithin{remark}{chapter}
+\newtheorem{algorithm_}{Algorithm}
+\numberwithin{algorithm_}{chapter}

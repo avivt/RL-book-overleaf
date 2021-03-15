@@ -1,0 +1,92 @@
+%\chapter{Stochastic shortest paths}
+
+
+
+
+
+This class of problems provides a natural extension of the standard shortest-path problem to stochastic settings. When we view Stochastic Shortest Paths (SSP) as an extension of the graph theoretic notion of shortest paths, we can motivate it by having the edges no completely deterministic, but rather having a probability of ending a different state.
+%
+Probably a better view, is to think of the edges as general actions, which induce a distribution over the next state.
+%
+The goal state can be either a single state or a set of states, both notions would be equivalent. 
+
+The SSP problem includes an important sub-category, which is {\em episodic MDP}. In an episodic MDP we are guarantee to complete the episode in (expected) finite time, regardless of the policy we employ. This will not be true of a general SSP, as some policies 
+
+
+Some conditions on the system dynamics and reward function must be imposed for the problem to be well posed (e.g., that a goal state may be reached  with probability one).
+Such problems are known as stochastic shortest path problems, or also episodic planning problems. 
+
+\section{Definition}
+
+Stochastic Shortest Path is an important class of planning problems, 
+where the time horizon is not
+set beforehand, but rather the problem continues until a certain
+event occurs. This event can be defined as reaching some goal state.
+Let  ${\States_G} \subset \States$ define the set of \emph{goal
+states}. 
+
+Define
+\[\tau  = \inf \{ t \ge 0:{\state_\ttime} \in {\States_G}\} \]
+as the first time in which a goal state is reached. 
+
+The total expected return for Stochastic Shortest Path problem is defined as:
+\[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau }))\]
+Here ${\reward_G}(\state),\;\state \in {\States_G}$ specified the
+reward at goal states. Note that the length of the run $\tau$ is a random variable.
+
+%Clearly, there is a potential that some policies would never reach the goa; states. implicit 
+
+
+\subsection{Cost versus reward} 
+
+%Reward may try to avoid the goal states.
+
+While we can always switch the optimization from minimizing costs to maximizing rewards, in this case the two would have a conceptually different optimal policies.
+If we have non-negative costs, then the optimal policy would try to reach the goal states as fast as possible. (Actually, would minimize the expected cost in reaching the goal states.)
+When we have non-negative rewards, the optimal policy would try to avoid the goal states.  
+
+When we are considering a Deterministic Decision Process we can illustrate the difference.
+Recall that DMP is simply a graph where the actions are traversing edges. For costs, we are looking for the minimum cost path to the goal. For rewards, we are looking for a cycle with positive costs. (In Chapter \ref{chapter:DDP}, we derive an algorithm for the average reward for DDP.)
+Note that if there is a cycle of negative cost, then the shortest path is not well define 
+(we can get infinite negative cost). Similarly, if we have a positive reward cycle we can get infinite reward.
+
+\section{Relationship to other models}
+
+
+\subsection{Finite Horizon Return}
+
+Stochastic shortest path includes, naturally, the finite horizon case. 
+This can be shown by creating a leveled MDP where at each time step we move to the next level and terminate at level $\tHorizon$.
+Specifically, we define a new state space $\States'=\States\times \T$, transition function $p((\state',i+1)|\state,\action)=p(\state'|\state,\action)$, and goal states $\States_G=\{(\state,\tHorizon):\state \in\States\}$.
+
+
+
+\subsection{Discounted infinite return}
+
+
+Stochastic shortest path includes also the discounted infinite
+horizon. To see that, add a new goal state, and from each state with
+probability $1-\discount$ jump to the goal state and terminate. The
+expected return of a policy would be the same in both models.
+Specifically, we add a state $\state_G$, such that
+$p(\state_G|\state,\action)=1-\discount$, for any state
+$\state\in\States$ and action $\action\in\Actions$ and
+$p(\state'|\state,\action)=\discount p(\state'|\state,\action)$. The
+probability that we do not terminate by time $\ttime$ is exactly
+$\discount^\ttime$. Therefore the expected return is
+$\sum_{t=1}^\infty \discount^t\reward(\state_t,\action_t)$ which is
+identical to the discounted return.
+
+\section{Proper versus improper policies}
+
+Episodic MDP
+
+\subsection{Proper policies}
+
+Show that if we add $\epsilon>0$ to all the cost, for sufficiently small $\epsilon$ we get the optimal proper policy.
+
+\section{Belman Operator}
+
+Add assumption that any improper policy has infinite cost.
+
+Show that the Belman operator converge.

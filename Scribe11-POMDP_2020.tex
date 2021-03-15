@@ -1,0 +1,206 @@
+
+%%%%%%%%%%%% Subject: template for lecture notes %%%%%%%%%%%%%%%%%%%%
+%
+% Thank you for the hitnadvut to write up notes on today's lecture.
+%
+% Here is the template file for writing up notes for this course.
+% If you scribe on a Tuesday we ask that you please bring your
+% notes by the following Tuesday.
+%
+% To help you with your notes, I can let you copy the notes used in
+% giving the lecture. Please ask
+% for help in understanding the material or if you have a question
+% about how it should be presented.
+%
+% In order to make the notes more uniform and easier to read, we are providing
+% several macros for theorems and such.  (Some examples of their use are
+% included below.) Also, we ask that you follow a few stylistic conventions:
+%
+% Please write your notes as if you were explaining the material to another
+% student, rather than as minutes of a meeting. (That is, don't write
+% things like ``Today we started discussing...'' or ``next time,
+% we will...'' or ``then, someone asked the question...''
+% Just explain the material as clearly as you can.
+%\
+% If you need to refer to an earlier lecture, use the lecture number.
+% For example,  ``In Lecture 6 it was shown that...''
+% To refer to a later lecture for which you don't know the number,
+% just say something like,
+% ``This impossibility result will be discussed further in a later
+% lecture.'' (At the end of the course, I will go back and fill in the
+% appropriate lecture numbers.)
+%
+% If material from a handout is covered in lecture, then we would like to
+% include the text of the handout as a part of the notes to make them more
+% self-contained.  To make your job easier, I will mail you the latex
+% files for the relevent handouts, and you can merge them in at the
+% appropriate places.  Also, you may want to annotate the handout as you
+% see fit.  If you happen to take notes on a day that a homework is assigned,
+% I will also mail you the exercises, which you can put at the end of your
+% notes.
+%
+% Figures should be done in Latex, if at all possible.  You may have available
+% on your system a program called ``texdraw.''  The program lets to draw
+% figures with the mouse and then generates a latex file, which you can then
+% insert into your text.  If you don't have this program, usually writing the
+% latex commands yourself isn't that hard.  For very complicated figures, you
+% may wish to leave the appropriate space in the text and draw the figures
+% neatly (each on a separate page) in black ink.  For the first draft you
+% hand in, you may not want to invest a lot of time drawing the figures very
+% neatly, because there's a chance that we will want you to modify
+% them.  Save that effort for the draft to be handed out.
+%
+% Please let me know if you have any questions.
+%
+
+\documentclass[12pt]{book}
+\usepackage{graphicx,ae}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+%\usepackage{fullpage}
+
+\setlength{\evensidemargin}{.0 in} \addtolength{\topmargin}{-1in}
+\setlength{\textwidth}{6.5in} \setlength{\textheight}{8in}
+
+%
+% this command enables to remove a whole part of the text
+% from the printout
+% to use it just enter
+% \remove{
+% before the text to be excluded and
+% }
+% after the text
+\newcommand{\remove}[1]{}
+%
+% The following macros are used to generate nice code for programs.
+% See example on how to use it below
+%
+%%%%%%%%%%%%%%%%%%%%% program macros %%%%%%%%%%%%%%%%%
+\newcommand{\Do}{{\small\bf do}\ }
+\newcommand{\Return}{{\small\bf return\ }}
+\newcommand{\Proc}[1]{#1\+}
+\newcommand{\Returns}{{\small\bf returns}}
+\newcommand{\Procbegin}{{\small\bf begin}}
+\newcommand{\If}{{\small\bf if}\ \=\+}
+\newcommand{\Then}{{\small\bf then}\ \=\+}
+\newcommand{\Else}{\<{\small\bf else}\ \>}
+\newcommand{\Elseif}{\<{\small\bf elseif}\ }
+\newcommand{\Endif}{\<{\small\bf end\ if\ }\-\-}
+\newcommand{\Endproc}[1]{{\small\bf end} #1\-}
+\newcommand{\For}{{\small\bf for}\ \=\+}
+\newcommand{\Endfor}{{\small\bf end\ for}\ \-}
+\newcommand{\Loop}{{\bf loop}\ \= \+}
+\newcommand{\Endloop}{{\bf end\ loop}\ \-}
+\newenvironment{program}{
+    \begin{minipage}{\textwidth}
+    \begin{tabbing}
+    \ \ \ \ \=\kill
+  }{
+    \end{tabbing}
+    \end{minipage}
+  }
+% a blank line
+\def\blankline{\hbox{}}
+%%%%%%%%%%%%%%%%%%%%% End of PROGRAM macros %%%%%%%%%%%%%%%%%
+%
+% The following macro is used to generate the header.
+%
+%
+\newcommand{\lecture}[5]{
+   \pagestyle{myheadings}
+   \thispagestyle{plain}
+   \newpage
+   \setcounter{chapter}{#1}
+   \setcounter{page}{#2}
+%  \set\thechapter{#3}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{
+    \hbox to 6.28in { {\bf Reinforcement Learning
+                        \hfill Spring Semester, 2020} }
+       \vspace{4mm}
+       \hbox to 6.28in { {\Large \hfill Lecture #1: #3  \hfill} }
+       \vspace{2mm}
+       \hbox to 6.28in { {\it Lecturer: #4 \hfill Scribe: #5} }
+      }
+   }
+   \end{center}
+   \markboth{Lecture #1: #3}{Lecture #1: #3}
+   \vspace*{4mm}
+}
+%
+% Use these macros for organizing sections of your notes.
+% Each command takes two arguments: (1) the title of the section and and
+% (2) a keyword for that section to appear in the index.  (See examples.)
+% Please don't use \section, \subsection, and \subsubsection directly!
+%
+\newcommand{\topic}[2]{\section{#1} \index{#2} \markright{#1}}
+\newcommand{\subtopic}[2]{\subsection{#1} \index{#2}}
+\newcommand{\subsubtopic}[2]{\subsubsection{#1} \index{#2}}
+%
+% Convention for citations is first author's last name followed by other
+% authors' last initials, followed by the year.  For example, to cite the
+% seventh entry in the course bibliography, you would type: \cite{BurnsL80}
+% (To avoid bibliography problems, for now we redefine the \cite command.)
+%
+%\renewcommand{\cite}[1]{[#1]}
+%
+% These are just to make things a little easier:
+%
+%\newcommand{\bi}{\begin{itemize}}
+%\newcommand{\ei}{\end{itemize}}
+%\newcommand{\be}{\begin{enumerate}}
+%\newcommand{\ee}{\end{enumerate}}
+%\newcommand{\blank}{\vspace{1ex}}   % generates a blank line in the output
+%
+% Use these for theorems, lemmas, proofs, etc.
+%
+%\newtheorem{theorem}{Theorem}[chapter]
+%\newtheorem{lemma}[theorem]{Lemma}
+%\newtheorem{claim}[theorem]{Claim}
+%\newtheorem{corollary}[theorem]{Corollary}
+%\newcommand{\qed}{\hfill $\Box$}
+%\newenvironment{proof}{\par{\bf Proof:}}{\qed \par}
+%\newenvironment{proof}{{\em Proof:}}{\hfill\rule{2mm}{2mm}}
+%
+% Use the following for definitions.
+% \bigdef is for definitions to be set off by themselves; \smalldef is for
+% definitions given in the middle of a paragraph.
+%
+%\newenvironment{dfn}{{\vspace*{1ex} \noindent \bf Definition }}{\vspace*{1ex}}
+%\newcommand{\bigdef}[2]{\index{#1}\begin{dfn} {\rm #2} \end{dfn}}
+%\newcommand{\smalldef}[1]{\index{#1} {\em #1}}
+% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+%\definecolor{light}{gray}{.9}
+
+\usepackage{framed}
+
+\newcommand{\ymignore}[1]{}
+
+\input{../LectureBook}
+
+\begin{document}
+
+%\lecture{**LECTURE-NUMBER**}{**1ST-PAGE**}{**DATE**}{**LECTURER**}{**SCRIBE**}
+\lecture{11}{1}{June 3, 2020}{Yishay Mansour}{ym}
+
+%\footnote{
+%\noindent{DISCLAIMER: Based on {\tt Learning and Planning in
+%Dynamical Systems} by Shie Mannor\copyright, all rights
+%reserved.}\bigskip
+
+% **** YOUR NOTES GO HERE
+%    Some general latex examples and examples making use of the
+% macros follow.  You may want to latex this file and print out the result
+% to get an idea of how things look. (You will need to latex the file twice
+% to get the cross-references right.)
+%    Even if you already know latex, you should take a few minutes to
+% look over these examples, so that you understand the general conventions
+% we're using.
+
+\input{Lecture11-POMDP}
+%\input{Lecture-model-free-1.tex}
+\end{document}

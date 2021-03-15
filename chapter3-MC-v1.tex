@@ -1,0 +1,576 @@
+
+
+%\section{Markov Chains}
+
+We start by considering a stochastic dynamics model which does not
+have any actions, so that we can concentrate on the dynamics.
+
+A Markov chain $\{ {X_\ttime},\;\ttime = 0,1,2, \ldots \} $, with
+${X_\ttime} \in X$, is a discrete-time stochastic process, over a
+finite or countable state-space $X$, that satisfies the following
+Markov property:
+    \[{\cal P}({X_{\ttime +1}} = j|{X_\ttime} = i,{X_{\ttime - 1}}, \ldots {X_0}) = {\cal P}({X_{\ttime +1}} = j|{X_\ttime} = i).\]
+We focus on time-homogeneous Markov chains, where
+\[{\cal P}({X_{\ttime +1}} = j|{X_\ttime} = i) = {\cal P}({X_1} = j|{X_0} = i) \buildrel \Delta \over = {p_{i,j}}.\]
+The ${p_{i,j}}$'s  are the transition probabilities, which satisfy
+$p_{i,j} \ge 0$, and for each $ i\in X$ we have $\sum_{j \in X}
+{{p_{i,j}} = 1} $, namely, $\{p_{i,j}:j\in X\}$ is a distribution on
+the next state following state $i$.  The matrix $P = ({p_{i,j}})$ is
+the transition matrix. The matrix is row-stochastic (each row sums
+to $1$ and all entries non-negative).
+
+Given the initial distribution ${p_0}$ of ${X_0}$, namely ${\cal
+P}({X_0} = i) = {p_0}(i)$, we obtain the finite-dimensional
+distributions:
+\[{\cal P}({X_0} = {i_0}, \ldots ,{X_\ttime} = {i_\ttime}) = {p_0}(i_0){p_{{i_0},{i_1}}} \cdot  \ldots  \cdot {p_{{i_{\ttime - 1}},{i_\ttime}}}.\]
+
+Define $p_{i,j}^{(m)} = {\cal P}({X_m} = j|{X_0} = i),$ the $m$-step
+transition probabilities.  It is easy to verify that $p_{i,j}^{(m)}
+= {[{P^m}]_{ij}}$  (here ${P^m}$ is the $m$-th power of the matrix
+$P$).
+
+\begin{example}
+\footnote{Simple MC, two states, running example.} Consider the
+following two state Markov chain, with transition probability $P$
+and initial distribution $p_0$, as follows:
+$$
+P=
+\begin{pmatrix}
+0.4 & 0.6  \\
+0.2 & 0.8
+\end{pmatrix}
+\qquad p_0=
+\begin{pmatrix}
+0.5  & 0.5
+\end{pmatrix}
+$$
+Initially, we have both states equally likely. After one step, the
+distribution of states is $p_1=p_0 P=(0.3\;,\; 0.7)$. After two
+steps we have $p_2=p_1 P=p_0 P^2 = (0.26 \;,\; 0.74 )$. The limit of
+this sequence would be $p_\infty =(0.25 \;,\; 0.75)$, which is
+called the {\em steady state distribution}, and would be discussed
+later.
+\end{example}
+
+\paragraph{State classification:}
+
+\begin{itemize}
+\item State $j$ is \textit{accessible} from $i$  (denoted by $i \to j$) if $p_{i,j}^{(m)} > 0$ for some $m \ge
+1$.\\
+For a finite $X$  we can compute the accessibility property as
+follows. Construct a directed graph $G(X,E)$ where the vertices are
+the states $X$ and there is a directed edge $(i,j)$ if $p_{i,j}>0$.
+State $j$ is accessible from state $i$ iff there exists a directed
+path in $G(X,E)$ from $i$ to $j$.
+\item States $i$ and $j$ are \textit{communicating} states (or communicate) if $i \to j$ and $j \to
+i$.\\
+For a finite $X$, this implies that in $G(X,E)$ there is both a
+directed path from $i$ to $j$ and from $j$ to $i$.
+\item A \textit{communicating class} (or just
+class) is a maximal collection of states that communicate.\\
+For a finite $X$, this implies that in $G(X,E)$ we have $i$ and $j$
+in the same strongly connected component of the graph. (A strongly
+connected component has a directed path between any pair of
+vertices.)
+\item The Markov chain is
+\textit{irreducible} if all states belong to a single class (i.e.,
+all states communicate with each other).\\
+For a finite $X$, this implies that in $G(X,E)$ is strongly
+connected.
+\item
+State $i$ has a \textit{period} $d_i=GCD \{m\geq
+1:p_{i,i}^{(m)}>0\}$, where $GCD$ is the greatest common divisor. A
+state is aperiodic if $d_i=1$.\\
+State $i$ is periodic with period $d_i \ge 2$ if  $p_{i,i}^{(m)} =
+0$ for $m \pmod {d_i} \neq 0$ and for any $m$ such that
+$p_{i,i}^{(m)} > 0$ we have $m \pmod {d_i} =0$.\\
+If a state $i$ is aperiodic, then there exists an integer $m_0$ such
+that for any $m\geq m_0$ we have $p_{i,i}^{(m)}>0$.
+\item
+Periodicity is a class property: all states in the same class
+have the same period. Specifically, if some state is
+\textit{a-periodic},
+then all states in the class are a-periodic.\\
+\begin{claim}
+For any two states $i$ and $j$ with periods $d_i$ and $d_j$, in the
+same communicating class, we have $d_i=d_j$.
+\end{claim}
+\begin{proof}
+For contradiction, assume that $d_j \pmod {d_i}\neq 0$. Since they
+are in the same communicating class, we have a trajectory from $i$
+to $j$ of length $m_{i,j}$ and from $j$ to $i$ of length $m_{j,i}$.
+This implies that $(m_{i,j}+m_{j,i})\pmod {d_i}=0$. Now, there is a
+trajectory (which is a cycle) of length $m_{j,j}$ from $j$ back to
+$j$ such that $m_{j,j}\pmod {d_i}\neq 0$ (otherwise $d_i$ divides
+the period of $j$). Consider the path from $i$ to itself of length
+$m_{i,j}+m_{j,j}+m_{j,i}$. We have that $(m_{ij}+m_{jj}+m_{ji})\pmod
+{d_i} = m_{jj}\pmod {d_i} \neq 0$. This is a contradiction to the
+definition of $d_i$. Therefore, $d_j \pmod {d_i}=0$ and similarly
+$d_i \pmod {d_j}=0$, which implies that $d_i=d_j$.
+\end{proof}
+The claim shows that periodicity is a class property, and all the
+states in a class have the same period.
+\end{itemize}
+
+\begin{example}
+Add figures explaining the definitions.
+\end{example}
+
+\paragraph{Recurrence:}
+\begin{itemize}
+\item
+State $i$ is \textit{recurrent} if ${\cal P}({X_\ttime} = i{
+\textrm{ for some }}t \ge 1|{X_0} = i) = 1$. Otherwise, state $i$ is
+\textit{transient}.\\
+%\item
+We can relate the state property of recurrent and transient to the
+expected number of returns to a state.
+
+\begin{claim}
+State $i$ is transient iff $\sum\nolimits_{m = 1}^\infty
+{p_{i,i}^{(m)}}  < \infty $.
+\end{claim}
+
+\begin{proof}
+Assume that state $i$ is transient. Let $q_i={\cal P}({X_\ttime} =
+i{ \textrm{ for some }}t \ge 1|{X_0} = i) $. Since state $i$ is
+transient we have $q_i<1$. Let $Z_i$ be the number of times the
+trajectory returns to state $i$. Note that $Z_i$ is geometrically
+distributed with parameter $q_i$, namely $\Pr[Z_i=k]=q_i^k (1-q_i)$.
+Therefore the expected number of returns to state $i$ is $1/(1-q_i)$
+and is finite.
+%
+The expected number of returns to state $i$ is equivalently
+$\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}} $, and hence if a
+state is transient we have $\sum\nolimits_{m = 1}^\infty
+{p_{i,i}^{(m)}}  < \infty $.
+
+For the other direction, assume that $\sum\nolimits_{m = 1}^\infty
+{p_{i,i}^{(m)}}  < \infty $. This implies that there is an $m_0$
+such that $\sum\nolimits_{m = m_0}^\infty {p_{i,i}^{(m)}}  < 1/2$.
+Consider the probability of returning to $i$ within $m_0$ stages.
+This implies that ${\cal P}({X_\ttime} = i{ \textrm{ for some }}t
+\ge m_0|{X_0} = i)< 1/2$. Now consider the probability $q'_i={\cal
+P}({X_\ttime} = i{ \textrm{ for some }}m_0\geq t \ge 1|{X_0} = i) $.
+%
+If $q'_i<1$, this implies that ${\cal P}({X_\ttime} = i{ \textrm{
+for some }}t \ge 1|{X_0} = i)<q'_i +(1-q'_i)/2=(1+q'_i)/2<1$, which
+implies that state $i$ is transient.
+%
+If $q'_i=1$, this implies that after at most $m_0$ stages we are
+guarantee to return to $i$, hence the expected number of return to
+state $i$ is infinite, i.e., $\sum\nolimits_{m = 1}^\infty
+{p_{i,i}^{(m)}}  = \infty $. This is in contradiction to the
+assumption that $\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  <
+\infty $.
+%This implies that a state is transient iff  the expected number of
+%returns to state $i$ is finite and that a state $i$ is recurrent iff
+%the expected number of returns to state $i$ is infinite. Since the
+%expected number of returns to state $i$ is $\sum\nolimits_{m =
+%1}^\infty {p_{i,i}^{(m)}} $, an equivalent criteria is that state
+%$i$ is recurrent if and only if $\sum\nolimits_{m = 1}^\infty
+%{p_{i,i}^{(m)}}  = \infty $.
+\end{proof}
+
+
+%
+%If $\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  < \infty $ then
+%state $i$ is transient. (By Borel-Cantteli this implies (with
+%probability $1$) that such states will only occur a finite number of
+%times.)
+%
+%{\tt The problem is the we cannot use the Borel-Cantteli for the
+%other direction, since we needs independence. We still need to show:
+%
+% State $i$ is
+%recurrent if and only if $\sum\nolimits_{m = 1}^\infty
+%{p_{i,i}^{(m)}}  = \infty $.
+%
+%Here is hopefully a correct proof:}
+%
+%Let $q_i={\cal P}({X_\ttime} = i{ \textrm{ for some }}t \ge 1|{X_0}
+%= i) $. Assume that $q_i<1$, i.e., state $i$ is transient. Let $Z_i$
+%be the number of times the trajectory returns to state $i$. Note
+%that $Z_i$ is geometrically distributed with parameter $q_i$, namely
+%$\Pr[Z_i=k]=q_i^k (1-q_i)$. Therefore the expected number of returns
+%to state $i$ is $1/(1-q_i)$ and is finite. This implies that a state
+%is transient iff  the expected number of returns to state $i$ is
+%finite and that a state $i$ is recurrent iff the expected number of
+%returns to state $i$ is infinite. Since the expected number of
+%returns to state $i$ is $\sum\nolimits_{m = 1}^\infty
+%{p_{i,i}^{(m)}} $, an equivalent criteria is that state $i$ is
+%recurrent if and only if $\sum\nolimits_{m = 1}^\infty
+%{p_{i,i}^{(m)}}  = \infty $.
+
+
+\item Recurrence is a class property.\\
+To see this consider two states $i$ and $j$ such that $j$ is
+accessible from $i$ and $i$ is recurrent. Since $i$ is recurrant
+$\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  = \infty $. Since $j$
+is accessible from $i$ there is a $k$ such that $p_{i,j}^{(k)}
+>0$. Since $i$ is recurrent, there exists a $k'$ such that
+$p_{j,i}^{(k')}>0$. We can lower bound $\sum\nolimits_{m = 1}^\infty
+{p_{j,j}^{(m)}}$ by $\sum_{m = 1}^\infty
+{p_{j,i}^{(k')}}{p_{i,i}^{(m)}} {p_{i,j}^{(k)}} = \infty $.
+Therefore we showed that state $j$ is recurrent.
+
+
+\item
+If states $i$ and $j$ are in the same recurrent (communicating)
+class, then state $j$ is (eventually) reached from state $i$ with
+probability 1:  ${\cal P}({X_\ttime} = j{\textrm{ for some t}} \ge
+1|{X_0} = i) = 1$.\\
+This follows from the fact that both states occur infinitely often,
+with probability $1$.
+\item
+Let ${T_i}$ be the {\em return time} to state $i$  (number of stages
+required for $({X_\ttime})$ starting from state $i$ to the first
+return to $i$). If $i$ is a recurrent
+state, then ${T_i} < \infty $ w.p. 1.\\
+Since otherwise, there is a positive probability that we never
+return to state $i$, and hence state $i$ is not recurrent.
+%
+\item State $i$ is {\em positive recurrent} if  $\E({T_i}) < \infty $,
+and null recurrent if $\E({T_i}) = \infty $. If the state space $X$
+is finite, all recurrent states are positive recurrent.\\
+This follows since the set of states that are null recurrent cannot
+have transitions from positive recurrent states and cannot have
+transition to transient states. If the chain never leaves the set of
+null recurrent states, then some state would have a return time
+which is at most the size of the set. If there is a positive
+probability of leaving the set (and never returning) then the states
+are transient.
+\end{itemize}
+
+\begin{example}{\bf Random walk}
+Consider the following Markov chain over the integers. The states
+are the integers. The initial states is $0$. At each state $i$, with
+probability $1/2$ we move to $i+1$ and with probability $1/2$ to
+$i-1$. Namely, $p_{i,i+1}=1/2$, $p_{i,i-1}=1/2$, and $p_{i,j} =0$
+for $j \not\in \{i-1,i+ 1\}$. We will show that $T_i$ is finite with
+probability $1$ and $\E[T_i]=\infty$. This implies that all the
+states are null recurrent.
+
+To compute $\E[T_i]$ consider what happens in one and two steps. Let
+$Z_{i,i-1}$ be the time to move from $i$ to $i-1$. Note that  we
+have \[
+\E[T_i]=1+0.5\E[Z_{i+1,i}]+0.5\E[Z_{i-1,i}]=1+\E[Z_{1,0}],
+\]
+since, due to symmetry, $\E[Z_{i,i+1}]=\E[Z_{i+1,i}]=\E[Z_{1,0}]$.
+
+In two steps we are either back to $i$, or at state $i+2$ or $i-2$.
+For $\E[T_i]$ we have that
+\begin{align*}
+\E[T_i]=&
+2+\frac{1}{4}\E[Z_{i+2,i}]+\frac{1}{4}\E[Z_{i-2,i}] \\
+=&2+\frac{1}{4} (\E[Z_{i+2,i+1}]+\E[Z_{i+1,i}])+\frac{1}{4}( \E[Z_{i-2,i-1}]+\E[Z_{i-1,i}])\\
+ =&2+E[Z_{1,0}]\\
+\end{align*}
+
+This implies that we have
+\[
+\E[T_i]=1+\E[Z_{1,0}]=2+E[Z_{1,0}]
+\]
+Clearly, there is no finite value for $\E[Z_{1,0}]$ which will
+satisfy the equation, which implies $\E[Z_{1,0}]=\infty$, and hence
+$\E[T_i]=\infty$.
+
+To show that $0$ is a recurrent state, note that the probability
+that at time $2k$ we are at state $0$ is exactly $p_{0,0}^{(2k)}={2k
+\choose k}2^{-2k}\approx \frac{c}{\sqrt{k}}$, for some $c>0$. This
+implies that
+$$
+\sum\nolimits_{m = 1}^\infty {p_{0,0}^{(m)}}\approx \sum\nolimits_{m
+= 1}^\infty \frac{c}{\sqrt{m}}=\infty
+$$
+and therefore state $0$ is recurrent. (By symmetry, this shows that
+all the states are recurrent).
+
+Note that this Markov chain has a period of $2$.
+\end{example}
+
+\begin{example}
+{\bf Random walk with jumps.}
+%
+Consider the following Markov chain over the integers. The states
+are the integers. The initial states is $0$. At each state $i$, with
+probability $1/2$ we move to $i+1$ and with probability $1/2$ we
+return to $0$. Namely, $p_{i,i+1}=1/2$, $p_{i,0}=1/2$, and $p_{i,j}
+=0$ for $j \not\in \{0,i+ 1\}$. We will show that $\E[T_i]<\infty$
+(which implies that $T_i$ is finite with probability $1$).
+
+From any state we return to $0$ with probability $1/2$, therefore
+$\E[T_0]=2$. We will show that for state $i$ we have
+$\E[T_i]\leq2+2\cdot 2^i$. We will decompose $T_i$ to two parts. The
+first is the return to $0$, this part has expectation $2$. The
+second is to reach state $i$ from state $0$. Consider an epoch as
+the time between two visits to $0$. The probability that an epoch
+would reach $i$ is exactly $2^{-i}$. The expected time of an epoch
+is $2$ (the expected time to return to state $0$). The expected time
+to return to state $0$, given that we did not reach state $i$ is
+less than $2$. Therefore, $\E[T_i]\leq2+2\cdot 2^i$.
+
+Note that this Markov chain is aperiodic.
+\end{example}
+
+
+
+\paragraph{Invariant Distribution:} %changed pi to mu since pi is latter a policy!
+The probability vector $\mu  = ({\mu_i})$ is an invariant
+distribution (or stationary distribution or steady state
+distribution) for the Markov chain if $\mu^\top P = \mu^\top$,
+namely
+\[{\mu_j} = \sum_i {{\mu_i}} {p_{i,j}}\quad \forall j.\]
+Clearly, if ${X_\ttime} \sim \mu $ then ${X_{\ttime + 1}} \sim \mu
+$. If ${X_0} \sim \mu $, then the Markov chain $({X_\ttime})$ is a
+stationary stochastic process.
+
+
+\begin{theorem}
+\label{Thm:MC-stationary}
+ Let $({X_\ttime})$ be an irreducible and
+a-periodic Markov chain over a finite state space $X$ with
+transition matrix $P$. Then there is a unique distribution $\mu$
+such that $\mu^\top P = \mu^\top >0$.
+\end{theorem}
+
+\begin{proof}
+Assume that $x$ is an eigenvector of $P$ with eigenvalue $\lambda$,
+i.e., we have $Px=\lambda x$. Since $P$ is a stochastic matrix, we
+have $\|P x\|_\infty \leq \|x\|_\infty$, which implies that $\lambda
+\leq 1$. Since the matrix $P$ is stochastic, $P\vec{1}=\vec{1}$,
+which implies that $P$ has a right eigenvalue of $1$ and this is the
+maximal eigenvalue. Since the set of right and left eignevalues is
+identical, we conclude that there is $x$ such that $x^\top Px^\top$.
+Our first task is to show that there is such an $x$ with $x\geq0$.
+
+Since the Markov chain is irreducible and a-periodic, there is an
+integer $m$, such that $P^m$ has all the entries strictly positive.
+Namely, for any $i,j\in X$ we have $p^{(m)}_{i,j}>0$.
+%(Formally,
+
+We now show a general property of positive matrices (matrices where
+are the entries are strictly positive). Let $A=P^m$ be a positive
+matrix and $x$ an eigenvector of $A$ with eigenvalue $1$. First, if
+$x$ has complex number then $Re(x)$ and $Im(x)$ are an eigenvectors
+of $A$ of eigenvalue $1$ and one of them is non-zero. Therefore we
+can assume that $x\in \reals^d$. We would like to show that there is
+an $x\geq 0$ such that $x^\top A=x^\top$. If $x\geq 0$ we are done.
+If $x\leq 0$ we can take $x'=-x$ and we are done. We need to show
+that $x$ cannot have both positive and negative entries.
+
+For contradiction, assume that we have $x_{k}>0$ and $x_{k'}<0$.
+This implies that for any weight vector $w>0$ we have $|x^\top w| <
+|x|^\top w$, where $|x|$ is point-wise absolute value. Therefore,
+\[
+\sum_j |x_j|= \sum_j |\sum_i x_i P_{i,j}| < \sum_j \sum_i |x_i|
+P_{i,j}=  \sum_i |x_i| \sum_j P_{i,j}= \sum_j |x_j|
+\]
+where the first identity follows since $x$ is an eigenvector. The
+second since $P$ is strictly positive.The third is a change of order
+of summation. The last follows since $P$ is a stochastic matrix, so
+each row sums to $1$. Clearly, we reached an contradiction, and
+therefore $x$ cannot have both positive and negative entries.
+
+%{\tt [YM:old] To conclude the proof we will show a general property
+%of positive matrices (matrices where are the entries are strictly
+%positive). Let $A=P^m$ be a positive matrix and $x$ an eigenvector
+%of $A$ with eigenvalue $1$, then $|x|$ is an eigenvector of $A$ with
+%eigenvalue $1$. (By $|x|$ we mean point-wise absolute value,
+%including when the entries are complex numbers.)
+%
+% Since $x^\top A =x$, then $|x|=|x^\top A|\leq |x|^\top
+%A$, where the last inequality is since $A$ is a positive matrix. It
+%remains to show that $|x| = |x|^\top A$. Let $z=|x|^\top A$ and
+%$y=z-|x|$. We know that $y\geq 0$. Assume that some $y_i>0$. Then
+%$y^\top A>0$ since $A$ is a positive matrix and similarly $z>0$.
+%
+%Now there is an $\epsilon >0$ such that $y^\top A > \epsilon z$,
+%which implies that $z^\top B >z$, where $B=\frac{A}{1+\epsilon}$.
+%Since the largest eigenvalue of $B$ is $1/(1+\epsilon)<1$, we have
+%that the limit $z^\top B^k =0$, which implies that $z<0$. However,
+%we established the fact that $z>0$. Therefore, there is no such
+%$y_i$, and $|x|$ is an eigenvector of $A$ of eigenvalue $1$. }
+
+We have shown so far that there exists a $\mu$ such that $\mu^\top
+P=\mu^\top$ and $\mu\geq 0$. Since $A=P^m$ is strictly positive,
+then $\mu^\top=\mu^\top A >0$.
+
+To show the uniqueness of $\mu$, assume we have $x$ and $y$ such
+that $x^\top P=x^\top$ and $y^\top P=y^\top$ and $x\neq y$. Recall
+that we showed that in such a case both $x>0$ and $y>0$. Then there
+is a linear combination $z=ax+by$ such that for some $i$ we have
+$z_i=0$. Since $z^\top P=z^\top$, we have showed that $z$ is
+strictly positive, i.e., $z>0$, which is a contradiction. Therefore,
+$x=y$, and hence $\mu$ is unique.
+\end{proof}
+
+We define the average fraction that a state $j\in X$ occurs, given
+that we start with an initial state distribution $x_0$,  as follows:
+\[
+\pi^{(m)}_j=\frac{1}{m}\sum_{t=1}^m \I (X_t=j)
+\]
+
+\begin{theorem}
+Let $({X_\ttime})$ be an irreducible and  a-periodic Markov chain
+over a finite state space $X$ with transition matrix $P$. Let $\mu$
+be the stationary distribution of $P$. Then, for any $j\in X$ we
+have
+\[
+\mu_j=\lim_{m\rightarrow\infty} \E[\pi^{(m)}_j] =\frac{1}{\E[T_j]}
+\]
+\end{theorem}
+
+\begin{proof}
+We have that
+\[
+\E[\pi^{(m)}_j]=\E[\frac{1}{m}\sum_{t=1}^m \I
+(X_t=j)]=\frac{1}{m}\sum_{t=1}^m \Pr
+[X_t=j|X_0=x_0]=\frac{1}{m}\sum_{t=1}^m x_0^\top P^t
+\]
+Let $v_1, \ldots , v_n$ be the eigenvectors of $P$ with eigenvalues
+$\lambda_1 \geq  \ldots \geq  \lambda_n$. By
+Theorem~\ref{Thm:MC-stationary} that $v_1=\mu$, the stationary
+distribution and $\lambda_1=1>\lambda_i$ for $i\geq 2$. Rewrite
+$x_0=\sum_i \alpha_i v_i$. Since $P^m$ is a stochastic matrix,
+$x_0^\top P^m$ is a distribution, and therefore $\lim_{m\rightarrow
+\infty} x_0^\top P^m=\mu$.
+%We claim that $\alpha_1=1$.
+%However, for any $v_i$ we have $v_i P^m \rightarrow 0$.
+
+We will be interested in the limit $\pi_j=\lim_{m\rightarrow \infty}
+\pi^{m}_j $, and mainly in the expected value $\E[\pi_j]$. From the
+above we have that $\E[\pi_j]=\mu_j$.
+
+A different way to express $\E[\pi_j]$ is using a variable time
+horizon, with a fixed number of occurrences of $j$. Let $T_{k,j}$ be
+the time between the $k$ and $k+1$ occurrence of state $j$. This
+implies that
+\[
+\lim_{m\rightarrow\infty}\frac{1}{m}\sum_{t=1}^m \I (X_t=j) =
+\lim_{n\rightarrow\infty} \frac{n}{\sum_{k=1}^n T_{k,j}}
+\]
+Note that the $T_{k,j}$ are i.i.d. and equivalent to $T_j$. By the
+law of large numbers we have that $\frac{1}{n}\sum_{k=1}^n T_{k,j}$
+converges to $\E[T_i]$. Therefore,
+\[
+\E[\pi_j]=\frac{1}{\E[T_j]}
+\]
+\end{proof}
+
+We have established the following general theorem.
+
+\begin{theorem}[\textbf{Recurrence of finite Markov chains}]
+Let $({X_\ttime})$ be an irreducible,  a-periodic Markov chain over
+a finite state space $X$.  Then the following properties hold:
+\begin{enumerate}
+\item All states are \textbf{positive recurrent}
+\item There exists a \textbf{unique stationary distribution}
+${\mu^*}$, where $\mu^*(i)=1/\E[T_i]$.
+\item \textbf{Convergence} to the stationary distribution: ${\lim _{t \to \infty }}p_{i,j}^{(t)} = {\mu_j}\quad (\forall j)$
+\item \textbf{Ergodicity}: For any finite $f$: ${\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} {f({X_s}) = \sum\nolimits_i {\mu_i f(i) \buildrel \Delta \over = } } \,\pi  \cdot f.$
+\end{enumerate}
+\end{theorem}
+
+%\begin{proof}
+%Item (1): It cannot be that all the states are transient, since then
+%all the states will appear only a finite number of times, while the
+%run is unbounded. This implies that all the states are recurrent.
+%[Need to show {\em positive recurrent}: $\E[T_i]<\infty$]
+%
+%%Since the Markov chain is irreducible and a-periodic,
+%
+%Item (2): We will show that for each state $i$ we have
+%$\mu^*(i)=1/\E[T_i]$. Let $Z_{i,k}$ be the time from the $k-1$ time
+%
+%Item (3):
+%
+%Item (4):
+%\end{proof}
+
+For countable Markov chains, there are other possibilities.
+
+\begin{theorem}[\textbf{Countable Markov chains}]
+Let $({X_\ttime})$ be an irreducible and a-periodic Markov chain
+over a countable state space $X$.  Then:
+%\begin{enumerate}
+%\item
+Either (i) all states are positive recurrent, or (ii) all states are null recurrent, or (iii) all states are transient.
+%\item If (i) holds, then properties (2)-(4) of the previous Theorem hold as well.
+%\item Conversely, if there exists a stationary distribution $\mu $ then properties (1)-(4) are satisfied.
+%\end{enumerate}
+\end{theorem}
+
+
+\begin{proof}
+%Item (1):
+Let $i$ is a positive recurrent state, then we will show that all
+states are positive recurrent. For any state $j$, since the Markov
+chain is irreducible, we have for some $m_1,m_2\geq 0$ that
+$p^{(m_1)}_{j,i},p^{(m_2)}_{i,j}>0$. This implies that the return
+time to state $j$ is at most $\E[T_j]\leq
+1/p^{(m_1)}_{j,i}+\E[T_i]+1/p^{(m_2)}_{i,j}$, and hence $j$ is
+positive recurrent.
+
+If there is no positive recurrent state, let $i$ be a null recurrent
+state, then we will show that all states are null recurrent. For any
+state $j$, since the Markov chain is irreducible, we have for some
+$m_1,m_2\geq 0$ that $p^{(m_1)}_{j,i},p^{(m_2)}_{i,j}>0$. This
+implies that the probability to return time to state $j$ is at least
+$\sum_{m=0}^\infty
+p^{(m_1)}_{j,i}\;p^{(m)}_{i,i}\;p^{(m_2)}_{i,j}=\infty$, since we
+have $\sum_{m=0}^\infty p^{(m)}_{i,i}=\infty$, since $i$ is a
+recurrent state. This implies that $j$ is a recurrent state. Since
+there are no positive recurrent states, it has to be that $j$ is a
+null recurrent state.
+
+If there are no positive or null recurrent states, then all states
+are transient.
+%
+%Item (2):
+%
+%Item (3):
+%
+\end{proof}
+
+%\begin{leftbar}
+\paragraph{Reversible Markov chains:} Suppose there exists a probability vector $\mu  = ({\mu_i})$ so that
+\begin{equation}\label{eq:DB}
+{\mu _i}{p_{i,j}} = {\mu _j}{p_{j,i}},\quad \quad i,j \in X.
+\end{equation}
+It is then easy to verify by direct summation that $\mu $ is an
+invariant distribution for the Markov chain defined by
+$({p_{i,j}})$. This follows since $\sum_i \mu_i p_{i,j}=\sum_i
+p_{i,j}\mu_j=\mu_j$. The equations \eqref{eq:DB} are called the
+\emph{detailed balance equations}. A Markov chain that satisfies
+these equations is called reversible.
+
+\begin{example}[\textbf{Discrete-time queue}] Consider a discrete-time queue, with queue length $X_\ttime\in \mathbb{N}_0=\{0,1,2,\dots\}$. At time instant $t$, ${A_\ttime}$ new jobs arrive, and then up to ${S_\ttime}$ jobs can be served, so that
+\[{X_{\ttime +1}} = {({X_\ttime} + {A_\ttime} - {S_\ttime})^ + }.\]
+Suppose that $({S_\ttime})$ is a sequence of i.i.d. RVs, and
+similarly $({A_\ttime})$ is a sequence of i.i.d. RVs, with
+$({S_\ttime})$, $({A_\ttime})$ and ${X_0}$ mutually independent. It
+may then be seen that $({X_\ttime},\;t \ge 0)$ is a Markov chain.
+Suppose further that each ${S_\ttime}$ is a Bernoulli RV with
+parameter $q$, namely $P({S_\ttime} = 1) = q$, $P({S_\ttime} = 0) =
+1 - q$. Similarly, let ${A_\ttime}$ be a Bernoulli RV with parameter
+$p$. Then
+\[{p_{i,j}} = \left\{ {\begin{array}{*{20}{l}}
+{p(1 - q)}&:&{j = i + 1}\\
+{(1 - p)(1 - q) + pq}&:&{j = i,\;\;i > 0}\\
+{(1 - p)q}&:&{j = i - 1,\;\;i > 0}\\
+{(1 - p) + pq}&:&{j = i = 0}\\
+0&:&{{\rm{otherwise}}}
+\end{array}} \right.\]
+%YM: Need to change mu to eta since mu is the steady state
+ Denote $\lambda  = p(1 - q)$, $\eta  = (1 - p)q$, and $\rho  = \lambda /\eta $.   The detailed balance equations for this case are:
+\[{\mu _i}\lambda  = {\mu _{i + 1}}\eta ,\quad \quad i \ge 0\]
+These equations have a solution with $\sum {_i{\mu _i} = 1}$ if and
+only if $\rho  < 1$. The solution is ${\mu _i} = {\mu _0}{\rho ^i}$,
+with ${\pi _0} = 1 - \rho $. This is therefore the stationary
+distribution of this queue.
+\end{example}
+%\end{leftbar}
+
+
+\paragraph{Mixing time:} Add definition and motivation

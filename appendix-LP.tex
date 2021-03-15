@@ -1,0 +1,157 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\ymignore{
+%\begin{leftbar}
+\chapter{Linear Programming Solutions: Background}
+\label{chapter-discount:section:LP}
+
+
+%An alternative approach to value and policy iteration is the linear
+%programming method. Here the optimal control problem is formulated
+%as a linear program (LP), which can be solved efficiently using
+%standard LP solvers. There are two formulations: primal and dual. As
+%this method is less related to learning we will only sketch it
+%briefly.
+%
+%\subsection{Some Background on Linear Programming}
+A Linear Program (LP) is an optimization problem that involves
+minimizing (or maximizing) a linear objective function subject to
+linear constraints. A standard form of a LP is
+\begin{equation}\label{eq:LP}
+ \textrm{minimize } {b^\top}x,   \quad \textrm{subject to } Ax \ge c,  x \ge 0.
+\end{equation}
+where $x = {({x_1},{x_2}, \ldots ,{x_n})^\top}$ is a vector of real
+variables arranged as a column vector. The set of constraints is
+linear and defines a \emph{convex polytope} in $\reals^n$, namely a
+closed and convex set $U$ that is the intersection of a finite
+number of half-spaces. $U$ has a finite number of vertices, which
+are points that cannot be generated as a convex combination of other
+points in  $U$. If  $U$ is bounded, it equals the convex combination
+of its vertices. It can be seen that an optimal solution (if finite)
+will be in one of these vertices.
+
+The LP problem has been extensively studied, and many efficient
+solvers exist. In 1947, Danzig introduced the Simplex algorithm,
+which essentially moves greedily along neighboring vertices.  In the
+1980's effective algorithms (interior point and others) were
+introduced which had polynomial time guarantees.
+
+\paragraph{Duality:} The \emph{dual} of the LP in \eqref{eq:LP} is defined as the following LP:
+\begin{equation}\label{eq:LP_dual}
+\textrm{maximize } {c^\top}y,   \quad \textrm{subject to } {A^\top}y
+\le b,  y \ge 0.
+\end{equation}
+The two dual LPs have the same optimal value, and (in many cases)
+the solution of one can be obtained from that of the other. The
+common optimal value can be understood by the following computation:
+
+\begin{align*}
+\mathop {\min }\limits_{x \ge 0,Ax \ge c} {b^\top}x &= \mathop {\min }\limits_{x \ge 0} \mathop {\max }\limits_{y \ge 0} \left\{ {{b^\top}x + {y^\top}(c - Ax)} \right\}\\
+ &= \mathop {\max }\limits_{y \ge 0} \mathop {\min }\limits_{x \ge 0} \left\{ {{c^\top}y + {x^\top}(b - Ay)} \right\} = \mathop {\max }\limits_{y \ge 0,Ay \le b} {c^\top}x.
+\end{align*}
+where the second equality follows by the min-max theorem.
+
+\paragraph{Note:} For an LP of the form:
+\begin{equation*}
+ \textrm{minimize } {b^\top}x,   \quad \textrm{subject to } Ax \ge c,
+\end{equation*}
+%minimize \[{b^\top}x\],   subject to \[Ax \ge c\],
+the dual is
+\begin{equation*}
+\textrm{maximize } {c^\top}y,   \quad \textrm{subject to } {A^\top}y
+= b,  y \ge 0.
+\end{equation*}
+%maximize \[{c^\top}y\],   subject to \[{A^\top}y = b\],  \[y \ge 0\]
+
+%{ [[Note that one has equality and one has inequality. The first is
+%the symmetric case with $x\geq 0$ and the second is the asymmetric
+%case without $x\geq0$. Seems too confusing even for me. ]]}
+%
+%
+%\subsection{The Primal LP}
+%
+%Recall that ${\Value^*}$satisfies the optimality equations:
+%\[\Value(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action)\Value(\state')} } \right\},     \quad \state \in \States.\]
+%\begin{proposition}\label{prop:LP_prop}
+%${\Value^*}$ is the smallest function (component-wise) that
+%satisfies the following set of inequalities:
+%\begin{equation}\label{eq:LP_prop}
+%v(\state) \ge \reward(\state,\action) + \discount
+%\sum\nolimits_{\state' \in \States}
+%{p(\state'|\state,\action)v(\state')} ,\quad \forall \state,\action.
+%\end{equation}
+%\end{proposition}
+%\begin{proof}
+%Suppose $v = (v(\state))$ satisfies \eqref{eq:LP_prop}. That is, $v
+%\ge T_{}^\policy v$ for every stationary policy. Then by the
+%monotonicity of $T_{}^\policy $,
+%\[v \ge T_{}^\policy (v)\;\; \Rightarrow \;\;T_{}^\policy (v)\; \ge {(T_{}^\policy )^2}(v)\;\; \Rightarrow \;\; \ldots \; \Rightarrow \;\;{(T_{}^\policy )^k}(v)\; \ge {(T_{}^\policy )^{k + 1}}v,\]
+%so that
+%\[v \ge T_{}^\policy (v) \ge {(T_{}^\policy )^2}(v) \ge  \ldots  \ge \mathop {\lim }\limits_{n \to \infty } {(T_{}^\policy )^n}(v) = {\Value^\policy }.\]
+%Now, if we take $\policy$  as the optimal policy we obtain $v \ge
+%{\Value^*}$ (component-wise).
+%\end{proof}
+%It follows from Proposition \ref{prop:LP_prop} that ${\Value^*}$ is
+%the solution of the following linear program:
+%\paragraph{Primal LP:   }
+%\begin{align*}
+%\mathop {\min }\limits_{(v(\state))}
+%\;\;\sum\limits_{\state\in\States} {v(\state)},
+%\quad \textrm{ subject to }\\
+%v(\state) \ge \reward(\state,\action) + \discount
+%\sum\nolimits_{\state' \in \States}
+%{p(\state'|\state,\action)v(\state')} ,\quad \forall \state,\action.
+%\end{align*}
+%Note that the number of inequality constraints is
+%${|\States|}\cdot{|\Actions|}$. Also, note that at the optimal
+%solution we will have
+%\begin{equation}
+%v(\state) =\max_\action \reward(\state,\action) + \discount
+%\sum\nolimits_{\state' \in \States}
+%{p(\state'|\state,\action)v(\state')} ,\quad \forall \state.
+%\end{equation}
+%{[[ Note that the primal LP does not depend on $p_0(\state)$. The
+%value of the Primal LP is rather meaning less, so we should be
+%careful what we say about the Dual ! ]]}
+%
+%\subsection{The Dual LP}
+%The dual of our Primal LP turns out to be:
+%
+%\paragraph{Dual LP:}
+%\[\mathop {\max }\limits_{({\mu_{\state,\action}})} \quad \;\sum\limits_{\state,\action} {{\mu_{\state,\action}}\reward(\state,\action)} \]
+%        subject to: \[{\mu_{\state,\action}} \ge 0\quad \forall \state,\action\]
+%                \[\sum\limits_{\state,\action} {{\mu_{\state,\action}}}  = {\textstyle{1 \over {1 - \discount }}}\]
+%                \[{p_0}(\state') + \discount \sum\limits_{\state,\action} {p(} \state'|\state,\action){\mu_{\state,\action}} = \sum\limits_{\action\in\Actions} {{\mu_{\state',\action}}\quad \forall \state'}  \in \States\]
+%where ${p_0} = ({p_0}(\state'))$ is any probability vector (usually
+%taken as a 0/1 vector).\footnote{I think $p_0$ should be the initial
+%distribution vector. In any case, $p_0$ does not appear in the
+%primal, so it should not appear in the dual. Similarly,
+%$1/(1-\discount)$. I think simply taking the dual will have
+%$p_(\state)=1$, and no constraint on the sum of
+%$\mu_{\state,\action}$. The dual as written, with $p_0$ the initial
+%distribution, has as value the expected reward of the optimal
+%policy.} The last equality can be viewed as a conservation of the
+%probabilities. The left hand side is the weight of probabilities
+%(with discounting) entering $\state'$, and the right hand side is
+%the probabilities (with discounting) exiting $\state'$. The equality
+%requires that the two be identical.
+%\paragraph{Interpretation:}
+%\begin{enumerate}
+%  \item The variables ${\mu_{\state,\action}}$ correspond to the ``state action frequencies" (for a given policy):
+%                            \[{\mu_{\state,\action}} \sim \E(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}{\I_{\{ {\state_\ttime} = \state,{\action_\ttime} = \action\} }})}  = \sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\Pr({\state_\ttime} = \state,{\action_\ttime} = \action)}, \]
+%and ${p_0}(\state') \sim p({\state_0} = \state')$ is the initial
+%state distribution.
+%  \item It is easy to see that the discounted return can be written in terms of ${\mu_{\state,\action}}$ as $\sum\limits_{s\in\States} {{\mu_{\state,\action}}\reward(\state,\action)} $, which is to be maximized.
+%  \item The above constraints easily follow from the definition of ${\mu_{\state,\action}}$.
+%\end{enumerate}
+%\paragraph{Further comments:}
+%\begin{itemize}
+%  \item The optimal policy can by obtained directly from the solution of the dual using:
+%                                           \[\policy (\action|\state) = \frac{{{\mu_{\state,\action}}}}{{{\mu_\state}}} \equiv \frac{{{\mu_{\state,\action}}}}{{\sum\nolimits_{\action\in\Actions} {{\mu_{\state,\action}}} }}\]
+%This policy can be stochastic if the solution to the LP is not
+%unique. However, it will be deterministic even in that case if we
+%choose $f$ as an \emph{extreme} solution of the LP.
+%  \item The number of constraints in the dual is ${|\States|}\cdot{|\Actions|} + ({|\States|} + 1)$. However, the inequality constraints are simpler than in the primal.
+%\end{itemize}
+%%\end{leftbar}
+%%}

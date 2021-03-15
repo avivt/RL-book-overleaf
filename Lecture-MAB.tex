@@ -1,0 +1,697 @@
+
+
+\section{Stochastic Bandits and Regret Minimization}
+
+We consider a simplified model of an MDP where there is only a
+single state and a fixed set $A$ of $k$ actions (a.k.a., arms). We
+consider a finite horizon problem, where the horizon is $T$.
+Clearly, the planning problem is trivial, simply select the action
+with the highest expected reward. We will concentrate on the
+learning perspective, where the expected reward of each action are
+unknown.
+
+At each round $1\leq t\leq T$ the player selects and executes an
+action. After executing the action, the player observes the reward
+of the action. However, the rewards of the other actions in $A$ are
+not revealed to the player.
+
+The reward for action $i$ at round $t$ is denoted by $r_{t}(i)\sim
+D_{i}$, where the support of the reward distribution $D_{i}$ is
+$[0,1]$. We assume that the rewards are i.i.d. (independent and
+identically distributed).
+
+\paragraph{Motivation}
+\begin{enumerate}
+\item \textbf{News}: a user visits a news site and is presented with a news
+header. The user either clicks on this header or not. The goal of
+the website is to maximize the number of clicks. So each possible
+header is an action in a bandit problem, and the clicks are the
+rewards
+\item \textbf{Medical Trials}: Each patient in the trial is prescribed one
+treatment out of several possible treatments. Each treatment is an
+action, and the reward for each patient is the effectiveness of the
+prescribed treatment.
+\item \textbf{Ad selection}: In website advertising, a user visits a webpage,
+and a learning algorithm selects one of many possible ads to
+display. If an advertisement is displayed, the website observes
+whether the user clicks on the ad, in which case the advertiser pays
+some amount $v_{a} \in[0, 1]$. So each advertisement is an action,
+and the paid amount is the reward.
+\end{enumerate}
+
+\paragraph{Model}
+\begin{itemize}
+\item A set of actions $A=\left\{ a_{1}\dots,a_{k}\right\} $
+\item Each action $a_{i}$ has a reward distribution $D_{i}$ over
+$[0,1]$.
+\item The expectation of distribution $D_{i}$ is:
+\[
+\mu_{i}=E_{X\sim D_{i}}\left[X\right]
+\]
+\item $\mu^{*}= \max_{i}\mu_{i}$ and $a^*=\arg\max_i\mu_i$.
+\item $a_{t}$ is the action the learner chose at round $t$
+\[
+Regret=\max_{i\in A}{\displaystyle
+\sum_{t=1}^{T}\underbrace{r_{t}(i)}_{\text{Random
+variable}}}-{\displaystyle
+\sum_{t=1}^{T}\underbrace{r_{t}(a_{t})}_{\text{Random variable}}}
+\]
+\[
+\begin{array}{ccc}
+\text{Pseudo Regret} & = & {\displaystyle \max_{i}}E\left[{\displaystyle \sum_{t=1}^{T}r_{t}(i)}\right]-E\left[{\displaystyle \sum_{t=1}^{T}r_{t}(a_{t})}\right]\\
+\\
+ & = & \mu^{*}\cdot T-{\displaystyle \sum_{t=1}^{T}\mu_{a_{t}}}
+\end{array}
+\]
+\end{itemize}
+
+\ymignore{
+\begin{leftbar}
+\section{Sub-Gaussian Random Variable}
+
+A random variable $X$ is called $\sigma^{2}-sub-gaussian$ if for any
+$\lambda\in\mathbb{R}$:
+
+\[
+E\left[e^{\lambda X}\right]\le e^{\sigma^{2}\lambda^{2}/2}
+\]
+
+\paragraph{Examples}
+\begin{enumerate}
+\item $X\sim N\left(0,\sigma^{2}\right)$, $E\left[e^{\lambda X}\right]=e^{\sigma^{2}\lambda^{2}/2}$
+$\Rightarrow$ X is $\sigma^{2}-sub-gaussian$
+\item X s.t $\begin{cases}
+E\left[X\right]=0\\
+\left|X\right|\le B
+\end{cases}$, then X is $B^{2}-sub-gaussian$
+\end{enumerate}
+
+\subsection{Properties of $\sigma^{2}-sub-gaussian$ random variable $X$}
+\begin{itemize}
+\item $E\left[X\right]=0$, $Var\left(X\right)\le\sigma^{2}$
+\item $c\cdot X$ is $c^{2}\sigma^{2}-sub-gaussian$
+\item If $X_{1}\dots,X_{m}$ are $\sigma^{2}-sub-gaussian$ then $S={\displaystyle \sum_{i=1}^{m}X_{i}}$
+is $m\sigma^{2}-sub-gaussian$\\
+ $\frac{1}{m}S=\frac{1}{m}{\displaystyle \sum_{i=1}^{m}X_{i}}$ is
+$\frac{\sigma^{2}}{m}-sub-gaussian$
+\end{itemize}
+
+\begin{theorem}
+\label{thm:sub-gaus}
+Let X be $\sigma^{2}-sub-gaussian$ random
+variable, then
+$Pr[X\geqslant\epsilon]\le\exp(-\frac{\epsilon^{2}}{2\sigma^{2}})$.
+\end{theorem}
+
+\begin{proof}
+\[
+\begin{array}{ccc}
+Pr[X\geqslant\epsilon] & = & Pr[e^{\lambda X}\geqslant e^{\lambda\epsilon}]\\
+\\
+ & \le & \frac{E[e^{\lambda X}]}{e^{\lambda\epsilon}}\\
+\\
+ & \le & \exp(\sigma^{2}\lambda^{2}/2-\lambda\epsilon)
+\end{array}
+\]
+where we used Markov's inequality for the first stage and the fact
+that the random variable is $\sigma^{2}-sub-gaussian$ for the
+second.
+
+If we choose $\lambda=\frac{\epsilon^{2}}{\lambda^{2}}$, then we
+get:
+\[
+\begin{array}{ccc}
+Pr[X\geqslant\epsilon] & \le & \exp(-\frac{\epsilon^{2}}{2\sigma^{2}})\end{array}
+\]
+\end{proof}
+\end{leftbar}
+
+\subsection{Hoeffding's inequality}
+}
+
+We will use extensively the following concentration bound.
+
+\begin{theorem}[Hoeffding's inequality]
+\label{thm:hoeffding}
+%
+Given $X_{1},\dots,X_{m}$ i.i.d random
+variables s.t $X_{i}\in[0,1]$ and $E[X_{i}]=\mu$.
+\[
+\begin{array}{ccc}
+Pr[\underbrace{\frac{1}{m}{\displaystyle \sum_{i=1}^{m}X_{i}-\mu}}_{\frac{1}{m}S}\ge\epsilon] & \le & \exp(-\frac{\epsilon^{2}m}{2})\end{array}
+\]
+\end{theorem}
+
+\ymignore{
+\begin{leftbar}
+This is a direct conclusion from Theorem~\ref{thm:sub-gaus}. Let
+$\bar{X_{i}}=X_{i}-\mu$. Using the facts that $E[\bar{X_{i}}]=0$
+and:
+\[
+\begin{array}{ccc}
+X_{i}\in[0,1] & \Rightarrow & |\bar{X_{i}|}\le1\\
+\\
+ & \Rightarrow & X_{i}\text{ is 1-sub-gaussian}
+\end{array}
+\]
+\end{leftbar}
+}
+
+\subsection{Warmup: Full information $k=2$ }
+
+We start with a simple case where there are two actions and we
+observe the reward of both actions at each time $t$. We will analyze
+the greedy policy, which selects the action with the higher average
+reward (so far).
+
+The greedy policy at time $t$ does the following:
+\begin{itemize}
+\item We observe $\big\langle r_{t}(1),r_{t}(2)\big\rangle$
+\item Define
+\[
+avg_{t}(i)=\frac{1}{t} \sum_{\tau=1}^{t}r_{\tau}(i)
+\]
+\item In time $t+1$ we choose:
+\[
+a_{t+1}=\arg\max_{i\in\{1,2\}}avg_{t}(i)
+\]
+\end{itemize}
+
+
+We now would like to compute the expected regret of the greedy
+policy. W.l.o.g., we assume that $\mu_{1}\ge\mu_{2}$, and define
+$\Delta=\mu_{1}-\mu_{2}\ge0$.
+\[
+\text{Pseudo Regret}= \sum_{t=1}^{\infty}(\mu_{1}-\mu_{2})
+\Pr\left[avg_{t}(2)\ge avg_{t}(1)\right]
+\]
+Clearly, at any time $t$,
+\[
+E[avg_{t}(2)-avg_{t}(1)]=\mu_{2}-\mu_{1}=-\Delta
+\]
+We can define a random variable $X_t=r_t(2)-r_t(1)+\Delta$ and
+$E[X_t]=0$. Since $(1/t)\sum_t X_t = avg_t(2)- avg_t(1)+\Delta$, by
+Theorem~\ref{thm:hoeffding}
+\[
+Pr[S_2(t)\geq S_1(t)]= Pr\left[avg_{t}(2)-avg_{t}(1)+\Delta
+\ge\Delta\right]\le e^{-\Delta^{2}\frac{t}{2}}
+\]
+We can now bound the regret as follows,
+
+\begin{align*}
+E\left[\text{Pseudo Regret}\right] & = &
+ \sum_{t=1}^{\infty}\Delta\Pr\left[S_{2}(t)\ge S_{1}(t)\right]\\
+ & \le &  \sum_{t=1}^{\infty}\Delta e^{-\Delta^{2}\frac{t}{2}}\\
+ & \le &  \int_{0}^{\infty}\Delta e^{-\Delta^{2}\frac{t}{2}}dt\\
+ & = & \left[\frac{2}{\Delta}e^{-\Delta^{2}\frac{t}{2}}\right]_{0}^{\infty}\\
+ & = & \frac{2}{\Delta}
+\end{align*}
+Notice that this bound does not depend on $T$!
+
+\subsection{Stochastic Multi-Arm Bandits}
+
+%\subsection{Bandits}
+
+We will now see that we cannot get a regret that does not depend on
+$T$ for the bandits case. Considering the following example:
+\[
+a_{1}\sim Br\left(\frac{1}{2}\right)\]
+
+For action $a_2$ there are two alternatives, each with probability
+$1/2$,
+\[
+a_{2}\sim Br\left(\frac{1}{4}\right) \left(w.p. \frac{1}{2}\right)
+\qquad or \qquad a_{2}\sim Br\left(\frac{3}{4}\right) \left(w.p.
+\frac{1}{2}\right)
+\]
+
+Assume by way of contradiction
+\[
+E\left[ \sum_{i \in \{1,2\}} \Delta_i |T_i|\right] = E\left[Pseudo
+Regret\right]=R
+\]
+
+where $R$ does not depend on $T$. \\ By Markov inequality:
+\[
+Pr\left[Pseudo Regret\ge2R\right]\le\frac{1}{2}
+\]
+
+Since $\mu_1$ is known, an optimal algorithm will first check $a_2$
+in order to decide which action is better and stick with it.
+
+Assuming $\mu_2 = \frac{1}{4}$, and the algorithm decided to stop
+playing $a_2$ after $M$ rounds, Then:
+\[
+Pseudo Regret = \frac{1}{4}M
+\]
+Thus,
+\[
+Pr\left[Pseudo Regret\ge 2R \right] = Pr\left[ M\ge 8R
+\right]\le\frac{1}{2}
+\]
+And,
+\[
+Pr\left[M < 8R \right]>\frac{1}{2}
+\]
+Hence, the probability that after $8R$ rounds, the algorithm will
+stop playing $a_2$ (if $\mu_2 = \frac{1}{4}$) is at least
+$\frac{1}{2}$. This implies that there is some sequence of $8R$
+outcomes which will result is stopping to try action $a_2$. For
+simplicity, assume that the sequence is the all zero sequence.
+
+Assume $\mu_2 = \frac{3}{4}$, but all $8R$ first rounds, playing
+$a_2$ yield the value zero (with probability
+$\left(\frac{1}{4}\right)^{8R}$). We assumed that after $8R$ zeros
+for action $a_2$ the algorithm will stop playing $a_2$, even though
+it is the preferred action. In this case, we will get:
+\[
+Pseudo Regret = \frac{1}{4} (T - M) \approx \frac{1}{4}T
+\]
+
+The expected Pseudo Regret is,
+\[
+E\left[Pseudo Regret\right] = R \geq
+\underbrace{\frac{1}{2}}_{a_{2}\sim Pr(Br\left(\frac{3}{4}\right))}
+\cdot \underbrace{\left(\frac{1}{4}\right)^{8R}}_{Pr(all \; 0 |
+a_{2}\sim Pr(Br\left(\frac{3}{4}\right))} \cdot (T - 8R) \approx
+e^{-O(R)}T
+\]
+
+Which implies that:
+\[
+R=O\left(\log T\right)
+\]
+Contrary to the assumption that $R$ does not depend on $T$.
+%\footnote{More formally, after $8R$ steps, there exists some
+%sequence of outcomes that cause the algorithm to switch to action
+%$a_2$. The probability of that sequence is at least
+%$\left(\frac{1}{4}\right)^{8R}$.}
+
+\topic{Explore-Then-Exploit}{random}
+
+\begin{enumerate}
+%
+\item We choose a parameter $M$.
+% time frame $kM$ to explore.
+%
+For $M$ phases we choose each action once (for a total of $kM$
+rounds of exploration).
+%
+\item After $kM$rounds we always choose the action that had highest
+average reward during the explore phase.
+\end{enumerate}
+
+Define:
+\begin{align*}
+T_{j}&= \left\{ t:a_t=j,t\le k\cdot M\right\}\\
+\hat{\mu}_{j}&=\frac{1}{M} \sum_{t\in T_{j}}r_{j}(t)\\
+\mu_{j}&=E[r_{j}(t)]\\
+\Delta_{j}&=\mu^{*}-\mu_{j}
+\end{align*}
+where $\Delta_j$ is the difference in expected reward of action $j$
+and the optimal action.
+
+We can now write the regret as a function of those parameters:
+\[
+E\left[\text{Pseudo regret}\right]=\underbrace{{\displaystyle
+\sum_{j=1}^{k}\Delta_{j}\cdot
+M}}_{Explore}+\underbrace{\left(T-k\cdot M\right){\displaystyle
+\sum_{j=1}^{k}\Delta_{j}Pr\left[j=\arg\max_{i}\hat{\mu}_{i}\right]}}_{Exploit}
+\]
+
+For the analysis define:
+\[
+\lambda=\sqrt{\frac{8\log T}{M}}
+\]
+
+By Theorem~\ref{thm:hoeffding} we have
+\[
+\Pr\left[\left|\hat{\mu}_{j}-\mu_{j}\right|\ge\lambda\right]  \le
+2e^{-\frac{\lambda M}{2}}=\frac{2}{T^{4}}
+\]
+which implies (using the union bound) that
+\[
+\Pr\underbrace{\left[\exists_{j}:\left|\hat{\mu}_{j}-\mu_{j}\right|\ge\lambda\right]}_{B}
+ \le  \frac{2k}{T^{4}}\underset{for\,k\leq T}{\leq}\frac{2}{T^{3}}
+\]
+
+Define the ``bad event''
+$B=\{\exists_{j}:\left|\hat{\mu}_{j}-\mu_{j}\right|\ge\lambda\}$. If
+$B$ did not happen then for each action $j$, such that
+$\hat{\mu}_{j}\ge\hat{\mu}^{*}$, we have
+\[
+\mu_{j}+\lambda\ge\hat{\mu}_{j}\ge\hat{\mu}^{*}\ge\mu^{*}-\lambda
+\]
+therefore:
+\[
+2\lambda\ge\mu^{*}-\mu_{j}=\Delta_{j}
+\]
+and therefore:
+\[
+\Delta_{j}\le2\lambda
+\]
+
+Then, we can bound the expected regret as follows:
+\begin{align*}
+E[Regret] & \leq  \underbrace{\left({\displaystyle
+\sum_{j=1}^{k}\Delta_{j}}\right)M}_{Explore}+\underbrace{\left(T-k\cdot
+M\right)\cdot2\lambda}_{\text{B didn't
+happen}}+\underbrace{\frac{2}{T^{3}}\cdot T}_{\text{B happened}}\\
+ & \leq  k\cdot M+2\cdot\sqrt{\frac{8\log T}{M}}\cdot T+\frac{2}{T^{2}}
+\end{align*}
+
+If we optimize the number of exploration phases $M$ and choose $M=T^{\frac{2}{3}}$,
+we get:
+\[
+k\cdot T^{\frac{2}{3}}+2\cdot\sqrt{8\log T}\cdot
+T^{\frac{2}{3}}+\frac{2}{T^{2}}
+\]
+which is sub-linear but more than the $O(\sqrt{T})$ rate we would
+expect.
+
+\section{Improved Regret Minimization Algorithms}
+
+We will look at some more advanced algorithms that mix the
+exploration and exploitation.
+
+Define:
+
+$n_{t}(i)$ - the number of times we chose action $i$ by round $t$
+
+$\hat{\mu}_{t}(i)$ - the average reward of action $i$ so far, that
+is:
+\[
+\hat{\mu}_{t}(i)={\displaystyle
+\sum_{t=1}^{T}r_{i}(t)}\mathbb{I}\left(a_{t}=i\right)\frac{1}{n_{i}(t)}
+\]
+Notice that $n_{i}(t)$ is a random variable and not a number!
+
+We would like to get the following result:
+\[
+\Pr\left[\left|\hat{\mu}_{t}(i)-\mu_{i}\right|\le\underbrace{\sqrt{\frac{8\log
+T}{n_{i}(t)}}}_{\lambda_{t}(i)}\right]\ge1-\frac{2}{T^{4}}
+\]
+
+We would like to look at the $m^{th}$ time we sampled action $i$:
+\[
+\hat{\mathbb{V}}_{m}(i)=\frac{1}{m} \sum_{\tau=1}^{m}r_{i}(t_{\tau})
+\]
+Where the $t_{\tau}$'s are the rounds when we chose action $i$
+
+Now we fix $m$ and get:
+\[
+\forall{i}\forall{m}\;\;\;
+\Pr\left[\left|\hat{\mathbb{V}}_{m}(i)-\mu_{i}\right|\le\sqrt{\frac{8\log
+T}{m}}\right]\ge1-\frac{2}{T^{4}}
+\]
+and notice that $\hat{\mu}_{t}(i)\equiv\hat{\mathbb{V}}_{i}(m)$ when
+$m=n_{i}(t)$.
+
+Define the ``good event'' $G$:
+\[
+G=\left\{ \forall_{i}\forall_{t}\left|\hat{\mu}_{i}(t)-\mu_{i}\right|\le\lambda_{i}(t)\right\}
+\]
+The probability of $G$ is,
+\[
+Pr\left(G\right)\ge1-\frac{2}{T^{2}}
+\]
+
+\section{Refine Confidence Bound}
+
+Define the upper confidence bound:
+\[
+UCB_{t}(i)=\hat{\mu}_{t}(i)+\lambda_{t}(i)
+\]
+and similarly, the lower confidence bound:
+\[
+LCB_{t}(i)=\hat{\mu}_{t}(i)-\lambda_{t}(i)
+\]
+if $G$ happened then:
+\[
+\forall{i}\forall{t}\;\;\;\mu_{i}\in\left[LCB_{t}(i),UCB_{t}(i)\right]
+\]
+Therefore:
+\[
+Pr\biggl[\forall{i}\forall{t}\;\;\;
+\mu_{i}\in\left[LCB_{t}(i),UCB_{t}(i)\right]\biggr]\ge1-\frac{2}{T^{2}}
+\]
+
+\subsection{Successive Elimination}
+
+We maintain a set of actions S.
+
+Initially $S=A$
+
+In each phase:
+\begin{itemize}
+\item We try every $i\in S$ once
+\item For each $j\in S$ if there exists $i\in S$ such that:
+\[
+UCB_{t}(j)<LCB_{t}(i)
+\]
+ We remove $j$ from $S,$ that is we update:
+\[
+S\leftarrow S-\left\{ j\right\}
+\]
+\end{itemize}
+We will get the following results:
+\begin{itemize}
+\item As long as action $i$ is still in $S$, we have tried action $i$ exactly the
+same number of times as all of any other action $j\in S$.
+\item The best action, under the assumption that the event $G$ holds, is never eliminated
+from $S$.
+\end{itemize}
+Under the assumption of $G$ we get:
+
+\[
+\mu^{*}-2\lambda\le\hat{\mu}^{*}-\lambda=LCB_{*}<UCB_{i}=\hat{\mu_{i}}+\lambda\leq\mu_{i}+2\lambda
+\]
+
+Where $\lambda=\lambda_{i}=\lambda^{*}$ because we have chosen
+action $i$ and the best action the same number of times so far.
+
+Therefore, assuming event $G$ holds,
+\[
+\Delta_{i}=\mu^{*}-\mu_{i}\le4\lambda=4\sqrt{\frac{8\log
+T}{n_{t}(i)}}
+\]
+\[
+\Rightarrow\;\;\; n_{T}(i)\le\frac{c}{\Delta_{i}^{2}}\log T
+\]
+
+This implies that
+\begin{align*}
+E\left[\text{Pseudo Regret}\right]  = &  \sum_{i=1}^{k}\Delta_{i}n_{i}(t)\\
+  \le &  \sum_{i=1}^{k}\frac{c}{\Delta_{i}}\log T
+  +\underbrace{\frac{2}{T^{2}}\cdot T}_{\text{The bad event}}
+\end{align*}
+
+meaning that the expected pseudo regret is bounded by $O\left(\frac{1}{T}\right)$.
+
+\subsection{Upper confidence bound (UCB)}
+
+The UCB algorithm simply uses the UCB bound. The algorithm works as
+follows:
+\begin{itemize}
+\item We try each action once (for a total of $k$ rounds)
+\item Afterwards we choose:
+\end{itemize}
+\[
+a_{t}=\arg\max_{i}UCB_t(i)
+\]
+
+If we chose action $i$ then, assuming $G$ holds, we have
+\[
+UCB_{t}(i)  \ge  UCB_t(a^*)\geq\mu^{*}
+\]
+where $a^*$ is the optimal action.
+
+Using the definition of UCB and the assumption that $G$ holds, we
+have
+\[
+UCB_t(i)=\hat{\mu}_{t}(i)+\lambda_{t}(i)\le\mu_{i}+2\lambda_{t}(i)
+\]
+Since we selected action $i$ at time $t$ we have
+\[
+\mu_{i}+2\lambda_{t}(i)\ge\mu^{*}
+\]
+Rearranging, we have,
+\[
+2\lambda_t(i)\ge\mu^{*}-\mu_{i}=\Delta_{i}
+\]
+Each time we chosen action $i$, we could not have made a very big
+mistake because:
+\[
+\Delta_{i}\leq\text{ }2\cdot\sqrt{\frac{8\log T}{n_{t}(i)}}
+\]
+
+And therefore if $i$ is very far off from the optimal action we
+would not choose it too many times. We can bound the number of time
+action $i$ is used by,
+\[
+n_{t}(i)\leq\frac{c}{\Delta_{i}^{2}}\log T
+\]
+
+And over all we get:
+\begin{align*}
+E\left[\text{Pseudo Regret}\right] & =
+\sum_{i=1}^{k}\Delta_{i}E\left[n_{t}(i)\right]+\underbrace{\frac{2}{T^{2}}\cdot
+T}_{\text{The bad event}}
+\\
+ & \le  \sum_{i=1}^{k}\frac{c}{\Delta_{i}}\cdot\log T+\frac{2}{T}
+\end{align*}
+
+\section{Best Arm Identification}
+
+We would like to identify the best action, or an almost best action.
+We can define the goal in one of two ways.
+
+\paragraph{PAC criteria }
+An action $i$ is $\epsilon$-optimal if  $V$. The PAC ctriteria is
+that, given $\epsilon,\delta>0,$, with probability at least
+$1-\delta$, find an $\epsilon$ optimal action.
+
+\paragraph{Exact identification}
+Given $\Delta\le\mu^{*}-\mu_{i}$ (for every suboptimal action $i$),
+find the optimal action $a_{*}$, with probability at least
+$1-\delta$.
+
+\subsection{Naive Algorithm (PAC criteria):}
+
+We sample each action $i$ for
+$m=\frac{8}{\epsilon^{2}}\log\frac{2k}{\delta}$ times, and return
+$a= \arg\max_{i}\hat{\mu}_{i}$ .
+
+For rewards in $[ 0 ,1]$, then, by Theorem \ref{thm:hoeffding}, for
+every action $i$ we have
+\[
+Pr\left[\underbrace{\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}}_{\text{bad
+event}}\right]\le 2
+e^{-\left(\frac{\epsilon}{2}\right)^{2}m/2}=\frac{\delta}{k}
+\]
+By union bound we get:
+\[
+Pr\left[\exists_{i}\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}\right]\le\delta
+\]
+
+If the bad event
+$B=\{\exists_{i}\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}\}$
+did not happen, then both: (1)
+$\mu^{*}-\frac{\epsilon}{2}\le\hat{\mu}^{*}$ and (2)
+$\mu_{i}+\frac{\epsilon}{2}\le\hat{\mu}_{i}$.
+
+This implies,
+\[
+\Rightarrow\text{ }\mu_{i}+\frac{\epsilon}{2}\ge\hat{\mu}_{i}\ge\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon}{2}
+\]
+\[
+\Rightarrow\text{ }\epsilon\ge\mu^{*}-\mu_{i}
+\]
+
+And therefore $a={\displaystyle \arg\max_{i}\hat{\mu}_{i}}$ is the
+optimal action in probability $1-\delta$
+
+We would like to slightly improve the sample size of this algorithm
+
+\subsection{Median Algorithm}
+
+The idea: the algorithm runs for $l$ phases, after each phase we
+eliminate half of the actions. This elimination allows us to sample
+each action more times in the next phase which makes eliminating the
+optimal action less likely.
+
+\begin{algorithm}
+\textbf{Input}: $\epsilon,\delta>0$
+
+\textbf{Output}: $\bar{a}\in A$
+
+\textbf{Init}: $S_{1}=A$, $\epsilon_{1}=\frac{\epsilon}{4}$,
+$\delta_{1}=\frac{\delta}{2}$, $l=1$
+
+\textbf{Repeat}:
+
+~~~~~~$\forall_{i}\in S_{l}$, sample action i, $\frac{1}{\left(\frac{\epsilon_{l}}{2}\right)^{2}}\log\left(\frac{3}{\delta_{l}}\right)$
+times
+
+~~~~~~$\hat{\mu}_{i}\leftarrow\text{mean (only of samples during the \ensuremath{l^{th}}phase)}$
+
+~~~~~~$\text{median}_{l}\leftarrow median\left\{ \hat{\mu}_{i}:i\in S_{l}\right\} $
+
+~~~~~~$S_{l+1}\leftarrow\left\{ i\in S_{l}:\hat{\mu}_{i}\ge\text{median}_{l}\right\} $
+
+~~~~~~$\epsilon_{l+1}\leftarrow\frac{3}{4}\epsilon_{l}$
+
+~~~~~~$\delta_{l+1}\leftarrow\frac{\delta_{l}}{2}$
+
+~~~~~~$l\leftarrow l+1$
+
+\textbf{Until} $\left|S_{l}\right|=1$
+
+\caption{Best Arm Identification}
+\end{algorithm}
+
+\paragraph{Complexity:}
+
+During phase $l$ we have $\left|S_{l}\right|=\frac{k}{2^{l-1}}$
+actions.
+\[
+\epsilon_{l}=\frac{3}{4}\epsilon_{l-1}=\frac{\epsilon}{4}\left(\frac{3}{4}\right)^{l-1},\text{
+}\delta_{l}=\frac{\delta}{2^{l}}
+\]
+\[
+\Rightarrow\text{ }{\displaystyle \sum\epsilon_{l}\le\epsilon},\text{ }{\displaystyle \sum\delta_{l}\le\delta}
+\]
+
+The total number of samples is therefore:
+
+\begin{align*}{ccc}
+ \sum_l |S_l| \cdot \frac{4}{\epsilon_l^2}\log \frac{3}{\delta_l} &=
+\sum_{l}\frac{k}{2^{l-1}}\frac{64}{\epsilon^{2}}\left(\frac{16}{9}\right)^{l-1}\log\frac{3\cdot2^{l}}{\delta}\\
+& =  {\displaystyle \sum_{l}k\left(\frac{8}{9}\right)^{l-1}\left[c\cdot\frac{\log\frac{1}{\delta}}{\epsilon^{2}}+\frac{\log3}{\epsilon^{2}}+\frac{l}{\epsilon^{2}}\right]}\\
+\\
+ & =  O\left(\frac{k}{\epsilon^{2}}\log\frac{1}{\delta}\right)
+\end{align*}
+
+
+\paragraph{Correctness:}
+
+\begin{theorem}
+$Pr\left[\underbrace{{\displaystyle \max_{j\in
+S_{l}}\mu_{j}}}_{\text{action
+\ensuremath{l}}}\le\underbrace{{\displaystyle \max_{j\in
+S_{l+2}}\mu_{j}}}_{\text{action
+\ensuremath{l+1}}}+\epsilon_{l}\right]\ge1-\delta_{l}$
+\end{theorem}
+
+\begin{proof}
+We do the proof for $l=1$, general $l$ is similar. Define
+$E_{1}=\left\{\hat{\mu}^{*}<\mu^{*}-\frac{\epsilon_{1}}{2}\right\}$.
+We have  $Pr\left[E_{1}\right]\le\frac{\delta_{1}}{3}$. If $E_{1}$
+did not happen, we define a bad set:
+\[
+\text{Bad}=\left\{ j\text{ }:\text{ }\mu^{*}-\mu_{j}\ge\epsilon_{1},\text{ }\hat{\mu}_{j}\ge\hat{\mu}^{*}\right\}
+\]
+Consider an action $j$ such that $\mu^*-\mu_j\geq \epsilon_1$, then:
+\[
+Pr[\hat{\mu}_{j}\geq
+\hat{\mu}^{*}|\underbrace{\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon_{1}}{2}}_{\urcorner
+E_{1}}\big] \le
+Pr[\hat{\mu}_{j}\ge\mu_{j}+\frac{\epsilon_{1}}{2}|\urcorner E_{1}]
+\le  \frac{\delta_{1}}{3}
+\]
+Note that the probability is not negligible. We will show that it
+cannot happen to too many such actions. We will bound the
+expectation of the size of $Bad$,
+\[
+E[|\text{Bad}||\urcorner E_{1}]\le k\frac{\delta_{1}}{3}
+\]
+ with Markov's inequality we get:
+\[
+Pr\left[\left|\text{Bad}\right|\ge\frac{k}{2}\right|\urcorner E_{1}]
+ \le  \frac{E\left|\text{Bad}\right|}{k/2}
+  =  \frac{2}{3}\delta_{1}
+\]
+ with probability $1-\delta_{1}$: $\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon_{1}}{2}$
+and $\left|\text{Bad}\right|\le\frac{k}{2}$.
+ Therefore: $\exists_{j}\notin\text{Bad}$ and $j\in S_{l+1}$.
+\end{proof}

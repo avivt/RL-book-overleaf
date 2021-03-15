@@ -1,0 +1,34 @@
+Lecture 5: model based
+Add E^3 and maybe reward-free learning
+
+Lecture 6: need to add proofs from [2]
+SARSA: complete proof of quality?
+First visit empirical model proof.
+
+Lecture 7: extend actor-critic, 
+say more on importance sampling.
+The empirical MDP estimate for TD, maybe combine with Monte-carlo in Lecture 6?
+
+Learning (chapter) topics:
+PAC-MDP
+UCRL
+
+Lecture 8:
+Add and complete the Linear case (LSTM, and gap w_min w_TD, do convergence?)
+Add non-linear on-policy bad example. (The goal is that the table at the end of
+the lecture is completely covered)
+
+Lecture 9:
+Add policy gradient in the tabular case (?!)
+
+Lecture 10: MAB
+
+Lecture 11: POMDP
+Predictive-state-representation
+Multiplicity automata?
+Sample complexity (key-search exponential in states)
+
+Lecture 12: LQR
+
+Lecture 13:
+Apprenterncip learning: add Rob's paper and more

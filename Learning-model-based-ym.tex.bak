@@ -1,0 +1,1031 @@
+Until now we looked at planning problems, where we are given a
+complete model of the MDP, and the goal is to either evaluate a
+given policy or compute the optimal policy. In this chapter we will
+start looking at learning problems, where we need to learn from
+interaction. This chapter will concentrate on {\em model based}
+learning, where the main goal is to learn an accurate model and use
+it. In the following chapters we will look at {\em model free}
+learning, where we learn a policy without recovering the actual
+underlying model.
+
+\section{Effective horizon of discounted return}
+
+Before we start looking at the learning setting, we will show an
+``reduction'' from discounted return to finite horizon return. The
+main issue will be to show that the discounted return has an {\em
+effective horizon} such that rewards beyond it have a negligible
+effect on the discounted return.
+
+\begin{theorem}
+Given a discount factor $\discount$, the discounted return in the
+first $\tHorizon=\frac{1}{1-\discount}\log
+\frac{\Rmax}{\varepsilon(1-\discount)}$ time steps, is within
+$\varepsilon$ of the total discounted return.
+\end{theorem}
+
+\begin{proof}
+Recall that the rewards are $\reward_\ttime \in [0,\Rmax]$. Fix an
+infinite sequence of rewards $(\reward_0, \ldots , \reward_\ttime,
+\ldots)$. We would like to consider the following difference
+\begin{align*}
+\Delta=\sum_{\ttime=1}^\infty \reward_\ttime \discount^\ttime -
+\sum_{\ttime=0}^{\tHorizon-1} \reward_\ttime \discount^\ttime =
+\sum_{\ttime=\tHorizon}^\infty \reward_\ttime \discount^\ttime \leq
+\frac{\discount^\tHorizon}{1-\discount}\Rmax
+\end{align*}
+We want this difference $\Delta$ to be bounded by $\varepsilon$,
+hence
+\[
+\frac{\discount^\tHorizon}{1-\discount}\Rmax\leq \varepsilon\;.
+\]
+This implies that
+\[
+\tHorizon\log (1/\discount) \geq \log
+\frac{\Rmax}{\varepsilon(1-\discount)}\;.
+\]
+We can bound $\log (1/\discount)= \log (
+1+\frac{1-\discount}{\discount} )\leq
+\frac{1-\discount}{\discount}$. Since $\discount< 1$, and the
+theorem follows.
+\end{proof}
+
+\section{Off-Policy Model-Based Learning}
+
+In the off-policy setting we would have access to previous executed
+trajectories, and we would like to use them to learn. Naturally, we
+will have to make some assumption about the trajectories.
+Intuitively, we will need to assume that they are sufficiently
+exploratory.
+
+We will decompose the trajectories to quadruples, which are
+composed:
+%We consider the case that we are given as input a sequence of trajectories.
+%Essentially, our input will be composed from quadruples:
+\[
+(\state,\action,\reward,\state')
+\]
+where $\reward$ is sampled from $\Rewards(\state,\action)$ and
+$\state'$ is sampled from $p(\cdot|\state,\action)$.
+
+Our goal is to output an MDP
+$(\States,\Actions,\widehat{\reward},\widehat{p})$, where $\States$
+is the set of states, $\Actions$ is the set of actions,
+$\widehat{\reward}(\state,\action)$ is the approximate expected
+reward of $\Rewards(\state,\action)\in[0,\Rmax]$, and
+$\widehat{p}(\state'|\state,\action)$ is the approximate probability
+of reaching state $\state'$ when we are in state $\state$ and doing
+action $\action$.
+
+\subsection{Mean estimation}
+
+We start with a basic mean estimation problem, which appeared in
+many settings including supervised learning.
+% (as you have seen in the Introduction to Machine Learning course).
+Suppose we are given access to a random variable $\Rewards\in[0,1]$
+and would like to approximate its mean $\mu=\E[\Rewards]$. We
+observe $m$ samples of $\Rewards$, which are $\reward_1, \ldots,
+\reward_m$, and compute their observed mean
+$\widehat{\mu}=\frac{1}{m}\sum_{i=1}^m \reward_i$.
+
+By the law of large numbers we know that when $m$ goes to infinity
+we have that $\widehat{\mu}$ converges to $\mu$. We would like to
+have concrete finite convergence bounds, mainly to derive the value
+of $m$ as a function of the desired accuracy $\varepsilon$.
+%
+For this we use concentration bounds (known as Chernoff-Hoffding
+bounds). The bounds have both an additive form and a multiplicative
+form, given as follows:
+\begin{lemma}[Chernoff-Hoffding]
+\label{lemma:chernoff}
+%
+Let $\reward_1, \ldots, \reward_m$ be $m$
+i..i.d. samples of a random variable $\Rewards\in[0,1]$. Let
+$\mu=\E[\Rewards]$ and $\widehat{\mu}=\frac{1}{m}\sum_{i=1}^m
+\reward_i$. For any $\varepsilon\in(0,1)$ we have,
+\[
+\Pr[|\mu-\widehat{\mu}|\geq \varepsilon]\leq 2e^{-2\varepsilon^2 m}
+\]
+In addition, %for $\varepsilon\in(0,1)$,
+\[
+\Pr[\widehat{\mu}\leq (1-\varepsilon)\mu]\leq e^{-\varepsilon^2 m
+/2}\qquad \mbox{and}\qquad
+ \Pr[\widehat{\mu}\geq
+(1+\varepsilon)\mu]\leq e^{-\varepsilon^2 m /3}
+\]
+\end{lemma}
+We will refer to the first bound as {\em additive} and the second
+set of bound as {\em multiplicative}.
+
+Using the additive bound of Lemma~\ref{lemma:chernoff}, we have
+\begin{corollary}
+\label{cor:chernoff}
+ Let $\reward_1, \ldots, \reward_m$ be $m$
+i..i.d. samples of a random variable $\Rewards\in[0,1]$. Let
+$\mu=\E[\Rewards]$ and $\widehat{\mu}=\frac{1}{m}\sum_{i=1}^m
+\reward_i$. Fix $\varepsilon,\delta>0$. Then, for $m\geq
+\frac{1}{2\varepsilon^2}\log (2/\delta)$, with probability
+$1-\delta$, we have that $|\mu-\widehat{\mu}|\leq \varepsilon$.
+\end{corollary}
+
+
+We can now use the above concentration bound in order to estimate
+the expected rewards. For each state-action $(\state,\action)$ let
+$\widehat{\reward}(\state,\action)=\frac{1}{m}\sum_{i=1}^m
+\Rewards_i(\state,\action)$ be the average of $m$ samples. We can
+show the following:
+
+\begin{claim}
+\label{claim:sample}
+%
+If we have $m\geq \frac{\Rmax}{2\varepsilon^2}\log \frac{2|\States|
+\;|\Actions|}{\delta}$ samples for each state action
+$(\state,\action)$, then with probability $1-\delta$ we have for
+every $(\state,\action)$ that
+$|\reward(\state,\action)-\widehat{\reward}(\state,\action)|\leq
+\varepsilon$.
+\end{claim}
+
+\begin{proof}
+First, we will need to scale the random variables to $[0,1]$, which
+will be achieved by dividing by $\Rmax$. Then, by the
+Chernoff-Hoffding bound (Corollary~\ref{cor:chernoff}), using
+$\varepsilon= \frac{\varepsilon}{\Rmax}$ and $\delta'=
+\frac{\delta}{|\States|\;|\Actions|}$, we have that for each
+$(\state,\action)$ we have that with probability
+$1-\frac{\delta}{|\States|\;|\Actions|}$ that
+$|\frac{\reward(\state,\action)}{\Rmax}-\frac{\widehat{\reward}(\state,\action)}{\Rmax}|\leq
+\frac{\varepsilon}{\Rmax}$.
+
+We bound the probability over all state-action pairs using a union
+bound,
+% over all state action pairs.
+\begin{align*}
+\Pr\left[\exists (\state,\action):
+|\frac{\reward(\state,\action)}{\Rmax}-\frac{\widehat{\reward}(\state,\action)}{\Rmax}||
+> \frac{\varepsilon}{\Rmax}\right] \leq &
+\sum_{(\state,\action)} \Pr\left[
+|\frac{\reward(\state,\action)}{\Rmax}-\frac{\widehat{\reward}(\state,\action)}{\Rmax}||
+> \frac{\varepsilon}{\Rmax}\right] \\
+\leq & \sum_{(\state,\action)}
+\frac{\delta}{|\States|\;|\Actions|}=\delta
+\end{align*}
+ Therefore,
+we have that with probability $1-\delta$ for every
+$(\state,\action)$ simultaneously we have
+$|\reward(\state,\action)-\widehat{\reward}(\state,\action)|\leq
+\varepsilon$.
+\end{proof}
+
+\subsection{Influence of reward estimation errors}
+
+We would like to quantify the influence of having inaccurate
+estimates of the rewards. We will look both at the finite horizon
+return and the discounted return. We start with the case of finite
+horizon.
+
+\subsubsection{Influence of reward estimation errors: Finite horizon}
+
+Fix a policy $\policy\in MD$. We want to compare the return using
+$\reward_\ttime(\state,\action)$ versus
+$\widehat{\reward}(\state,\action)$ and $\reward_\tHorizon(\state)$
+versus $\widehat{\reward}_\tHorizon(\state)$. We will assume that
+for every $(\state,\action)$ and $\ttime$ we have
+$|\reward_\ttime(\state,\action)-\widehat{\reward}_\ttime(\state,\action)|\leq
+\varepsilon$ and
+$|\reward_\tHorizon(\state)-\widehat{\reward}_\tHorizon(\state)|\leq
+\varepsilon$. We will show that the difference in return is bounded
+by $\varepsilon(\tHorizon+1)$, where $\tHorizon$ is the finite
+horizon.
+
+Define the expected return of $\policy$ with the true expectations
+\[
+J^\policy_\tHorizon(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\tHorizon
+\reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)].
+\]
+and with the estimated expectations
+\[
+\widehat{J}^\policy_\tHorizon(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\tHorizon
+\widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)].
+\]
+We are interested in bounding the difference between the two
+\[
+error(\policy)=|J^\policy_\tHorizon(\state_0)-\widehat{J}^\policy_\tHorizon(\state_0)|.
+\]
+Note that in both cases we use the true transition probability. For
+a given trajectory $\sigma=(\state_0,\action_0,\ldots,
+\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ we
+define
+\[
+error(\policy,\sigma)= \left(\sum_{\ttime=0}^\tHorizon
+\reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)\right)-
+\left(\sum_{\ttime=0}^\tHorizon
+\widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)\right)
+\]
+taking the expectation over trajectories we have
+\[
+error(\policy)=|\E^{\policy,\state_0} [error(\policy,\sigma)]|
+\]
+
+\begin{lemma}
+\label{lemma:approx-FH-error}
+%
+Assume that for every $(\state,\action)$ and $\ttime$ we have
+$|\reward_\ttime(\state,\action)-\widehat{\reward}_\ttime(\state,\action)|\leq
+\varepsilon$ and for every $\state$ we have
+$|\reward_\tHorizon(\state)-\widehat{\reward}_\tHorizon(\state)|\leq
+\varepsilon$. Then, for any policy $\policy\in MD$ we have
+$error(\policy)\leq \varepsilon(\tHorizon+1)$.
+\end{lemma}
+
+\begin{proof}
+The probability of each trajectory
+$\sigma=(\state_0,\action_0,\ldots,
+\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ is the
+same under $\reward_\ttime(\state,\action)$ and
+$\widehat{\reward}_\ttime(\state,\action)$, since $\policy\in MD$
+implies that $\policy$ depends only on the time $\ttime$ and state
+$\state_\ttime$. For each trajectory
+$\sigma=(\state_0,\action_0,\ldots,
+\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$, we
+have,
+\begin{align*}
+error(\policy,\sigma) &= \left|\sum_{\ttime=0}^\tHorizon
+\left(\reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)\right)
+-\sum_{\ttime=0}^\tHorizon
+\left(\widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)\right)\right| \\
+&= \left|\sum_{\ttime=0}^\tHorizon
+(\reward_\ttime(\state_\ttime,\action_\ttime)-\widehat{\reward}_\ttime(\state_\ttime,\action_\ttime))
++
+(\reward_\tHorizon(\state_\tHorizon)-\widehat{\reward}_\tHorizon(\state_\tHorizon))\right|\\
+&\leq \sum_{\ttime=0}^\tHorizon
+|\reward_\ttime(\state_\ttime,\action_\ttime)-\widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)|
++
+|\reward_\tHorizon(\state_\tHorizon)-\widehat{\reward}_\tHorizon(\state_\tHorizon)|\\
+&\leq \varepsilon \tHorizon +\varepsilon
+\end{align*}
+The theorem follows since
+$error(\policy)=|E^{\policy,\state_0}[error(\policy,\sigma)]|\leq
+\varepsilon(\tHorizon+1)$, and the bound hold for every trajectory
+$\sigma$.
+\end{proof}
+
+\subsubsection{Computing approximate optimal policy: finite horizon}
+
+We can now describe how to compute a near optimal policy for the
+finite horizon case. We start with the sample requirement. We need a
+sample of size $m\geq \frac{1}{2\varepsilon^2}\log
+\frac{2|\States|\;|\Actions|\; \tHorizon}{\delta}$ for each
+$\Rewards_\ttime(\state,\action)$ and $\Rewards_\tHorizon(\state)$.
+Given the sample, we compute
+$\widehat{\reward}_\ttime(\state,\action)$ and
+$\widehat{\reward}_\tHorizon(\state)$. By Claim~\ref{claim:sample},
+with probability $1-\delta$ we have
+$|\reward_\ttime(\state,\action)-\widehat{\reward}_(\state,\action)|\leq
+\varepsilon$ and
+$|\reward_\tHorizon(\state)-\widehat{\reward}_\tHorizon(\state)|\leq\varepsilon$.
+Now we can compute the optimal policy $\widehat{\policy}^*$ for the
+estimated rewards $\widehat{\reward}_\ttime(\state,\action)$ and
+$\widehat{\reward}_\tHorizon(\state)$. The main goal is to show that
+$\widehat{\policy}^*$ is a near optimal policy.
+
+\begin{theorem}
+Assume that for every $(\state,\action)$ and $\ttime$ we have
+$|\reward_\ttime(\state,\action)-\widehat{\reward}_\ttime(\state,\action)|\leq
+\varepsilon$ and for every $\state$ we have
+$|\reward_\tHorizon(\state)-\widehat{\reward}_\tHorizon(\state)|\leq\varepsilon$.
+Then,
+\[
+J^{\policy^*}_\tHorizon(\state_0) -
+J^{\widehat{\policy}^*}_\tHorizon \leq 2\varepsilon(\tHorizon+1)
+\]
+\end{theorem}
+
+\begin{proof}
+%From the definition of $error(\policy)$ and since for any $\policy\in MD$ we showed that
+By Lemma~\ref{lemma:approx-FH-error} we have that
+$error(\policy)\leq \varepsilon(\tHorizon+1)$. This implies that,
+\[
+J^{\policy^*}_\tHorizon(\state_0)-
+\widehat{J}^{\policy^*}_\tHorizon(\state_0)\leq error(\policy^*)\leq
+\varepsilon(\tHorizon+1)
+\]
+and
+\[
+\widehat{J}^{\widehat{\policy}^*}_\tHorizon(\state_0)-
+J^{\widehat{\policy}^*}_\tHorizon(\state_0)\leq
+error(\widehat{\policy}^*)\leq \varepsilon(\tHorizon+1)
+\]
+Since $\widehat{\policy}^*$ is optimal for
+$\widehat{\reward}_\ttime$ we have
+\[
+\widehat{J}^{\policy^*}_\tHorizon(\state_0)\leq
+\widehat{J}^{\widehat{\policy}^*}_\tHorizon(\state_0)
+\]
+The theorem follows by adding the three inequalities.
+\end{proof}
+
+
+\subsubsection{Influence of reward estimation errors: discounted return}
+
+Fix a policy $\policy\in SD$. Again, define the expected return of
+$\policy$ with the true rewards
+\[
+J^\policy_\discount(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\infty
+\reward(\state_\ttime,\action_\ttime)\discount^\ttime]
+\]
+and with the estimated rewards
+\[
+\widehat{J}^\policy_\discount(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\infty
+\widehat{\reward}(\state_\ttime,\action_\ttime)\discount^\ttime ]
+\]
+We are interested in bounding the difference between the two
+\[
+error(\policy)=|J^\policy_\discount(\state_0)-\widehat{J}^\policy_\discount(\state_0)|
+\]
+%Note that as for the finite horizon, in both cases we use the true
+%transition probability.
+For a given trajectory
+$\sigma=(\state_0,\action_0,\ldots,
+\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ we
+define
+\[
+error(\policy,\sigma)= \sum_{\ttime=0}^\infty \discount^\ttime
+\reward_\ttime(\state_\ttime,\action_\ttime)- \sum_{\ttime=0}^\infty
+\discount^\ttime \hat{\reward}_\ttime(\state_\ttime,\action_\ttime)
+\]
+
+\begin{lemma}
+\label{lemma:approx-disc-error}
+%
+Assume that for every $(\state,\action)$ we have
+$|\reward_\ttime(\state,\action)-\widehat{\reward}_\ttime(\state,\action)|\leq
+\varepsilon$. Then, for any policy $\policy\in SD$ we have
+$error(\policy)\leq \frac{\varepsilon}{1-\discount}$.
+\end{lemma}
+
+\begin{proof}
+The probability of each trajectory
+$\sigma=(\state_0,\action_0,\ldots,
+\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ is the
+same under $\reward(\state,\action)$ and
+$\widehat{\reward}(\state,\action)$, since $\policy\in SD$. For each
+trajectory $\sigma=(\state_0,\action_0,\ldots,
+\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$, we
+have,
+\begin{align*}
+error(\policy,\sigma)&=\left|\sum_{\ttime=0}^\infty
+\reward(\state_\ttime,\action_\ttime)\discount^\ttime
+-\sum_{\ttime=0}^\infty
+\widehat{\reward}(\state_\ttime,\action_\ttime)\discount^\ttime \right| \\
+&= \left|\sum_{\ttime=0}^\infty \left(\reward(\state_\ttime,\action_\ttime)-\widehat{\reward}(\state_\ttime,\action_\ttime)\right)\discount^\ttime \right|\\
+&\leq \sum_{\ttime=0}^\infty \left|\reward(\state_\ttime,\action_\ttime)-\widehat{\reward}(\state_\ttime,\action_\ttime)\right|\discount^\ttime \\
+&\leq \frac{\varepsilon}{1-\discount}
+\end{align*}
+The lemma follows since
+$error(\policy)=|E^{\policy,\state_0}[error(\policy,\sigma)]|\leq
+\frac{\varepsilon}{1-\discount}$.
+\end{proof}
+
+\subsubsection{Computing approximate optimal policy: discounted return}
+
+We can now describe how to compute a near optimal policy for the
+discounted return.
+%we start with the sample requirement.
+We need a sample of size $m\geq \frac{\Rmax}{2\varepsilon^2}\log
+\frac{2|\States|\;|\Actions|}{\delta}$ for each
+$\Rewards(\state,\action)$. Given the sample, we compute
+$\widehat{\reward}(\state,\action)$. As we saw, with probability
+$1-\delta$ we have for every $(\state,\action)$ that
+$|\reward(\state,\action)-\widehat{\reward}(\state,\action)|\leq
+\varepsilon$. Now we can compute the policy $\widehat{\policy}^*$
+for the estimated rewards
+$\widehat{\reward}_\ttime(\state,\action)$. Again, the main goal is
+to show that $\widehat{\policy}^*$ is a near optimal policy.
+
+\begin{theorem}
+\label{thm:approx-model-disc}
+%
+Assume that for every $(\state,\action)$ we have
+$|\reward(\state,\action)-\widehat{\reward}(\state,\action)|\leq
+\varepsilon$. Then,
+\[
+J^{\policy^*}_\discount(\state_0) -
+J^{\widehat{\policy}^*}_\discount \leq
+\frac{2\varepsilon}{1-\discount}
+\]
+\end{theorem}
+
+\begin{proof}
+From the definition of $error(\policy)$ and since for any
+$\policy\in SD$ we showed that $error(\policy)\leq
+\frac{\varepsilon}{1-\discount}$, we have,
+\[
+J^{\policy^*}_\discount(\state_0)-
+\widehat{J}^{\policy^*}_\discount(\state_0)\leq error(\policy^*)\leq
+\frac{\varepsilon}{1-\discount}
+\]
+and
+\[
+\widehat{J}^{\widehat{\policy}^*}_\discount(\state_0)-
+J^{\widehat{\policy}^*}_\discount(\state_0)\leq
+error(\widehat{\policy}^*)\leq \frac{\varepsilon}{1-\discount}
+\]
+Since $\widehat{\policy}^*$ is optimal for $\widehat{\reward}$ we
+have
+\[
+\widehat{J}^{\policy^*}_\discount(\state_0)\leq
+\widehat{J}^{\widehat{\policy}^*}_\discount(\state_0)
+\]
+The claim follows by adding the three inequalities.
+\end{proof}
+
+\subsection{Estimating the transition probabilities}
+
+We now estimate the transition probabilities. Again, we will look at
+the observed model. Namely, for a given state-action
+$(\state,\action)$, we consider the transitions
+$(\state,\action,\state'_i)$, for $1\leq i\leq m$. We define the
+observed transition distribution,
+\[
+\widehat{p}(\state'|\state,\action)=\frac{|\{i:\state'_i=\state'\}|}{m}
+\]
+Our main goal would be to evaluate the observed model as a function
+of the sample size $m$.
+
+We start by considering two Markov chains which differ by at most
+$\alpha$ for each transition. Namely, we have Markov chains $M_1$
+and $M_2$, where $M_1[i,j]=\Pr[i\rightarrow j]=p_1(j|i)$ and
+$M_2[i,j]=\Pr[i\rightarrow j]=p_2(j|i)$. We assume that for every
+$i,j$ we have $|M_1[i,j]-M_2[i,j]|\leq \alpha$. We would like to
+relate $\alpha$ to the statistical distance between the state distributions
+generated by the two Markov chains. Clearly if $\alpha\approx 0$
+then the probabilities will be almost identical, but we like to get
+a quantitative bound on the difference, which will allow us to
+derive the sample size $m$.
+
+%{\bf [[The description here differs from the one in the class and
+%the slides. Hopefully it is simpler and easier tp follow.]]}
+
+We start with a general well-known observation about distributions.
+
+\begin{theorem}
+\label{thm:dist-l1} Let $q_1$ and $q_2$ be two distributions over
+$\States$. Let $f:\States \rightarrow [0,F_{max}]$. Then,
+\[
+|E_{s\sim q_1}[f(\state)]- E_{s\sim q_2}[f(\state)]|\leq F_{max}
+\|q_1-q_2\|_1
+\]
+where $\|q_1-q_2\|_1=\sum_{\state \in \States}
+|q_1(\state)-q_2(\state)|$.
+\end{theorem}
+
+\begin{proof}
+\begin{align*} |E_{s\sim q_1}[f(\state)]- E_{s\sim q_2}[f(\state)]|
+&=|\sum_{\state \in \States} f(\state)q_1(\state) - \sum_{\state \in \States} f(\state)q_2(\state)| \\
+&\leq \sum_{\state \in \States} f(\state)|q_1(\state) - q_2(\state)|\\
+ &\leq F_{max} \|q_1-q_2\|_1
+\end{align*}
+\end{proof}
+
+Therefore, we would like to bound the $L_1$-norm between the
+state distributions generated by $M_1$ and $M_2$.
+
+
+\begin{theorem}
+\label{thm:l1-error} Let $q_1^\ttime$ and $q_2^\ttime$ be the
+distribution over states after trajectories  of length $\ttime$ of
+$M_1$ and $M_2$, respectively. Then,
+\[
+\|q_1^\ttime-q_2^\ttime\|_1\leq \alpha |\States| t
+\]
+\end{theorem}
+
+\begin{proof}
+Let $x_0$ be the distribution of the start state. Then
+$q_1^\ttime=x_0 M_1^\ttime$ and $q_2^\ttime=x_0 M_2^\ttime$. The
+proof is by induction on $\ttime$. Clearly, for $\ttime=0$ we have
+$q_1^0=q_2^0=x_0$.
+
+We start with a  basic facts about matrix norms.
+Let $\|M\|_\infty = max_i \sum_j |M[i,j]|$. Then
+\begin{equation}
+\label{eq_norm_matrix_1}
+\| z M\|_1 = \sum_j | \sum_i z[i] M[i,j]|\leq \sum_{i,j} |z[i]| \cdot |M[i,j] | \leq \sum_i |z[i]| \cdot \|M\|_\infty \leq \|z\|_1 \|M\|_\infty
+\end{equation}
+
+This implies the following two simple facts. First, let $q$ be a
+distribution, i.e., $\|q\|_1=1$, and $M$ a matrix with all the
+entries at most $\alpha$, i.e., $|M[i,j]|\leq\alpha$ which implies
+$\|M\|_\infty \leq \alpha |\States|$. Then,
+\begin{equation}
+\label{eq_norm_matrix_qM}
+\|qM\|_1 \leq \|q\|_1 \|M\|_\infty
+ \leq \alpha|\States|
+\end{equation}
+Second, let $M$ be a row-stochastic matrix,  implies that $\|M\|_\infty=1$. Then,
+\begin{equation}
+\label{eq_norm_matrix_zM}
+\|zM\|_1 \leq \|z\|_1 \|M\|_\infty \leq \|z\|_1
+\end{equation}
+
+For the induction step, let $z^\ttime=q_1^\ttime-q_2^\ttime$.
+\begin{align*}
+\|q_1^\ttime-q_2^\ttime\|_1 &= \|x_0M_1^\ttime-x_0M_2^\ttime\|_1\\
+&= \|q_1^{\ttime-1}M_1 - (q_1^{\ttime-1}+z^{\ttime-1})M_2\|_1\\
+&\leq \|q_1 (M_1-M_2)\|_1 + \|z^{\ttime-1}M_2\|_1\\
+&\leq \alpha|\States| + \alpha |\States|(\ttime-1) =
+\alpha|\States|\ttime
+\end{align*}
+where in the last inequality, for the first term we used the first
+fact and for the second term we used the second fact with the
+inductive claim.
+\end{proof}
+
+
+\remove{ For the analysis we augment the state space $\States$ by
+$S^1$ and $S^2$, where each state $\state \in \States$ has a state
+$s^1\in S^1$ and state $s^2\in S^2$. We define a Markov chain $q_1$
+as follows:
+$q_1(\state_j|\state_i)=\min(p_1(\state_j|\state_i),p_2(\state_j|\state_i))$
+and
+$q_1(s^1_j|\state_i)=(p_1(\state_j|\state_i)-p_2(\state_j|\state_i))^+$,
+where $(z)^+=\max(0,z)$. Similarly, we define a Markov chain $q_2$
+as follows:
+$q_2(\state_j|\state_i)=\min(p_1(\state_j|\state_i),p_2(\state_j|\state_i))$
+and
+$q_2(s^2_j|\state_i)=(p_2(\state_j|\state_i)-p_1(\state_j|\state_i))^+$.
+Note that $q_1$ coincides with $p_1$ if we map $s^1_j$ to $\state_j$
+and similarly $q_2$ coincides with $p_2$. The main benefit is that
+for trajectory which have all the states in $\States$ both $q_1$ and
+$q_2$ give identical probabilities.
+
+\begin{theorem}
+For distributions $q_1$ and $q_2$, for any horizon $\tHorizon$, we
+have
+\[
+\Pr[\forall t\leq T\;\;\; \state_\ttime \in S]\geq 1-\alpha
+|\States| T
+\]
+\end{theorem}
+\begin{proof}
+The proof is by induction on $\tHorizon$. For $\tHorizon=0$ it holds
+trivially. Assume the theorem holds for $\tHorizon-1$ and we show it
+holds for $\tHorizon$.
+
+Consider any trajectory $(\state_0, \ldots , \state_{\tHorizon-1})$,
+such that for every $t\leq \tHorizon-1$ we have $\state_\ttime \in
+S$. For any $\state \in \States$ we have that
+$\Pr[\state_\tHorizon=s|\state_{\tHorizon-1}]\geq 1-\alpha$. This
+implies that
+\[
+\Pr[\state_\tHorizon\in S|\state_{\tHorizon-1}\in S]\geq
+1-\alpha|\States|
+\]
+From the inductive claim we have that
+\[
+\Pr[\forall t\leq \tHorizon-1\;\;\; \state_\ttime \in S]\geq
+1-\alpha |\States|(\tHorizon-1)
+\]
+and therefore
+\[
+\Pr[\forall t\leq \tHorizon-1\;\;\; \state_\ttime \in S]\geq
+1-\alpha |\States|T
+\]
+\end{proof}
+}
+
+
+\subsubsection{Approximate model and simulation lemma}
+
+We define an {\em $\alpha$-approximate model} as follows. A model
+$\widehat{M}$ is an $\alpha$-approximate model of $M$ if for every
+state-action $(\state,\action)$ we have: (1)
+$|\widehat{\reward}(\state,\action)-\reward(\state,\action)|\leq
+\alpha$ and (2) for every $\state'$ we have
+$|\widehat{p}(\state'|\state,\action)-p(\state'|\state,\action)|\leq\alpha$.
+
+The following simulation lemma, for the finite horizon case,
+guarantees that approximate models have similar return.
+
+\begin{lemma}
+Assume that model $\widehat{M}$ is an $\alpha$-approximate model of
+$M$. For the finite horizon return, for any policy $\policy \in MD$,
+we have
+\[
+|J^\policy_\tHorizon(\state_0;M)-J^\policy_\tHorizon(\state_0;\widehat{M})|\leq
+\varepsilon
+\]
+for $\alpha\leq \frac{\varepsilon}{\Rmax|\States| \tHorizon^2}$
+\end{lemma}
+
+\begin{proof}
+By Theorem~\ref{thm:l1-error} the distance between the state
+distributions of $M$ and $\widehat{M}$ at time $\ttime$ is bounded
+by $\alpha|\States|\ttime$. Since the maximum reward  is $\Rmax$, by
+Theorem~\ref{thm:dist-l1} the difference is bounded by
+$\sum_{\ttime=0}^\tHorizon \alpha|\States|\ttime \Rmax\leq
+\alpha|\States|\tHorizon^2 \Rmax$. For $\alpha\leq
+\frac{\varepsilon}{\Rmax|\States| \tHorizon^2}$ implies that the
+difference is at most $\varepsilon$.
+\end{proof}
+
+
+\remove{
+\begin{proof}
+We split the return to trajectories which never leave $\States$ and
+ones which leave $\States$. Specifically, the expected return from
+trajectories that never leave $\States$ is
+\[
+J^\policy_g(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\tHorizon
+\reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)
+| \forall t :\;\state_\ttime\in S]
+\]
+and from trajectories that leave $\States$ is,
+\[
+J^\policy_b(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\tHorizon
+\reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)
+| \exists t :\;\state_\ttime\not\in S]
+\]
+We can write the expected return as a combination of the two.
+\[
+J^\policy_\tHorizon(\state_0)=J^\policy_g(\state_0)\Pr[\forall t:\;
+\state_\ttime\in S]+J^\policy_b(\state_0)\Pr[\exists t \:\;
+\state_\ttime \not\in S]
+\]
+
+We have already derived that
+\[
+|J^\policy_g(\state_0;M)-J^\policy_g(\state_0;\widehat{M})|\leq
+\alpha T
+\]
+and for the case that we exit $\States$ we have
+\[
+|J^\policy_b(\state_0;M)-J^\policy_b(\state_0;\widehat{M})|\leq T
+\Rmax \Pr[\exists t:\;\; \state_\ttime\not\in S]\leq T \Rmax (\alpha
+|\States| T)
+\]
+The lemma follows since the difference is bounded by $\alpha T + T
+\Rmax (\alpha |\States| T)=O(T \Rmax \alpha |\States| \tHorizon^2)$.
+\end{proof}
+}
+
+We now switch to the simulation lemma, for the discounted return
+case, which also guarantees that approximate models have similar
+return.
+
+\begin{lemma}
+Assume that model $\widehat{M}$ is an $\alpha$-approximate model of
+$M$. For the discounted return, for any policy $\policy \in MD$, we
+have
+\[
+|J^\policy_\discount(\state_0;M)-J^\policy_\discount(\state_0;\widehat{M})|\leq
+\varepsilon
+\]
+for $\alpha\leq \frac{c \varepsilon(1-\discount)^2}{\Rmax|\States|
+\log^2(\Rmax/(\varepsilon(1-\discount)))}$, for some constant $c>0$.
+\end{lemma}
+
+\begin{proof} We briefly sketch the proof.
+We will use the proof for the finite horizon case. which has
+$\alpha=\frac{\varepsilon/2}{\Rmax|\States| \tHorizon^2}$ to get
+error at most $\varepsilon/2$.
+
+We can now use the effective horizon of the discounted case which is
+$\tHorizon=\frac{1}{1-\discount}\log\frac{\Rmax}{\varepsilon(1-\discount)/2}$
+which guarantees that the error increases by at most
+$\varepsilon/2$. We can use this is the finite horizon return bound
+to derive the lemma.
+\end{proof}
+
+\subsubsection{putting it all together}
+
+We want with high probability $(1-\delta)$ to have accuracy
+$\alpha$. To get accuracy $\alpha$ we need $m=O(\frac{1}{\alpha^2}
+\log(|\States|^2 |\Actions|/\delta))$ samples for each state-action
+pair $(\state,\action)$. Plugging in the value of $\alpha$ we have,
+for the finite horizon,
+\[
+m=O(\frac{\Rmax^2}{\varepsilon^2} |\States|^2 \tHorizon^4 \log
+(|\States|\;|\Actions|/\delta))
+\]
+and for the discounted return
+\[
+m=O(\frac{\Rmax^2}{\varepsilon^2} |\States|^2
+\frac{1}{(1-\discount)^4} \log (|\States|\;|\Actions|/\delta)\log^2
+\frac{\Rmax}{\varepsilon(1-\discount)})
+\]
+
+Assume we have a sample of $m$ for each $(\state,\action)$. Then
+with probability $1-\delta$ we have an $\alpha$-approximate model
+$\widehat{M}$.
+%
+We find an optimal policy $\widehat{\policy}^*$ for $\widehat{M}$.
+%
+This implies that $\widehat{\policy}^*$ is a $2\varepsilon$-optimal
+policy. Namely,
+\[
+|J^*(\state_0)-J^{\widehat{\policy}^*}(\state_0)|\leq 2\varepsilon
+\]
+
+We can now look on the dependency of the sampling bounds on the
+parameters.
+
+\begin{enumerate}
+\item
+The error scales like $\frac{\Rmax^2}{\varepsilon^2}$ which looks
+like the right bound, even for estimation of random variables
+expectations.
+\item
+The dependency on the horizon is necessary, although it is probably
+not optimal.
+\item
+The dependency on the number on the number of states $|\States|$, is
+due to the fact that we like a very high approximation of the next
+state distribution. Simply we need to approximate $|\States|^2$
+entries, so for this the bound is reasonable. However, we will show
+that for approximation the optimal policy we can do better.
+\end{enumerate}
+
+\subsection{Improved sample bound: using approximate value
+iteration}
+
+Recall, that the value iteration works as follows. Initially, we set
+the values arbitrarily,
+\[
+V_0=\{V_0(\state)\}_{\state \in \States}
+\]
+In iteration $n$ we compute
+\begin{align*}
+V_{n+1}(\state)&=\max_{\action\in \Actions} \{
+\reward(\state,\action)+\discount \sum_{\state'\in S}
+p(\state'|\state,\action)
+V_n(\state')\}\\
+&=\max_{\action\in \Actions} \{ \reward(\state,\action)+\discount
+E_{\state'\sim p(\cdot |\state,\action)} [V_n(\state')]\}
+\end{align*}
+
+We showed that $\lim_{n\rightarrow \infty}V_n =V^*$, and that the
+convergence rate is $O(\frac{\discount^n}{1-\discount}\Rmax)$.
+%
+This implies that if we run for $N$, where
+$N=\frac{1}{1-\discount}\log
+\frac{\Rmax}{\varepsilon(1-\discount)}$, we have an error of at most
+$\varepsilon$.
+
+
+We would like to approximate the value iteration algorithm using a
+sample. Namely, for each $(\state,\action)$ we have a sample of size
+$m$, i.e., $\{(\state,\action,\state'_i)\}_{i\in[1,m]}$ The value
+iteration using the sample would be,
+\[
+\widehat{V}_{n+1}(\state)=\max_{\action\in \Actions} \{
+\reward(\state,\action)+\discount \frac{1}{m}\sum_{i=1}^m
+\widehat{V}_n(\state'_i)\}
+\]
+%where the sample is $\{(\state,\action,\state'_i)\}_{i\in[1,m]}$
+
+
+The intuition is that if we have a large enough sample, it will
+approximate the value iteration. We set $m$ such that for every
+$(\state,\action)$ and any iteration $n\in[1,N]$ we have:
+\[
+|\E[\widehat{V}_n(\state')]-\frac{1}{m}\sum_{i=1}^m
+\widehat{V}_n(\state'_i)|\leq \varepsilon
+\]
+and also
+\[
+|\widehat{\reward}(\state,\action)-\reward(\state,\action)|\leq\varepsilon
+\]
+We can have this for $m=O(\frac{V^2_{max}}{\varepsilon^2})$ where
+$V_{max}$ bound the maximum value. I.e., for finite horizon
+$V_{max}=\tHorizon \Rmax$ and for discounted return
+$V_{max}=\frac{\Rmax}{1-\discount}$.
+
+Assume that we have, for every $\state \in \States$,
+\[
+|\widehat{V}_n(\state) - V_n(\state)|\leq \lambda
+\]
+Then
+\[
+|\widehat{V}_{n+1}(\state)-V_{n+1}(\state)|\leq
+\varepsilon+\discount\lambda\leq \lambda
+\]
+where the last inequality holds for $\lambda\geq
+\frac{\varepsilon}{1-\discount}$.
+
+Therefore, if we sample $m=O(\frac{1}{\varepsilon^2}\log \frac{N
+|\States| \;|\Actions|}{\delta})$, we have that with probability
+$1-\delta$ for every $(\state,\action)$ the approximation is at most
+$\varepsilon$. This implies that the approximate value iteration has
+error at most $\lambda=\frac{\varepsilon}{1-\discount}$.
+
+The main result is that we can run Value Iteration algorithm for $N$
+iterations and approximate well the optimal value function and
+policy.
+%
+The implicit drawback is that we are approximating only the optimal
+policy, and cannot evaluate an arbitrary policy.
+
+\section{On-Policy Learning}
+
+\subsection{Learning Deterministic Decision Process}
+
+Recall that a Deterministic Decision Process is modeled by a
+directed graph, where the states are the vertices, and each action
+is associate with an edge.
+
+We first define the observed model. Given an observation set
+$\{(\state_\ttime,\action_\ttime ,\reward_\ttime,
+\state_{\ttime+1})\}$, we define an observed model $\widehat{M}$,
+where $\widehat{f}(\state_\ttime,\action_\ttime)=\state_{\ttime+1}$
+and $\widehat{\reward}(\state,\action)=\reward_\ttime$. For
+$(\state,\action)$ which do not appear in the observation set, we
+define $\widehat{f}(\state,\action)=\state$ and
+$\widehat{\reward}(\state,\action)=\Rmax$.
+
+First we claim that for any $\policy\in SD$ the completion can only
+increase the value.
+\[
+\widehat{V}^\policy(\state;\widehat{M})\geq V^\policy(\state;M)
+\]
+The increase holds for any trajectory, and note that once $\policy$
+reaches $(\state,\action)$ that was not observed, its reward will be
+$\Rmax$ forever. (This is since $\policy\in SD$.)
+
+We can now present the on-policy learning algorithm.
+\begin{enumerate}
+\item
+At time $\tHorizon$ let
+$\{(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1}):
+0\leq \ttime\leq \tHorizon-1\}$ be the previous observations.
+\item
+Build the observed model $\widehat{M}_\tHorizon$.
+\item
+Compute $\widehat{\policy}^*_\tHorizon$, the optimal policy for
+$\widehat{M}_\tHorizon$.
+\item
+Use
+$\action_\tHorizon=\widehat{\policy}^*_\tHorizon(\state_{\tHorizon})$.
+\item
+Observe the reward $\reward_\tHorizon$ and the next state
+$\state_{\tHorizon+1}$.
+\end{enumerate}
+
+We first show that the model $\widehat{M}_\tHorizon$ cannot change
+too often.
+
+\begin{lemma}
+The observed model $\widehat{M}_\tHorizon$ can change at most
+$|\States|\;|\Actions|$ times.
+\end{lemma}
+
+\begin{proof}
+Each time we change the observed model, we add one
+$(\state,\action)$ to be known. Since there are
+$|\States|\;|\Actions|$ such pairs, this bounds the number of
+changes.
+\end{proof}
+
+Next we show that we either make progress in the next $|\States|$
+steps or we never make any more changes.
+
+\begin{lemma}
+Either we change $\widehat{M}_\tHorizon$ in some time
+$\ttime\in[\tHorizon,\tHorizon+|\States|]$ or we never change
+$\widehat{M}_\tHorizon$.
+\end{lemma}
+
+\begin{proof}
+The model is deterministic. If we do not make any update in the next
+$|\States|$ steps, the policy $\widehat{\policy}^*_\tHorizon \in MD$
+will close a cycle and continue on this cycle forever. Hence, the
+model will never change.
+\end{proof}
+
+We can now state the convergence of the algorithm to the optimal
+policy.
+
+\begin{theorem}
+After $\tHorizon=|\States|^2|\Actions|$ time steps
+$\widehat{\policy}^*_\tHorizon$ is optimal.
+\end{theorem}
+
+\begin{proof}
+We showed that the number of changes is at most
+$|\States|\;|\Actions|$, and the time between changes is at most
+$|\States|$. This implies that after time
+$\tHorizon=|\States|^2|\Actions|$ we never change.
+
+The return of $\widehat{\policy}^*_\tHorizon$ after time $\tHorizon$
+is identical in $\widehat{M}_\tHorizon$ and $M$, since all the edges
+it traverses are known. Let $\widehat{V}^*$ be its return. Assume
+that the policy $\policy^*$ has a strictly higher return in $M$, say
+$V^*>\widehat{V}^*$. This implies that the return of $\policy^*$ is
+at least $V^*>\widehat{V}^*$ in $\widehat{M}_\tHorizon$, since the
+rewards in $\widehat{M}_\tHorizon$ are always at least those in $M$.
+This contradicts the fact that $\widehat{\policy}^*_\tHorizon$ is
+optimal for $\widehat{M}_\tHorizon$.
+\end{proof}
+
+
+\subsection{On-policy learning MDP}
+
+Similar to the DDP, we will use the principle of {\em Optimism in
+face of uncertainty}. Namely, we substitute the unknown quantities
+by the maximum possible values.
+%For rewards, this means $\Rmax$. For transitions
+
+Similar to DDP, we will partition the state-action pairs
+$(\state,\action)$ {\tt known} and {\tt unknown}. The main
+difference is that in a DDP it is sufficient to have a single sample
+to move $(\state,\action)$ from {\tt unknown} to {\tt known}. In a
+general MDP we need have a larger sample to move $(\state,\action)$
+from {\tt unknown} to {\tt known}. Otherwise, the algorithm would be
+very similar.
+
+We describe algorithm {\tt R-MAX}, which performs on-policy
+learning of MDPs.
+
+{\em Initialization:} Initially we set for each $(\state,\action)$ a
+next state distribution which always return to $\state$, i.e.,
+$p(\state|\state,\action)=1$ and $p(\state'|\state,\action)=0$ for
+$\state'\neq s$. We set the reward to be maximal, i.e.,
+$\reward(\state,\action)=\Rmax$. We mark $(\state,\action)$ to be
+{\tt unknown}.
+
+{\em Execution:} At time $\ttime$. (1) Build a model
+$\widehat{M}_\ttime$, explained later. (2) Compute
+$\widehat{\policy}^*_\ttime$ the optimal policy for
+$\widehat{M}_\ttime$, and (3) Execute
+$\action_\ttime=\widehat{\policy}^*_\ttime(\state_\ttime)$ and
+observe $\reward_\ttime$ and $\state_{\ttime+1}$.
+
+{\em Building a model} At time $\ttime$, if the number of samples of
+$(\state,\action)$ is {\em exactly} $m$ for the {\em first time},
+then: modify $p(\cdot|\state,\action)$ to the observed transition
+distribution, $\reward(\state,\action)$ to the average observed
+reward for $(\state,\action)$ and mark $(\state,\action)$ as {\tt
+known}. Note that we update each $(\state,\action)$ only once, when
+it moves from {\tt unknown} to {\tt known}.
+
+Here is the basic intuition for algorithm {\tt R-MAX}. We consider
+the discounted return. Fix a large enough horizon $\tHorizon$, at
+least the effective horizon. Assume we run
+$\widehat{\policy}^*_\ttime$ for $\tHorizon$ time steps. Either, we
+explore a state-action $(\state,\action)$ which is {\tt unknown}, in
+this case we make progress on the exploration. Also this can happen
+at most $m|\States|\;|\Actions|$ times. Alternatively, we did not
+reach any state-action $(\state,\action)$ which is {\tt unknown}, in
+which case we are optimal on the observed model, and near optimal on
+the true model.
+
+For the analysis consider the event $W$, which is that event that we
+visit a state-action $(\state,\action)$ which is {\tt unknown}
+during the block of $\tHorizon$ time steps. For the return of
+$\widehat{\policy}^*_\ttime$  we have,
+\[
+V^{\widehat{\policy}^*_\ttime}\geq V^* -
+\Pr[W]\frac{\Rmax}{1-\discount}-\lambda
+\]
+where $\lambda$ is the approximation error, and we can bound it by
+$\varepsilon/2$ by setting $m$ large enough.
+
+We consider two cases, depending on the probability of $W$. First,
+we consider the case that the probability of $W$ is small. If
+$\Pr[W]\leq \frac{\varepsilon(1-\discount)/2}{\Rmax}$, then
+$V^{\widehat{\policy}^*_\ttime}\geq V^* -\varepsilon/2
+-\varepsilon/2$, since we assume that $\lambda\leq \varepsilon/2$.
+
+Second, we consider the case that the probability of $W$ is large.
+If $\Pr[W] > \frac{\varepsilon(1-\discount)/2}{\Rmax}$. Then, there
+is a good probability to visit an {\tt unknown} $(\state,\action)$,
+but this can happen at most $m|\States|\;|\Actions|$. Therefore, the
+expected number of such blocks is at most
+$m|\States|\;|\Actions|\frac{\Rmax}{\varepsilon(1-\discount)/2}$.
+
+This implies that only in
+\[
+m|\States|\;|\Actions|\frac{\Rmax}{\varepsilon(1-\discount)/2}
+\]
+blocks, the algorithm {\tt R-MAX} will be more than $\varepsilon$
+sub-optimal, i.e., have an expected return less than
+$V^*-\varepsilon$.
+
+\section{Bibliography Remarks}
+
+
+The first polynomial time model based learning algorithm is $E^3$ of
+\cite{KearnsS02}. While we did not outline the $E^3$ algorithm, we
+did describe the effective horizon and the simulation lemma from
+there.
+
+The improved sampling bounds for the optimal policy using
+approximate value iteration is following \cite{KearnsS98a}.
+
+The {\tt R-MAX} algorithm is due to \cite{BrafmanT02}.
+
+Analysis of related models, especially the {\tt PAC-MDP} model
+appears in \cite{StrehlLL09,Li2012}.
+
+\bibliography{bib-lecture5}
+\bibliographystyle{plain}

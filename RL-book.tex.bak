@@ -1,0 +1,169 @@
+
+\documentclass[12pt]{book}
+\usepackage{graphicx,ae}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\usepackage{fullpage}
+
+
+%
+% this command enables to remove a whole part of the text
+% from the printout
+% to use it just enter
+% \remove{
+% before the text to be excluded and
+% }
+% after the text
+\newcommand{\remove}[1]{}
+%
+% The following macros are used to generate nice code for programs.
+% See example on how to use it below
+%
+%%%%%%%%%%%%%%%%%%%%% program macros %%%%%%%%%%%%%%%%%
+\newcommand{\Do}{{\small\bf do}\ }
+\newcommand{\Return}{{\small\bf return\ }}
+\newcommand{\Proc}[1]{#1\+}
+\newcommand{\Returns}{{\small\bf returns}}
+\newcommand{\Procbegin}{{\small\bf begin}}
+\newcommand{\If}{{\small\bf if}\ \=\+}
+\newcommand{\Then}{{\small\bf then}\ \=\+}
+\newcommand{\Else}{\<{\small\bf else}\ \>}
+\newcommand{\Elseif}{\<{\small\bf elseif}\ }
+\newcommand{\Endif}{\<{\small\bf end\ if\ }\-\-}
+\newcommand{\Endproc}[1]{{\small\bf end} #1\-}
+\newcommand{\For}{{\small\bf for}\ \=\+}
+\newcommand{\Endfor}{{\small\bf end\ for}\ \-}
+\newcommand{\Loop}{{\bf loop}\ \= \+}
+\newcommand{\Endloop}{{\bf end\ loop}\ \-}
+\newenvironment{program}{
+    \begin{minipage}{\textwidth}
+    \begin{tabbing}
+    \ \ \ \ \=\kill
+  }{
+    \end{tabbing}
+    \end{minipage}
+  }
+
+%
+\newcommand{\topic}[2]{\section{#1} \index{#2} \markright{#1}}
+\newcommand{\subtopic}[2]{\subsection{#1} \index{#2}}
+\newcommand{\subsubtopic}[2]{\subsubsection{#1} \index{#2}}
+
+
+\usepackage{framed}
+
+\newcommand{\ymignore}[1]{}
+
+\input{Lecture_Book}
+
+
+\title{Reinforcement Learning: Foundations}
+\date{September 2019}                                           % Activate to display a given date or no date
+\author{Shie Mannor and Yishay Mansour}
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\chapter{Introduction and Overview}
+\label{chapter:intro}
+\input{chapter1-intro}
+
+\chapter{Deterministic Decision Processes}
+\label{chapter:DDP}
+\input{chapter2-DDP}
+
+%\chapter{Other Deterministic Dynamic Programming Algorithms}
+%\input{Lecture3}
+%\input{exercises1}
+
+\chapter{Markov Chains}
+\label{chapter:MC}
+\input{chapter3-MC-v1}
+
+\chapter{Markov Decision Processes and Finite Horizon}
+\label{chapter:MDP-FH}
+\input{chapter3-MDP-FH}
+
+
+%\chapter{Markov Chains, Markov Decision Processes and Finite Horizon (need to split)}
+%\input{chapter3-MC}
+%\input{exercise2}
+
+\chapter{MDPs with Discounted Infinite Return}
+\label{chapter:disc}
+\input{chapter4-disc}
+%\input{exercises3}
+
+\chapter{Stochastic shortest paths}
+\label{chapter:ssp}
+\input{chapter5-ssp}
+
+
+\chapter{Average cost}
+\label{chapter:average}
+
+\chapter{Tabular learning: Model based}
+\input{Learning-model-based.tex}
+%\input{exercises6}
+
+
+
+\chapter{Tabular learning: Model free}
+\label{chapter:learning-model-free}
+\input{Lecture-model-free-1.tex}
+%\end{document}
+\newpage
+\input{Lecture-model-free-2.tex}
+%\input{exercises7}
+
+\chapter{Tabular learning: off-policy}
+%\input{Lecture10}
+
+\chapter{Large state space: value function approximation}
+\input{Lecture-Function-Approximation.tex}
+%\input{Lecture-Function-Approximation-advanced.tex}
+%\input{exercises8}
+
+\chapter{Large state space: Policy Gradient Methods}
+\input{Lecture-Policy-Gradient.tex}
+
+\chapter{Large state space: tree based optimization}
+%\input{Lecture6}
+%\input{exercises4}
+
+%\chapter{Learning in Simple Bandits Problems}
+%\input{Lecture7}
+%\input{exercises5}
+
+
+\chapter{Deep RL}
+
+\chapter{ Multi-Arm bandits}
+\label{chapter:MAB}
+\input{Lecture-MAB.tex}
+%\end{document}
+
+
+
+\chapter{POMDP}
+\label{chapter:POMDP}
+\input{Lecture-POMDP.tex}
+
+\chapter{LQR}
+\label{chapter:LQR}
+\input{Lecture-LQR}
+
+\chapter{Inverse RL and Apprenticeship learning}
+\label{chapter:IRL}
+\input{Lecture-IRL.tex}
+
+
+\bibliography{bib-lecture5,bib-lecture}
+\bibliographystyle{plain}
+%\bibliography{bib-lecture5}
+%\bibliographystyle{plain}
+\end{document}

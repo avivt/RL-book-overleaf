@@ -1,0 +1,212 @@
+\section{Inverse Reinforcement Learning}
+
+The classical reinforcement problem has as inputs the dynamics and
+the rewards and the output is the optimal policy. In the inverse
+reinforcement learning problem we are given access to the optimal
+policy and the dynamics, and would like to learn a reward function
+which induces the given optimal policy.
+
+More specifically, we are given as inputs the states $S$, actions
+$A$, dynamics $p(\cdot|s,a)$, and access to the optimal policy
+$\pi^*$, either explicitly or implicitly, by observing trajectories
+of $\pi^*$.
+
+We have a few related problems:
+\begin{enumerate}
+\item
+Behavioral cloning: given trajectories learn the optimal policy.
+\item
+Inverse Reinforcement Learning (IRL): which recovers a reward
+function $R$ for which $\pi^*$ is optimal.
+\item
+Apprentice learning: Learn a near-optimal policy given access to
+trajectories of an optimal policy.
+\end{enumerate}
+
+\subsection{Behavioral Cloning}
+
+Formulated as a classical supervised classification problem. Given
+trajectories generated from $\pi^*$, we extract pairs $(s_t,a_t)$,
+where $\pi^*(s_t)=a_t$. We do not need to know the dynamics or the
+rewards. We define a classification problem, where the training
+examples are ${\cal S}=\{(s_t,a_t)\}$.
+
+We can now learn a classifier for ${\cal S}$, and use any
+classifier, DNN, SVM, decision tree, and more. We learn the optimal
+policy as a classification problem, and if we have low error we can
+hope for performance near that of the optimal policy.
+
+There are a few problems with the approach. After we make errors we
+might reach completely new states, which we never encountered before
+(since the optimal policy never reaches them). Also, the different
+errors might have very different effects, but we treat them all
+equally. Other issues include generalization, which would depend on
+the test and train distributions (of states) being identical, but
+small differences in the policies might lead to significant
+differences in the distributions.
+
+
+\subsection{IRL: small state space}
+
+Assume we can use a look-up table to represent the policies. We are
+given the set of states $S$, actions $A$, $p(\cdot|s,a)$ and the
+optimal policy $\pi^*$. (All are given explicitly, as look-up
+tables.) The output of the algorithm is a reward function $r(s,a)$
+for which $\pi^*$ is optimal.
+
+We first characterize all the rewards $R$ for which $\pi^*$ is
+optimal. Bellman optimality requires that for every $s\in S$ and
+$a\in A$ we have,
+\[
+Q^*(s,\pi^*(s))\geq Q^*(s,a)
+\]
+First we will try to get a more explicit characterization.
+
+For simplicity of the notation let $a_1=\pi^*(s)$ for every $s\in
+S$. (This is simply renaming the actions.) Also, we associate the rewards with states (rater
+then state-action pairs). Define matrices $P^a$,
+for $a\in A$, as follows: $P^a[i,j]=p(s_j|s_i,a)$, which is the
+transition probabilities using action $a$. Since $a_1$ is the
+optimal action, we define $P^*=P^{a_1}$.
+
+For the optimal value function $V^*\in \mathbb{R}^{|S|}$ has
+\[
+V^*=R+\gamma P^*V^*
+\]
+This implies that $V^*=(I-\gamma P^*)^{-1}R$. (The inverse exists,
+since the eigenvalues of $P^*$ are in the unit circle, hence, all
+the eigenvalues of $I-\gamma P^*$ are non-zero.)
+
+The optimal state-action function is,
+\[
+Q^*=R+\gamma P^a V^*=R+\gamma P^a (I-\gamma P^*)^{-1}R
+\]
+From the Bellman optimality we have $Q^*(s,\pi^*(s))- Q^*(s,a)\geq
+0$ which implies,
+\[
+(P^*-P^a) (I-\gamma P^*)^{-1}R\geq 0
+\]
+
+This establishes the following claim:
+\begin{claim}
+Reward function $R$ is optimal iff $(P^*-P^a) (I-\gamma
+P^*)^{-1}R\geq 0$.
+\end{claim}
+
+Although we have an exact characterization, we have a few
+challenges.
+\begin{enumerate}
+\item
+Trivial solutions: We can simply set $R=0$ and any policy is
+optimal!
+\item
+What happens if we observe only trajectories of $\pi^*$ and not the
+explicit policy and dynamics.
+\item
+Large state space.
+\end{enumerate}
+
+To overcome the ambiguity of the reward function we can set an
+objective that will force a unique outcome. One solution is a {\em
+max margin}, specifically,
+\[
+\max_{s\in S} \left\{ Q^*(s,a^*)-\max_{a\neq a^*} Q^*(s,a) \right\}
+\]
+The resulting linear program is,\\
+\begin{align*}
+&\max \lambda\\
+\forall a^*\neq a\;\;\;\; & (P^*-P^a) (I-\gamma P^*)^{-1}R\geq \lambda  \\
+&-R_{max}\leq R\leq R_{max}
+\end{align*}
+
+
+\subsection{AL: Linear function approximation}
+
+In this section we consider the case where we are given access to
+trajectories of the optimal policy, in a large state space. Our goal
+is to find a near optimal policy.
+%Since we have a large state space we would use function approximation.
+%
+We consider a  simple case that the rewards are linear in the state
+representation. For each state $s\in S$ we have
+$\phi(s)\in\mathbb{R}^n$. There is a reward weights
+$w\in\mathbb{R}^n$. The reward in state $s$ is $w^\top \phi(s)$.
+
+Consider the value function of the policy $\pi$.
+\begin{align*}
+V^*(s_0) =& E[\sum_{t=0}^\infty \gamma^t r_t|\pi]\\
+ =& E[\sum_{t=0}^\infty \gamma^t w^\top \phi(s_t)|\pi]\\
+ =& w^\top  \sum_{t=0}^\infty \gamma^tE[ \phi(s_t)|\pi]\\
+ =& w^\top \mu(\pi)
+\end{align*}
+where $\mu(\pi)=\sum_{t=0}^\infty \gamma^tE[ \phi(s_t)|\pi]$. Note
+that $\mu(\pi)$ depends on the dynamics (steady state distribution)
+that policy $\pi$ induces.
+
+For IRL we like to recover a weight vector $w$ such that for any
+policy $\pi$ we have,
+\[
+w^\top \mu(\pi^*)\geq w^\top \mu(\pi)
+\]
+First, we can approximate $\mu(\pi)$ from sample of $m$
+trajectories,
+\[
+\mu(\pi)\approx \hat{\mu}(\pi)=\frac{1}{m}\sum_{i=1}^m \sum_{t=0}^H
+\gamma^t \phi(s_t)
+\]
+Second, observe that if we have $\|\mu(\pi)-\hat{\mu}(\pi)\|_2\leq
+\epsilon$ then for any $w$ we have
+\[
+|w^\top \mu(\pi)-w^\top\hat{\mu}(\pi)|\leq \epsilon \|w\|_2
+\]
+
+For the AL we like to find a near optimal policy $\pi'$, but we do
+not have access to the rewards. However, if we find a policy $\pi'$
+such that $\mu(\pi')\approx\mu(\pi^*)$, then for any weights $w$ the
+policy $\pi'$ will give a similar expected return as $\pi^*$.
+
+Consider first the IRL problem. As before, we have a problem that
+$w=0$ is a solution. We will overcome this by defining a max margin
+linear program.
+\begin{align*}
+& \max \lambda\\
+\forall \pi\;\;\;\;  &  w^\top \mu(\pi^*) \geq w^\top\mu(\pi) +\lambda \\
+& \|w\|_2^2 \leq 1
+\end{align*}
+
+A clear weakness is that we have an exponential size linear program.
+We will overcome this by an {\em incremental constraint generation}
+which will solve the AL. We maintain a set of policies $\Pi$, where
+initially $\Pi=\emptyset$. Initially we select some $\pi^0$ and let
+$\mu^0=\mu(\pi^0)$. At iteration $i$ we solve
+\[
+\max_w \min_{\pi_j\in \Pi} w^\top (\mu^*-\mu^j)
+\]
+If the value is at most $\epsilon$ we terminate. Otherwise let $w^i$
+be the maximizer. We solve for the optimal policy $\pi^i$ given
+weights $w^i$ and add $\pi^i$ to $\Pi$. At termination, we compute a
+$\mu=\sum_{i=1}^k a_i\mu^i$ which minimizes $\|\mu^*-\mu\|_2$, where
+$a_i\geq 0$ and $\sum_i a_i=1$.
+
+The correctness of the constraint generation follows from the
+following lemma.
+\begin{lemma}
+At termination $\|\mu^*-\mu\|_2\leq \epsilon$
+\end{lemma}
+We can implement $\mu$ by selecting policy $\pi^i\in\Pi$  with
+probability $a_i$ and running it to completion.
+
+The main issue is the rate of convergence. How long will it take to
+terminate. The following lemma guarantees the fast convergence.
+\begin{lemma}
+The number of iterations is bounded by
+\[
+O(\frac{n}{(1-\gamma)^2\epsilon^2}\log\frac{n}{(1-\gamma)\epsilon})
+\]
+\end{lemma}
+\section{Bibliography Remarks}
+
+%The trajectory trees for approximate planning and evaluation is
+%taken from \cite{KearnsMN99,KearnsMN02}.
+
+The inverse reinforcement learning follows \cite{PieterN04,NgR00}

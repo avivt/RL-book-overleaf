@@ -1,0 +1,210 @@
+Dynamic Programming (DP) can be used to solve various computational problems that do not fall into the dynamic system framework which is our focus in this course. In this lecture we will briefly consider DP solutions to several such problems. Our treatment will be brief and informal.
+
+This lecture is partly based on Chapter 15 of the textbook:
+
+\textbf{T. Cormen, C. Leliserson, R. Rivest and C. Stein, Introduction to Algorithms, 2nd ed., MIT Press, 2001}.
+
+Some of the problems below are nicely explained in
+\url{http://people.cs.clemson.edu/~bcdean/dp_practice/}
+
+\section{Specific Computational Problems }
+
+Dynamic Programming can be seen as a general approach for solving large computation problems by breaking then down into nested subproblems, and recursively combining the solutions to these subproblems. A key point is to organize the computation such that each subproblem is solved only once.
+
+In many of these problems the recursive structure is not evident or unique, and its proper identification is part of the solution.
+
+\subsection{Maximum contiguous sum}
+\paragraph{Given: }  A (long) sequence of $n$ real numbers ${a_1},{a_2}, \ldots ,{a_n}$ (both positive and negative).
+\paragraph{Goal:}   Find  ${V^*} = \mathop {\max }\limits_{1 \le i \le j \le n} \;\,\sum\limits_{\ell  = i}^j {{a_\ell }} .$
+
+An exhaustive search needs to examine $O({n^2})$ sums. Can this be done more efficiently?
+
+\paragraph{DP Solution in linear time:}
+Let   ${M_k} = \mathop {\max }\limits_{1 \le i \le k} \sum\limits_{\ell  = i}^k {{a_\ell }} $  denote the maximal sum over all contiguous subsequences that end exactly at ${a_k}$.
+
+Then $${M_1} = {a_1},$$ and
+$${M_k} = \max \{ {M_{k - 1}} + {a_k},\,\,{a_k}\} .$$
+We may compute ${M_k}$ recursively for $k = 2:n$. The required solution is given by
+$${V^*} = \max \{ {M_1},{M_2}, \ldots ,{M_n}\} ,$$
+This procedure requires only $O(n)$ calculations, i.e., linear time.
+
+\paragraph{Note:}  The above computation gives the value of the maximal sum. If we need to know the range of elements that contribute to that sum, we need to keep track of the indices that maximized the various steps in the recursion.
+
+\subsection{Longest increasing subsequence}
+
+\paragraph{Given:}   A sequence of $n$ real numbers ${a_1},{a_2}, \ldots ,{a_n}$.
+\paragraph{Goal:}   Find the longest strictly increasing subsequence (not necessarily contiguous).
+E.g, for the sequence $(3,1,5,3,4)$, the solution is $(1,3,4)$.
+Observe that the number of subsequences is ${2^n}$, therefore an exhaustive search is inefficient.
+
+\paragraph{DP solution:}
+Define  ${L_j} = $ {longest strictly increasing subsequence ending at position $j$}.
+Then $${L_1} = 1,$$
+$${L_j} = \max \{ {L_i}\,\;:\;\;i < j,\;\,{a_i} < {a_j}\}  + 1,\quad   j > 1$$
+and the size of the longest subsequence is $L^* = {\max _{1 \le j \le n}}({L_j}).$
+\\
+Computing ${L_j}$ recursively for $j = 1:n$ gives the result with a running time\footnote{We note that this can be further improved to $O(n\log n)$. See Chapter 15 of
+the `Introduction to Algorithms' textbook for more details.} of $O({n^2})$.
+
+
+\subsection{An integer knapsack problem}
+
+\paragraph{Given:}   A knapsack (bag) of capacity $C > 0$, and a set of $n$ items with respective sizes ${S_1}, \ldots ,{S_n}$ and values (worth) ${V_1}, \ldots ,{V_n}$. The sizes are positive and integer-valued.
+\paragraph{Goal:}  Fill the knapsack to maximize the total value. That is, find the subset $A \subset \{ 1, \ldots ,n\} $ of items that maximize \[\sum\nolimits_{i \in A} {{V_i}} ,\] subject to  \[\sum\nolimits_{i \in A} {{S_i}}  \le C.\]
+
+Note that the number of item subsets is ${2^n}$.
+
+\paragraph{DP solution:}
+Let $M(i,k) = $ maximal value for filling exactly capacity $k$ with items from the set $1:i$.
+If the capacity $k$ cannot be matched by any such subset, set $M(i,k) =  - \infty $.
+Also set $M(0,0) = 0$, and  $M(0,k) =  - \infty $ for $k \ge 1$.  Then
+$$M(i,k) = \max \{ M(i - 1,k)\,,\,\,M(i - 1,k - {S_i}) + {V_i}\} ,$$
+which can be computed recursively for $i = 1:n$,  $k = 1:C$. The required value is obtained by    $M^* = {\max _{0 \le k \le C}}M(n,k)$.
+\\
+The running time of this algorithm is $O(nC)$.  We note that the recursive computation of $M(n,k)$ requires $O(C)$ space. To obtain the indices of the terms in the optimal subset some additional book-keeping is needed, which requires $O(nC)$  space.
+
+\subsection{Longest Common Subsequence}\label{ss:LCS}
+\paragraph{Given: } Two sequences (or strings) $X(1:m)$, $Y(1:n)$
+\paragraph{Goal:}   A subsequence of X is the string that remains after deleting some number (zero or more) of elements of X.  We wish to find the longest common subsequence (LCS) of X and Y, namely, a sequence of maximal length that is a subsequence of both X and Y.
+
+For example:
+\begin{equation*}
+    \begin{split}
+       X &= \underline{A}V\underline{B}V\underline{A}M\underline{C}\underline{D}, \\
+       Y &= \underline{A}Z\underline{B}Q\underline{A}\underline{C}L\underline{D}.
+     \end{split}
+\end{equation*}
+\paragraph{DP solution:}
+Let  $c(i,j)$ denote the length of an LCS of  the prefix subsequences $X(1:i)$, $Y(1:j)$. Set $c(i,j) = 0$ if $i = 0$ or $j = 0$. Then, for $i,j > 0$,
+\[c(i,j) = \left\{ {\begin{array}{*{20}{l}}
+{c(i - 1,j - 1) + 1}&{\;:\quad x(i){\rm{ = }}y(j){\rm{  }}}\\
+{\max \{ c(i,j - 1),c(i - 1,j)\} }&{\;:\quad x(i) \ne y(j)}
+\end{array}} \right.\]
+We can now compute $c(i,j)$  recursively, using a row-first or column-first order. Computing $c(m,n)$  requires $O(mn)$ steps.
+
+\subsection{Further examples}
+The references mentioned above provide additional details on these problems, as well as a number of problems. These include, among others:
+\begin{itemize}
+  \item The Edit-Distance problem: find the distance (or similarity) between two strings, by counting the minimal number of "basic operations" that are needed to transform one string to another. A common set of basic operations is: delete character, add character, change character. This problem is frequently encountered in natural language processing and bio-informatics (e.g., DNA sequencing) applications, among others.
+  \item The Matrix-Chain Multiplication problem: Find the optimal order to compute a matrix multiplication  ${M_1}{M_2} \cdots {M_n}$  (for non-square matrices).
+\end{itemize}
+
+\section{Shortest Path on a Graph}
+The problem of finding the shortest path over a graph is one of the most basic ones in graph theory and computer science. We shall briefly consider here two major algorithms for this problem that are closely related to dynamic programming, namely: The Bellman-Ford algorithm, and Dijkstra's algorithm.
+
+\subsection{Problem Statement}
+We introduce several definitions from graph-theory.
+\begin{definition}\textbf{Weighted Graphs:} Consider a graph $G = (V,E)$ that consists of a finite set of vertices (or nodes) $V = \{ v\} $ and a finite set of edges (or links) $E = \{ e\} $. We will consider directed graphs, where each edge $e$ is equivalent to an ordered pair $({v_1},{v_2}) \equiv (s(e),d(e))$ of vertices. To each edge we assign a real-valued weight (or cost) $w(e) = w({v_1},{v_2})$.
+\end{definition}
+\begin{definition}\textbf{Path:}
+A path $p$ on $G$ from ${v_0}$ to ${v_k}$ is a sequence $({v_0},{v_1},{v_2}, \ldots ,{v_k})$ of vertices such that $({v_i},{v_{i + 1}}) \in E$. A path is \textbf{simple} if all edges in the path are distinct.
+A \textbf{cycle}  is a path with ${v_0} = {v_k}$.
+\end{definition}
+\begin{definition}\textbf{Path length:}
+The length of a path $w(p)$ is the sum of the weights over its edges:
+$w(p) = \sum\limits_{i = 1}^k {w({v_{i - 1}},{v_i})} $.
+\end{definition}
+
+A \textbf{shortest path} from $u$ to $v$ is a path from $u$ to $v$ that has the smallest length  $w(p)$ among such paths. Denote this minimal length as $d(u,v)$ (with $d(u,v) = \infty $ if no path exists from $u$ to $v$).
+The shortest path problem has the following variants:
+\begin{itemize}
+  \item Single pair problem:  Find the shortest path from a given source vertex $s$ to a given destination vertex $t$ .
+  \item Single source problem: Find the shortest path from a given source vertex $s$ to all other vertices.
+  \item Single destination: Find the shortest path to a given destination node $t$ from all other vertices.
+  \item All pair problem.
+\end{itemize}
+
+We note that the single-source and single-destination problems are symmetric and can be treated as one.  The all-pair problem can of course be solved by multiple applications of the other algorithms, but there exist algorithms which are especially suited for this problem.
+
+\subsection{The Dynamic Programming Equation}
+The DP equation (or Bellman's equation) for the shortest path problem can be written as:
+\[d(u,v) = \min \,\{ w(u,u') + d(u',v)\,\;:\,\;(u,u') \in E\}, \]
+which holds for any pair of nodes $u,v$.
+\\
+The interpretation: $w(u,u') + d(u',v)\,\;$is the length of the path that takes one step from $u$ to $u'$, and then proceeds optimally. The shortest path is obtained by choosing the best first step.
+Another version, which singles out the last step, is
+$d(u,v) = \min \,\{ d(u,v') + w(v',v)\,\;:\,\;(v',v) \in E\} $.
+We note that these equations are non-explicit, in the sense that the same quantities appear on both sides.  These relations are however at the basis of the following explicit algorithms.
+
+\subsection{The Bellman-Ford Algorithm}
+This algorithm solves the single destination (or the equivalent single source) shortest path problem. It allows both positive and negative edge weights. Assume for the moment that there are \emph{no negative-weight cycles} (why?).
+
+\begin{algorithm_}\textbf{Bellman-Ford Algorithm}
+\begin{enumerate}
+\item[ Input: ] A weighted directed graph $G$, and destination node $t$.
+
+\item Initialization:   $d[t] = 0$,  $d[v] = \infty $ for $v \in V\backslash \{ t\} $.
+                           \\\coderemark{$d[v]$ holds the current shortest distance from $v$ to $t$.}
+
+\item for  $i = 1$ to $|V| - 1$,
+
+      \tab{$\tilde d[v] = d[v],\quad v \in V\backslash \{ t\} $      \coderemark{temporary buffer for $d$}}
+
+      \tab{for each vertex $v \in V\backslash \{ t\} $,}
+
+      \tab{\tab{$q[v] = {\min _u}\{ w(v,u) + \tilde d[u]:(v,u) \in E\} $}}
+
+      \tab{\tab{$d[v] = \min \{ q[v],d[v]\}$}}
+\item for  $v \in V\backslash \{ t\} $,
+
+      \tab{if  $d[v] < \infty $}
+
+      \tab{\tab{set $\pi [v] \in \arg {\min _u}\{ w(v,u) + \tilde d[u]:(v,u) \in E\} $}}
+
+      \tab{else}
+
+      \tab{\tab{$\pi [v]$=NULL}}
+
+\item return $\{ d[v],\pi [v]\} $
+\end{enumerate}
+\end{algorithm_}
+
+The output of the algorithm is $d[v] = d(v,t)$, the weight of the shortest path from $v$ to $t$, and the routing list $\pi $. A shortest path from vertex $v$ is obtained from $\pi $ by following he sequence: ${v_1} = \pi [v]$, ${v_2} = \pi [{v_1}]$, $ \ldots ,$$t = \pi [{v_{k - 1}}]$.
+To understand the algorithm, we observe that after round $i$, $d[v]$ holds the length of the shortest path from $v$ \textbf{in $i$ steps or less}. (This can easily be verified by the results of the previous lecture.) Since the shortest path takes as most $|V| - 1$ steps, the above claim of optimality follows.
+
+\paragraph{Remarks:}
+\begin{enumerate}
+  \item The running time of the algorithm is $O(|V|\, \cdot \,|E|)$. This is because in each round $i$ of the algorithm, each edge $e$ is involved in exactly one update of $d[v]$ for some $v$.
+  \item If $\{ d[v]\}$ does not change at all at some round, then the algorithm may be stopped there.
+  \item In the version shown above, $\tilde d[v]$ is used to 'freeze' $d[v]$ for an entire round. The standard form of the algorithm actually uses $d[v]$ directly on the right-hand side.
+  \item We have assumed above that no negative-weight cycles exist. In fact the algorithm can be used to check for existence of such cycles: A negative-weight cycle exists if and only if  $d[v]$ changes during an additional step ($i = |V|$) of the algorithm.
+  \item The basic scheme above can also be implemented in an asynchronous manner, where each node performs a local update of $d[v]$ at its own time. Further, the algorithm can be started from any initial conditions, although convergence can be slower. This makes the algorithm useful for distributed environments such as internet routing.
+\end{enumerate}
+
+\subsection{Dijkstra's Algorithm}
+Dijkstra's algorithm (introduced in 1959) provides a more efficient algorithm for the single-destination shortest path problem. This algorithm is restricted to non-negative link weights, i.e., $w(v,u) \ge 0$.
+
+The algorithm essentially determines the minimal distance $d(v,t)$ of the vertices to the destination in order of that distance, namely the closest vertex first, then the second-closest, etc.  The algorithm is roughly described below, with more details in the recitation.
+The algorithm maintains a set $S$ of vertices whose minimal distance to the destination has been determined. The other vertices are held in a queue $Q$. It proceeds as follows.
+
+\begin{algorithm_}\textbf{Dijkstra's Algorithm}
+\begin{enumerate}
+\item{Input:} A weighted directed graph, and destination node $t$.
+
+\item Initialization:
+\begin{itemize}
+  \item[] $d[t] = 0$
+  \item[] $d[v] = \infty $ for $v \in V\backslash \{ t\} $
+  \item[] $\pi [v] = \phi $ for $v \in V$
+  \item[] $S = \phi $
+\end{itemize}
+
+\item while $S \ne V$,
+
+\tab{choose $u \in V\backslash S$ with minimal value $d[u]$, add it to $S$}
+
+\tab{for each vertex $v$ with $(v,u) \in E$,}
+
+\tab{\tab{if $d[v] > w(v,u) + d[u]$,}}
+
+\tab{\tab{\tab{ set  $d[v] = w(v,u) + d[u]$,  $\pi [v] = u$ }}}
+\item return $\{ d[v],\pi [v]\} $
+\end{enumerate}
+\end{algorithm_}
+
+\paragraph{Remarks:}
+\begin{enumerate}
+  \item The Bellman-Form algorithm visits and updates each vertex of the graph up to $|V|$ times, leading to a running time of $O(|V|\, \cdot \,|E|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|E|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $S$.
+  \item The vertices in $V\backslash S$ need to be extracted in increasing order of $d[v]$.  This is handled by a min-priority queue $Q$, and the complexity of the algorithm depends on the implementation of this queue.
+  \item With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|V|)$ time, leading to overall running time of $O(|V{|^2} + |E|)$ for the algorithm. Using a basic (mean-heap) priority queue brings the running time to $O((|V| + |E|)\log |V|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|V|\log |V| + |E|)$.
+\end{enumerate}
