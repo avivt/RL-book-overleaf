@@ -1,0 +1,131 @@
+In this book, we focused on Dynamic Programming (DP) for solving problems that involve dynamical systems. The DP approach applies more broadly, and in this chapter we briefly describe DP solutions to computational problems of various forms. An in-depth treatment can be found in Chapter 15 of \cite{BookCormenLRS2009}.
+
+% Some of the problems below are nicely explained in
+% \url{https://people.cs.clemson.edu/~bcdean/dp_practice/}
+
+The dynamic programming recipe can be summarized as follows: \textit{solve a large computation problem by breaking it down into sub-problems, such that the optimal solution of each sub-problem can be written as a function of optimal solutions to sub-problems of a smaller size}. The key is to order the computation such that each sub-problem is solved only once.
+
+We remark that in most cases of interest, the recursive structure is not evident or unique, and its proper identification is part of the DP solution. To illustrate this idea, we proceed with several examples.
+
+\subsection*{Fibonacci Sequence}
+The Fibonacci sequence is defined by:
+\begin{equation*}
+    \begin{split}
+        \Value_{0} &= 0 \\ 
+        \Value_1 &= 1 \\
+        \Value_{\ttime} &= \Value_{{\ttime}-2} + \Value_{{\ttime}-1}.
+    \end{split}
+\end{equation*}
+Our `problem' is to calculate the $\tHorizon$'s number in the sequence, $\Value_{\tHorizon}$. Here, the recursive structure is easy to identify from the problem description, and a DP algorithm for computing $\Value_{\tHorizon}$ proceeds as follows:
+
+\begin{enumerate}
+    \item Set $\Value_{0} = 0$,$\Value_1 = 1$ 
+    \item For $\ttime = 2, \ldots, \tHorizon$, set
+    \begin{equation*}
+        \Value_{\ttime} = \Value_{{\ttime}-2} + \Value_{{\ttime}-1}.
+    \end{equation*}
+\end{enumerate}
+
+Our choice of notation here matches the finite horizon DP problems in Chapter \ref{chapter:DDP}: the effective `size' of the problem $\tHorizon$ is similar to the horizon length, and the quantity that we keep track of for each sub-problem $\Value$ is similar to the value function. Note that by ordering the computation in increasing $\ttime$, each element in the sequence is computed \textit{exactly once}, and the complexity of this algorithm is therefore $O(\tHorizon)$.
+
+We will next discuss problems where the DP structure is less obvious.
+
+\subsection*{Maximum Contiguous Sum}
+We are given a (long) sequence of $\tHorizon$ real numbers ${x_1},{x_2}, \ldots ,{x_\tHorizon}$, which could be positive or negative. Our goal is to find the maximal contiguous sum, namely,
+\[{\Value^*} = \mathop {\max }\limits_{1 \leq \ttime_1 \leq \ttime_2 \le \tHorizon} \;\,\sum\limits_{\ell  = \ttime_1}^{\ttime_2} {{x_\ell }} .\]
+
+An exhaustive search needs to examine $O({\tHorizon^2})$ sums. We will now devise a more efficient DP solution. Let 
+\begin{equation*}
+    {\Value_{\ttime}} = \mathop {\max }\limits_{1 \le \ttime' \le {\ttime}} \sum\limits_{\ell  = \ttime'}^{\ttime} {{x_\ell }}
+\end{equation*}
+denote the maximal sum over all contiguous subsequences that end exactly at ${x_{\ttime}}$. We have that:
+\begin{equation*}
+    \Value_1 = x_1,
+\end{equation*}
+and
+\begin{equation*}
+    \Value_{\ttime} = \max \{\Value_{\ttime - 1}+ x_{\ttime}, x_{\ttime} \}.
+\end{equation*}
+Our DP algorithm thus proceeds as follows:
+\begin{enumerate}
+    \item Set $\Value_1 = x_1$, $\policy_1 = 1$
+    \item For $\ttime = 2, \ldots, \tHorizon$, set
+    \begin{equation*}
+    \begin{split}
+        \Value_{\ttime} &= \max \{\Value_{\ttime - 1}+ x_{\ttime}, x_{\ttime} \}, \\
+        \policy_{\ttime} &= \begin{cases}
+                                \policy_{\ttime-1}, & \text{if } \Value_{\ttime - 1}+ x_{\ttime} > x_{\ttime} \\
+                                \ttime & \text{else. } 
+                              \end{cases}
+    \end{split}
+    \end{equation*}
+    \item Set $\ttime^* = \argmax_{1 \leq \ttime \leq \tHorizon} \Value_{\ttime}$
+    \item Return $\Value^* = \Value_{\ttime^*}$, $\ttime_{\text{start}}=\policy_{\ttime^*}$, $\ttime_{\text{end}}=\ttime^*$.
+\end{enumerate}
+This algorithm requires only $O(\tHorizon)$ calculations, i.e., linear time. Note also that in order to return the range of elements that make up the maximal contiguous sum $[\ttime_{\text{start}},\ttime_{\text{end}}]$, we keep track of $\policy_{\ttime}$ -- the index of the first element in the maximal sum that ends exactly at ${x_{\ttime}}$. 
+
+\subsection*{Longest Increasing Subsequence}
+
+We are given a sequence of $\tHorizon$ real numbers ${x_1},{x_2}, \ldots ,{x_{\tHorizon}}$. Our goal is to find the longest strictly increasing subsequence (not necessarily contiguous).
+E.g, for the sequence $(3,1,5,3,4)$, the solution is $(1,3,4)$.
+Observe that the number of subsequences is ${2^{\tHorizon}}$, therefore an exhaustive search is inefficient.
+
+We next develop a DP solution. Define  ${\Value_{\ttime}}$ to be the length of the longest strictly increasing subsequence ending at position $\ttime$.
+Then 
+\begin{equation*}
+\begin{split}
+    {\Value_1} &= 1, \\
+    \Value_{\ttime} &= \left\{\begin{array}{ll}
+  1, & \text{if } x_{\ttime'}\geq x_{\ttime} \text{ for all } \ttime'<\ttime, \\
+  \max \left\{{\value_{\ttime'} : \ttime'<\ttime, x_{\ttime'}<x_{\ttime}}\right\}+1,& \text{else}. \end{array}\right. 
+\end{split}
+\end{equation*}
+
+The size of the longest subsequence is then $\Value^* = {\max _{1 \le \ttime \le \tHorizon}}({\Value_{\ttime}}).$ 
+Computing ${\Value_{\ttime}}$ recursively gives the result with a running time of $O({\tHorizon^2})$.\footnote{We note that this can be further improved to $O(\tHorizon\log \tHorizon)$. See Chapter 15 of
+\cite{BookCormenLRS2009}.}
+
+
+\subsection*{An Integer Knapsack Problem}
+
+We are given a knapsack (bag) of integer capacity $C > 0$, and a set of $\tHorizon$ items with respective sizes ${\state_1}, \ldots ,{\state_{\tHorizon}}$ and values (worth) ${\reward_1}, \ldots ,{\reward_{\tHorizon}}$. The sizes are positive and integer-valued. Our goal is to fill the knapsack to maximize the total value. That is, find the subset $A \subset \{ 1, \ldots ,\tHorizon\} $ of items that maximize \[\sum\nolimits_{\ttime \in A} {{\reward_{\ttime}}} ,\] subject to  \[\sum\nolimits_{\ttime \in A} {{\state_\ttime}}  \le C.\]
+
+Note that the number of item subsets is ${2^\tHorizon}$. We will now devise a DP solution.
+Let $\Value(\ttime,\ttime') = $ denote the maximal value for filling exactly capacity $\ttime'$ with items from the set $\{1, \ldots,\ttime\}$.
+If the capacity $\ttime'$ cannot be matched by any such subset, set $\Value(\ttime,\ttime') =  - \infty $.
+Also set $\Value(0,0) = 0$, and  $\Value(0,\ttime') =  - \infty $ for $\ttime' \ge 1$.  Then
+\begin{equation*}
+  \Value(\ttime,\ttime') = \max \{ \Value(\ttime - 1,\ttime'), \Value(\ttime - 1,\ttime' - {\state_{\ttime}}) + {\reward_{\ttime}}\},  
+\end{equation*}
+which can be computed recursively for $\ttime = 1:\tHorizon$,  $\ttime' = 1:C$. The required value is obtained by    $\Value^* = {\max _{0 \le \ttime' \le C}}\Value(\tHorizon,\ttime')$.
+The running time of this algorithm is $O(\tHorizon C)$.  We note that the recursive computation of $\Value(\ttime,\ttime')$ requires $O(C)$ space. To obtain the indices of the terms in the optimal subset some additional book-keeping is needed, which requires $O(\tHorizon C)$  space.
+
+\subsection*{Longest Common Subsequence}\label{ss:LCS}
+We are given two sequences (or strings) $X(1:\tHorizon_1)$, $Y(1:\tHorizon_2)$, of length $\tHorizon_1$ and $\tHorizon_2$, respectively. We define a \textit{subsequence} of X as the string that remains after deleting some number (zero or more) of elements of X.  We wish to find the longest common subsequence (LCS) of X and Y, namely, a sequence of maximal length that is a subsequence of both X and Y.
+For example:
+\begin{equation*}
+    \begin{split}
+       X &= \underline{A}V\underline{B}V\underline{A}M\underline{C}\underline{D}, \\
+       Y &= \underline{A}Z\underline{B}Q\underline{A}\underline{C}L\underline{D}.
+     \end{split}
+\end{equation*}
+
+We next devise a DP solution.
+Let  $Value(\ttime_1,\ttime_2)$ denote the length of an LCS of  the prefix subsequences $X(1:\ttime_1)$, $Y(1:\ttime_2)$. Set $Value(\ttime_1,\ttime_2) = 0$ if $\ttime_1 = 0$ or $\ttime_2 = 0$. Then, for $\ttime_1,\ttime_2 > 0$, we have:
+\begin{equation*}
+    \Value(\ttime_1,\ttime_2) = \left\{ {\begin{array}{*{20}{l}}
+    {\Value(\ttime_1 - 1,\ttime_2 - 1) + 1}&{\;:\quad X(\ttime_1){\rm{ = }}Y(\ttime_2){\rm{  }}}\\
+{\max \{ \Value(\ttime_1,\ttime_2 - 1),\Value(\ttime_1 - 1,\ttime_2)\} }&{\;:\quad X(\ttime_1) \ne Y(\ttime_2)}
+\end{array}} \right.
+\end{equation*}
+We can now compute $Value(\tHorizon_1, \tHorizon_2)$ recursively, using a row-first or column-first order, in $O(\tHorizon_1 \tHorizon_2)$ computations.
+
+\subsection*{Further examples}
+% The references mentioned above provide additional details on these problems, as well as a number of problems. These include, among others:
+Additional important DP problems include, among others:
+\begin{itemize}
+  \item The Edit-Distance problem: find the distance (or similarity) between two strings, by counting the minimal number of ``basic operations'' that are needed to transform one string to another. A common set of basic operations is: delete character, add character, change character. This problem is frequently encountered in natural language processing and bio-informatics (e.g., DNA sequencing) applications, among others.
+  \item The Matrix-Chain Multiplication problem: Find the optimal order to compute a matrix multiplication  ${M_1}{M_2} \cdots {M_n}$  (for non-square matrices).
+\end{itemize}
+
+
