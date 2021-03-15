@@ -111,14 +111,14 @@ For example:
 \end{equation*}
 
 We next devise a DP solution.
-Let  $Value(\ttime_1,\ttime_2)$ denote the length of an LCS of  the prefix subsequences $X(1:\ttime_1)$, $Y(1:\ttime_2)$. Set $Value(\ttime_1,\ttime_2) = 0$ if $\ttime_1 = 0$ or $\ttime_2 = 0$. Then, for $\ttime_1,\ttime_2 > 0$, we have:
+Let  $\Value(\ttime_1,\ttime_2)$ denote the length of an LCS of  the prefix subsequences $X(1:\ttime_1)$, $Y(1:\ttime_2)$. Set $\Value(\ttime_1,\ttime_2) = 0$ if $\ttime_1 = 0$ or $\ttime_2 = 0$. Then, for $\ttime_1,\ttime_2 > 0$, we have:
 \begin{equation*}
     \Value(\ttime_1,\ttime_2) = \left\{ {\begin{array}{*{20}{l}}
     {\Value(\ttime_1 - 1,\ttime_2 - 1) + 1}&{\;:\quad X(\ttime_1){\rm{ = }}Y(\ttime_2){\rm{  }}}\\
 {\max \{ \Value(\ttime_1,\ttime_2 - 1),\Value(\ttime_1 - 1,\ttime_2)\} }&{\;:\quad X(\ttime_1) \ne Y(\ttime_2)}
 \end{array}} \right.
 \end{equation*}
-We can now compute $Value(\tHorizon_1, \tHorizon_2)$ recursively, using a row-first or column-first order, in $O(\tHorizon_1 \tHorizon_2)$ computations.
+We can now compute $\Value(\tHorizon_1, \tHorizon_2)$ recursively, using a row-first or column-first order, in $O(\tHorizon_1 \tHorizon_2)$ computations.
 
 \subsection*{Further examples}
 % The references mentioned above provide additional details on these problems, as well as a number of problems. These include, among others:
