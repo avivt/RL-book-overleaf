@@ -88,7 +88,7 @@ p(\state'|\state = 1,\action = 2) = \left\{ {\begin{array}{*{20}{c}}
 The stochastic state dynamics can be equivalently defined in terms of a state equation of the form
                                                    \[{\state_{\ttime + 1}} = {f_\ttime}({\state_\ttime},{\action_\ttime},{w_\ttime}),\]
 where ${w_\ttime}$ is a random variable (RV).
-    If  ${({w_\ttime})_{t \ge 0}}$ is a sequence of independent RVs, and further each ${w_\ttime}$ is independent of the ``past"  $({\state_{\ttime - 1}},{\action_{\ttime - 1}}, \ldots {\state_0})$, then ${({\state_\ttime},{\action_\ttime})_{t \ge 0}}$ is a controlled Markov process.
+    If  ${({w_\ttime})_{\ttime \ge 0}}$ is a sequence of independent RVs, and further each ${w_\ttime}$ is independent of the ``past"  $({\state_{\ttime - 1}},{\action_{\ttime - 1}}, \ldots {\state_0})$, then ${({\state_\ttime},{\action_\ttime})_{\ttime \ge 0}}$ is a controlled Markov process.
     For example, the state transition law of the last example can be written in this way, using
                   ${w_\ttime} \in \{ 4,5,6\} $,  with  ${p_w}(4) = 0.3,\;{p_w}(5) = 0.2,\;{p_w}(6) = 0.5$
 and, for ${\state_\ttime} = 1$:
@@ -118,7 +118,7 @@ _\ttime}({\history_\ttime}) \in {\Actions_\ttime}$.  We denote the
 set of general policies by ${\Pi _{HD}}$.
   \item
 A \textbf{Markov deterministic} control policy $\policy $ is allowed
-to depend on the current state and time only: ${\action_\ttime} =
+to depend on the current state and time only, i.e., ${\action_\ttime} =
 {\policy _\ttime}({\state_\ttime})$.   We denote the set of Markov
 deterministic policies by ${\Pi _{MD}}$.
   \item
@@ -153,7 +153,7 @@ induces a probability distribution over any finite state-action
 sequence ${\history_\tHorizon} = ({\state_0},{\action_0}, \ldots
 ,{\state_{\tHorizon - 1}},{\action_{\tHorizon -
 1}},{\state_\tHorizon})$, given by
-\[\Pr({\history_\tHorizon}) = {p_0}({\state_0})\prod\limits_{t = 0}^{\tHorizon -1} {p_\ttime({\state_{\ttime + 1}}|{\state_\ttime},{\action_\ttime}){\policy _\ttime}({\action_\ttime}|{\history_\ttime})} ,\]
+\[\Pr({\history_\tHorizon}) = {p_0}({\state_0})\prod\limits_{\ttime = 0}^{\tHorizon -1} {p_\ttime({\state_{\ttime + 1}}|{\state_\ttime},{\action_\ttime}){\policy _\ttime}({\action_\ttime}|{\history_\ttime})} ,\]
 where ${\history_\ttime} = ({\state_0},{\action_0}, \ldots
 ,{\state_{\tHorizon -1}},{\action_{\tHorizon -1}},{\state_\ttime})$.
 %
@@ -237,8 +237,7 @@ stochastic transitions.)
  Our
 general goal is to maximize the cumulative return:
 \[
-\sum\limits_{t = 0}^\tHorizon {{R_\ttime}}  = \sum\limits_{t =
-0}^{\tHorizon -1}
+\sum\limits_{\ttime = 0}^\tHorizon {{R_\ttime}}  = \sum\limits_{\ttime = 0}^{\tHorizon -1}
 {{\reward_\ttime}({\state_\ttime},{\action_\ttime}) +
 {\reward_\tHorizon}({\state_\tHorizon})} .
 \]
@@ -247,7 +246,7 @@ stochastic, the cumulative return will generally be a random variable, and we
 need to specify in which sense to maximize it. A natural first
 option is to consider the expected value of the return. That is,
 define:
-\[\Value_\tHorizon^\policy (\state) = {\E^\policy }(\sum\limits_{t = 0}^\tHorizon {{R_\ttime}} |{\state_0} = \state) \equiv {\E^{\policy ,s}}(\sum\limits_{t = 0}^\tHorizon {{R_\ttime}} ) .\]
+\[\Value_\tHorizon^\policy (\state) = {\E^\policy }(\sum\limits_{\ttime = 0}^\tHorizon {{R_\ttime}} |{\state_0} = \state) \equiv {\E^{\policy ,s}}(\sum\limits_{\ttime = 0}^\tHorizon {{R_\ttime}} ) .\]
 Here $\policy $ is the control policy as defined above, and $\state$
 denotes the initial state. Hence,  $\Value_\tHorizon^\policy
 (\state)$ is the expected cumulative return under the control policy
@@ -257,12 +256,12 @@ maximizes $\Value_\tHorizon^\policy
 
 \paragraph{Remarks:}
 \begin{enumerate}
-  \item Dependence on the next state:  In some problems, the obtained reward may depend on the next state as well: ${R_\ttime} = {\tilde \reward_\ttime}({\state_\ttime},{\action_\ttime},{\state_{\ttime + 1}})$.  For control purposes, when we only consider the expected value of the reward, we can reduce this reward function to the usual one by defining
+  \item Reward dependence on the next state:  In some problems, the obtained reward may depend on the next state as well: ${R_\ttime} = {\tilde \reward_\ttime}({\state_\ttime},{\action_\ttime},{\state_{\ttime + 1}})$.  For control purposes, when we only consider the expected value of the reward, we can reduce this reward function to the usual one by defining
 \[{\reward_\ttime}(\state,\action) \buildrel \Delta \over = \E({R_\ttime}|{\state_\ttime} = \state,{\action_\ttime} = \action) \equiv \sum\nolimits_{\state' \in S} {p(\state'|\state,\action){{\tilde r}_\ttime}(} s,a,\state')\]
   \item Random rewards:  The reward ${R_\ttime}$ may also be random, namely a random variable whose distribution depends on $({\state_\ttime},{\action_\ttime})$.  This can also be reduced to our standard model for planning purposes by looking at the expected value of ${R_\ttime}$, namely \[{\reward_\ttime}(\state,\action) = \E({R_\ttime}|{\state_\ttime} = \state,{\action_\ttime} =
   \action).\]
   \item Risk-sensitive criteria: The expected cumulative return is by far the most common goal for planning. However, it is not the only one possible. For example, one may consider the following risk-sensitive  return function:
-\[\Value_{{\tHorizon,\lambda }}^\policy (\state) = \frac{1}{\lambda }\log {\E^{\policy ,s}}(\exp (\lambda \sum\limits_{t = 0}^\tHorizon {{R_\ttime}} )).\]
+\[\Value_{{\tHorizon,\lambda }}^\policy (\state) = \frac{1}{\lambda }\log {\E^{\policy ,s}}(\exp (\lambda \sum\limits_{\ttime = 0}^\tHorizon {{R_\ttime}} )).\]
 For $\lambda  > 0$, the exponent gives higher weight to high rewards, and the opposite for $\lambda  < 0$.
 \end{enumerate}
 
@@ -274,7 +273,7 @@ transition function, and the rewards can be assumed to be
 deterministic.
 %
 Formally, given a trajectory we define a {\em rewards trajectory} as
-the sub-trajectory that includes only the rewards.
+the sub-trajectory that includes only the rewards, i.e., for a trajectory $(\state_0,\action_0,reward_0,state_1, \ldots)$ the reward trajectory is  $(\reward_0, \reward_1, \ldots)$.
 
 
 %[Add HW to do the same for discounted]
@@ -285,7 +284,7 @@ the sub-trajectory that includes only the rewards.
  Given an MDP $M(\States,\Actions,p,\reward,\state_0)$,
 where the rewards are stochastic, with support ${\cal
 K}=\{1,\ldots,k\}$, there is an MDP $M'(\States\times {\cal
-K},\Actions,p',\reward',\state_0')$, such that and a mapping of
+K},\Actions,p',\reward',\state_0')$, and a mapping of
 policies $\policy$ of $M$ to $\policy'$ policies of $M'$, such that:
 running $\pi$ in $M$ for horizon $\tHorizon$ generates reward
 trajectory $R=(R_0, \ldots , R_{\tHorizon})$ and running $\pi'$ in
@@ -314,13 +313,13 @@ $\policy'$ is $M'$ where
 $\policy'(\action|(\state,i))=\policy(\action|\state)$.
 
 We map trajectories of $M$ to trajectories of $M'$ which have
-identical probabilities. A trajectory $(\state_0, \action_0 , R_0 ,
-\state_1,\action_1,R_1, \state_2 \ldots, R_{\tHorizon})$ is map to
+identical probabilities. A trajectory $(\state_0, \action_0 , R_0 ,$
+$\state_1,\action_1,R_1, \state_2 \ldots, R_{\tHorizon})$ is map to
 $((\state_0,0), \action_0 , 0 ,$ $ (\state_1,R_0),\action_1,R_0,
 (\state_2,R_1) \ldots, R_{\tHorizon+1})$. Let $R$ and $R'$ be the
 respective reward trajectories.
 %
-Clearly, the two trajectory have identical probabilities. This
+Clearly, the two trajectories have identical probabilities. This
 implies that the rewards trajectories $R$ and $R'$ have are
 identical probabilities (up to a shift of one in the index).
 % Therefore the policies have identical return.l
@@ -411,7 +410,7 @@ expected reward obtained at stage $\ttime$ is $\E[{R_\ttime}] =
 \reward({\state_\ttime},{\action_\ttime})$.
 
 \paragraph{Discounted return:} The most common performance criterion for infinite horizon problems is the expected discounted return:
-\[\Value_\discount ^\policy (\state) = {\E^\policy }(\sum\limits_{t = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} |{\state_0} = \state) \equiv {\E^{\policy ,s}}(\sum\limits_{t = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} )\;,\]
+\[\Value_\discount ^\policy (\state) = {\E^\policy }(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} |{\state_0} = \state) \equiv {\E^{\policy ,s}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} )\;,\]
 where $0 < \discount  < 1$ is the discount factor. Mathematically,
 the discount factor ensures convergence of the sum (whenever the
 reward sequence is bounded). This make the problem ``well behaved",
@@ -419,7 +418,7 @@ and relatively easy to analyze. The discounted return is discussed
 in Chapter \ref{chapter:disc}.
 
 \paragraph{Average return:}  Here we are interested to maximize the long-term average return. The most common definition of the long-term average return is
-\[\Value_{av}^\policy (\state) = \mathop {\lim \inf }\limits_{\tHorizon \to \infty } {\E^{\policy ,s}}(\frac{1}{\tHorizon}\sum\limits_{t = 0}^{\tHorizon -1} {\reward({\state_\ttime},{\action_\ttime})} )\]
+\[\Value_{av}^\policy (\state) = \mathop {\lim \inf }\limits_{\tHorizon \to \infty } {\E^{\policy ,s}}(\frac{1}{\tHorizon}\sum\limits_{\ttime = 0}^{\tHorizon -1} {\reward({\state_\ttime},{\action_\ttime})} )\]
 The theory of average-return planning problems is more involved, and
 relies to a larger extent on the theory of Markov chains (see
 Chapter~\ref{chapter:MC}). The average return is discussed in
@@ -433,7 +432,7 @@ set beforehand, but rather the problem continues until a certain
 event occurs. This event can be defined as reaching some goal state.
 Let  ${\States_G} \subset \States$ define the set of \emph{goal
 states}. Define
-\[\tau  = \inf \{ t \ge 0:{\state_\ttime} \in {\States_G}\} \]
+\[\tau  = \inf \{ \ttime \ge 0:{\state_\ttime} \in {\States_G}\} \]
 as the first time in which a goal state is reached. The total expected return for this problem is defined as:
 \[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau }))\]
 Here ${\reward_G}(\state),\;\state \in {\States_G}$ specified the
@@ -536,7 +535,7 @@ example, considering our finite-horizon problem, let ${\policy ^*} =
 Markov policy. Take any state ${\state_\ttime} = \state'$ which has
 a positive probability to be reached under ${\policy ^*}$, namely
 ${P^{\policy^* ,{\state_0}}}({\state_\ttime} = \state')
-> 0$. Then the tail policy $\policy^*_{t:T}=({\policy _\ttime}, \ldots ,{\policy _{\tHorizon -1}})$ is optimal for the ``tail" criterion $\Value_{t:T}^\policy
+> 0$. Then the tail policy $\policy^*_{\ttime:\tHorizon}=({\policy _\ttime}, \ldots ,{\policy _{\tHorizon -1}})$ is optimal for the ``tail" criterion $\Value_{\ttime:\tHorizon}^\policy
 (\state') = {\E^\policy }\left( {\sum\nolimits_{k = t}^\tHorizon
 {{R_k}|{\state_\ttime} = \state'} } \right)$.
 
@@ -557,7 +556,7 @@ value function:
 Observe that $V_0^\policy ({\state_0}) = {\Value^\policy }({\state_0})$.
 
 \begin{lemma}[\textbf{Value Iteration}]\label{lem:finite_horizon_VI} $V_k^\policy (\state)$ may be computed by the backward recursion:
-\[V_k^\policy (\state) = {\left\{ {{\reward_k}(\state,\action) + \sum\nolimits_{\state' \in {\States_{k + 1}}} {{p_k}(\state'|\state,\action)} \;V_{k + 1}^\policy (\state')} \right\}_{a = {\policy _k}(\state)}}\;,\quad \state \in {\States_k}\]
+\[V_k^\policy (\state) = {\left\{ {{\reward_k}(\state,\action) + \sum\nolimits_{\state' \in {\States_{k + 1}}} {{p_k}(\state'|\state,\action)} \;V_{k + 1}^\policy (\state')} \right\}_{a = {\policy _k}(\state)}}\;,\quad \forall \state \in {\States_k}\]
 for $k = \tHorizon -1, \ldots ,0$,  starting with
 $V_\tHorizon^\policy (\state) = {\reward_\tHorizon}(\state)$.
 \end{lemma}
@@ -615,7 +614,7 @@ Backward recursion:  Set $V_\tHorizon^{}(\state) = {\reward_\tHorizon}(\state)$ 
 We have that $V_k(s)=V^*_k(s)$.
 \item
 Optimal policy: Any Markov policy ${\policy ^*}$ that satisfies, for $\ttime = 0, \ldots ,\tHorizon -1$,
-\[\policy _\ttime^*(\state) \in \mathop {\arg \max }\limits_{\action \in {\Actions_\ttime}} \left\{ {{\reward_\ttime}(\state,\action) + \sum\nolimits_{\state' \in {\States_{\ttime + 1}}} {{p_\ttime}(\state'|\state,\action)\,} V_{\ttime + 1}^{}(\state')} \right\},\quad \state \in {\States_\ttime},\]
+\[\policy _\ttime^*(\state) \in \mathop {\arg \max }\limits_{\action \in {\Actions_\ttime}} \left\{ {{\reward_\ttime}(\state,\action) + \sum\nolimits_{\state' \in {\States_{\ttime + 1}}} {{p_\ttime}(\state'|\state,\action)\,} V_{\ttime + 1}^{}(\state')} \right\},\quad \forall \state \in {\States_\ttime},\]
 is an optimal control policy. Furthermore, ${\policy ^*}$ maximizes
 ${\Value^\policy }({\state_0})$ simultaneously for every initial state
 ${\state_0} \in {\States_0}.$
@@ -689,7 +688,7 @@ V_k^{{\policy ^k}}(\state) &\le \sum\nolimits_{\action \in {\Actions_k}} {{\poli
 \end{align*}
 which is the required inequality in (b).
 
-\textbf{Part  (ii)} The main point is to show that the it is
+\textbf{Part  (ii)} The main point is to show that it is
 sufficient that the optimal policy would be Markov (rather than
 history dependent) and deterministic (rather than stochastic).
 

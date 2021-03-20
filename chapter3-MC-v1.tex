@@ -5,7 +5,7 @@
 We start by considering a stochastic dynamics model which does not
 have any actions, so that we can concentrate on the dynamics.
 
-A Markov chain $\{ {X_\ttime},\;\ttime = 0,1,2, \ldots \} $, with
+A \emph{Markov chain} $\{ {X_\ttime},\;\ttime = 0,1,2, \ldots \} $, with
 ${X_\ttime} \in X$, is a discrete-time stochastic process, over a
 finite or countable state-space $X$, that satisfies the following
 Markov property:
@@ -67,7 +67,7 @@ i$.\\
 For a finite $X$, this implies that in $G(X,E)$ there is both a
 directed path from $i$ to $j$ and from $j$ to $i$.
 \item A \textit{communicating class} (or just
-class) is a maximal collection of states that communicate.\\
+\emph{class}) is a maximal collection of states that communicate.\\
 For a finite $X$, this implies that in $G(X,E)$ we have $i$ and $j$
 in the same strongly connected component of the graph. (A strongly
 connected component has a directed path between any pair of
@@ -120,7 +120,7 @@ Add figures explaining the definitions.
 \begin{itemize}
 \item
 State $i$ is \textit{recurrent} if ${\cal P}({X_\ttime} = i{
-\textrm{ for some }}t \ge 1|{X_0} = i) = 1$. Otherwise, state $i$ is
+\textrm{ for some }}\ttime \ge 1|{X_0} = i) = 1$. Otherwise, state $i$ is
 \textit{transient}.\\
 %\item
 We can relate the state property of recurrent and transient to the
@@ -133,7 +133,7 @@ State $i$ is transient iff $\sum\nolimits_{m = 1}^\infty
 
 \begin{proof}
 Assume that state $i$ is transient. Let $q_i={\cal P}({X_\ttime} =
-i{ \textrm{ for some }}t \ge 1|{X_0} = i) $. Since state $i$ is
+i{ \textrm{ for some }}\ttime \ge 1|{X_0} = i) $. Since state $i$ is
 transient we have $q_i<1$. Let $Z_i$ be the number of times the
 trajectory returns to state $i$. Note that $Z_i$ is geometrically
 distributed with parameter $q_i$, namely $\Pr[Z_i=k]=q_i^k (1-q_i)$.
@@ -151,10 +151,10 @@ such that $\sum\nolimits_{m = m_0}^\infty {p_{i,i}^{(m)}}  < 1/2$.
 Consider the probability of returning to $i$ within $m_0$ stages.
 This implies that ${\cal P}({X_\ttime} = i{ \textrm{ for some }}t
 \ge m_0|{X_0} = i)< 1/2$. Now consider the probability $q'_i={\cal
-P}({X_\ttime} = i{ \textrm{ for some }}m_0\geq t \ge 1|{X_0} = i) $.
+P}({X_\ttime} = i{ \textrm{ for some }}m_0\geq \ttime \ge 1|{X_0} = i) $.
 %
 If $q'_i<1$, this implies that ${\cal P}({X_\ttime} = i{ \textrm{
-for some }}t \ge 1|{X_0} = i)<q'_i +(1-q'_i)/2=(1+q'_i)/2<1$, which
+for some }}\ttime \ge 1|{X_0} = i)<q'_i +(1-q'_i)/2=(1+q'_i)/2<1$, which
 implies that state $i$ is transient.
 %
 If $q'_i=1$, this implies that after at most $m_0$ stages we are
@@ -218,12 +218,12 @@ Therefore we showed that state $j$ is recurrent.
 \item
 If states $i$ and $j$ are in the same recurrent (communicating)
 class, then state $j$ is (eventually) reached from state $i$ with
-probability 1:  ${\cal P}({X_\ttime} = j{\textrm{ for some t}} \ge
+probability 1, namely,  ${\cal P}({X_\ttime} = j{\textrm{ for some t}} \ge
 1|{X_0} = i) = 1$.\\
 This follows from the fact that both states occur infinitely often,
 with probability $1$.
 \item
-Let ${T_i}$ be the {\em return time} to state $i$  (number of stages
+Let ${T_i}$ be the {\em return time} to state $i$  (i.e., number of stages
 required for $({X_\ttime})$ starting from state $i$ to the first
 return to $i$). If $i$ is a recurrent
 state, then ${T_i} < \infty $ w.p. 1.\\
@@ -231,7 +231,8 @@ Since otherwise, there is a positive probability that we never
 return to state $i$, and hence state $i$ is not recurrent.
 %
 \item State $i$ is {\em positive recurrent} if  $\E({T_i}) < \infty $,
-and null recurrent if $\E({T_i}) = \infty $. If the state space $X$
+and null recurrent if $\E({T_i}) = \infty $.\\
+If the state space $X$
 is finite, all recurrent states are positive recurrent.\\
 This follows since the set of states that are null recurrent cannot
 have transitions from positive recurrent states and cannot have
@@ -239,8 +240,10 @@ transition to transient states. If the chain never leaves the set of
 null recurrent states, then some state would have a return time
 which is at most the size of the set. If there is a positive
 probability of leaving the set (and never returning) then the states
-are transient.
+are transient. (See the proof of Theorem \ref{thm:countableMC} for a more formal proof of a similar claim for countable Markov Chains.)
 \end{itemize}
+
+In the following we illustrate some of the notions that we define. we start with the classic random walk on the integers, where all integer (states) are null recurrent.
 
 \begin{example}{\bf Random walk}
 Consider the following Markov chain over the integers. The states
@@ -275,7 +278,7 @@ Clearly, there is no finite value for $\E[Z_{1,0}]$ which will
 satisfy the equation, which implies $\E[Z_{1,0}]=\infty$, and hence
 $\E[T_i]=\infty$.
 
-To show that $0$ is a recurrent state, note that the probability
+To show that state $0$ is a recurrent state, note that the probability
 that at time $2k$ we are at state $0$ is exactly $p_{0,0}^{(2k)}={2k
 \choose k}2^{-2k}\approx \frac{c}{\sqrt{k}}$, for some $c>0$. This
 implies that
@@ -284,10 +287,13 @@ $$
 = 1}^\infty \frac{c}{\sqrt{m}}=\infty
 $$
 and therefore state $0$ is recurrent. (By symmetry, this shows that
-all the states are recurrent).
+all the states are recurrent.)
 
-Note that this Markov chain has a period of $2$.
+Note that this Markov chain has a period of $2$. This follows since any trajectory starting at $0$ and returning to $0$ has an equal number of $+1$ and $-1$ and therefore of even length. Any even number $n$ has a trajectory of this length that starts at $0$ and returns to $0$, for example, having $n/2$ times $+1$ followed by $n/2$ times $-1$.
 \end{example}
+
+The next example is a simple modification of the random walk, where each time we either return to the origin or continue to the next integer with equal probability. 
+This Markov chain will have all (non-negative) integers as possitive recurrent states.
 
 \begin{example}
 {\bf Random walk with jumps.}
@@ -300,15 +306,15 @@ return to $0$. Namely, $p_{i,i+1}=1/2$, $p_{i,0}=1/2$, and $p_{i,j}
 (which implies that $T_i$ is finite with probability $1$).
 
 From any state we return to $0$ with probability $1/2$, therefore
-$\E[T_0]=2$. We will show that for state $i$ we have
-$\E[T_i]\leq2+2\cdot 2^i$. We will decompose $T_i$ to two parts. The
-first is the return to $0$, this part has expectation $2$. The
+$\E[T_0]=3$. (The expected return is composed from the first move from $0$ to $1$ and then we have a geometric distribution with expectation $2$.) We will show that for state $i$ we have
+$\E[T_i]\leq3+3\cdot 2^{i-1}$. We will decompose $T_i$ to two parts. The
+first is the return to $0$, this part has expectation $3$. The
 second is to reach state $i$ from state $0$. Consider an epoch as
 the time between two visits to $0$. The probability that an epoch
-would reach $i$ is exactly $2^{-i}$. The expected time of an epoch
-is $2$ (the expected time to return to state $0$). The expected time
+would reach $i$ is exactly $2^{-(i-1)}$. The expected time of an epoch
+is $3$ (the expected time to return to state $0$). The expected time
 to return to state $0$, given that we did not reach state $i$ is
-less than $2$. Therefore, $\E[T_i]\leq2+2\cdot 2^i$.
+less than $3$. Therefore, $\E[T_i]\leq 3+3\cdot 2^{i-1}$.
 
 Note that this Markov chain is aperiodic.
 \end{example}
@@ -338,10 +344,10 @@ such that $\mu^\top P = \mu^\top >0$.
 Assume that $x$ is an eigenvector of $P$ with eigenvalue $\lambda$,
 i.e., we have $Px=\lambda x$. Since $P$ is a stochastic matrix, we
 have $\|P x\|_\infty \leq \|x\|_\infty$, which implies that $\lambda
-\leq 1$. Since the matrix $P$ is stochastic, $P\vec{1}=\vec{1}$,
+\leq 1$. Since the matrix $P$ is row stochastic, $P\vec{1}=\vec{1}$,
 which implies that $P$ has a right eigenvalue of $1$ and this is the
 maximal eigenvalue. Since the set of right and left eignevalues is
-identical, we conclude that there is $x$ such that $x^\top Px^\top$.
+identical, we conclude that there is $x$ such that $x^\top P=x^\top$.
 Our first task is to show that there is such an $x$ with $x\geq0$.
 
 Since the Markov chain is irreducible and a-periodic, there is an
@@ -368,7 +374,7 @@ P_{i,j}=  \sum_i |x_i| \sum_j P_{i,j}= \sum_j |x_j|
 \]
 where the first identity follows since $x$ is an eigenvector. The
 second since $P$ is strictly positive.The third is a change of order
-of summation. The last follows since $P$ is a stochastic matrix, so
+of summation. The last follows since $P$ is a row stochastic matrix, so
 each row sums to $1$. Clearly, we reached an contradiction, and
 therefore $x$ cannot have both positive and negative entries.
 
@@ -393,7 +399,8 @@ therefore $x$ cannot have both positive and negative entries.
 %$y_i$, and $|x|$ is an eigenvector of $A$ of eigenvalue $1$. }
 
 We have shown so far that there exists a $\mu$ such that $\mu^\top
-P=\mu^\top$ and $\mu\geq 0$. Since $A=P^m$ is strictly positive,
+P=\mu^\top$ and $\mu\geq 0$. This implies that $\mu/\|\mu\|_1$ is a steady state distribution.
+Since $A=P^m$ is strictly positive,
 then $\mu^\top=\mu^\top A >0$.
 
 To show the uniqueness of $\mu$, assume we have $x$ and $y$ such
@@ -430,7 +437,7 @@ We have that
 \]
 Let $v_1, \ldots , v_n$ be the eigenvectors of $P$ with eigenvalues
 $\lambda_1 \geq  \ldots \geq  \lambda_n$. By
-Theorem~\ref{Thm:MC-stationary} that $v_1=\mu$, the stationary
+Theorem~\ref{Thm:MC-stationary} we have that $v_1=\mu$, the stationary
 distribution and $\lambda_1=1>\lambda_i$ for $i\geq 2$. Rewrite
 $x_0=\sum_i \alpha_i v_i$. Since $P^m$ is a stochastic matrix,
 $x_0^\top P^m$ is a distribution, and therefore $\lim_{m\rightarrow
@@ -491,6 +498,7 @@ ${\mu^*}$, where $\mu^*(i)=1/\E[T_i]$.
 For countable Markov chains, there are other possibilities.
 
 \begin{theorem}[\textbf{Countable Markov chains}]
+\label{thm:countableMC}
 Let $({X_\ttime})$ be an irreducible and a-periodic Markov chain
 over a countable state space $X$.  Then:
 %\begin{enumerate}
@@ -507,7 +515,8 @@ Either (i) all states are positive recurrent, or (ii) all states are null recurr
 Let $i$ is a positive recurrent state, then we will show that all
 states are positive recurrent. For any state $j$, since the Markov
 chain is irreducible, we have for some $m_1,m_2\geq 0$ that
-$p^{(m_1)}_{j,i},p^{(m_2)}_{i,j}>0$. This implies that the return
+$p^{(m_1)}_{j,i},p^{(m_2)}_{i,j}>0$. This implies that
+the return
 time to state $j$ is at most $\E[T_j]\leq
 1/p^{(m_1)}_{j,i}+\E[T_i]+1/p^{(m_2)}_{i,j}$, and hence $j$ is
 positive recurrent.
@@ -515,8 +524,11 @@ positive recurrent.
 If there is no positive recurrent state, let $i$ be a null recurrent
 state, then we will show that all states are null recurrent. For any
 state $j$, since the Markov chain is irreducible, we have for some
-$m_1,m_2\geq 0$ that $p^{(m_1)}_{j,i},p^{(m_2)}_{i,j}>0$. This
-implies that the probability to return time to state $j$ is at least
+$m_1,m_2\geq 0$ that $p^{(m_1)}_{j,i},p^{(m_2)}_{i,j}>0$. This implies that  $\sum_{m=0}^\infty p^{(m)}_{j,j}=\infty$
+%
+%the probability to return time to state $j$ 
+%
+is at least
 $\sum_{m=0}^\infty
 p^{(m_1)}_{j,i}\;p^{(m)}_{i,i}\;p^{(m_2)}_{i,j}=\infty$, since we
 have $\sum_{m=0}^\infty p^{(m)}_{i,i}=\infty$, since $i$ is a
@@ -543,14 +555,14 @@ invariant distribution for the Markov chain defined by
 $({p_{i,j}})$. This follows since $\sum_i \mu_i p_{i,j}=\sum_i
 p_{i,j}\mu_j=\mu_j$. The equations \eqref{eq:DB} are called the
 \emph{detailed balance equations}. A Markov chain that satisfies
-these equations is called reversible.
+these equations is called \emph{reversible}.
 
-\begin{example}[\textbf{Discrete-time queue}] Consider a discrete-time queue, with queue length $X_\ttime\in \mathbb{N}_0=\{0,1,2,\dots\}$. At time instant $t$, ${A_\ttime}$ new jobs arrive, and then up to ${S_\ttime}$ jobs can be served, so that
+\begin{example}[\textbf{Discrete-time queue}] Consider a discrete-time queue, with queue length $X_\ttime\in \mathbb{N}_0=\{0,1,2,\dots\}$. At time instant $\ttime$, ${A_\ttime}$ new jobs arrive, and then up to ${S_\ttime}$ jobs can be served, so that
 \[{X_{\ttime +1}} = {({X_\ttime} + {A_\ttime} - {S_\ttime})^ + }.\]
 Suppose that $({S_\ttime})$ is a sequence of i.i.d. RVs, and
 similarly $({A_\ttime})$ is a sequence of i.i.d. RVs, with
 $({S_\ttime})$, $({A_\ttime})$ and ${X_0}$ mutually independent. It
-may then be seen that $({X_\ttime},\;t \ge 0)$ is a Markov chain.
+may then be seen that $({X_\ttime},\;\ttime \ge 0)$ is a Markov chain.
 Suppose further that each ${S_\ttime}$ is a Bernoulli RV with
 parameter $q$, namely $P({S_\ttime} = 1) = q$, $P({S_\ttime} = 0) =
 1 - q$. Similarly, let ${A_\ttime}$ be a Bernoulli RV with parameter
@@ -564,7 +576,8 @@ $p$. Then
 \end{array}} \right.\]
 %YM: Need to change mu to eta since mu is the steady state
  Denote $\lambda  = p(1 - q)$, $\eta  = (1 - p)q$, and $\rho  = \lambda /\eta $.   The detailed balance equations for this case are:
-\[{\mu _i}\lambda  = {\mu _{i + 1}}\eta ,\quad \quad i \ge 0\]
+\[
+\mu_i p_{i,i+1}={\mu _i}\lambda  = {\mu _{i + 1}}\eta=\mu_{i+1}p_{i+1,i} ,\quad \quad \forall i \ge 0\]
 These equations have a solution with $\sum {_i{\mu _i} = 1}$ if and
 only if $\rho  < 1$. The solution is ${\mu _i} = {\mu _0}{\rho ^i}$,
 with ${\pi _0} = 1 - \rho $. This is therefore the stationary
@@ -573,4 +586,13 @@ distribution of this queue.
 %\end{leftbar}
 
 
-\paragraph{Mixing time:} Add definition and motivation
+\paragraph{Mixing time:} %Add definition and motivation
+The mixing time measures how fast does the Markov chain converges to the steady state distribution. We first define the Total Variation distance between distributions $D_1$ and $D_2$ is:
+\[
+\|D_1-D_2\|_{TV}=\sum_{x\in X} | D_1 (x) - D_2(x) |
+\]
+The mixing time $\tau$ is define as the time to reach a total variation of at most $1/4$:
+\[
+\|p^{(\tau)}-\mu\|_{TV}\leq 1/4
+\]
+where $\mu$ is the steady state distribution and $p^{(\tau)}$ is the state distribution after $\tau$ steps.
