@@ -5,7 +5,7 @@ optimal.
 
 The discounted return problem is the most ``well behaved'' among all
 infinite horizon problems (such as average return and stochastic
-shortest path), and the theory of it is relatively simple, both in
+shortest path), and its theory is relatively simple, both in
 the planning and the learning contexts. For that reason, as well as
 its usefulness, we will consider here the discounted problem and its
 solution in some detail.
@@ -25,7 +25,7 @@ solution in some detail.
 
 We consider a stationary (time-invariant) MDP, with a finite state
 space $\States$, finite action set $\Actions$, and transition kernel
-$P = (P(\state'|\state,\action))$ over the infinite time horizon
+$P = (\transitionprob(\state'|\state,\action))$ over the infinite time horizon
 ${\T} = \{ 0,1,2, \ldots \} $.
 
 Our goal is to maximize the expected discounted return, which is
@@ -74,7 +74,7 @@ We start the analysis by defining and computing the value function for a fixed s
 For a stationary policy $\policy :\States \to \Actions$, we define
 the value function $\Value_{}^\policy (\state),\;\state \in \States$
 simply as the corresponding discounted return:
-\[\Value_{}^\policy (\state) \buildrel \Delta \over = {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} \right)=\Value_\discount ^\policy (\state),   \quad \state \in  S\]
+\[\Value_{}^\policy (\state) \buildrel \Delta \over = {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} \right)=\Value_\discount ^\policy (\state),   \quad \forall \state \in  \States\]
 
 \begin{lemma}\label{lem:FP_Bellman}
 For $\policy\in\Pi_{SD}$, the value function $\Value_{}^\policy $
@@ -82,7 +82,7 @@ satisfies the following set of $|\States|$ linear equations:
 \begin{equation}\label{eq:FP_Bellman}
 {\Value^\policy }{\kern 1pt} (\state) = \reward(\state,\policy
 (\state)) + \discount \sum\nolimits_{\state' \in \States}
-{p(\state'|\state,\policy (\state)){\Value^\policy }(\state')}
+{\transitionprob(\state'|\state,\policy (\state)){\Value^\policy }(\state')}
 \;,\quad \;\state \in \States.
 \end{equation}
 \end{lemma}
@@ -96,9 +96,9 @@ since both the model and the policy are stationary. Now,
 \begin{align*}
 \Value_{}^\policy (\state) &= \reward(\state,\policy (\state)) + {\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_0} = \state)\\
 &= \reward(\state,\policy (\state)) + {\E^\policy }\left[\left.{\E^\policy }\left(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_0} = \state, \state_1=\state'\right)\right|{\state_0} = s\right]\\
- &= \reward(\state,\policy (\state)) + \sum\limits_{\state' \in \States}^{} {p(\state'|\state,\,} \policy (\state)){\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_1} = \state')\\
- &= \reward(\state,\policy (\state)) + \discount \sum\limits_{\state' \in \States}^{} {p(\state'|\state,\,} \policy (\state)){\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^{t - 1}}\reward({\state_\ttime},{\action_\ttime})} |{\state_1} = \state')\\
- &= \reward(\state,\policy (\state)) + \discount \sum\limits_{\state' \in \States}^{} {p(\state'|\state,\,} \policy (\state)){\Value^\policy }(\state').
+ &= \reward(\state,\policy (\state)) + \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_1} = \state')\\
+ &= \reward(\state,\policy (\state)) + \discount \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^{t - 1}}\reward({\state_\ttime},{\action_\ttime})} |{\state_1} = \state')\\
+ &= \reward(\state,\policy (\state)) + \discount \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\Value^\policy }(\state').
 \end{align*}
 The first equality is by the definition of the value function. The
 second equality follows from the law of total expectation,
@@ -106,7 +106,7 @@ conditioning $\state_1 = \state'$ and taking the expectation over
 it. By definition ${\action_\ttime} = \policy ({\state_\ttime})$.
 The third equality follows similarly to the finite-horizon case
 (Lemma \ref{lem:finite_horizon_VI}, in Chapter~\ref{Alg:FHDP-DDP}).
-The fourth is simple algebra, taking a one multiple of the discount
+The fourth is simple algebra, taking one multiple of the discount
 factor $\discount$ outside. The last by the observation in the
 beginning of the proof.
 \end{proof}
@@ -116,7 +116,7 @@ form as follows. Define the column vector ${r^\policy } =
 {({r^\policy }(\state))_{\state \in \States}}$ with components
 ${r^\policy }(\state) = \reward(\state,\policy (\state))$, and the
 transition matrix ${P^\policy }$ with components ${P^\policy
-}(\state'|\state) = p(\state'|\state,\policy (\state))$. Finally,
+}(\state'|\state) = \transitionprob(\state'|\state,\policy (\state))$. Finally,
 let ${\Value^\policy }$ denote a column vector with components
 ${\Value^\policy }(\state)$. Then \eqref{eq:FP_Bellman} is
 equivalent to the linear equation set
@@ -162,7 +162,7 @@ computing $\Value_{}^\policy$.
 \begin{enumerate}
   \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
   \item For $n = 0,1,2, \ldots $, set
-\[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\state \in \States\]
+\[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\state \in \States\]
 \tab{or, equivalently,}
 \[{\Value_{n + 1}} = {r^\policy } + \discount {P^\policy }{\Value_n}.\]
 \end{enumerate}
@@ -172,12 +172,12 @@ computing $\Value_{}^\policy$.
 
 \begin{proposition}[\textbf{Convergence of fixed-policy value iteration}]\label{prop:FP_VI}
 We have ${\Value_n} \to \Value_{}^\policy$ component-wise, that is,
-\[{\lim _{n \to \infty }}{\Value_n}(\state) = \Value_{}^\policy (\state),\quad \;\state \in \States.\]
+\[{\lim _{n \to \infty }}{\Value_n}(\state) = \Value_{}^\policy (\state),\quad \;\forall \state \in \States.\]
 \end{proposition}
 \begin{proof}
-Note first that
+Note first that,
 \begin{align*}
-{\Value_1}{\kern 1pt} (\state) &= \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\policy (\state))\Value_0^{}{\kern 1pt} (\state')} \;\\
+{\Value_1}{\kern 1pt} (\state) &= \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_0^{}{\kern 1pt} (\state')} \;\\
  &= {\E^\policy }(\reward({\state_0},{a_0}) + \discount {\Value_0}({\state_1})|{\state_0} = \state).
 \end{align*}
 Continuing similarly, we obtain that
@@ -216,7 +216,7 @@ We now return to the optimal planning problem defined in Section
 ^*(\state) = {\sup _{\policy  \in \Pi }}_{_{HS}}\Value_\discount
 ^\policy (\state)$ is the optimal discounted return. We further
 denote
-\[{\Value^*}(\state) \buildrel \Delta \over = \Value_\discount ^*(\state),    \quad \state \in \States,\]
+\[{\Value^*}(\state) \buildrel \Delta \over = \Value_\discount ^*(\state),    \quad  \forall \state \in \States,\]
 and refer to ${\Value^*}$ as the optimal value function. Depending
 on the context, we consider ${\Value^*}$ either as a function
 $\Value^* : \States \to \mathbb R$, or as a column vector
@@ -233,11 +233,11 @@ known. (See the proof in Section~\ref{sec:Bellman-Opt}.)
 \begin{equation}\label{eq:Bellman}
 \Value(\state) = \mathop {\max }\limits_{\action \in \Actions}
 \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state'
-\in \States} {p(\state'|\state,\action)\Value(\state')} } \right\},
-\quad \state \in \States.
+\in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},
+\quad \forall \state \in \States.
 \end{equation}
   \item Any stationary policy ${\policy ^*}$ that satisfies
-\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action)\Value(\state')} } \right\},\]
+\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\} \quad \forall \state \in \States, \]
      is an optimal policy (for any initial state ${\state_0} \in \States$).
 \end{enumerate}
 \end{theorem}
@@ -254,7 +254,7 @@ iteration (Section~\ref{sec:PI}).
 \begin{enumerate}
   \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
   \item For $n = 0,1,2, \ldots $, set
-\[{\Value_{n + 1}}(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action){\Value_n}(\state')} } \right\},    \quad \forall \state \in \States\]
+\[{\Value_{n + 1}}(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value_n}(\state')} } \right\},    \quad \forall \state \in \States\]
 \end{enumerate}
 \end{algorithm_}
 
@@ -290,7 +290,7 @@ The value iteration algorithm iterates over the value functions, with asymptotic
      (For example, use the explicit formula  ${\Value^{{\policy _k}}} = {(I - \discount {P^{{\policy _k}}})^{ - 1}}{r^{{\policy
      _k}}}$.)
 \item Policy Improvement: Compute ${\policy _{k + 1}}$, a greedy policy with respect to ${\Value^{{\policy _k}}}$:
-\[{\policy _{k + 1}}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action){\Value^{{\policy _k}}}(\state')} } \right\},\quad \forall \state \in \States.\]
+\[{\policy _{k + 1}}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value^{{\policy _k}}}(\state')} } \right\},\quad \forall \state \in \States.\]
 \item Stop if $\policy _{k + 1} = \policy _k$
 %${\Value^{{\policy _{k + 1}}}} = {\Value^{{\policy _k}}}$
 (or if ${\Value^{{\policy _k}}}$ satisfied the optimality equation), else
@@ -447,14 +447,14 @@ For a fixed stationary policy $\policy :\States \to \Actions$,
 define the fixed policy DP operator $T^\policy:\reals^{|\States|}
 \to \reals^{|\States|}$ as follows: For any $V=(V(\state))\in
 \reals^{|\States|}$,
-\[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\policy (\state))V(\state')} ,\quad \state \in \States\]
+\[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States\]
 In our column-vector notation, this is equivalent to  $T_{}^\policy
 (V) = {r^\policy } + \discount {P^\policy }V$.
 
 Similarly, define the discounted-return \textbf{Dynamic Programming
 Operator}  $T^*:\mathbb R^{|\States|} \to \mathbb R^{|\States|}$ as
 follows: For any $V=(V(\state))\in R^{|\States|}$,
-\[(T_{}^*(V))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action)V(\state')} } \right\},\quad \state \in \States\]
+\[(T_{}^*(V))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)V(\state')} } \right\},\quad \forall \state \in \States\]
 
 We note that $T_{}^\policy $ is a linear operator, while $T_{}^*$ is
 generally non-linear due to the maximum operation.
@@ -478,9 +478,9 @@ The following statements hold:
 \begin{enumerate}
   \item Fix ${\Value_1},{\Value_2}$. For every state $\state$,
 \begin{align*}
-\left| (T^\policy (\Value_1))(\state) - (T^\policy (\Value_2))(\state) \right| &= \left| {\discount \sum_{\state'\in \States} {p(\state'|\state,\policy(\state))[\Value_1(\state') - \Value_2(\state')]} } \right|\\
- &\le \discount \sum_{\state'\in \States} p(\state'|\state,\policy(\state))\left| \Value_1(\state') - \Value_2(\state') \right| \\
- &\le \discount \sum_{\state'\in \States} p(\state'|\state,\policy (\state)) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
+\left| (T^\policy (\Value_1))(\state) - (T^\policy (\Value_2))(\state) \right| &= \left| {\discount \sum_{\state'\in \States} {\transitionprob(\state'|\state,\policy(\state))[\Value_1(\state') - \Value_2(\state')]} } \right|\\
+ &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy(\state))\left| \Value_1(\state') - \Value_2(\state') \right| \\
+ &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy (\state)) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
 \end{align*}
 Since this holds for every $\state \in \States$ the required
 inequality follows.
@@ -499,17 +499,17 @@ $T_{}^*({\Value_1})(\state)$, namely
 \[
 \bar \action \in \mathop {\arg \max }\limits_{\action \in \Actions}
 \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state'
-\in \States} {p(\state'|\state,\action){\Value_1}(\state')} }
+\in \States} {\transitionprob(\state'|\state,\action){\Value_1}(\state')} }
 \right\}.
 \]
  Then
-\[T_{}^*({\Value_1})(\state) = \reward(\state,\bar \action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\bar \action){\Value_1}(\state')} \]
-\[T_{}^*({\Value_2})(\state) \ge \reward(\state,\bar \action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\bar \action)\Value_2(\state')} \]
+\[T_{}^*({\Value_1})(\state) = \reward(\state,\bar \action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\bar \action){\Value_1}(\state')} \]
+\[T_{}^*({\Value_2})(\state) \ge \reward(\state,\bar \action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\bar \action)\Value_2(\state')} \]
 Since the same action $\bar \action$ appears in both expressions, we
 can now continue to show the inequality (a) similarly to 1. Namely,
 \begin{align*}
- (T^\policy (\Value_1))(\state) - (T^\policy (\Value_2))(\state)  &= \discount \sum_{\state'\in \States} p(\state'|\state,\policy(\state))\left( \Value_1(\state') - \Value_2(\state') \right) \\
- &\le \discount \sum_{\state'\in \States} p(\state'|\state,\policy (\state)) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
+ (T^\policy (\Value_1))(\state) - (T^\policy (\Value_2))(\state)  &= \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy(\state))\left( \Value_1(\state') - \Value_2(\state') \right) \\
+ &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy (\state)) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
 \end{align*}
 
 (b) Showing $T_{}^*({\Value_2})(\state) - T_{}^*({\Value_1})(\state)
@@ -544,11 +544,11 @@ The following statements hold:
 \begin{equation}\label{eq:Bellman2}
 \Value(\state) = \mathop {\max }\limits_{\action \in \Actions}
 \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state'
-\in \States} {p(\state'|\state,\action)\Value(\state')} } \right\},
-\quad \state \in \States.
+\in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},
+\quad \forall \state \in \States.
 \end{equation}
   \item Any stationary policy ${\policy ^*}$ that satisfies
-\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action)\Value(\state')} } \right\},\]
+\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},\]
      is an optimal policy (for any initial state ${\state_0} \in \States$).
 \end{enumerate}
 \end{theorem*}
@@ -566,27 +566,27 @@ We prove each part.
 %following:
 %\begin{align*}
 %|(T^\policy(\Value_1)((\state)-(T^\policy(\Value_2))(\state)| =& | \reward(\state,\policy(\state))+\discount\sum_{\state'\in
-%S} p(\state'|\state,\policy(\state))\Value_1(\state')\\
-%&-\reward(\state,\policy(\state))-\discount\sum_{\state'\in \States}p(\state'|\state,\policy(\state))\Value_2(\state')|\\
-%=& |\discount\sum_{\state'\in \States}p(\state'|\state,\policy(\state))(\Value_1(\state')-\Value_2(\state'))|\\
-%\leq& \discount\sum_{\state'\in \States}p(\state'|\state,\policy(\state))|\Value_1(\state')-\Value_2(\state')|\\
+%S} \transitionprob(\state'|\state,\policy(\state))\Value_1(\state')\\
+%&-\reward(\state,\policy(\state))-\discount\sum_{\state'\in \States}\transitionprob(\state'|\state,\policy(\state))\Value_2(\state')|\\
+%=& |\discount\sum_{\state'\in \States}\transitionprob(\state'|\state,\policy(\state))(\Value_1(\state')-\Value_2(\state'))|\\
+%\leq& \discount\sum_{\state'\in \States}\transitionprob(\state'|\state,\policy(\state))|\Value_1(\state')-\Value_2(\state')|\\
 %\leq& \discount \max_{\state'\in \States} |\Value_1(\state')-\Value_2(\state')| =
 %\discount\|\Value_1-\Value_2\|_\infty
 %\end{align*}
 %
 %For $T^*$, fix any $\Value_1,\Value_2 \in {\mathbb R}^d$. Let $a^i_s$ be the
 %action that achieves the maximum for state $\state$, i.e., $a^i_s\in
-%\arg\max_{a\in A} \reward(\state,\action)+\discount\sum_{\state'\in \States} p(\state'|\state,\action)\Value_i(\state')$
+%\arg\max_{a\in A} \reward(\state,\action)+\discount\sum_{\state'\in \States} \transitionprob(\state'|\state,\action)\Value_i(\state')$
 %Consider the following:
 %\begin{align*}
 %|(T^*(\Value_1)((\state)-(T^*(\Value_2))(\state)| =& | \reward(\state,\action^1_s)+\discount\sum_{\state'\in
-%S} p(\state'|\state,\action^1_s)\Value_1(\state')\\
-%&-\reward(\state,\action^2_s))-\discount\sum_{\state'\in \States}p(\state'|\state,\action^2_s)\Value_2(\state')|\\
+%S} \transitionprob(\state'|\state,\action^1_s)\Value_1(\state')\\
+%&-\reward(\state,\action^2_s))-\discount\sum_{\state'\in \States}\transitionprob(\state'|\state,\action^2_s)\Value_2(\state')|\\
 %\leq& | \reward(\state,\action^1_s)+\discount\sum_{\state'\in
-%S} p(\state'|\state,\action^1_s)\Value_1(\state')\\
-%&-\reward(\state,\action^1_s))-\discount\sum_{\state'\in \States}p(\state'|\state,\action^1_s)\Value_2(\state')| \\
-%=& |\discount\sum_{\state'\in \States}p(\state'|\state,\action^1_s)(\Value_1(\state')-\Value_2(\state'))|\\
-%\leq& \discount\sum_{\state'\in \States}p(\state'|\state,\action^1_s)|\Value_1(\state')-\Value_2(\state')|\\
+%S} \transitionprob(\state'|\state,\action^1_s)\Value_1(\state')\\
+%&-\reward(\state,\action^1_s))-\discount\sum_{\state'\in \States}\transitionprob(\state'|\state,\action^1_s)\Value_2(\state')| \\
+%=& |\discount\sum_{\state'\in \States}\transitionprob(\state'|\state,\action^1_s)(\Value_1(\state')-\Value_2(\state'))|\\
+%\leq& \discount\sum_{\state'\in \States}\transitionprob(\state'|\state,\action^1_s)|\Value_1(\state')-\Value_2(\state')|\\
 %\leq& \discount \max_{\state'\in \States} |\Value_1(\state')-\Value_2(\state')| =
 %\discount\|\Value_1-\Value_2\|_\infty
 %\end{align*}
@@ -594,11 +594,11 @@ We prove each part.
 \item
 As $T_{}^*$ is a contraction operator, existence and uniqueness of
 the solution to $V = T_{}^*(V)$ follows from the Banach fixed point
-theorem (Theorem \ref{chapter-discount:thm:Banach}). Let $\hat V$
+theorem (Theorem \ref{chapter-discount:thm:Banach}). Let $\widehat{V}$
 denote that solution. It also follows by that theorem  (Theorem
 \ref{chapter-discount:thm:Banach}) that ${(T_{}^*)^n}({\Value_0})
-\to \hat V$ for any ${\Value_0}$. By Theorem \ref{thm:_VI} we have
-that ${(T_{}^*)^n}({\Value_0}) \to \Value_{}^*$, hence $\hat V =
+\to \widehat{V}$ for any ${\Value_0}$. By Theorem \ref{thm:_VI} we have
+that ${(T_{}^*)^n}({\Value_0}) \to \Value_{}^*$, hence $\widehat{V} =
 \Value_{}^*$,  so that $\Value_{}^*$ is indeed the unique solution
 of  $V = T_{}^*(V)$.
 %
@@ -624,7 +624,7 @@ follows:
 \begin{enumerate}
   \item Start with any initial value function ${\Value_0} = ({\Value_0}(\state))$.
   \item Compute recursively, for $n = 0,1,2, \ldots $,
-          \[{\Value_{n + 1}}(\state) = \mathop {\max }\limits_{\action \in \Actions} \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action)[\reward(\state,\action,\state') + \discount {\Value_n}(\state')]} ,       \quad \forall \state \in \States.\]
+          \[{\Value_{n + 1}}(\state) = \mathop {\max }\limits_{\action \in \Actions} \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)[\reward(\state,\action,\state') + \discount {\Value_n}(\state')]} ,       \quad \forall \state \in \States.\]
   \item Apply a stopping rule to obtain a required accuracy (see below).
 \end{enumerate}
 In terms of the DP operator $T_{}^*$, value iteration is simply stated as:
@@ -729,7 +729,7 @@ we can use the stopping rule  $||{\Value_n} - {\Value_{n -
 }}\varepsilon $.
 
 \item If $||V - \Value_{}^*||_\infty  \le \varepsilon $, then any stationary policy $\policy $ that is greedy with respect to $V$, i.e., satisfies
-\[\policy (\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action){\Value_n}(\state')} } \right\},\]
+\[\policy (\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value_n}(\state')} } \right\},\]
 is $2\varepsilon $-optimal, namely
  $||\Value_{}^\policy  - \Value_{}^*|{|_\infty } \le 2\varepsilon $.
 This allows obtain a
@@ -752,7 +752,7 @@ Let $\policy$ be a stationary policy, and let $\Value_{}^\policy $
 denote its value function. A stationary policy $\bar \policy $ is
 called $\policy$- improving if it is a greedy policy with respect to
 ${\Value^\policy }$, namely
-\[\bar \policy (\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {p(\state'|\state,\action){\Value^\policy }(\state')} } \right\}, \quad \state \in \States.\]
+\[\bar \policy (\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value^\policy }(\state')} } \right\}, \quad \forall \state \in \States.\]
 
 \begin{lemma}[Policy Improvement]
 Let $\policy$ be a stationary policy and $\bar{\policy}$ be a
@@ -777,7 +777,7 @@ $T^{\bar \policy }$ repeatedly to both sides of the above inequality
 ${\Value^\policy } \le T_{}^{\bar \policy }(\Value^\policy)$
 therefore gives
 \[{\Value^\policy } \le T_{}^{\bar \policy }({\Value^\policy }) \le {(T_{}^{\bar \policy })^2}({\Value^\policy }) \le  \cdots  \le \mathop {\lim }\limits_{n \to \infty } {(T_{}^{\bar \policy })^n}({\Value^\policy }) = {\Value^{\bar \policy }},\]
-where the last equality follows by Theorem~\ref{thm:_VI}
+where the last equality follows by Theorem~\ref{thm:_VI}.
 %value iteration.
 This establishes the first claim.
 %The equality claim is left as an \textbf{exercise}g.
@@ -790,9 +790,9 @@ We now show that $\policy$ is optimal if and only if ${\Value^{\bar
 that ${\Value^{\bar \policy }} = {\Value^\policy }$. We have the
 following identities:
 \[
-\Value^{ \policy }= \Value^{\bar \policy } = T^{\bar \policy
-}(\Value^{\bar \policy })=T^{\bar \policy }(\Value^{\policy
-})=T^*(\Value^{\bar  \policy })=T^*(\Value^{ \policy })
+\Value^{ \policy }= \Value^{\bar \policy } = T^{\bar \policy}(\Value^{\bar \policy })=T^{\bar \policy }(\Value^{\policy})
+%=T^*(\Value^{\bar  \policy })
+=T^*(\Value^{ \policy })
 \]
 where the first equality is by our assumption. The second equality
 follows since $\Value^{\bar \policy } $ is the fixed point of its
@@ -861,7 +861,7 @@ where  $\policy'$ is the greedy policy w.r.t. $VI_n$, i.e.,
 $$
 \policy'(\state) \in \arg\max_{a\in A}\{\reward(\state,\action) +
 \discount \sum_{\state'\in \States}
-p(\state'|\state,\action)VI_{n}(\state')\}.
+\transitionprob(\state'|\state,\action)VI_{n}(\state') \quad\forall\state\in\States\}.
 $$
 Since $VI_n \leq PI_n$, and $T^{\policy'}$ is monotonic it follows
 that:
@@ -895,7 +895,7 @@ $PI_{n+1}=\Value^{\policy_{n+1}}$, it implies that $PI_{n+1}\leq
 \end{proof}
 
 
-\section{Some Variants on Value Iteration and Policy Iteration}
+\section{Variants on Value Iteration and Policy Iteration}
 
 \subsection{Value Iteration - Gauss Seidel Iteration}
 In the standard value iteration: ${\Value_{n + 1}} =
@@ -946,6 +946,7 @@ ${\Value^*}$.
 
 \begin{leftbar}
 \section{Linear Program}
+\label{chapter-discount:section:LP}
 
 %[Good idea to add to get them familiar with the notion and notation for the very simple case.]
 
@@ -991,13 +992,13 @@ Formally, for $\state\in\States$,
 \[
 \I(\state=\state_0)+\sum_{\action} x(\state,\action)\leq \discount
 \sum_{\state',\action'}
-x(\state',\action')p(\state|\state'\action').
+x(\state',\action')\transitionprob(\state|\state'\action').
 \]
 Note that if we sum the inequalities over all states, we have
 \[
 1+\sum_{\state,\action} x(\state,\action)\leq\discount
 \sum_{\state',\action'} x(\state',\action')\sum_\state
-p(\state|\state'\action')=\discount \sum_{\state',\action'}
+\transitionprob(\state|\state'\action')=\discount \sum_{\state',\action'}
 x(\state',\action').\]
 %
 which implies that $\sum_{\state,\action} x(\state,\action)\leq
@@ -1030,7 +1031,7 @@ The resulting linear program is the following.
 &\mbox{ such that }\\
 %
 &\I(\state=\state_0)+\sum_{\action} x(\state,\action)\leq \discount
-\sum_{\state',\action'} x(\state',\action')p(\state|\state'\action')
+\sum_{\state',\action'} x(\state',\action')\transitionprob(\state|\state'\action')
 &\quad\forall \state \in {\States}, \action\in\Actions,\\
 %
 % &\sum_{\action}
@@ -1061,7 +1062,7 @@ program.
 %
  z(\state) &\geq
 \reward(\state,\action) + \discount
-\sum_{\state'}z(\state')p(\state'|\state,\action) , &\quad\forall
+\sum_{\state'}z(\state')\transitionprob(\state'|\state,\action) , &\quad\forall
 \state \in {\States},\action\in\Actions, \\ .
 \end{align*}
 
