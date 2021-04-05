@@ -162,7 +162,7 @@ computing $\Value_{}^\policy$.
 \begin{enumerate}
   \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
   \item For $n = 0,1,2, \ldots $, set
-\[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\state \in \States\]
+\[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\forall \state \in \States\]
 \tab{or, equivalently,}
 \[{\Value_{n + 1}} = {r^\policy } + \discount {P^\policy }{\Value_n}.\]
 \end{enumerate}
@@ -548,7 +548,8 @@ The following statements hold:
 \quad \forall \state \in \States.
 \end{equation}
   \item Any stationary policy ${\policy ^*}$ that satisfies
-\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},\]
+\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},
+\quad \forall \state \in \States\]
      is an optimal policy (for any initial state ${\state_0} \in \States$).
 \end{enumerate}
 \end{theorem*}
@@ -861,7 +862,7 @@ where  $\policy'$ is the greedy policy w.r.t. $VI_n$, i.e.,
 $$
 \policy'(\state) \in \arg\max_{a\in A}\{\reward(\state,\action) +
 \discount \sum_{\state'\in \States}
-\transitionprob(\state'|\state,\action)VI_{n}(\state') \quad\forall\state\in\States\}.
+\transitionprob(\state'|\state,\action)VI_{n}(\state')\} \quad\;\forall\state\in\States.
 $$
 Since $VI_n \leq PI_n$, and $T^{\policy'}$ is monotonic it follows
 that:
@@ -914,7 +915,7 @@ only a subset of the entries of  ${\Value_n}$ (namely, a subset of
 all states) is updated. It can be shown that if each state is
 updated infinitely often, then ${\Value_n} \to {\Value^*}$.
 Asynchronous update can be used to focus the computational effort on
-"important'' parts of a large-state space.
+``important'' parts of a large-state space.
 
 
 
