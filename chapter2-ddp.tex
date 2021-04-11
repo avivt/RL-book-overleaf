@@ -496,7 +496,7 @@ gives the largest return. Let us evaluate the number of different
 paths and control policies. Suppose for simplicity that number of
 states at each stage is the same: $|{\States_{\ttime}}| = n$, and
 similarly the number of actions at each state is the same:
-$|{\Actions_{\ttime}}(x)| = m$ (with $m \le n$) . The number of
+$|{\Actions_{\ttime}}(\state)| = m$ (with $m \le n$) . The number of
 feasible $\tHorizon$-stage paths for each initial state is seen to
 be ${m^\tHorizon}$. The number of different policies is
 ${m^{n\tHorizon}}$. For example, for a fairly small problem with
@@ -693,23 +693,23 @@ in speech recognition and bioinformatics, among other areas.
 \end{enumerate}
 
 
-\section{Shortest Paths}
-We can formulate a DDP problems similar to shortest path problems.
-Given a directed graph $G(V,E)$,  there is a set of goal states
-$\States_G$, and the goal is to reach one of the goal states.
-Formally, when we reach a goal state we stay there and have a zero
-cost. For such a DDP the optimal policy would be to compute a
-shortest path to one of the goal states.
+% \section{Shortest Paths}
+% We can formulate a DDP problems similar to shortest path problems.
+% Given a directed graph $G(V,E)$,  there is a set of goal states
+% $\States_G$, and the goal is to reach one of the goal states.
+% Formally, when we reach a goal state we stay there and have a zero
+% cost. For such a DDP the optimal policy would be to compute a
+% shortest path to one of the goal states.
 
-There is a variety of algorithms for computing shortest paths (see, for example, \cite{BookCormenLRS2009}.
-\begin{enumerate}
-\item
-Bellman-Ford: handles also negative weights, but assumes no negative
-cycle. Runs in time $O(|V|\cdot|E|)$.
-\item
-Dijkstra: Assumes non-negative weights. Runs in time $O(|V|\log |E|
-+|E|)$
-\end{enumerate}
+% There is a variety of algorithms for computing shortest paths (see, for example, \cite{BookCormenLRS2009}.
+% \begin{enumerate}
+% \item
+% Bellman-Ford: handles also negative weights, but assumes no negative
+% cycle. Runs in time $O(|V|\cdot|E|)$.
+% \item
+% Dijkstra: Assumes non-negative weights. Runs in time $O(|V|\log |E|
+% +|E|)$
+% \end{enumerate}
 
 \begin{leftbar}
 
@@ -852,6 +852,215 @@ which is the familiar Bellman optimality equations.
 %\end{proof}
 
 \end{leftbar}
+
+
+
+\section{Shortest Path on a Graph}
+The problem of finding the shortest path over a graph is one of the most fundamental problems in graph theory and computer science. We shall briefly consider here three major algorithms for this problem that are closely related to dynamic programming, namely: The Bellman-Ford algorithm, Dijkstra's algorithm, and A$^*$.
+
+\subsection{Problem Statement}
+We introduce several definitions from graph-theory.
+\begin{definition}\textbf{Weighted Graphs:} Consider a graph $\graph = (\nodes,\edges)$ that consists of a finite set of vertices (or nodes) $\nodes = \{ \node\} $ and a finite set of edges (or links) $\edges = \{ \edge\} $. We will consider directed graphs, where each edge $\edge$ is equivalent to an ordered pair $({\node_1},{\node_2}) \equiv (s(\edge),d(\edge))$ of vertices. To each edge we assign a real-valued weight (or cost) $\cost(\edge) = \cost({\node_1},{\node_2})$.
+\end{definition}
+\begin{definition}\textbf{Path:}
+A path $\spath$ on $\graph$ from ${\node_0}$ to ${\node_k}$ is a sequence $({\node_0},{\node_1},{\node_2}, \ldots ,{\node_k})$ of vertices such that $({\node_i},{\node_{i + 1}}) \in \edges$. A path is \textbf{simple} if all edges in the path are distinct.
+A \textbf{cycle}  is a path with ${\node_0} = {\node_k}$.
+\end{definition}
+\begin{definition}\textbf{Path length:}
+The length of a path $\pathlen(\spath)$ is the sum of the weights over its edges:
+$\pathlen(\spath) = \sum\limits_{i = 1}^k {\cost({\node_{i - 1}},{\node_i})} $.
+\end{definition}
+
+A \textbf{shortest path} from $u$ to $v$ is a path from $u$ to $v$ that has the smallest length  $\pathlen(\spath)$ among such paths. Denote this minimal length as $\minlen(u,v)$ (with $\minlen(u,v) = \infty $ if no path exists from $u$ to $v$).
+The shortest path problem has the following variants:
+\begin{itemize}
+  \item Single pair problem:  Find the shortest path from a given source vertex $s$ to a given destination vertex $t$.
+  \item Single source problem: Find the shortest path from a given source vertex $s$ to all other vertices.
+  \item Single destination: Find the shortest path to a given destination node $t$ from all other vertices.
+  \item All pair problem.
+\end{itemize}
+
+We note that the single-source and single-destination problems are symmetric and can be treated as one.  The all-pair problem can of course be solved by multiple applications of the other algorithms, but there exist algorithms which are especially suited for this problem.
+
+\subsection{The Dynamic Programming Equation}
+The DP equation (or Bellman's equation) for the shortest path problem can be written as:
+\[\minlen(\nodeu,\nodev) = \min \,\{ \cost(\nodeu,\nodeu') + \minlen(\nodeu',\nodev)\,\;:\,\;(\nodeu,\nodeu') \in \edges\}, \]
+which holds for any pair of nodes $\nodeu,\nodev$.
+\\
+The interpretation: $\cost(\nodeu,\nodeu') + \minlen(\nodeu',\nodev)\,\;$is the length of the path that takes one step from $\nodeu$ to $\nodeu'$, and then proceeds optimally. The shortest path is obtained by choosing the best first step.
+Another version, which singles out the last step, is
+$\minlen(\nodeu,\nodev) = \min \,\{ \minlen(\nodeu,\nodev') + \cost(\nodev',\nodev)\,\;:\,\;(\nodev',\nodev) \in \edges\} $.
+We note that these equations are non-explicit, in the sense that the same quantities appear on both sides.  These relations are however at the basis of the following explicit algorithms.
+
+\subsection{The Bellman-Ford Algorithm}
+This algorithm solves the single destination (or the equivalent single source) shortest path problem. It allows both positive and negative edge weights. Assume for the moment that there are \emph{no negative-weight cycles}.
+
+\begin{algorithm_}\textbf{Bellman-Ford Algorithm}
+\begin{enumerate}
+\item[ Input: ] A weighted directed graph $\graph$, and destination node $\nodev_d$.
+
+\item Initialization:   $d[\nodev_d] = 0$,  $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_d\} $.
+                           \\\coderemark{$d[\nodev]$ holds the current shortest distance from $\nodev$ to $\nodev_d$.}
+
+\item for  $i = 1$ to $|\nodes| - 1$,
+
+      \tab{$\tilde d[\nodev] = d[\nodev],\quad \nodev \in \nodes\backslash \{ \nodev_d\} $      \coderemark{temporary buffer for $d$}}
+
+      \tab{for each vertex $\nodev \in \nodes\backslash \{ \nodev_d\} $,}
+
+	  \tab{\tab{$q[\nodev] = {\min_{\nodeu}}\{ \cost(\nodev,\nodeu) + \tilde d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
+
+	  \tab{\tab{$d[\nodev] = \min \{ q[\nodev],d[\nodev]\}$}}
+\item for  $\nodev \in \nodes\backslash \{ \nodev_d\} $,
+
+      \tab{if  $d[\nodev] < \infty $}
+
+      \tab{\tab{set $\policy [\nodev] \in \argmin_{\nodeu}\{ \cost(\nodev,\nodeu) + \tilde d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
+
+      \tab{else}
+
+      \tab{\tab{$\policy [\nodev]$=NULL}}
+
+\item return $\{ d[\nodev],\policy [\nodev], \quad  \forall \nodev \in \nodes\} $
+\end{enumerate}
+\end{algorithm_}
+
+The output of the algorithm is $d[\nodev] = \minlen(\nodev,\nodev_d)$, the weight of the shortest path from $\nodev$ to $\nodev_d$, and the routing list $\policy$. A shortest path from vertex $\nodev$ is obtained from $\policy $ by following he sequence: ${\nodev_1} = \policy [\nodev], {\nodev_2} = \policy [{\nodev_1}],  \ldots ,\nodev_d = \policy [{\nodev_{k - 1}}]$.
+To understand the algorithm, we observe that after round $i$, $d[\nodev]$ holds the length of the shortest path from $\nodev$ \textbf{in $i$ steps or less}. To see this, observe that the calculations done up to round $i$ are equivalent to the calculations in a finite horizon dynamic programming, where the horizon is $i$. Since the shortest path takes at most $|\nodes| - 1$ steps, the above claim on optimality follows.
+
+\paragraph{Remarks:}
+\begin{enumerate}
+  \item The running time of the algorithm is $O(|\nodes|\, \cdot \,|\edges|)$. This is because in each round $i$ of the algorithm, each edge $\edge$ is involved in exactly one update of $d[\nodev]$ for some $\nodev$.
+  \item If $\{ d[\nodev]\}$ does not change at all at some round, then the algorithm may be stopped there.
+  \item In the version shown above, $\tilde d[\nodev]$ is used to 'freeze' $d[\nodev]$ for an entire round. The standard form of the algorithm actually uses $d[\nodev]$ directly on the right-hand side.
+  \item We have assumed above that no negative-weight cycles exist. In fact the algorithm can be used to check for existence of such cycles: A negative-weight cycle exists if and only if  $d[\nodev]$ changes during an additional step ($i = |\nodes|$) of the algorithm.
+  \item The basic scheme above can also be implemented in an asynchronous manner, where each node performs a local update of $d[\nodev]$ at its own time. Further, the algorithm can be started from any initial conditions, although convergence can be slower. This makes the algorithm useful for distributed environments such as internet routing.
+\end{enumerate}
+
+\subsection{Dijkstra's Algorithm}
+Dijkstra's algorithm (introduced in 1959) provides a more efficient algorithm for the single-destination shortest path problem. This algorithm is restricted to non-negative link weights, i.e., $\cost(\nodev,\nodeu) \ge 0$.
+
+The algorithm essentially determines the minimal distance $d(\nodev,\nodev_d)$ of the vertices to the destination in order of that distance, namely the closest vertex first, then the second-closest, etc.  The algorithm is roughly described below, with more details in the recitation.
+The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to the destination has been determined. The other vertices $\nodes\backslash \vertexset$ are held in a queue. It proceeds as follows.
+
+\begin{algorithm_}\textbf{Dijkstra's Algorithm}
+\begin{enumerate}
+\item{Input:} A weighted directed graph, and destination node $\nodev_d$.
+
+\item Initialization:
+\begin{itemize}
+  \item[] $d[\nodev_d] = 0$
+  \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_d\} $
+  \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
+  \item[] $\vertexset = \emptyset $
+\end{itemize}
+
+\item while $\vertexset \ne \nodes$,
+
+\tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value $d[\nodeu]$, add it to $\vertexset$}
+
+\tab{for each vertex $\nodev$ with $(\nodev,\nodeu) \in \edges$,}
+
+\tab{\tab{if $d[\nodev] > \cost(\nodev,\nodeu) + d[\nodeu]$,}}
+
+\tab{\tab{\tab{	set  $d[\nodev] = \cost(\nodev,\nodeu) + d[\nodeu]$,  $\policy [\nodev] = \nodeu$ }}}
+\item return $\{ d[\nodev],\policy [\nodev] \ |\ v \in V\} $
+\end{enumerate}
+\end{algorithm_}
+
+\paragraph{Remarks:}
+\begin{enumerate}
+  \item The Bellman-Form algorithm visits each edge of the graph up to $|\nodes|-1$ times, leading to a running time of $O(|\nodes|\, \cdot \,|\edges|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|\edges|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $\vertexset$.
+  \item	The vertices in $\nodes\backslash \vertexset$ need to be extracted in increasing order of $d[\nodev]$.  This is handled by a min-priority queue, and the complexity of the algorithm depends on the implementation of this queue.
+  \item	With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|\nodes|)$ time, leading to overall running time of $O(|\nodes{|^2} + |\edges|)$ for the algorithm. Using a basic (binary heap) priority queue brings the running time to $O((|\nodes| + |\edges|)\log |\nodes|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|\nodes|\log |\nodes| + |\edges|)$.
+\end{enumerate}
+
+\subsection{Dijkstra's Algorithm for Single Pair Problems}
+
+For the single pair problem, Dijkstra's algorithm can be written in the Single Source Problem formulation, and terminated once the destination node is reached, i.e., when it is popped from the queue. From the discussion above, it is clear that the algorithm will terminate exactly when the shortest path between the source and destination is found.
+
+\begin{algorithm_}\textbf{Dijkstra's Algorithm (Single Pair Problem)}
+\begin{enumerate}
+\item{Input:} A weighted directed graph, source node $\nodev_s$, and destination node $\nodev_d$.
+
+\item Initialization:
+\begin{itemize}
+  \item[] $d[\nodev_s] = 0$
+  \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
+  \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
+  \item[] $\vertexset = \emptyset $
+\end{itemize}
+
+\item while $\vertexset \ne \nodes$,
+
+\tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value $d[\nodeu]$, add it to $\vertexset$}
+
+\tab{if $\nodeu == \nodev_d$, break}
+
+\tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
+
+\tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
+
+\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodeu] = \nodev$ }}}
+\item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
+\end{enumerate}
+\end{algorithm_}
+
+\subsection{From Dijkstra's Algorithm to A$^*$}
+
+Dijkstra's algorithm expands vertices in the order of their distance from the source. When the destination is known (as in the single pair problem), it seems reasonable to bias the search order towards vertices that are closer to the goal. 
+
+The A$^*$ algorithm implements this idea through the use of a heuristic function $\heur[\nodev]$, which is an estimate of the distance from vertex $\nodev$ to the goal. It then expands vertices in the order of $d[\nodev] + \heur[\nodev]$, i.e., the (estimated) length of the shortest path from $\nodev_s$ to $\npdev_d$ that passes through $\nodev$.
+
+\begin{algorithm_}\textbf{A$^*$ Algorithm}
+\begin{enumerate}
+\item{Input:} A weighted directed graph, source $\nodev_s$, destination $\nodev_d$, and heuristic function $\heur$.
+
+\item Initialization:
+\begin{itemize}
+  \item[] $d[\nodev_s] = 0$
+  \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
+  \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
+  \item[] $\vertexset = \emptyset $
+\end{itemize}
+
+\item while $\vertexset \ne \nodes$,
+
+\tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value \textcolor{blue}{$d[\nodeu]+\heur[\nodeu]$}, add it to $\vertexset$}
+
+\tab{if $\nodeu == \nodev_d$, break}
+
+\tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
+
+\tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
+
+\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodeu] = \nodev$ }}}
+\item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
+\end{enumerate}
+\end{algorithm_}
+
+Obviously, we cannot expect the estimate $\heur(\nodev)$ to be exact -- if we knew the exact distance then our problem would be solved. However, it turns out that relaxed properties of $\heur$ are required to guarantee the optimality of A$^*$. 
+
+\begin{definition}
+A heuristic is said to be \textbf{consistent} if for every adjacent vertices $\nodeu,\nodev$ we have that $$\cost(\nodev,\nodeu)+\heur[\nodeu]-\heur[\nodev] \geq 0.$$
+A heuristic is said to be \textbf{admissible} if it is a lower bound of the shortest path to the goal, i.e., for every vertex $\nodeu$ we have that $$\heur[\nodeu] \leq \minlen[\nodeu,\nodev_d],$$
+where we recall that $\minlen[\nodeu,\nodev]$ denotes the length of the shortest path between $\nodeu$ and $\nodev$.
+\end{definition}
+
+\paragraph{Remarks:}
+\begin{itemize}
+  \item It is easy to show that every consistent heuristic is also admissible (exercise: show it!). It is more difficult to find admissible heuristics that are not consistent. In path finding applications, a popular heuristic that is both admissible and consistent is the Euclidean distance to the goal.
+  \item With a consistent heuristic, A$^*$ is guaranteed to find the shortest path in the graph. With an admissible heuristic, some extra bookkeeping is required to guarantee optimality. 
+  \item Actually, a stronger result of \textit{optimal efficiency} can be shown for A$^*$: for a given $\heur$ that is consistent, no other algorithm that is guaranteed to be optimal will explore a smaller set of vertices during the search.
+  \item The notion of admissibility is a type of \emph{optimism}, and is required to guarantee that we don't settle on a suboptimal solution. Later in the course we will see that a similar idea plays a key role also in learning algorithms. 
+  \item We will show optimality for a consistent heuristic by showing that A$^*$ is equivalent to running Dijkstra's algorithm on a graph with modified weights.
+%   This is inspired by https://11011110.github.io/blog/2008/04/03/reweighting-graph-for.html
+  \begin{enumerate}
+      \item Define new weights $\hat{\cost}(\nodeu,\nodev) = \cost(\nodeu,\nodev) + \heur(\nodev) - \heur(\nodeu)$. This transformation does not change the shortest path from $\nodev_s$ to $\nodev_d$ (show this!), and the new weights are non-negative due to the consistency property.
+      \item The A$^*$ algorithm is equivalent to running Dijkstra's algorithm (for the single pair problem) with the weights $\hat{\cost}$, and defining $\hat{d}[\nodev] = d[\nodev] + \heur[\nodev]$. The optimality of A$^*$ therefore follows from the optimality results for Dijsktra's algorithm.
+  \end{enumerate}
+  \item The idea of changing the cost function to make the problem easier to solve without changing the optimal solution is known as \textit{cost shaping}, and also plays a role in learning algorithms.
+\end{itemize}
 
 \section{Average cost criteria}
 
@@ -1016,6 +1225,146 @@ minimum mean cycle'', Mmamu Chaturvedi and Ross M. McConnell, IPL
 
 The running time of computing the minimum average cost cycle is
 $O(|V|\cdot |E|)$.
+
+
+
+\section{Continuous Optimal Control}
+In this section we consider optimal control of continuous, deterministic, and fully observed systems in discrete time. 
+In particular, consider the following problem:
+\begin{equation}\label{eq:opt_control}
+    \begin{split}
+        \min_{\action_0,\dots,\action_{\tHorizon}} & \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime), \\
+        s.t. \quad & {\state_{\ttime + 1}} = {f_\ttime}({\state_\ttime},{\action_\ttime}), 
+    \end{split}
+\end{equation}
+where the initial state $\state_0$ is given. Here $\cost_t$ is a (non-linear) cost function at time $\ttime$, and $f_\ttime$ describes the (non-linear) dynamics  at time $\ttime$. We assume here that $f_\ttime$ and $\cost_\ttime$ are differentiable.
+
+A simple approach for solving Problem \ref{eq:opt_control} is using gradient based optimization. Note that we can expand the terms in the sum using the known dynamics function and initial state:
+\begin{equation*}
+\begin{split}
+        \Value(\action_0,\dots,\action_\tHorizon) &= \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime) \\
+        & = \cost_0(\state_0, \action_0) + \cost_1(f_0(\state_0,\action_0), \action_1) + \dots + \cost_\tHorizon(f_{\tHorizon - 1}(f_{\tHorizon - 1}(\dots ),\action_{\tHorizon-1}), \action_\tHorizon).
+\end{split}
+\end{equation*}
+Using our differentiability assumption, we know $\frac{\partial f_\ttime}{\partial \state_\ttime}, \frac{\partial f_\ttime}{\partial \action_\ttime}, \frac{\partial \cost_\ttime}{\partial \state_\ttime}, \frac{\partial \cost_\ttime}{\partial \action_\ttime}$. Thus, using repeated application of the chain rule, we can calculate $\frac{\partial \Value}{\partial \action_\ttime}$, and optimize $\Value$ using gradient descent. There are, however, two potential issues with this approach. The first is that we will only be guaranteed a locally optimal solution. The second is that in practice, a first-order gradient optimization algorithm often converges very slowly.
+
+We will now show a different approach. We will first show that for linear systems and quadratic costs, Problem \ref{eq:opt_control} can be solved using dynamic programming. This problem is often called a Linear Quadratic Regulator (LQR). We will then show how to extend the LQR solution to non-linear problems using linearization, resulting in an iterative LQR algorithm (iLQR).
+
+\subsection{Linear Quadratic Regulator}
+
+We now restrict our attention to linear-quadratic problems of the form:
+\begin{equation}\label{eq:lqr}
+    \begin{split}
+        \min_{\action_0,\dots,\action_{\tHorizon}} & \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime), \\
+        s.t. \quad & {\state_{\ttime+1}} = A_\ttime \state_\ttime + B_\ttime \action_\ttime, \\
+        & \cost_\ttime = \state_\ttime^\top Q_\ttime \state_\ttime + \action_\ttime^\top R_\ttime \action_\ttime, \forall \ttime=0,\dots,\tHorizon-1, \\
+        & \cost_\tHorizon = \state_\ttime^\top Q_\tHorizon \state_\ttime.
+    \end{split}
+\end{equation}
+where $\state_0$ is given, $Q_\ttime=Q_\ttime^\top \geq 0$ is a non-negative definite state-cost matrix, and $R_\ttime = R_\ttime^\top > 0 $ is a positive definite control-cost matrix.
+
+We will solve Problem \ref{eq:lqr} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttiem$, that is, 
+$$\Value_\ttime(\state) = \min_{\action_\ttime,\dots,\action_\tHorizon} \sum_{\ttime'=\ttime}^T \cost_{\ttime'}(\state_{\ttime'}, \action_{\ttime'}) \quad \textrm{s.t.} \quad \state_\ttime = \state.$$
+
+\begin{proposition}\label{prop:lqr}
+The value function has a quadratic form: $\Value_\ttime(\state) = \state^\top P_\ttime \state$, and $P_\ttime=P_\ttime^\top$. 
+\end{proposition}
+\begin{proof}
+We prove by induction. For $\ttime=\tHorizon$, this holds by definition, as $\Value_\tHorizon(\state) = \state^\top Q_\tHorizon \state$. Now, assume that $\Value_{\ttime+1}(\state) = \state^\top P_{\ttime+1} \state$. We have that 
+\begin{equation*}
+\begin{split}
+        \Value_\ttime(\state) &= \min_{\action_\ttime} \state^\top Q_\ttime \state + \action_\ttime^\top R_\ttime \action_\ttime + \Value_{\ttime+1}(A_\ttime \state + B_\ttime \action_\ttime) \\
+        &= \min_{\action_\ttime} \state^\top Q_\ttime \state + \action_\ttime^\top R_\ttime \action_\ttime + (A_\ttime \state + B_\ttime \action_\ttime)^\top P_{\ttime+1} (A_\ttime \state + B_\ttime \action_\ttime) \\
+        &= \state^\top Q_\ttime \state + (A_\ttime x)^\top P_{\ttime+1} (A_\ttime \state) + \min_{\action_\ttime} \action_\ttime^\top (R_\ttime + B_\ttime^\top P_{\ttime+1} B_\ttime) \action_\ttime + 2(A_\ttime \state)^\top P_{\ttime+1} (B_\ttime \action_\ttime)
+\end{split}
+\end{equation*}
+The objective is quadratic in $\action_\ttime$, and solving the minimization gives 
+$$\action_\ttime^* = -(R_\ttime + B_\ttime^\top P_{\ttime+1} B_\ttime)^{-1} B_\ttime^\top P_{\ttime+1} A_\ttime \state. $$ 
+Substituting back $\action_\ttime^*$ in the expression for $\Value_\ttime(\state)$ gives a quadratic expression in $\state$.
+\end{proof}
+
+From the construction in the proof of Proposition \ref{prop:lqr} one can recover the sequence of optimal controllers $\action_\ttime^*$. By substituting the optimal controls in the forward dynamics equation, one can also recover the optimal state trajectory.
+
+\begin{leftbar}
+\subsection*{Full Derivation for Scalar Case}
+For the sake of clarity, we first present a derivation for the case of a scalar state and action. The derivation for the general setting follows along similar lines, and is described afterward.
+
+Consider the problem:
+\begin{equation}\label{eq:lqr_scalar}
+    \begin{split}
+        \min_{\action_0,\dots,\action_{\tHorizon}} & \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime), \\
+        s.t. \quad & {\state_{\ttime+1}} = A_\ttime \state_\ttime + B_\ttime \action_\ttime, \\
+        & \cost_\ttime = Q_\ttime \state_\ttime^2 + R_\ttime \action_\ttime^2, \quad \forall \ttime=0,\dots,\tHorizon-1, \\
+        & \cost_\tHorizon = Q_\tHorizon \state_\ttime^2.
+    \end{split}
+\end{equation}
+where $\state_0$ is given, and $Q_\ttime=Q_\ttime^\top \geq 0$, $R_\ttime = R_\ttime^\top > 0 $ are state-cost and control-cost scalars.
+
+We will solve Problem \ref{eq:lqr_scalar} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttime$, that is, $\Value_\ttime(\state) = \min_{\action_\ttime,\dots,\action_\tHorizon} \sum_{\ttime'=\ttime}^\tHorizon \cost_{\ttime'}(\state_{\ttime'}, \action_{\ttime'}) \quad \textrm{s.t.} \quad \state_\ttime = \state$. 
+
+\paragraph{Proposition:}
+The value function has a quadratic form: $\Value_\ttime(\state) = P_\ttime \state^2$. 
+
+\begin{proof}
+We prove by induction. For $\ttime=\tHorizon$, this holds by definition, as $\Value_\tHorizon(\state) = Q_\tHorizon \state^2$. Now, assume that $\Value_{\ttime+1}(\state) = P_{\ttime+1} \state^2$. We have that 
+\begin{equation*}
+\begin{split}
+        \Value_\ttime(\state) &= \min_{\action_\ttime} Q_\ttime \state^2 + R_\ttime \action_\ttime^2 + \Value_{\ttime+1}(A_\ttime \state + B_\ttime \action_\ttime) \\
+        &= \min_{\action_\ttime} Q_\ttime \state^2 + R_\ttime \action_\ttime^2 + P_{\ttime+1} (A_\ttime \state + B_\ttime \action_\ttime)^2 \\
+        &= Q_\ttime \state^2 + P_{\ttime+1} (A_\ttime \state)^2 + \min_{\action_\ttime} \left((R_\ttime + P_{\ttime+1} B_\ttime^2) \action_\ttime^2 + 2A_\ttime \state P_{\ttime+1} B_\ttime \action_\ttime\right)
+\end{split}
+\end{equation*}
+The objective is quadratic in $\action_\ttime$, and solving the minimization gives 
+$$\action_\ttime^* = -(R_\ttime + P_{\ttime+1} B_\ttime^2)^{-1} B_\ttime P_{\ttime+1} A_\ttime \state. $$ 
+Substituting back $\action_\ttime^*$ in the expression for $\Value_\ttime(\state)$ gives a quadratic expression in $\state$:
+$$
+\Value_\ttime(\state) = (Q_\ttime + P_{\ttime+1}A_\ttime^2 -B_\ttime^2 P_{\ttime+1}^2 A_\ttime^2 (R_\ttime + P_{\ttime+1} B_\ttime^2)^{-1}) \state^2. 
+$$
+\end{proof}
+\end{leftbar}
+
+\paragraph{Remarks:}
+\begin{enumerate}
+  \item The DP solution is \emph{globally} optimal for the LQR problem. Interestingly, the computational complexity is polynomial in the \textit{dimension} of the state, and linear in the time horizon. This is in contrast to the curse of dimensionality, which would make a discretization based approach infeasible for high dimensional problem. This efficiency is due to the special structure of the dynamics and cost function in the LQR problem, and does not hold in general.
+  \item Note that the DP computation resulted in a sequence of \textit{linear feedback controllers}. It turns out that these controllers are also optimal in the presence of Gaussian noise added to the dynamics.
+  \item A similar derivation holds for the system:
+  \begin{equation*}\label{eq:lqr_full}
+    \begin{split}
+        \min_{\action_0,\dots,\action_{\tHorizon}} & \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime), \\
+        s.t. \quad & {\state_{\ttime+1}} = A_\ttime \state_\ttime + B_\ttime \action_\ttime + C_\ttime, \\
+        & \cost_\ttime = [\state_\ttime, \action_\ttime]^\top W_\ttime [\state_\ttime, \action_\ttime] + Z_\ttime [\state_\ttime, \action_\ttime] + Y_\ttime, \forall \ttime=0,\dots,\tHorizon.
+    \end{split}
+\end{equation*}
+In this case, the optimal control is of the form 
+$\action_\ttime^* = K_\ttime \state + \kappa_\ttime, $ for some matrices $K_\ttime$ and vectors  $\kappa_\ttime$.
+\end{enumerate}
+
+
+\subsection{Iterative LQR}
+
+We now return to the original non-linear problem \ref{eq:opt_control}. If we linearize the dynamics and quadratize the cost -- we can plug in the LQR solution we obtained above. Namely, given some reference trajectory $\hat{\state_0},\hat{\action_0},\dots,\hat{\state_\ttime}, \hat{\action_\tHorizon}$, we apply a Taylor approximation:
+\begin{equation}\label{eq:Taylor_approx}
+\begin{split}
+    {f_\ttime}({\state_\ttime},{\action_\ttime}) &\approx {f_\ttime}({\hat{\state}_\ttime},{\hat{\action}_\ttime}) + \nabla_{\state_\ttime, \action_\ttime}f_\ttime({\hat{\state}_\ttime},{\hat{\action}_\ttime}) [\state_\ttime - \hat{\state}_\ttime, \action_\ttime - \hat{\action}_\ttime] \\
+    {\cost_\ttime}({\state_\ttime},{\action_\ttime}) &\approx {\cost_\ttime}({\hat{\state}_\ttime},{\hat{\action}_\ttime}) + \nabla_{\state_\ttime, \action_\ttime}\cost_\ttime({\hat{\state}_\ttime},{\hat{\action}_\ttime}) [\state_\ttime - \hat{\state}_\ttime, \action_\ttime - \hat{\action}_\ttime] \\
+    & + \frac{1}{2} [\state_\ttime - \hat{\state}_\ttime, \action_\ttime - \hat{\action}_\ttime]^\top \nabla^2_{\state_\ttime, \action_\ttime}\cost_\ttime({\hat{\state}_\ttime},{\hat{\action}_\ttime}) [\state_\ttime - \hat{\state}_\ttime, \action_\ttime - \hat{\action}_\ttime].
+\end{split}
+\end{equation}
+
+If we define $\delta_\state = \state - \hat{\state}$, $\delta_\action = \action - \hat{\action}$, then the Taylor approximation gives an LQR problem for $\delta_\state, \delta_\action$. It's optimal controller is $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \kappa_\ttime + \hat{\action}_\ttime.$ By running this controller on the non-linear system, we obtain a new reference trajectory. 
+Also note that the controller $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \alpha \kappa_\ttime + \hat{\action}_\ttime$ for $\alpha \in [0,1]$ smoothly transitions from the previous trajectory ($\alpha=0$) to the new trajectory ($\alpha=1$) (show that!). Therefore we can interpret $\alpha$ as a step size, to guarantee that we stay within the Taylor approximation limits.
+
+The iterative LQR algorithm works by applying this approximation iteratively:
+
+\begin{enumerate}
+    \item Initialize a control sequence $\hat{\action_0},\dots,\hat{\action_\tHorizon}$ (e.g., by zeros).
+    \item Run a forward simulation of the controls in the nonlinear system to obtain a state trajectory $\hat{\state_0},\dots,\hat{\state_\ttime}$.
+    \item Linearize the dynamics and quadratize the cost (Eq. \ref{eq:Taylor_approx}), and solve using LQR.
+    \item By running a forward simulation of the control $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \alpha \kappa_\ttime + \hat{\action}_\ttime$ on the non-linear system, perform a line search for the optimal $\alpha$ according to the non-linear cost.
+    \item For the found $\alpha$, run a forward simulation to obtain a new trajectory  $\hat{\state_0},\hat{\action_0},\dots,\hat{\state_\tHorizon},\hat{\action_\tHorizon}$. Go to step 3.
+\end{enumerate}
+
+In practice, the iLQR algorithm is typically much more stable and efficient than the gradient descent approach.
 
 \section{Historical Notes:}
 \begin{itemize}
