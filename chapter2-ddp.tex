@@ -904,22 +904,24 @@ This algorithm solves the single destination (or the equivalent single source) s
 
 \item for  $i = 1$ to $|\nodes| - 1$,
 
-      \tab{$\tilde d[\nodev] = d[\nodev],\quad \nodev \in \nodes\backslash \{ \nodev_d\} $      \coderemark{temporary buffer for $d$}}
+    %   \tab{$\tilde d[\nodev] = d[\nodev],\quad \nodev \in \nodes\backslash \{ \nodev_d\} $      \coderemark{temporary buffer for $d$}}
 
       \tab{for each vertex $\nodev \in \nodes\backslash \{ \nodev_d\} $,}
 
-	  \tab{\tab{$q[\nodev] = {\min_{\nodeu}}\{ \cost(\nodev,\nodeu) + \tilde d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
+	  \tab{\tab{$q[\nodev] = {\min_{\nodeu}}\{ \cost(\nodev,\nodeu) + d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
+	  
+	  \tab{\tab{$\policy [\nodev] \in \argmin_{\nodeu}\{ \cost(\nodev,\nodeu) + d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
 
-	  \tab{\tab{$d[\nodev] = \min \{ q[\nodev],d[\nodev]\}$}}
-\item for  $\nodev \in \nodes\backslash \{ \nodev_d\} $,
+	  \tab{$d[\nodev] =  q[\nodev] \quad \forall \nodev \in \nodes\backslash \{ \nodev_d\}$} 
+    % \item for  $\nodev \in \nodes\backslash \{ \nodev_d\} $,
 
-      \tab{if  $d[\nodev] < \infty $}
+    %   \tab{if  $d[\nodev] < \infty $}
 
-      \tab{\tab{set $\policy [\nodev] \in \argmin_{\nodeu}\{ \cost(\nodev,\nodeu) + \tilde d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
+    %   \tab{\tab{set $\policy [\nodev] \in \argmin_{\nodeu}\{ \cost(\nodev,\nodeu) + \tilde d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
 
-      \tab{else}
+    %   \tab{else}
 
-      \tab{\tab{$\policy [\nodev]$=NULL}}
+    %   \tab{\tab{$\policy [\nodev]$=NULL}}
 
 \item return $\{ d[\nodev],\policy [\nodev], \quad  \forall \nodev \in \nodes\} $
 \end{enumerate}
@@ -932,7 +934,7 @@ To understand the algorithm, we observe that after round $i$, $d[\nodev]$ holds 
 \begin{enumerate}
   \item The running time of the algorithm is $O(|\nodes|\, \cdot \,|\edges|)$. This is because in each round $i$ of the algorithm, each edge $\edge$ is involved in exactly one update of $d[\nodev]$ for some $\nodev$.
   \item If $\{ d[\nodev]\}$ does not change at all at some round, then the algorithm may be stopped there.
-  \item In the version shown above, $\tilde d[\nodev]$ is used to 'freeze' $d[\nodev]$ for an entire round. The standard form of the algorithm actually uses $d[\nodev]$ directly on the right-hand side.
+%   \item In the version shown above, $\tilde d[\nodev]$ is used to 'freeze' $d[\nodev]$ for an entire round. The standard form of the algorithm actually uses $d[\nodev]$ directly on the right-hand side.
   \item We have assumed above that no negative-weight cycles exist. In fact the algorithm can be used to check for existence of such cycles: A negative-weight cycle exists if and only if  $d[\nodev]$ changes during an additional step ($i = |\nodes|$) of the algorithm.
   \item The basic scheme above can also be implemented in an asynchronous manner, where each node performs a local update of $d[\nodev]$ at its own time. Further, the algorithm can be started from any initial conditions, although convergence can be slower. This makes the algorithm useful for distributed environments such as internet routing.
 \end{enumerate}
@@ -945,7 +947,7 @@ The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to
 
 \begin{algorithm_}\textbf{Dijkstra's Algorithm}
 \begin{enumerate}
-\item{Input:} A weighted directed graph, and destination node $\nodev_d$.
+\item[ Input: ] A weighted directed graph, and destination node $\nodev_d$.
 
 \item Initialization:
 \begin{itemize}
