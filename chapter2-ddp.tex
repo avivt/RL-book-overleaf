@@ -305,9 +305,9 @@ $\policy$, and the probability and expectation are taken with
 respect to the randomness of the policy $\policy$. Now we can
 rewrite the expected cost to go as,
 \[
-\E[\Cost^\policy(\state_0)]=\E[\sum_{\ttime=1}^{\tHorizon-1}
+\E[\Cost^\policy(\state_0)]=\sum_{\ttime=1}^{\tHorizon-1}
 \sum_{\action\in \Actions_\ttime,\state\in \States_\ttime}
-\cost_\ttime(\state,\action)\rho^\pi_\ttime(\state,\action)],
+\cost_\ttime(\state,\action)\rho^\pi_\ttime(\state,\action),
 \]
 where $\Cost^\policy(\state_0)$ is the random variable of the cost
 when starting at state $\state_0$ and following policy $\policy$.
