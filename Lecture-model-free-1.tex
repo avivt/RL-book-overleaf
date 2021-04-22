@@ -41,7 +41,7 @@ Assume we have a random variable $Z\in [0,1]$ with $\mu=E[Z]$. We
 observe $m$ samples, $z_1, \ldots , z_m$. In the batch setting we
 simply compute the average of the samples,
 $\widehat{\mu}_m=(1/m)\sum_{i=1}^m z_i$. We can bound
-$|\mu-\widehat{\mu}_T|$ using Chernoff-Hoeffding concentration
+$|\mu-\widehat{\mu}_m|$ using Chernoff-Hoeffding concentration
 bounds (see Lemma~\ref{lemma:chernoff}).
 
 We can actually perform the computation of the average in an online
@@ -59,8 +59,8 @@ a sequence of $\alpha_t \in(0,1)$ and
 \beta_i z_i
 \]
 where $\beta_i=\alpha_i\prod_{j=1}^{i-1}(1-\alpha_j)$. Note that
-$\sum_{i=1}^T \beta_i=1$. The regular averaging is a special case
-with $\alpha_t=1/t$.
+$\sum_{i=1}^m \beta_i=1$. The regular averaging is a special case
+with $\alpha_i=1/i$.
 
 We would like to show that the approximation $\bar{\mu}$
 concentrates around the mean $\mu$. For this we will introduce the
@@ -73,7 +73,7 @@ the realization of the $n$ independent (but not necessarily
 identical) random variables to a value. Namely, $f:\cX^n \rightarrow
 \Reals$.
 
-We define $c_i$, the sensitivity  of the function $f$ to the $i$-th
+We define $c_i$, the \emph{sensitivity}  of the function $f$ to the $i$-th
 input, to be
 $$
 c_i =\max_{x\in \cX^n} \max_{a_1,a_0\in X} |f(x_1,
@@ -96,7 +96,7 @@ c_i^2)}
 We can use McDirmid's inequality to recover the concentration bounds
 for a simple average. Define $avg(x_1, \ldots ,
 x_n)=(1/n)\sum_{i=1}^n x_i$, where $x_i\in[0,1]$. The sensitivity of
-$avg$ to any input $i$ is exactly $c_i=1/n$. This implies that
+$avg$ to any input $x_i$ is exactly $c_i=1/n$. This implies that
 $\sum_i c_i^2=\sum_i 1/n^2=1/n$. Therefore, McDiarmid's inequality
 gives us,
 \[
@@ -121,7 +121,7 @@ For the case of exponential averaging, with a fixed parameter
 $\alpha$, we have $\beta_i=\alpha(1-\alpha)^{i-1}$. This implies
 that
 \[
-\sum_{i=1}^m \beta_i^2 =
+\sum_{i=1}^n \beta_i^2 =
 \alpha^2\frac{1-(1-\alpha)^m}{1-(1-\alpha)^2}\approx
 \frac{\alpha}{2-\alpha}
 \]
@@ -158,13 +158,13 @@ The optimality equation is then
 $$
 \Value^*(\state) = \max_\action Q^*(\state,\action)
 $$
-or, in terms of $Q^*$ only:
+or, in terms of $Q^*$:
 $$
 Q^*(\state,\action)=\reward(\state,\action)+\discount
 \max_{\action'}Q^*(f(\state,\action),\action')
 $$
 
-The $Q$ learning algorithm runs as follows:
+The $Q$-learning algorithm runs as follows:
 \begin{itemize}
 \item {\em Initialize:} Set $\widehat{Q}(\state,\action)=0$, for all $\state$, $\action$.
 \item At time $\ttime=0,1,\dots$:
@@ -215,9 +215,13 @@ Q^*(\state_\ttime,\action_\ttime)| &=
 &= \discount |\max_{\action'} \widehat{Q}_\ttime(\state_{\ttime}',\action') -\max_{\action''} Q^*(\state_{\ttime}',\action'') | \\
 & \le \discount \max_{\action'}
 |\widehat{Q}_\ttime(\state_{\ttime}',\action') -
-Q^*(\state_{\ttime}',\action') | \; \le\; \discount \Delta_\ttime
+Q^*(\state_{\ttime}',\action') | \\
+\le\; \discount \Delta_\ttime
 \,.
 \end{align*}
+where the first inequality uses the fact that $|\max_{x_1} f_1(x_1)-\max_{x_2}f(x_2)|\leq \max_x|f_1(x)-f_2(x)|$, and the second inequality follows from the bound on $\|\widehat{Q}_\ttime-Q^*\|_\infty =\Delta_t $.
+
+
 Consider now some interval $[\ttime,\ttime_1]$ over which all
 state-action pairs $(\state,\action)$ appear at least once. Using
 the above relation and simple induction, it follows that
@@ -228,7 +232,7 @@ an infinite number of such intervals, and since $\discount<1$, it
 follows that $\Delta_\ttime \to 0$, as $\ttime$ goes to infinity.
 \end{proof}
 
-\noindent{\emph{Remark:}} Note that the $Q$ learning algorithm does
+\noindent{\emph{Remark:}} Note that the $Q$-learning algorithm does
 not need to receive a continuous trajectory, but can receive
 arbitrary quadruples
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime}')$,
@@ -236,7 +240,7 @@ $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime}')$,
 \subsection{Q-learning: Markov Decision Process}
 
 
-We now extend the $Q$ learning algorithm from DDP to MDP. The main
+We now extend the $Q$-learning algorithm from DDP to MDP. The main
 difference is that now we will need to average multiple observations
 to converge to the value of $Q*$. For this we introduce generate for
 learning rates, $\alpha_\ttime(\state,\action)$. We allow the
@@ -301,7 +305,7 @@ Then, $Q_\ttime$ converges with probability $1$ to $Q^*$
 Note that the statement of the theorem has two requirements. The
 first is that every state-action pair is executed infinitely often.
 This is clearly required for convergence (per state-action). Since
-$Q$ learning is an off-policy, it has no influence on the sequence
+$Q$-learning is an off-policy, it has no influence on the sequence
 of state-action it observes, and therefore we have to make this
 assumption. The second requirement is two properties regarding the
 learning rates $\alpha$. The first states that the learning rates
@@ -394,14 +398,14 @@ that as the number of phases increases we that that $\lambda_i<
 \subsection{$Q$-learning as a stochastic approximation}
 
 After we introduced the stochastic approximation algorithms, and
-their convergence theorem, we show that the $Q$ learning algorithm
+their convergence theorem, we show that the $Q$-learning algorithm
 is a stochastic approximation algorithm, and thus converges.
 %
-To show that $Q$ learning algorithm is a stochastic approximation
+To show that $Q$-learning algorithm is a stochastic approximation
 algorithm we need to introduce an operator $H$ and the noise
 $\omega$.
 
-We first define the operator $H$.
+We first define the operator $H$,
 \[
 (Hq)(\state,\action)=\sum_{\state'}p(\state'|\state,\action)
 [\reward(\state,\action) + \discount \max_{\action'} q (\state',
@@ -413,7 +417,7 @@ The contraction of $H$ is established as follows,
 |\sum_{\state'} p(\state'|\state,\action)
 [\max_{b_1} q_1(\state',b_1)-\max_{b_2} q_2(\state',b_2)|\\
 &\leq \discount \max_{\state,\action}\max_{b,\state'} |q_1(\state',b)-q_2(\state',b)|\\
-&\leq \discount \|q_1-q_2\|_\infty
+&\leq \discount \|q_1-q_2\|_\infty\;.
 \end{align*}
 
 
@@ -534,8 +538,7 @@ Q_\ttime =
 Q_{\ttime-1}]=(1-\frac{1-\discount}{\ttime})Q_{\ttime-1}
 \]
 When we solve the recursion we get that
-$Q_\ttime=\Theta(1/\ttime^{1-\discount})$.
-\footnote{$Q_\ttime=\prod_{i=1}^\ttime (1-(1-\discount)/i)\approx
+$Q_\ttime=\Theta(1/\ttime^{1-\discount})$.\footnote{$Q_\ttime=\prod_{i=1}^\ttime (1-(1-\discount)/i)\approx
 \prod_{i=1}^\ttime e^{-(1-\discount)/i}=e^{-\sum_{i=1}^\ttime
 (1-\discount)/i }\approx e^{-(1-\discount)\ln
 t}=t^{-(1-\discount)}$. }
@@ -585,7 +588,7 @@ the algorithm, and we would need to specify how to select them.
 When designing the algorithm we need to think of two contradicting
 objectives in selecting the actions. The first is the need to
 explore, perform each action infinitely often. This implies that we
-need, for each state $\state$, to have that $E[\sum_\ttime
+need, for each state $\state$ and action $\action$, to have that $E[\sum_\ttime
 \policy_\ttime(\action|\state)]=\infty$. Then by Borel-Cantelli
 lemma we have with probability $1$ an infinite number of times that
 we select action $\action$ in state $\state$ (actually, we need
@@ -618,7 +621,7 @@ $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$.
 \end{itemize}
 Note that SARSA selects an action $\action_{\ttime+1}$ for state
 $\state_{\ttime+1}$, dependent on the values of $Q_\ttime$ and not
-$Q_{\ttime+1}$. The update of $_\ttime$ is done only after we
+$Q_{\ttime+1}$. The update of $Q_\ttime$ is done only after we
 selected action $\action_{\ttime+1}$ (which is performed at time
 $\ttime+1$).
 
@@ -635,7 +638,7 @@ greedy action in state $\state$ according to $Q$ as
 \]
 The first idea might be to simply select the greedy action
 $\bar{\action}$, however this might be devastating. The main issue
-is that we are avoiding exploration. Some actions might look better
+is that we might be avoiding exploration. Some actions might look better
 due to errors, and we will continue to execute them and not gain any
 information about alternative actions.
 
@@ -683,7 +686,7 @@ each action appears infinitely often).
 
 \paragraph{SARSA convergence:}
 Convergence of the $Q_\ttime$ to $Q^*$ would follow immediately from
-the basic properties of the $Q$ learning, we just need to guarantee
+the basic properties of the $Q$-learning, we just need to guarantee
 that we explore each action infinitely often. (This would follow
 since any $\varepsilon$-greedy policy is aperiodic and irreducible,
 the steady state of the resulting Markov has a non-zero probability
@@ -777,11 +780,9 @@ $\|\policy(\cdot|\state)-\policy_\varepsilon(\cdot|\state)\|_1\leq\varepsilon$.
 Then, for any state $\state$ we have
 \[
 |\Value^{\policy_\varepsilon}(\state)-\Value^\policy(\state)|\leq
-\frac{\varepsilon\gamma}{(1-\discount)(1-\discount(1-\varepsilon))}.
+\frac{\varepsilon\discount}{(1-\discount)(1-\discount(1-\varepsilon))}\leq \frac{\varepsilon}{(1-\discount)^2}
 \]
-For $\varepsilon\leq 1/2$ we have
-$|\Value^{\policy_\varepsilon}(\state)-\Value^\policy(\state)|\leq
-2\varepsilon\Vmax$
+%For $\varepsilon\leq 1/2$ we have $|\Value^{\policy_\varepsilon}(\state)-\Value^\policy(\state)|\leq 2\varepsilon\Vmax$
 \end{lemma}
 
 \begin{proof}
@@ -810,12 +811,12 @@ difference is maximized if we set all the rewards to $1$, and have
 (1-\varepsilon)^\ttime\discount^\ttime=
 \frac{1}{1-\discount}-\frac{1}{1-\discount(1-\varepsilon)}=\frac{\varepsilon\discount}{(1-\discount)(1-\discount(1-\varepsilon))}
 \]
-Since $\Vmax=\frac{1}{1-\discount}$ and $\discount< 1$, for
-$\varepsilon\leq 1/2$ we have
-\[
-\Value^\policy(\state)- \Value^{\policy_\varepsilon}(\state) \leq
-2\varepsilon\Vmax
-\]
+% Since $\Vmax=\frac{1}{1-\discount}$ and $\discount< 1$, for
+% $\varepsilon\leq 1/2$ we have
+% \[
+% \Value^\policy(\state)- \Value^{\policy_\varepsilon}(\state) \leq
+% 2\varepsilon\Vmax
+% \]
 \end{proof}
 
 We can now combine the results and claim that SARSA with
@@ -840,20 +841,20 @@ often, there is a time $\tau_1$ such that each state is sampled at
 least $N$ times.
 
 Since $Q_\ttime$ converges to $Q^*$, there is a time $\tau_2$ such
-that $\|Q_\ttime-Q^*\|_\infty \leq \Delta=0.25\lambda (1-\gamma)$.
+that $\|Q_\ttime-Q^*\|_\infty \leq \Delta=0.25\lambda (1-\discount)$.
 
 Set $\tau=\max\{\tau_1,\tau_2\}$. By
 Lemma~\ref{lemma:epsilon-greedy} the difference between the
 $\varepsilon_n$-greedy policy and the greedy policy differs by at
 most $2\varepsilon_n\Vmax\leq \lambda$. By Lemma
 \ref{lemma:Q-greedy-policy} the difference between the optimal and
-greedy policy is bounded by $2\Delta/(1-\gamma)=\lambda/2$. This
+greedy policy is bounded by $2\Delta/(1-\discount)=\lambda/2$. This
 implies that the policies played at time $\ttime>\tau$ are
 $\lambda$-optimal.
 \end{proof}
 
 
-\paragraph{Expected SARSA algorithm:}
+\paragraph{Expected SARSA algorithm:}\footnote{YM: do we want to keep it?}
 In SARSA there are two sources of noise.
 %, or stochastic behavior.
 One is from the environment, through the selection of the next state
@@ -926,7 +927,7 @@ episode.
 Fix a state $\state$, and assume you observed returns $G^\state_1,
 \ldots , G^\state_m$, all starting at state $\state$. The
 Monte-Carlo estimate for the state $\state$ would be
-$\widehat{V}^\policy(\state)=\frac{1}{m}\sum_{i=1}^m G_i$. The main
+$\widehat{V}^\policy(\state)=\frac{1}{m}\sum_{i=1}^m G_i^\state$. The main
 issue that remains is how do we generate the samples $G^\state_i$
 for a state $\state$. Clearly, if we assume we can reset the MDP to
 any state, we are done. However, such a \emph{reset assumption} is
@@ -955,11 +956,11 @@ $\state_j$, and update $\widehat{\Value}^\policy(\state)$ using
 $G^\state=\sum_{i=j}^k \reward_i$. Namely, we compute the actual
 return from the first visit to state $\state$, and use it to update
 our approximation. This is clearly an unbiased estimator of the
-return from state $\state$, e.g.
+return from state $\state$, e.g.,
 $E[G^\state]=\Value^\policy(\state)$.
 
 \paragraph{Every visit}
-We do an update during each step of in the episode. Namely, give an
+We do an update during each step of in the episode. Namely, given an
 episode $(\state_1, \action_1, \reward_1, \ldots ,
 \state_k,\action_k,\reward_k)$ for each state $\state_j$ that
 appears in the episode, we update each
@@ -997,7 +998,7 @@ trajectory, $(\state_1,\state_1,\state_1,\state_1,\state_2)$, and
 all the rewards are $1$. What would be a reasonable estimate for the
 expected return from $\state_1$.
 
-{\tt First visit} take the naive approach, considers the return from
+{\tt First visit} takes the naive approach, considers the return from
 the first occurrence of $\state_1$, which is $4$, and uses this as
 an estimate. {\tt Every visit} considers four runs from state
 $\state_1$, we have:
@@ -1020,7 +1021,7 @@ Since the different $G^\state_i$ are independent, we can use a
 concentration bound, to claim that the error is small. Actually we
 will need two different bounds. The first would say that if we run
 $n$ episodes, then with high probability we have at least $m$
-episode in which state $\state$ appear. The second would say that if
+episodes in which state $\state$ appear. The second would say that if
 we have $m$ episodes in which state $\state$ appear, then we will
 well approximate the value function at $\state$. For the first part,
 we clearly would need to depend on the probability of reaching state
@@ -1099,7 +1100,8 @@ first appearance of $\state$). Call this the {\em reduced sample}.
 
 The maximum likelihood model, given a set of episodes, is simply the
 observed model. (We will not show here that the observed model is
-indeed the maximum likelihood model.) Namely, for each state-action
+indeed the maximum likelihood model, but it is a good ex cerise for the reader to show it.) 
+Namely, for each state-action
 pair $(\state,\action)$ let $n(\state,\action)$ be the number of
 times it appears, let $n(\state,\action,\state')$ be the number of
 times $\state'$ is observed following executing action $\action$ in
@@ -1210,7 +1212,8 @@ Visit} updates, will have the bias decrease with the number of
 episodes. The reason is that we sum separately the returns, and the
 number of occurrences. This implies that we have
 \[
-E[\Value^{ev}(\state_1)]=\frac{E[k(k+1)/2]}{E[k]}=\frac{1}{p},
+E[\Value^{ev}(\state_1)]=\frac{E[k(k+1)/2]}{E[k]}=\frac{E[k^2]+E[k]}{2E[k]}=
+\frac{2/p^2-1/p+1/p}{2/p}=\frac{1}{p},
 \]
 since $E[k^2]=2/p^2-1/p$. This implies that if we average many
 episodes we will get an almost unbiased estimate using {\tt Every

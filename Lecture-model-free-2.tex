@@ -26,7 +26,7 @@ similar in spirit to $Q$-learning and SARSA.
 
 \subsection{TD(0)}
 
-Fix a policy $\policy\in SD$, stationary and deterministic. The goal
+Fix a policy $\policy\in \Pi_{SD}$, stationary and deterministic. The goal
 is to learn the value function $\Value^\policy(\state)$ for every
 $s\in S$. (The same goal as Monte-Carlo learning.) The TD algorithms
 will maintain an estimate of the value function of the policy
@@ -132,7 +132,7 @@ estimate, we show that this holds in general.
 \end{figure}
 
 
-\paragraph{Maximum Likelihood model} Recall that the empirical model, which is also the
+\paragraph{Maximum Likelihood model}\footnote{YM: repeat} Recall that the empirical model, which is also the
 maximum likelihood model, of a sample be define as follows. Let
 $n(\state,\action)$ be the number of times $(\state,\action)$
 appears in the sample. Given a sample
@@ -156,9 +156,9 @@ update).
 
 \begin{theorem}
 Let $\Value^\policy_{TD}$ be the estimated value function of
-$\policy$ when we run $TD(0)$ until convergence. let
+$\policy$ when we run $TD(0)$ until convergence. Let
 $\Value^\policy_{EM}$ be the value function of $\policy$ on the
-empirical model. Then $\Value^\policy_{TD}=\Value^\policy_{EM}$.
+empirical model. Then, $\Value^\policy_{TD}=\Value^\policy_{EM}$.
 \end{theorem}
 
 \begin{proof}[Proof sketch]
@@ -223,7 +223,7 @@ operator
 We now would like to re-write the $TD(0)$ update to be a stochastic
 approximation iterative algorithm. The $TD(0)$ update is,
 \[
-V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime+\alpha_\ttime
+V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\ttime
 \Phi_\ttime
 \]
 where $\Phi_\ttime=\reward_\ttime+\discount
@@ -243,7 +243,7 @@ bounded by $V_{max}$.
 
 Returning to $TD(0)$, we can write
 \[
-V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime+\alpha_\ttime
+V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\ttime
 [(HV_\ttime)(\state_\ttime)+\omega_\ttime(\state_\ttime)]
 \]
 The requirement of the step size appears in the statement of the
@@ -253,7 +253,7 @@ operator $H$ is contracting with a fix-point $\Value^\policy$.
 Therefore, using Theorem~\ref{thm:stoch-approx}, we established
 Theorem~\ref{thm:TD0-conrg}.
 
-\paragraph{Comparing various algorithms:}
+\paragraph{Comparing various algorithms:}\footnote{YM: needed? I think it is from Sutton}
 When we compare $TD(0)$, to $MC$ and both to  Dynamic Programming
 (DP) we can view it as different ways of computing the value
 function.
@@ -331,7 +331,8 @@ Using the $n$-step look-ahead we have
 $\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime
 \Delta^{(n)}_\ttime$ where
 $\Delta^{(n)}_\ttime=R^{(n)}_\ttime(\state_\ttime)-\widehat{V}(\state_\ttime)$.
-Note that the operator $R^{(n)}_\ttime$ is
+We can view $R^{(n)}_\ttime$ as an operator over $V$, and this operator is
+%Note that the operator $R^{(n)}_\ttime$ is
 $\discount^n$-contracting, namely
 \[
 \| R^{(n)}_\ttime(V_1)-R^{(n)}_\ttime(V_2)\|_\infty \leq \discount^n
@@ -358,7 +359,7 @@ This leads us to the $TD(\lambda)$ update:
 to generate exponential decaying values, their goal is very
 different. The discount parameter $\discount$ defines the objective
 of the MDP, the goal that we like to maximize. The exponential
-averaging parameter $\lambda$ is used to average over the different
+averaging parameter $\lambda$ is used by the learning algorithm to average over the different
 look-ahead parameters, and is selected to optimize the convergence.
 
 %In the slides there is an example of a random walk and its
@@ -378,14 +379,14 @@ $\ttime$ and a state $\state=\state_\ttime$. We have at time
 $\ttime$ a temporal difference $\Delta_\ttime= \reward_\ttime
 +\discount V_\ttime(\state_{\ttime+1})-V_\ttime(\state_\ttime)$.
 Consider how this $\Delta_\ttime$ affects all the previous times
-$\tau<t$ where $\state_\tau=\state=\state_\ttime$. The influence is
-exactly $(\discount\lambda)^{t-\tau}\Delta_\ttime$. This implies
+$\tau<\ttime$ where $\state_\tau=\state=\state_\ttime$. The influence is
+exactly $(\discount\lambda)^{\ttime-\tau}\Delta_\ttime$. This implies
 that for every such $\tau$ we can do the desired update, however, we
 can aggregate all those updates to a single update. Let,
 \[
-e_\ttime(\state)=\sum_{\tau\leq t: \state_\tau=\state}
-(\discount\lambda)^{t-\tau} = \sum_{\tau=1}^\ttime
-(\discount\lambda)^{t-\tau}I(\state_\tau=\state)
+e_\ttime(\state)=\sum_{\tau\leq \ttime: \state_\tau=\state}
+(\discount\lambda)^{\ttime-\tau} = \sum_{\tau=1}^\ttime
+(\discount\lambda)^{\ttime-\tau}I(\state_\tau=\state)
 \]
 The above $e_\ttime(\state)$ defines the {\em eligibility trace} and
 we can compute it online using
@@ -441,13 +442,13 @@ $\Delta^F_\ttime(\state)=\alpha(R^\lambda_\ttime-V_\ttime(\state))$,
 where $R^\lambda_\ttime=(1-\lambda)\sum_{n=1}^\infty
 \lambda^{n-1}R_\ttime^{(n)}$. Equivalently,
 $\Delta^F_\ttime(\state)=\alpha (1-\lambda)\sum_{n=1}^\infty
-\Delta_\ttime ^{(n)}$,
+\Delta_\ttime ^{(n)}$.
 
 
 For the backward view we define the updates to be
 $\Delta^B_\ttime(\state)=\alpha\Delta_\ttime e_\ttime(\state)$,
 where the eligibility trace is
-$e_\ttime(\state)=\sum_{k=0}^\ttime(\lambda\discount)^{t-k}I(\state=\state_k)$.
+$e_\ttime(\state)=\sum_{k=0}^\ttime(\lambda\discount)^{\ttime-k}I(\state=\state_k)$.
 
 \begin{theorem}
 %For any trajectory of length $T$ we have
@@ -482,14 +483,15 @@ I(\state=\state_\ttime) \label{eq:TD-F}
 where the first identity is the definition, the second identity
 follows since $\Delta_\ttime^{(n)}=\sum_{i=0}^n\discount^i
 \Delta_{\ttime+i}$, in the third identity we substitute $k$ for
-$t+i$ and sum over $n$, $k$ and $\ttime$, in the forth identity we
+$\ttime+i$ and sum over $n$, $k$ and $\ttime$, in the forth identity we
 substitute $i$ for $n-k$ and isolate the terms that depend on $i$,
 and in the last identity we note that $\sum_{i=0}^\infty
 (1-\lambda)\lambda^{i}=1$.
 
 For the backward view for state $\state$ we have
 \begin{align}
-\sum_{\ttime=0}^{\infty } \Delta \Value^B_\ttime (\state)&=
+\sum_{\ttime=0}^{\infty } \Delta \Value^B_\ttime (\state)&=\sum_{\ttime=0}^{\infty} \alpha
+\Delta_\ttime(\state) e_{\ttime}(\state)\\
 \sum_{\ttime=0}^{\infty} \alpha
 \Delta_\ttime(\state) \sum_{k=0}^\ttime (\discount\lambda)^{\ttime-k} I(\state=\state_\ttime)\nonumber\\
 &= \sum_{k=0}^\infty \sum_{\ttime=k}^\infty \alpha

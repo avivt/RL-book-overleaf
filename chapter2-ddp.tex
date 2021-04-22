@@ -1012,7 +1012,7 @@ For the single pair problem, Dijkstra's algorithm can be written in the Single S
 
 Dijkstra's algorithm expands vertices in the order of their distance from the source. When the destination is known (as in the single pair problem), it seems reasonable to bias the search order towards vertices that are closer to the goal. 
 
-The A$^*$ algorithm implements this idea through the use of a heuristic function $\heur[\nodev]$, which is an estimate of the distance from vertex $\nodev$ to the goal. It then expands vertices in the order of $d[\nodev] + \heur[\nodev]$, i.e., the (estimated) length of the shortest path from $\nodev_s$ to $\npdev_d$ that passes through $\nodev$.
+The A$^*$ algorithm implements this idea through the use of a heuristic function $\heur[\nodev]$, which is an estimate of the distance from vertex $\nodev$ to the goal. It then expands vertices in the order of $d[\nodev] + \heur[\nodev]$, i.e., the (estimated) length of the shortest path from $\nodev_s$ to $\nodev_d$ that passes through $\nodev$.
 
 \begin{algorithm_}\textbf{A$^*$ Algorithm}
 \begin{enumerate}
@@ -1265,7 +1265,7 @@ We now restrict our attention to linear-quadratic problems of the form:
 \end{equation}
 where $\state_0$ is given, $Q_\ttime=Q_\ttime^\top \geq 0$ is a non-negative definite state-cost matrix, and $R_\ttime = R_\ttime^\top > 0 $ is a positive definite control-cost matrix.
 
-We will solve Problem \ref{eq:lqr} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttiem$, that is, 
+We will solve Problem \ref{eq:lqr} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttime$, that is, 
 $$\Value_\ttime(\state) = \min_{\action_\ttime,\dots,\action_\tHorizon} \sum_{\ttime'=\ttime}^T \cost_{\ttime'}(\state_{\ttime'}, \action_{\ttime'}) \quad \textrm{s.t.} \quad \state_\ttime = \state.$$
 
 \begin{proposition}\label{prop:lqr}
