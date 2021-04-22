@@ -1277,7 +1277,7 @@ We prove by induction. For $\ttime=\tHorizon$, this holds by definition, as $\Va
 \begin{split}
         \Value_\ttime(\state) &= \min_{\action_\ttime} \state^\top Q_\ttime \state + \action_\ttime^\top R_\ttime \action_\ttime + \Value_{\ttime+1}(A_\ttime \state + B_\ttime \action_\ttime) \\
         &= \min_{\action_\ttime} \state^\top Q_\ttime \state + \action_\ttime^\top R_\ttime \action_\ttime + (A_\ttime \state + B_\ttime \action_\ttime)^\top P_{\ttime+1} (A_\ttime \state + B_\ttime \action_\ttime) \\
-        &= \state^\top Q_\ttime \state + (A_\ttime x)^\top P_{\ttime+1} (A_\ttime \state) + \min_{\action_\ttime} \action_\ttime^\top (R_\ttime + B_\ttime^\top P_{\ttime+1} B_\ttime) \action_\ttime + 2(A_\ttime \state)^\top P_{\ttime+1} (B_\ttime \action_\ttime)
+        &= \state^\top Q_\ttime \state + (A_\ttime \state)^\top P_{\ttime+1} (A_\ttime \state) + \min_{\action_\ttime} \action_\ttime^\top (R_\ttime + B_\ttime^\top P_{\ttime+1} B_\ttime) \action_\ttime + 2(A_\ttime \state)^\top P_{\ttime+1} (B_\ttime \action_\ttime)
 \end{split}
 \end{equation*}
 The objective is quadratic in $\action_\ttime$, and solving the minimization gives 
