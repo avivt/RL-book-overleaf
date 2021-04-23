@@ -1,0 +1,13 @@
+Lecture 2: The Average reward DDP algorithm. Add the corrections from the IPL paper.
+
+Lecture 3: Markov chains. Add a running example (small 3x3 or 4x4 matrix)
+
+Lecture 4: discounted
+add the running example from the slides
+
+Lecture 5: model based
+Redo the Rmax algorithm and the analysis
+
+Lecture 6: Q-learning
+Add examples (from slides?)
+Exercise: show that the observed model is the maximum likelihood model.

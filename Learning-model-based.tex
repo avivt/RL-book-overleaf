@@ -119,7 +119,7 @@ In addition, %for $\varepsilon\in(0,1)$,
 \]
 \end{lemma}
 We will refer to the first bound as {\em additive} and the second
-set of bound as {\em multiplicative}.
+set of bounds as {\em multiplicative}.
 
 Using the additive bound of Lemma~\ref{lemma:chernoff}, we have
 \begin{corollary}
@@ -192,7 +192,7 @@ horizon.
 
 Fix a deterministic Markov policy $\policy\in  {\Pi _{MD}}$. We want
 to compare the return using $\reward_\ttime(\state,\action)$ versus
-$\widehat{\reward}(\state,\action)$ and $\reward_\tHorizon(\state)$
+$\widehat{\reward}_\ttime(\state,\action)$ and $\reward_\tHorizon(\state)$
 versus $\widehat{\reward}_\tHorizon(\state)$. We will assume that
 for every $(\state,\action)$ and $\ttime$ we have
 $|\reward_\ttime(\state,\action)-\widehat{\reward}_\ttime(\state,\action)|\leq
@@ -202,7 +202,7 @@ $|\reward_\tHorizon(\state)-\widehat{\reward}_\tHorizon(\state)|\leq
 by $\varepsilon(\tHorizon+1)$, where $\tHorizon$ is the finite
 horizon.
 
-Define the expected return of $\policy$ with the true rewards
+Define the expected return of a policy $\policy$ with the true rewards
 \[
 \Value^\policy_\tHorizon(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\tHorizon
 \reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)].
@@ -226,9 +226,9 @@ error(\policy,\sigma)= \left(\sum_{\ttime=0}^\tHorizon
 \left(\sum_{\ttime=0}^\tHorizon
 \widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)\right)
 \]
-taking the expectation over trajectories we have
+taking the expectation over trajectories we define,
 \[
-error(\policy)=|\E^{\policy,\state_0} [error(\policy,\sigma)]|
+error(\policy)=|\E^{\policy,\state_0} [error(\policy,\sigma)]|.
 \]
 
 \begin{lemma}
@@ -356,17 +356,17 @@ error(\policy)=|\Value^\policy_\discount(\state_0)-\widehat{\Value}^\policy_\dis
 %Note that as for the finite horizon, in both cases we use the true
 %transition probability.
 For a given trajectory
-$\sigma=(\state_0,\action_0,\ldots,
-\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ we
-define
+$\sigma=(\state_0,\action_0,\ldots$
+%\state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ 
+we define
 \[
 error(\policy,\sigma)= \sum_{\ttime=0}^\infty \discount^\ttime
 \reward_\ttime(\state_\ttime,\action_\ttime)- \sum_{\ttime=0}^\infty
 \discount^\ttime \hat{\reward}_\ttime(\state_\ttime,\action_\ttime)
 \]
-Again, taking the expectation over trajectories we have
+Again, taking the expectation over trajectories we define,
 \[
-error(\policy)=|\E^{\policy,\state_0} [error(\policy,\sigma)]|
+error(\policy)=|\E^{\policy,\state_0} [error(\policy,\sigma)]|.
 \]
 
 \begin{lemma}
@@ -453,7 +453,7 @@ have
 \widehat{\Value}^{\policy^*}_\discount(\state_0)\leq
 \widehat{\Value}^{\widehat{\policy}^*}_\discount(\state_0)
 \]
-The theroem follows by adding the three inequalities.
+The theorem follows by adding the three inequalities.
 \end{proof}
 
 \subsection{Estimating the transition probabilities}
@@ -492,6 +492,7 @@ where $\|q_1-q_2\|_1=\sum_{\state \in \States}
 &\leq \sum_{\state \in \States} f(\state)|q_1(\state) - q_2(\state)|\\
  &\leq F_{max} \|q_1-q_2\|_1
 \end{align*}
+where the first identity is the explicit expectation, the second is by the triangle inequality, and the third is by bounding the values of $f$ by the maximum possible value.
 \end{proof}
 
 When we measure the distance between two Markov chains $M_1$ and
@@ -550,7 +551,7 @@ $\|M\|_{\infty,1} = \max_i \sum_j |M[i,j]|$. Then,
 \label{eq_norm_matrix_1}
 %
 \| z M\|_1 = \sum_j | \sum_i z[i] M[i,j]|\leq \sum_{i,j} |z[i]|\;
-|M[i,j] | \leq \sum_i |z[i]| \sum_j  |M[i,j| \leq \|z\|_1
+|M[i,j] | = \sum_i |z[i]| \sum_j  |M[i,j]| \leq \|z\|_1
 \|M\|_{\infty,1}
 \end{equation}
 
@@ -578,8 +579,8 @@ have,
 &\leq \alpha + \alpha (\ttime-1) = \alpha\ttime
 \end{align*}
 where in the last inequality is derived as follows. For the first
-term we used the Eq (\ref{eq_norm_matrix_qM}. For the second term we
-used Eq (\ref{eq_norm_matrix_zM} with the inductive claim.
+term we used the Eq (\ref{eq_norm_matrix_qM}). For the second term we
+used Eq (\ref{eq_norm_matrix_zM}) with the inductive claim.
 \end{proof}
 
 \subsubsection{Approximate model and simulation lemma}
@@ -593,6 +594,8 @@ $|\widehat{\reward}(\state,\action)-\reward(\state,\action)|\leq
 \alpha$ and (2)
 $\|\widehat{p}(\cdot|\state,\action)-p(\cdot|\state,\action)\|_1\leq\alpha$.
 \end{definition}
+
+Since we have two different models, we define the value function of a policy $\pi$ in a model $M$ as $\Value^\policy_\tHorizon(\state_0;M)$.
 
 The following simulation lemma, for the finite horizon case,
 guarantees that approximate models have similar return.
@@ -630,29 +633,28 @@ return.
 \begin{lemma}
 \label{lemma:approx-model-dic}
 %
-Assume that model $\widehat{M}$ is an $\alpha$-approximate model of
-$M$. For the discounted return, for any policy $\policy \in  {\Pi
-_{MD}}$, we have
+Assume that model $\widehat{M}$ is an $\alpha$-approximate model of $M$. For the discounted return, for any policy $\policy \in  {\Pi_{SD}}$, we have
 \[
 |\Value^\policy_\discount(\state_0;M)-\Value^\policy_\discount(\state_0;\widehat{M})|\leq
 \varepsilon
 \]
-for $\alpha\leq \frac{ 0.5 \varepsilon(1-\discount)^2}{\Rmax
-\log^2(\Rmax/(\varepsilon(1-\discount)))}$.
-%, for some constant
-$c>0$.
+for $\alpha\leq \frac{(1-\discount)^2\varepsilon}{\Rmax}$
+%$\alpha\leq \frac{ 0.5 \varepsilon(1-\discount)^2}{\Rmax\log^2(\Rmax/(\varepsilon(1-\discount)))}$.
+%, for some constant $c>0$.
 \end{lemma}
 
 \begin{proof}
-We reduce the discounted setting to the finite horizon setting. By
-Theorem~\ref{thm:disc-effective-horizon}, a horizon
-$\tHorizon=\frac{1}{1-\discount}\log\frac{\Rmax}{\varepsilon(1-\discount)/2}$,
-guarantees that the error due to truncating at horizon $\tHorizon$
-is at most $\varepsilon/2$. By Lemma~\ref{lemma:approx-model-FH},
-for a horizon $\tHorizon$ and $\alpha\leq
-\frac{\varepsilon/2}{\Rmax| \tHorizon^2}$ we get and error at most
-$\varepsilon/2$. By substituting the bound for $\tHorizon$ in the
-expression for $\alpha$ we derive the theorem.
+By Theorem~\ref{thm:l1-error} the distance between the state distributions of $M$ and $\widehat{M}$ at time $\ttime$ is bounded by $\alpha\ttime$. Since the maximum reward  is $\Rmax$, by Theorem~\ref{thm:dist-l1} the difference is bounded by
+$\sum_{\ttime=0}^\infty \alpha\ttime \Rmax\discount^t$.
+The sum 
+$$\sum_{\ttime=0}^\infty \ttime \discount^t=\frac{\discount}{1-\discount}\sum_{\ttime=0}^\infty \ttime \discount^{t-1}(1-\discount)=\frac{\discount}{(1-\discount)^2}$$
+where the last equality uses the expected value of a geometric distribution with parameter $\discount$.
+%
+%$\leq \alpha\tHorizon^2\Rmax$. For $\alpha\leq \frac{\varepsilon}{\Rmax \tHorizon^2}$ it
+Using the bound for $\alpha$ implies that the difference is at most $\varepsilon$.
+%
+%We reduce the discounted setting to the finite horizon setting. By Theorem~\ref{thm:disc-effective-horizon}, a horizon $\tHorizon=\frac{1}{1-\discount}\log\frac{\Rmax}{\varepsilon(1-\discount)/2}$, guarantees that the error due to truncating at horizon $\tHorizon$ is at most $\varepsilon/2$. 
+%By Lemma~\ref{lemma:approx-model-FH}, for a horizon $\tHorizon$ and $\alpha\leq \frac{\varepsilon/2}{\Rmax| \tHorizon^2}$ we get and error at most $\varepsilon/2$. By substituting the bound for $\tHorizon$ in the expression for $\alpha$ we derive the theorem.
 \end{proof}
 
 \subsubsection{Putting it all together}
@@ -664,11 +666,11 @@ Bretagnolle Huber-Carol inequality comes handy.
 
 \begin{lemma}[Bretagnolle Huber-Carol]
 Let $X$ be a random variable taking values in $\{1, \ldots , k\}$,
-where $\Pr[X=i]=p_i]$. Assume we sample $X$ for $n$ times and
+where $\Pr[X=i]=p_i$. Assume we sample $X$ for $n$ times and
 observe the value $i$ in $\hat{n}_i$ outcomes. Then,
 \[
 \Pr[\sum_{i=1}^k \left|\frac{\hat{n}_i}{n}-p_i\right|\geq
-\lambda]\leq 2^k e^{-n\lambda^2/2}
+\lambda]\leq 2^{k+1} e^{-n\lambda^2/2}
 \]
 \end{lemma}
 
@@ -677,12 +679,12 @@ Proposition A6.6 of van der Vaart and Wellner)
 \begin{proof}
 Note that,
 \[
-\sum_{i=1}^k |\frac{\hat{n}_i}{n}-p_i| = \max_{S\subset [k]}
+\sum_{i=1}^k |\frac{\hat{n}_i}{n}-p_i| = 2\max_{S\subset [k]}
 \sum_{i\in S} \frac{\hat{n}_i}{n}-p_i,
 \]
 which follows by taking $S=\{i:\frac{\hat{n}_i}{n}\geq p_i\}$.
 
-We can now perform a concentration bound (Chernoff-Hoeffding) for
+We can now perform a concentration bound (Chernoff-Hoeffding, Lemma~\ref{lemma:chernoff}) for
 each subset $S\subset [k]$, and get that the deviation is $\lambda$
 with probability at most $e^{-n\lambda^2/2}$. Using a union bound
 over all $2^k$ subsets $S$ we
@@ -702,8 +704,8 @@ m=O(\frac{\Rmax^2}{\varepsilon^2} \tHorizon^4 (|\States|+\log
 and for the discounted return
 \[
 O(\frac{\Rmax^2}{\varepsilon^2}  \frac{1}{(1-\discount)^4}
-(|\States|+\log (|\States|\;|\Actions|/\delta)\log^4
-\frac{\Rmax}{\varepsilon(1-\discount)}))
+(|\States|+\log (|\States|\;|\Actions|/\delta))
+%\log^4\frac{\Rmax}{\varepsilon(1-\discount)}))
 \]
 
 
@@ -731,10 +733,8 @@ m\tHorizon|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2}
 \]
 and for the discounted return
 \[
-m|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2} |\States|^2
-|\Actions| \frac{1}{(1-\discount)^4} \log
-(|\States|\;|\Actions|/\delta)\log^4
-\frac{\Rmax}{\varepsilon(1-\discount)})
+m|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2(1-\discount)^4} |\States|^2 |\Actions|  \log(|\States|\;|\Actions|/\delta))
+%\log^4\frac{\Rmax}{\varepsilon(1-\discount)})
 \]
 
 We can now look on the dependency of our sample complexity and its
@@ -1472,7 +1472,7 @@ $\widehat{\policy}^*_\ttime$, when $\ttime$ is a start of an episode
 (i.e., $k=\tHorizon$), we have,
 \[
 V^{\widehat{\policy}^*_\ttime}(\state_0)\geq V^*(\state_0) -
-\Pr[W]\Vmax-\lambda
+\Pr[NEW]\Vmax-\lambda
 \]
 where $\Vmax=\tHorizon$ is the maximum $\tHorizon$ return, and
 $\lambda$ is the approximation error, and we can bound it by
