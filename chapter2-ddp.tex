@@ -927,7 +927,7 @@ This algorithm solves the single destination (or the equivalent single source) s
 \end{enumerate}
 \end{algorithm_}
 
-The output of the algorithm is $d[\nodev] = \minlen(\nodev,\nodev_d)$, the weight of the shortest path from $\nodev$ to $\nodev_d$, and the routing list $\policy$. A shortest path from vertex $\nodev$ is obtained from $\policy $ by following he sequence: ${\nodev_1} = \policy [\nodev], {\nodev_2} = \policy [{\nodev_1}],  \ldots ,\nodev_d = \policy [{\nodev_{k - 1}}]$.
+The output of the algorithm is $d[\nodev] = \minlen(\nodev,\nodev_d)$, the weight of the shortest path from $\nodev$ to $\nodev_d$, and the routing list $\policy$. A shortest path from vertex $\nodev$ is obtained from $\policy $ by following the sequence: ${\nodev_1} = \policy [\nodev], {\nodev_2} = \policy [{\nodev_1}],  \ldots ,\nodev_d = \policy [{\nodev_{k - 1}}]$.
 To understand the algorithm, we observe that after round $i$, $d[\nodev]$ holds the length of the shortest path from $\nodev$ \textbf{in $i$ steps or less}. To see this, observe that the calculations done up to round $i$ are equivalent to the calculations in a finite horizon dynamic programming, where the horizon is $i$. Since the shortest path takes at most $|\nodes| - 1$ steps, the above claim on optimality follows.
 
 \paragraph{Remarks:}
@@ -1086,7 +1086,7 @@ Given a directed graph $G(V,E)$, let $\Omega$ be the collection of
 all cycles in $G(V,E)$. For each cycle $\omega=(v_1, \ldots ,
 v_{k})$, we define $c(\omega)=\sum_{i=1}^k c(v_i,v_{i+1})$, where
 $(v_i,v_{i+1})$ is the $i$-th edge in the cycle $\omega$. Let
-$\mu(\omega)=\frac{c(\omega}{k}$. The {\em minimum average cost cycle}
+$\mu(\omega)=\frac{c(\omega)}{k}$. The {\em minimum average cost cycle}
 is
 \[
 \mu^*=\min_{\omega\in\Omega} \mu(\omega)
