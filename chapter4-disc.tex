@@ -777,7 +777,9 @@ $T_{}^\policy (\Value_1) \le T_{}^\policy (\Value_2)$. Applying
 $T^{\bar \policy }$ repeatedly to both sides of the above inequality
 ${\Value^\policy } \le T_{}^{\bar \policy }(\Value^\policy)$
 therefore gives
-\[{\Value^\policy } \le T_{}^{\bar \policy }({\Value^\policy }) \le {(T_{}^{\bar \policy })^2}({\Value^\policy }) \le  \cdots  \le \mathop {\lim }\limits_{n \to \infty } {(T_{}^{\bar \policy })^n}({\Value^\policy }) = {\Value^{\bar \policy }},\]
+\begin{equation}\label{eq:PI_monotonicity_proof}
+  {\Value^\policy } \le T_{}^{\bar \policy }({\Value^\policy }) \le {(T_{}^{\bar \policy })^2}({\Value^\policy }) \le  \cdots  \le \mathop {\lim }\limits_{n \to \infty } {(T_{}^{\bar \policy })^n}({\Value^\policy }) = {\Value^{\bar \policy }},  
+\end{equation}
 where the last equality follows by Theorem~\ref{thm:_VI}.
 %value iteration.
 This establishes the first claim.
@@ -879,7 +881,7 @@ $\policy_{n+1}$ and we have:
 \begin{eqnarray*}
 T^*(PI_{n})=T^{\policy_{n+1}}(PI_{n})
 \end{eqnarray*}
-From the definition of $\policy_{n+1}$, we have
+From the definition of $\policy_{n+1}$ (cf. Eq.~\ref{eq:PI_monotonicity_proof}), we have
 \begin{eqnarray*}
 T^{\policy_{n+1}}(PI_{n}) &\leq& \Value^{\policy_{n+1}}=PI_{n+1}
 \end{eqnarray*}
