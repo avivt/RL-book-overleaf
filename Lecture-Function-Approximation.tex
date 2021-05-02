@@ -117,7 +117,7 @@ Then,
 &\leq \|T^\policy \Value^\policy -T^\policy V\|_\infty +\|T^\policy V - \Value^*\|_\infty\\
 &\leq \gamma\| \Value^\policy - V\|_\infty +\|T^* V - T^*\Value^*\|_\infty\\
 &\leq \gamma\| \Value^\policy - V\|_\infty +\gamma\| V - \Value^*\|_\infty\\
-&\leq \gamma(\| \Value^\policy - \Value^*\|_\infty+ \|\Value^*-\Value\|_\infty ) +\gamma\| V - \Value^*\|_\infty\\
+&\leq \gamma(\| \Value^\policy - \Value^*\|_\infty+ \|\Value^*-\Value\|_\infty ) +\gamma\| V - \Value^*\|_\infty\;,
 \end{align*}
 where in the second inequality we used the fact that since since
 $\policy$ is greedy with respect to $V$ then $T^\policy V=T^* V$.
@@ -133,7 +133,7 @@ and the theorem follows.
 The above theorem states that if we have a small errors in
 $L_\infty$ norm, the effect of the errors on the expected return is
 bounded. However, in most cases we will not be able to guarantee an
-approximation in nor $L_\infty$. This is since it is infeasible even
+approximation in norm $L_\infty$. This is since it is infeasible even
 to compute the $L_\infty$ norm of two given value function, since
 this requires considering {\em all} states. In the large state space
 setting such operations are infeasible.
@@ -171,7 +171,7 @@ If someone is able to give us
 $\Value^\policy(\state)$, it seems like assuming the problem away,
 since this is what we would like to learn.
 
-Actually we need to define three things: (1) states and actions,
+Actually we need to define three things: (1) sample states and actions,
 which we will do using $\policy$, (2) a loss function, which will
 give the tradeoffs between different approximation errors, and (3)
 labels, which we are not given explicitly.
@@ -198,8 +198,7 @@ J(\weight)=\frac{1}{2}\sum_s
 \mu(\state)(\Value^\policy(\state)-\widehat{V}^\policy(\state;\weight))^2
 \]
 where $\mu(\state)$ is the steady state distribution of
-$\policy$.\footnote{See Chapter \ref{chapter:MC} for definition.} So
-we can compute the gradient and update the weights. The Stochastic
+$\policy$.\footnote{See Chapter \ref{chapter:MC} for definition.} Given the loss function $J(\weight)$, we can optimize it by Gradient Descent, i.e., compute the gradient and update the weights. The Stochastic
 Gradient Descent (SGD) is simply sampling a single state $\state$
 and using it to update, i.e.,
 \[
@@ -236,7 +235,7 @@ is that this is a biased estimator since
 \[
 \Value^\policy(\state_\ttime)=E[\reward_\ttime+\gamma
 \Value^\policy(\state_{\ttime+1})]\neq E[\reward_\ttime+\gamma
-\widehat{V}(\state_{\ttime+1};\weight)]
+\widehat{V}(\state_{\ttime+1};\weight)]\;.
 \]
 We have an additional problem with the gradient, since we have
 $\weight$ influencing also the target $R_\ttime(\state_\ttime)$
@@ -323,8 +322,8 @@ We would like to discuss the convergence of the different
 algorithms. Recall that the mean squared error loss function is
 strongly convex, i.e.,
 \[
-J(\weight)=\frac{1}{2}\sum_s
-\mu(\state)(\Value^\policy(\state)-\widehat{V}^\policy(\state;\weight))^2
+J(\weight)=\frac{1}{2}\sum_{\state\in\States}
+\mu(\state)(\Value^\policy(\state)-\widehat{V}^\policy(\state;\weight))^2\;.
 \]
 Therefore there is a unique $\weight_{min}$ which minimizes
 $J(\weight)$. Monte-Carlo is simply running a Stochastic Gradient
@@ -382,7 +381,7 @@ second $2\weight$. Assume we start with some value $\weight_0>0$.
 Each time we have an update for the two states we have
 \[
 \weight_{\ttime+1}=\weight_\ttime +\alpha[0+\gamma
-(2\weight_\ttime)-\weight_\ttime]=[1+\alpha(2\gamma-1)]\weight_\ttime
+(2\weight_\ttime)-\weight_\ttime]=[1+\alpha(2\gamma-1)]\weight_\ttime=[1+\alpha(2\gamma-1)]^\ttime\weight_1
 \]
 For $\gamma>0.5$ we have $\alpha(2\gamma-1)>0$, and $\weight_\ttime$
 diverges.
@@ -488,8 +487,7 @@ Bootstrapping methods, such as TD.
 \item
 Off-policy training.
 \end{enumerate}
-When the three conditions hold, we man times have counter examples
-for the convergence.
+When the three conditions hold, many times we have counter examples for the convergence.
 
 Here is a summary of the known convergence and divergence results in
 the literature:
@@ -685,7 +683,7 @@ game.
 
 
 The evaluation of the position is done using a max-min tree, whose
-depth is $1/2/3$. The max-min tree has max layer where the value of
+depth is $1/2/3$ (depending on the generation). The max-min tree has max layer where the value of
 a node is the maximum of their children, and min layer, where the
 value of a node is the minimum of their children. Given the tree (of
 size at most $20/400/8000$ in different generations) we evaluate the
@@ -743,7 +741,7 @@ Q(\state_\ttime,\action_\ttime;\weight_\ttime)
 \]
 where
 \[
-\Gamma=\reward_\ttime+\gamma \max_\action
+\Gamma_{\ttime}=\reward_\ttime+\gamma \max_\action
 Q(\state_{\ttime+1},\action;\weight^-_\ttime)-Q(\state_\ttime,\action_\ttime;\weight_\ttime)
 \]
 Note that $\weight^-_\ttime$ is used only to estimate the future

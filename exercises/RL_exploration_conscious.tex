@@ -1,0 +1,44 @@
+We have treated $\epsilon$-greedy exploration as a means to find an optimal deterministic policy. However, the stochastic exploration can lead the agent to bad rewards \emph{during learning}. In this question, we assume that the agent wants to obtain high rewards during learning too, and change the usual definition of optimality such that it will take the exploration into account.
+
+Consider a discounted MDP $M=(S,A,r,P,\gamma)$ defined as usual. Assume that for any policy $\pi$ and from any state $s$ an agent acts with probability $\epsilon$ by a fixed, pre-determined, policy $\pi_0$, 
+and with probability $1-\epsilon$ by the policy $\pi$, i.e., the effective policy is
+$$\mu_{\pi,\epsilon,\pi_0}(a\mid s) = (1-\epsilon)\pi(a\mid s) + \epsilon \pi_0 (a\mid s).$$
+
+For example, when setting $\pi_0$ to be the uniform policy we obtain $\epsilon$-greedy exploration.
+
+The value of a policy $\mu_{\pi,\epsilon,\pi_0}(a\mid s)$ from a state $s$ on the MDP $M$ is defined by
+\begin{align*}
+    V^{\mu_{\pi,\epsilon,\pi_0}}_M(s) = \mathbb{E}\left[ \sum_{t=0}^\infty \gamma^t r(s_t,a_t) \mid s_0=s,\mu_{\pi,\epsilon,\pi_0},P \right],
+\end{align*}
+in words, the expected value of the policy $\mu_{\pi,\epsilon,\pi_0}$ when the dynamics is $P$ and the reward is $r$. 
+
+
+We define the optimal exploration-conscious policy $\pi_{\epsilon,\pi_0}^*$ as the policy that maximizes the expression 
+\begin{align}
+    \pi_{\epsilon,\pi_0}^*\in \arg\max_{\pi} V^{\mu_{\pi,\epsilon,\pi_0}}_M(s), \label{eq: exploration concious}
+\end{align}
+
+\begin{enumerate}
+    \item[a.] Let $V^{\mu^*_{\epsilon,\pi_0}}_M = \max_{\pi} V^{\mu_{\pi,\epsilon,\pi_0}}$. Does $V^{\mu^*_{\epsilon,\pi_0}}_M\leq V^*_M$ where $V^*_M$ is the optimal value of the MDP $M$? prove or give a counter example.
+\end{enumerate}
+
+At first sight, the optimization in Eq. \eqref{eq: exploration concious} might seem hard. However, as you will show in the following, it is equivalent to solving a different MDP. Define an MDP $M_{\epsilon,\pi_0} = (S,A,r_{\epsilon,\pi_0},P_{\epsilon,\pi_0},\gamma)$, where:
+    \begin{align*}
+        P_{\epsilon,\pi_0}(s'\mid s,a) = (1-\epsilon)P(s'\mid s,a) +\epsilon P^{\pi_0}(s'| s),\ \mathrm{and}\  r_{\epsilon,\pi_0}(s,a) = (1-\epsilon)r(s,a) +\epsilon r^{\pi_0}(s),
+    \end{align*}
+    and $P^{\pi_0}(s'| s)= \sum_{a}\pi_0(a|s) P(s'|s,a), r^{\pi_0}(s) = \sum_{a}\pi_0(a|s)r(s,a)$. Furthermore, denote the (standard, non exploration-conscious) value of a policy $\pi$ on the MDP $M_{\epsilon,\pi_0}$ as $V_{M_{\epsilon,\pi_0}}^\pi$.
+\begin{enumerate}
+
+    
+    \item[b. ] Let $T^\pi_{M_{\epsilon,\pi_0}}$ and $T_{M_{\epsilon,\pi_0}}$ denote the fixed policy (for some policy $\pi$) and optimal Bellman operators for the MDP $M_{\epsilon,\pi_0}$.  Let $T_M^\pi$ and $T_M$ denote the fixed policy (for some policy $\pi$) and optimal Bellman operators for the MDP $M$. Show that
+     \begin{align*}
+         &T_{M_{\epsilon,\pi_0}} = (1-\epsilon)T +\epsilon T^{\pi_0}_M\quad  \mathrm{and}\quad T^\pi_{M_{\epsilon,\pi_0}} = (1-\epsilon)T^\pi_M +\epsilon T^{\pi_0}_M= T^{\mu_{\pi,\epsilon,\pi_0}}_M.
+     \end{align*}
+    
+    \item[c.] Based on section (b), prove that $V_{M_{\epsilon,\pi_0}}^\pi = V_M^{\mu_{\pi,\epsilon,\pi_0}}$ for any policy $\pi$. 
+    
+    \item[d.] Based on (b) and (c), prove that $\pi_{\epsilon,\pi_0}^* = \pi^*_{M_{\epsilon,\pi_0}}$ where $\pi_{\epsilon,\pi_0}^*$ is defined in~\eqref{eq: exploration concious} and $\pi^*_{M_{\epsilon,\pi_0}}$ is the optimal policy of the MDP $M_{\epsilon,\pi_0}$. 
+
+    \item[e. ] Assume we do not have access to $P$ and $r$, however, we can interact with the environment. Suggest a Q-learning algorithm from which we can obtain $\mu^*_{\epsilon,\pi_0}$~\eqref{eq: exploration concious} in the limit (you can assume all standard assumptions for the convergence of Q-learning to hold). Hint: define the optimal Bellman operator for the $Q$ function of the MDP $M_{\epsilon,\pi_0}$ denoted by $T_{Q,M_{\epsilon,\pi_0}}$. Then find an update rule that in expectation is equivalent to the application of $T_{Q,M_{\epsilon,\pi_0}}$.
+
+\end{enumerate}

@@ -1,0 +1,57 @@
+\subsection{Purchasing with a deadline}
+Consider the following scenario: as the purchasing manager of a factory, you have $T$ days to buy a certain material that is required for the production process. At the beginning of each day $k$, you observe a price offer for the material $x_k \sim \mathit{Uniform}[a,b]$, drawn independently of the prices at other days. You may decide to either buy the material at the price $x_k$ (and then the scenario ends), or wait for the next day. If a purchase hasn't been made by day $T$, the product has to be purchased at the last price $x_T$.
+
+The goal is to decide when to buy the material, such that its price (in expectation) is lowest.
+
+1. Explain intuitively, why the optimal decision whether to buy at some price $x$ may be different at different days.
+
+We formulate the problem as a finite horizon MDP as follows. The state space at time $k$ is $x_k\in [a,b]$. The action space is binary $a_k \in \{buy,hold\}$. Once a $buy$ action is executed at state $x_k$, an immediate cost of $x_k$ is incurred, and the state transitions to a terminal state $x^*$ with zero cost. Otherwise, if a   $hold$ action is executed, no cost is incurred, and the state transitions to $x_{k+1} \sim \mathit{Uniform}[a,b]$. At time $k=T$, the only available action is $buy$. Also, once the terminal state is reached, the state no longer changes, and no cost is further incurred.
+
+2. Define the optimal value function $V_k(x) \doteq \inf_\pi \mathbb{E}^\pi \left[ \sum_{t=k}^{T} c(x_t,\pi(x_t)) | x_k = x\right]$. Note that by definition $V_k(x^*)=0$ for all $k$.
+
+%\quad a. What is $V_k(x^*)$?
+
+\quad a. What is $V_T(x)$?
+
+\quad b. Write a recursive equation for $V_k(x)$ as a function of  $V_{k+1}(x)$.
+
+3. For $a=0,b=1$, draw the value functions $V_T(x)$, $V_{T-1}(x)$, and $V_{T-2}(x)$.
+
+4. Prove that the optimal policy is a threshold policy, given by
+\begin{equation*}
+\left\{
+  \begin{array}{ll}
+    buy, & \text{if } x_k \leq \alpha_k \\
+    hold, & \text{if } x_k > \alpha_k.
+  \end{array}
+\right.
+\end{equation*}
+
+\quad Write a recursive equation for $\alpha_k$.
+
+\vspace{20pt}
+From now on, we consider a scenario where there is correlation between the prices at different days. Specifically:
+\begin{equation*}
+    x_{k+1} = \lambda x_k + \epsilon_k,
+\end{equation*}
+where $0 \leq \lambda < 1$ is a known constant, and $\{\epsilon_k\} \in [0,b]$ are i.i.d. random variables with a known distribution $p(\epsilon)$. Let $\bar{\epsilon} = \mathbb{E} [\epsilon_k ]$, and assume that $\bar{\epsilon} > 0$. The state space in this case is $x_k\in \mathbb{R}$.
+
+5. Write a recursive equation for the value function $V_k(x)$ for this scenario.
+
+\vspace{10pt}
+
+We will now show that in the correlated case as well, the optimal policy is a threshold policy. We will do this in several steps.
+
+A function $f(x)$ is said to be \emph{concave} if, for any $x,y$ and $\beta \in [0,1]$, it holds that $f(\beta x + (1-\beta) y) \geq  \beta f(x) + (1-\beta) f(y)$.
+
+6. Prove that if $f(x)$ is concave, then $\mathbb{E} [f(\lambda x + \epsilon_k)]$ is also concave.
+
+7. Prove that for all $1 \leq k \leq T$, the value function $V_k(x)$ is concave.
+
+\quad \textbf{Hint}: you may use the following fact: the minimum of two concave functions is concave.
+
+%A function $f(x)$ is said to be \emph{increasing} if, for any $x<y$ it holds that $f(x) < f(y)$.
+
+8. * Prove that the optimal policy is again a threshold policy.
+
+\quad \textbf{Hint}: You may first prove that for all $1 \leq k \leq T$, $V_k(x)$ is increasing, and positive for $x\geq 0$. 
