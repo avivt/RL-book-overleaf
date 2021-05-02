@@ -1,0 +1,14 @@
+In this question we will consider the all pairs shortest path (APSP) problem.
+
+Consider a directed weighted graph $G = (V,E)$  with $N$ nodes, and \emph{no negative cycles}. We would like to find the shortest distance $D(v,u)$ from any node $v \in V$ to any other node $u \in V$.
+
+\begin{itemize}
+    \item[a.] Suggest a naive solution that uses the single-source (or single destination) Bellman-Ford algorithm in an inner loop. What is the complexity of this algorithm?
+    \item[b.] Assume that $D(v,u)$ for the graph $G$ is given. Now, we construct a new graph $G’$ by adding a new node $v’$ to $G$, and corresponding edges between $v’$ and the nodes in $G$. Let $D'(v,u)$ denote the shortest distances on the graph $G'$.
+    \begin{itemize}
+        \item[(i)] Suggest a method for computing $D’(v’, u)$ for some $u \in V$ in the new graph $G’$, in $O(|V|)$ computations.
+        \item[(ii)] Suggest a method for computing $D’(u, v’)$ for some $u \in V$ in the new graph $G’$, in $O(|V|)$ computations.
+        \item[(iii)] Suggest a method for computing $D’(v, u) \quad \forall u,v \in V$ in the new graph $G’$, in $O(|V|^2)$ computations.
+    \end{itemize}
+    \item[c.] Propose an algorithm for the APSP problem with $O(|V|^3)$ complexity.
+\end{itemize}

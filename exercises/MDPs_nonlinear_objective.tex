@@ -1,0 +1,44 @@
+\subsection{MDP with a reward-ratio objective:}
+Consider an MDP $\mathcal{M}$ with finite state space $\mathcal{S}$ and finite actions space $\mathcal{A}$, transitions $P(s'|s,a)$, discount factor $\gamma\in (0,1)$, a \textbf{fixed} initial state $s_{init}$, and \textbf{two} reward functions: $r_1(s)$ and $r_2(s)$. In this question we will consider objectives that are a function of both $r_1$ and $r_2$.
+
+For a Markov policy $\pi$, we denote the discounted returns $J_1^\pi$ and $J_2^\pi$ as:
+\begin{equation*}
+\begin{split}
+    J_1^\pi &= \mathbb{E}^\pi \left[\left. \sum_{t=0}^\infty \gamma^t r_1(s_t)\right|s_0 = s_{init}\right], \\
+    J_2^\pi &= \mathbb{E}^\pi \left[ \left.\sum_{t=0}^\infty \gamma^t r_2(s_t)\right|s_0 = s_{init}\right].
+\end{split}
+\end{equation*}
+
+Note that the initial state is fixed, and that $J_1^\pi, J_2^\pi$ denote scalar returns and not value functions.
+
+Let $f(x,y)$ be some function of two variables. For some policy $\pi$ we denote $J^\pi = f(J_1^\pi, J_2^\pi).$ We wish to find a policy $\pi^*$ that maximizes $J^\pi$:
+\begin{equation*}
+    J^* = \max_{\pi} J^\pi, \quad \pi^* \in \argmax_{\pi} J^\pi.
+\end{equation*}
+
+\begin{itemize}
+    \item[a.] For $f(x,y)=\alpha x +\beta y$, propose a standard MDP with a single reward $\hat{r}$ such that it's optimal policy is $\pi^*$. Explain.
+\end{itemize}
+
+For the rest of this question, we consider the function $f(x,y) = \frac{x}{y}$. Furthermore, we assume the following bounds on the rewards: $0<r_{min}\leq r_1(s) < r_2(s) \leq r_{max}$, for all $s\in\mathcal{S}$. 
+
+\begin{itemize}
+    \item[b.] Can the standard MDP solution approaches (value iteration, policy iteration) be used to find $\pi^*$ in this case? Explain (no need to prove formally).
+\end{itemize}
+
+For some $\rho \in [0,1]$, consider a standard MDP $\mathcal{M}_{\rho}$ with the same $\mathcal{S},\mathcal{A},P,\gamma$ as $\mathcal{M}$ and reward $\hat{r}(s) = r_1(s) - \rho r_2(s).$ Denote the discounted reward for a policy $\pi$ in $\mathcal{M}_{\rho}$ as $J_{\rho}^\pi = \mathbb{E}^\pi \left[ \sum_{t=0}^\infty \gamma^t \hat{r}(s_t)|s_0 = s_{init}\right]$.
+
+\begin{itemize}
+    \item[c.] Assume that for some policy $\pi$, we have that $J_{\rho}^\pi = 0$. What is $J^\pi$?
+    \item[d.] Let $\pi_\rho^*$ be an optimal policy in $\mathcal{M}_{\rho}$, that also satisfies  $J_{\rho}^{\pi_\rho^*} = 0$. Show that $\pi_\rho^*$ is optimal also in $\mathcal{M}$.
+    
+    Hint: assume that for some $\pi'$, $J^{\pi'} > \rho$, and show a contradiction.
+    
+    \item[e.] Show that for $\rho=0$, $J_{\rho}^\pi > 0$ for any $\pi$.
+    \item[f.] Show that for $\rho=1$, $J_{\rho}^\pi < 0$ for any $\pi$.
+    \item[g.] Let $J_{\rho}^*$ denote the optimal value in $\mathcal{M}_{\rho}$. Show that $J_{\rho}^*$ is monotonically decreasing in $\rho$.
+    
+    Hint: start by showing monotonicity for a fixed policy.
+    \item[h.] Based on (d-g), propose an approach for finding the optimal policy $\pi^*$. Technically, you can assume that $J_{\rho}^*$ is continuous in $\rho$, and you can invoke any standard MDP solver in your solution.
+    
+\end{itemize}

@@ -1,0 +1,42 @@
+\subsection{Modified Policy Iteration:}
+In this question we will analyze the Modified Policy Iteration (MPI) algorithm~\ref{alg:MPI}. 
+% Denote the fixed-policy and optimal Bellman operators as $T^\pi$ and $T$, respectively. 
+\begin{center}
+\begin{minipage}{1.1\textwidth}
+\begin{algorithm}[H]
+	\caption{MPI}
+	\label{alg:MPI}
+	\begin{algorithmic}
+		\STATE {\bfseries Initialize:} $m \in \mathbb{N},~\Value_0 \in \mathbb{R}^{|\States|}$
+		\WHILE{some stopping criterion}
+			\FOR{ $\state\in \States$}
+				\STATE $\policy_{k+1}(\state)\in \arg\max_{\action} \reward(\state,\action) + \gamma \sum_{\state'}\transitionprob(\state' | \state,\action)\Value_k(\state').$
+			\ENDFOR
+			\FOR{$\state\in \States$}
+				\STATE $\Value_{k+1}(\state)= \sum_{\ttime=0}^{m-1}\sum_{\state'} \gamma^\ttime \transitionprob(\state_\ttime=\state' | \state_0=\state,\policy_{k+1}) \reward(\state',\policy_{k+1}(\state')) +\gamma^m \sum_{\state''}\transitionprob(\state_m=\state'' | \state_0=\state, \policy_{k+1})\Value_{k}(\state'').$
+			\ENDFOR
+		\ENDWHILE
+		\STATE {\bfseries Return $\policy,\Value$}
+	\end{algorithmic}
+\end{algorithm}
+\end{minipage}
+\end{center}
+
+\begin{itemize}
+\item [a.] In a vector notation, MPI performs the following two steps of policy and value update,
+\begin{enumerate}
+\item $\policy_{k+1} \in \{\policy': T^{\policy'}\Value_k=T \Value_k \}$.
+\item $\Value_{k+1} =\left(T^{\policy_{k+1}}\right)^m \Value_{k}$.
+\end{enumerate}
+Prove the two algorithms are equivalent.
+\item [b.] Describe which algorithms are obtained when $m=1,m\to\infty$? 
+\end{itemize}
+
+In the rest of the question we will analyze the convergence of Modified Policy Iteration.
+\begin{itemize}
+\item [c.] Assume that $T \Value_0\geq \Value_0$. Prove the following (component-wise) inequalities $$\Value_0\leq T^{\policy_1} \Value_0 \leq \cdot\cdot\cdot \leq (T^{\policy_1})^m \Value_0\leq (T^{\policy_1})^{m+1} \Value_0 \leq \cdot \cdot \cdot \leq \Value^{\policy_1} \leq \Value^*.$$
+Do the inequalities hold without the assumption? prove or give a counter-example.
+\item [d.] Assume that $T \Value_0\geq \Value_0$. Prove that for any $k$, $T \Value_k\geq \Value_k$ (component-wise) and thus $$\Value_{k-1}\leq T^{\policy_k}\Value_{k-1} \leq \cdot\cdot\cdot \leq (T^{\policy_k})^m \Value_{k-1} \leq (T^{\policy_k})^{m+1} \Value_{k-1}\leq \cdot \cdot \cdot \leq \Value_{\policy_{k}}\leq \Value_*$$ for any $k$.
+Hint: use induction, and the update rule of MPI, $\Value_k=(T^{\policy_k})^m \Value_{k-1}$.
+\item [e.] Prove $\norm{\Value_*-\Value_k}_\infty \leq \gamma \norm{\Value_*-\Value_{k-1}}_\infty$. Hint: prove $0 \leq \Value_*-\Value_k\leq T\Value_* - T\Value_{k-1}$ and then take the max-norm.
+\end{itemize}
