@@ -356,9 +356,9 @@ Namely, for any $i,j\in X$ we have $p^{(m)}_{i,j}>0$.
 %(Formally,
 
 We now show a general property of positive matrices (matrices where
-are the entries are strictly positive). Let $A=P^m$ be a positive
+all the entries are strictly positive). Let $A=P^m$ be a positive
 matrix and $x$ an eigenvector of $A$ with eigenvalue $1$. First, if
-$x$ has complex number then $Re(x)$ and $Im(x)$ are an eigenvectors
+$x$ has complex number then $Re(x)$ and $Im(x)$ are eigenvectors
 of $A$ of eigenvalue $1$ and one of them is non-zero. Therefore we
 can assume that $x\in \reals^d$. We would like to show that there is
 an $x\geq 0$ such that $x^\top A=x^\top$. If $x\geq 0$ we are done.
@@ -375,7 +375,7 @@ P_{i,j}=  \sum_i |x_i| \sum_j P_{i,j}= \sum_j |x_j|
 where the first identity follows since $x$ is an eigenvector. The
 second since $P$ is strictly positive.The third is a change of order
 of summation. The last follows since $P$ is a row stochastic matrix, so
-each row sums to $1$. Clearly, we reached an contradiction, and
+each row sums to $1$. Clearly, we reached a contradiction, and
 therefore $x$ cannot have both positive and negative entries.
 
 %{\tt [YM:old] To conclude the proof we will show a general property
@@ -512,7 +512,7 @@ Either (i) all states are positive recurrent, or (ii) all states are null recurr
 
 \begin{proof}
 %Item (1):
-Let $i$ is a positive recurrent state, then we will show that all
+Let $i$ be a positive recurrent state, then we will show that all
 states are positive recurrent. For any state $j$, since the Markov
 chain is irreducible, we have for some $m_1,m_2\geq 0$ that
 $p^{(m_1)}_{j,i},p^{(m_2)}_{i,j}>0$. This implies that
@@ -553,7 +553,7 @@ are transient.
 It is then easy to verify by direct summation that $\mu $ is an
 invariant distribution for the Markov chain defined by
 $({p_{i,j}})$. This follows since $\sum_i \mu_i p_{i,j}=\sum_i
-p_{i,j}\mu_j=\mu_j$. The equations \eqref{eq:DB} are called the
+p_{j,i}\mu_j=\mu_j$. The equations \eqref{eq:DB} are called the
 \emph{detailed balance equations}. A Markov chain that satisfies
 these equations is called \emph{reversible}.
 
@@ -580,7 +580,7 @@ $p$. Then
 \mu_i p_{i,i+1}={\mu _i}\lambda  = {\mu _{i + 1}}\eta=\mu_{i+1}p_{i+1,i} ,\quad \quad \forall i \ge 0\]
 These equations have a solution with $\sum {_i{\mu _i} = 1}$ if and
 only if $\rho  < 1$. The solution is ${\mu _i} = {\mu _0}{\rho ^i}$,
-with ${\pi _0} = 1 - \rho $. This is therefore the stationary
+with ${\mu _0} = 1 - \rho $. This is therefore the stationary
 distribution of this queue.
 \end{example}
 %\end{leftbar}
