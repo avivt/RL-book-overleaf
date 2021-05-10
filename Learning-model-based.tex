@@ -31,7 +31,7 @@ infinite sequence of rewards $(\reward_0, \ldots , \reward_\ttime,
 \ldots)$. We would like to consider the following difference:
 \begin{align*}
 %\Delta=
-\sum_{\ttime=1}^\infty \reward_\ttime \discount^\ttime -
+\sum_{\ttime=0}^\infty \reward_\ttime \discount^\ttime -
 \sum_{\ttime=0}^{\tHorizon-1} \reward_\ttime \discount^\ttime =
 \sum_{\ttime=\tHorizon}^\infty \reward_\ttime \discount^\ttime \leq
 \frac{\discount^\tHorizon}{1-\discount}\Rmax,
