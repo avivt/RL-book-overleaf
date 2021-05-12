@@ -309,12 +309,12 @@ The reward is $\reward'_t((\state,i),\action)=i$. The initial state
 is $\state'_0=(\state_0,0)$.
 
 For any policy $\policy(\action|\state)$ in $M$ we have a policy
-$\policy'$ is $M'$ where
+$\policy'$ in $M'$ where
 $\policy'(\action|(\state,i))=\policy(\action|\state)$.
 
 We map trajectories of $M$ to trajectories of $M'$ which have
 identical probabilities. A trajectory $(\state_0, \action_0 , R_0 ,$
-$\state_1,\action_1,R_1, \state_2 \ldots, R_{\tHorizon})$ is map to
+$\state_1,\action_1,R_1, \state_2 \ldots, R_{\tHorizon})$ is mapped to
 $((\state_0,0), \action_0 , 0 ,$ $ (\state_1,R_0),\action_1,R_0,
 (\state_2,R_1) \ldots, R_{\tHorizon+1})$. Let $R$ and $R'$ be the
 respective reward trajectories.
@@ -325,7 +325,7 @@ identical probabilities (up to a shift of one in the index).
 % Therefore the policies have identical return.l
 \end{proof}
 
-Theorem~\ref{thm:K-rewards} requires the number of rewards be
+Theorem~\ref{thm:K-rewards} requires the number of rewards to be
 bounded, and guarantees that the reward distribution be identical.
 In the case that the rewards are continuous, we can have a similar
 guarantee for linear return functions.
@@ -441,19 +441,19 @@ reward at goal states. Note that the length of the run $\tau$ is a random variab
 
 
 Stochastic shortest path includes, naturally, the finite horizon case. This can be shown by creating a leveled MDP where at each time step we move to the next level and terminate at level $\tHorizon$.
-Specifically, we define a new state space $\States'=\States\times \T$, transition function $p((\state',i+1)|\state,\action)=p(\state'|\state,\action)$, and goal states $\States_G=\{(\state,\tHorizon):\state \in\States\}$.
+Specifically, we define a new state space $\States'=\States\times \T$, transition function $p((\state',\ttime+1)|(\state,\ttime),\action)=p(\state'|\state,\action)$ and goal states $\States_G=\{(\state,\tHorizon):\state \in\States\}$.
 
 Stochastic shortest path includes also the discounted infinite
 horizon. To see that, add a new goal state, and from each state with
 probability $1-\discount$ jump to the goal state and terminate. The
 expected return of a policy would be the same in both models.
 Specifically, we add a state $\state_G$, such that
-$p(\state_G|\state,\action)=1-\discount$, for any state
-$\state\in\States$ and action $\action\in\Actions$ and
-$p(\state'|\state,\action)=\discount p(\state'|\state,\action)$. The
+$p(\state_G|\state,\action)=1-\discount$ for any state
+$\state\in\States/\{\state_G\}$ and action $\action\in\Actions$, while
+$p(\state'|\state,\action)=\discount p(\state'|\state,\action)$ for $\state,\state'\in\States/\{\state_G\}$ and action $\action\in\Actions$. The
 probability that we do not terminate by time $\ttime$ is exactly
-$\discount^\ttime$. Therefore, the expected return is
-$\sum_{t=1}^\infty \discount^t\reward(\state_t,\action_t)$ which is
+$\discount^\ttime$. Therefore, the expected return is ${\E^{\policy ,s}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})}$
+which is
 identical to the discounted return.
 
 This class of problems provides a natural extension of the standard
@@ -602,7 +602,7 @@ where the maximum is taken over ``tail" policies ${\policy ^k} =
 ({\policy_k}, \ldots ,{\policy _{\tHorizon -1}})$ that start from
 time $k$. Note that ${\policy ^k}$ is allowed to be a general
 policy, i.e., history-dependent and stochastic. Obviously,
-${V_0}({\state_0}) = {\Value^*}({\state_0})$.
+${V_0}^*({\state_0}) = {\Value^*}({\state_0})$.
 
 \begin{theorem}[\textbf{Finite-horizon Dynamic Programming}]\label{thm:finite_horizon_DP}
 The following holds:
@@ -637,7 +637,7 @@ this is also the optimal value function $V^*_{\tHorizon}$.
 
 We proceed by backward induction. Suppose that $V_{k +
 1}^{}(\state)$ is the optimal value function for time $k + 1$, i.e.,
-$V_{k + 1}^{}(\state)=V^*_{k+1}$ . We need to show that
+$V_{k + 1}(\state)=V^*_{k+1}(\state)$ . We need to show that
 $V_k^{}(\state) = V^*_k(\state)$ and we do it by showing that
 $V^*_k(\state)={W_k}(\state)$, where
  \[{W_k}(\state) \buildrel \Delta \over = {\max _{\action \in {\Actions_k}}}\left\{ {{\reward_k}(\state,\action) + \sum\nolimits_{\state' \in {\States_{k + 1}}} {{p_k}(\state'|\state,\action)\,} V_{k + 1}^{}(\state')} \right\}.\]
@@ -697,7 +697,7 @@ We will only sketch the proof.
 %(Outline - \textbf{exercise}):
 Let ${\policy ^*}$ be the (Markov) policy defined in part 2 of
 Theorem \ref{thm:finite_horizon_DP}. Our goal is to show that the
-value function of ${\policy ^*}$ coincides with that of the optima
+value function of ${\policy ^*}$ coincides with that of the optimal
 policy, which we showed is equal to $V_k$ that we computed. Once we
 show that, we prove that ${\policy ^*}$ is optimal.
 

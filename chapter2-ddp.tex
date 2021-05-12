@@ -114,8 +114,8 @@ model, and the notion of \emph{control policies}.
 \paragraph{The cumulative cost:}
 Let ${\thistory_\tHorizon} = ({\state_0},{\action_0}, \ldots
 ,{\action_{\tHorizon - 1}},{\state_{\tHorizon -
-1}},{\state_\tHorizon})$ denote an $\tHorizon$-stage feasible path
-for the system. Each feasible path ${\thistory_\tHorizon}$ is assign
+1}},{\state_\tHorizon})$ denote a $\tHorizon$-stage feasible path
+for the system. Each feasible path ${\thistory_\tHorizon}$ is assigned
 some cost ${\Cost_\tHorizon} =
 {\Cost_\tHorizon}({\thistory_\tHorizon})$.
 
@@ -149,7 +149,7 @@ It is often more natural to consider \emph{maximizing} reward rather
 than minimizing cost.  In that case, we define the cumulative
 $\tHorizon$-stage return function:
 $${\Value_\tHorizon}({h_\tHorizon}) = \sum_{\ttime = 0}^{\tHorizon - 1} {{\reward_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {\reward_\tHorizon}({\state_\tHorizon})} $$
-Here and ${\reward_{\ttime}}$ is the instantaneous reward, and
+Here, ${\reward_{\ttime}}$ is the instantaneous reward and
 ${\reward_\tHorizon}$ is the terminal reward. Clearly, minimizing
 ${\Cost_\tHorizon}$ is equivalent to maximizing
 ${\Value_\tHorizon}$, if we set:
@@ -305,7 +305,7 @@ $\policy$, and the probability and expectation are taken with
 respect to the randomness of the policy $\policy$. Now we can
 rewrite the expected cost to go as,
 \[
-\E[\Cost^\policy(\state_0)]=\sum_{\ttime=1}^{\tHorizon-1}
+\E[\Cost^\policy(\state_0)]=\sum_{\ttime=0}^{\tHorizon-1}
 \sum_{\action\in \Actions_\ttime,\state\in \States_\ttime}
 \cost_\ttime(\state,\action)\rho^\pi_\ttime(\state,\action),
 \]
@@ -398,9 +398,9 @@ $\ttime'\neq \ttime$. We define $\policy'_\ttime$ for each
 $\state_\ttime\in \States_\ttime$ as follows:
 \begin{equation}
 \label{eq:sec2-MS-MD}
-\policy'_\ttime(\action_\ttime,\state_\ttime)=\arg\min_{\action\in
-\Actions_\ttime} \cost(\state_\ttime,\action)+
-\Cost_{\ttime}(f_\ttime(\state_\ttime,\action)).
+\policy'_\ttime(\state_\ttime)=\arg\min_{\action\in
+\Actions_\ttime} \cost_{\ttime}(\state_\ttime,\action)+
+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action)).
 \end{equation}
 Recall that since we have a Deterministic Decision Process
 $f_\ttime(\state_\ttime,\action_\ttime)\in \States_{\ttime+1}$ is
@@ -409,7 +409,7 @@ the next state if we take action $\action$ in $\state_\ttime$.
 
 For the analysis, note that $\policy$ and $\policy'$ are identical
 until time $\ttime$, so they generate exactly the same distribution
-over paths. At time $\ttime$, $\policy'$ is define to minimize the
+over paths. At time $\ttime$, $\policy'$ is defined to minimize the
 cost to go from $\state_\ttime$, given that we follow $\policy$ from
 $\ttime+1$ to $\tHorizon$. Therefore the cost can only decrease.
 Formally, let $\E^\policy[\cdot]$ be the expectation with respect to
@@ -418,9 +418,9 @@ policy $\policy$.
 \E^\policy_{\state_\ttime}[\Cost_{\ttime}(\state_\ttime)]
 %=\E^\policy[\Cost(\state_\ttime, \ldots , \state_\tHorizon)]
 = & \E^\policy_{\state_\ttime}
-\E^\policy_{\action_\ttime}[\cost(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
+\E^\policy_{\state_\ttime,\action_\ttime}[\cost_{\ttime}(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
 \geq & \E^\policy_{\state_\ttime} \min_{\action_\ttime\in
-\Actions_\ttime}[\cost(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
+\Actions_\ttime}[\cost_{\ttime}(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
 = & \E^{\policy'}_{\state_\ttime} [\Cost_\ttime (\state_\ttime)]
 \end{align*}
 which completes the inductive proof.
@@ -516,10 +516,10 @@ single-stage optimization problems. This results in dramatic
 improvement in computation efficiency.
 
 The DP technique for dynamic systems is based on a general
-observation called Bellman's Principle of Optimality. Essentially it
+observation called Bellman's Principle of Optimality. Essentially, it
 states the following (for deterministic problems):
 \begin{itemize}
-  \item \textbf{Any sub-path of an optimal path is itself an optimal path between its end point.}
+  \item \textbf{Any sub-path of an optimal path is itself an optimal path between its end points.}
 \end{itemize}
 To see why this should hold, consider a sub-path which is not
 optimal. We can replace it by an optimal sub-path, and improve the
@@ -604,7 +604,7 @@ the following inductive claim:
 
 \smallskip
 \noindent{\em For any time $\ttime$ and any state $\state$, the path
-from $\state$ define by $\policy^*$ is the maximum return path of
+from $\state$ defined by $\policy^*$ is the maximum return path of
 length $\tHorizon-\ttime$. The value of $\Value_\ttime (\state)$ is
 the maximum return from $\state$.}
 
@@ -631,11 +631,11 @@ the initialization.
 
 Assume the inductive claim holds for $\ttime$ prove for $\ttime+1$.
 For contradiction assume there is a higher return path from
-$\state$. Let the path generated $\policy^*$ be
+$\state$. Let the path generated by $\policy^*$ be
 $P=(\state,\state^*_{\tHorizon-\ttime},\ldots,\state^*_\tHorizon)$.
 Let $P_1=(\state,\state_{\tHorizon-\ttime},\ldots,\state_\tHorizon
-)$ be an alternative path. Let
-$P_2=(\state,\state_{\tHorizon-\ttime},\state'_{\tHorizon-\ttime+1},
+)$ be the alternative path with higher return. Let
+$P_2=(\state,\state_{\tHorizon-\ttime},\state'_{\tHorizon-\ttime-1},
 \ldots,\state'_\tHorizon )$ be the path generated by following
 $\policy^*$ from $\state_{\tHorizon-\ttime}$. Since $P_1$ and $P_2$
 are identical except for the last $\ttime$ stages, we can use the
@@ -1094,8 +1094,8 @@ is
 
 We show that the minimum average cost cycle is the optimal policy.
 \begin{theorem}
-For any Deterministic Decision Process (DPP) the optimal average
-costs is $\mu^*$, and an optimal policy is $\policy_{\omega}$ that
+For any Deterministic Decision Process (DDP) the optimal average
+cost is $\mu^*$, and an optimal policy is $\policy_{\omega}$ that
 cycles around a simple cycle of average cost $\mu^*$, where $\mu^*$ is the minimum average cost cycle.
 \end{theorem}
 
@@ -1105,9 +1105,9 @@ $\policy_{\omega}$ be a deterministic stationary policy that first
 reaches $\omega$ and then cycles in $\omega$. Clearly,
 $\Cost^{\policy_\omega}_{avg}=\mu^*$.
 
-We show that for any policy $\policy$ (possibly in $\Pi_{HS})$ we
+We will show that for any policy $\policy$ (possibly in $\Pi_{HS})$ we
 have that $\E[\Cost^\policy_{avg}]\geq \mu^*$. For contradiction
-assume that there is a policy $\policy'$ that has average cost
+assume that there is a policy $\policy'$ that has an average cost
 $\mu^*-\varepsilon$. Consider a sufficiently long run of length
 $\tHorizon$ of $\policy'$, and fix any realization $\theta$ of it.
 We will show that the cumulative cost $\Cost(\theta)\geq
@@ -1121,7 +1121,7 @@ $|\omega|$ and the cumulative cost by $\mu(\omega)|\omega|$. We
 continue the process until there is no remaining cycles, which
 implies that we have at most $|V|=n$ nodes remaining. Therefore, the
 costs of $\omega$ was at least $(\tHorizon-n)\mu^*$. This implies
-that the average cost of $\theta$ is at least $\Cost(\theta)=\mu^*-\epsilon\geq
+that the average cost of $\theta$ is at least $\E[\Cost_{avg}^{\policy^{,}}]=\mu^*-\epsilon\geq
 (1-\frac{n}{\tHorizon})\mu^*$. For $\epsilon>\mu^* n/\tHorizon$ we
 have a contradiction.
 \end{proof}
@@ -1185,7 +1185,7 @@ length $n$, by construction, we have that $d_n(u)=d(u)$. Therefore,
 $\min_{v\in S} \{d_n(v)-d(v)\}=0$, which completes the case that
 $\mu^*=0$.
 
-For $\mu^*>0$ we subtract a constant $\Delta=\mu^*$ from al the
+For $\mu^*>0$ we subtract a constant $\Delta=\mu^*$ from all the
 costs in the graph. This implies that for the new costs we have a
 zero cycle and no negative cycle. We can now apply the previous
 case. It only remains to show that the formula changes by exactly
@@ -1217,9 +1217,9 @@ which completes the proof.
 
 We would like now to recover the minimum average cost cycle. The
 basic idea is to recover the cycle from the minimizing vertices in
-the formula, but some care need to be taken. It is true that some
+the formula, but some care is needed to be taken. It is true that for some
 minimizing pair $(v,k)$ the path of length $n$ from $r$ to $v$ has a
-cycle of length $n-k$ which is the suffix of the path. The solution
+cycle of length $n-k$, which is the suffix of the path. The solution
 is that for the path $p$, from $r$ to $v$ of length $n$, any simple
 cycle is a minimum average cost cycle. (See, [``A note of finding
 minimum mean cycle'', Mmamu Chaturvedi and Ross M. McConnell, IPL
