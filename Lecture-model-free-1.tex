@@ -51,7 +51,7 @@ way.
 z_i=\frac{m-1}{m}\widehat{\mu}_{m-1}+\frac{1}{m}z_m=\widehat{\mu}_{m-1}+\frac{1}{m}(z_m-\widehat{\mu}_{m-1})
 \]
 
-This lead naturally to the {\em exponential averaging} where we have
+This leads naturally to the {\em exponential averaging} where we have
 a sequence of $\alpha_t \in(0,1)$ and
 % such that $\sum_t \alpha_t=1$ and we have
 \[
@@ -290,7 +290,7 @@ stochastic nature of the updates, where there are both stochastic
 rewards and stochastic next state.
 
 The next theorem states the main convergence property of
-$Q$-leanring.
+$Q$-learning.
 \begin{theorem}[$Q$-learning convergence]\ \\
 \label{thm:Q-learning} Assume every state-action pair
 $(\state,\action)$ occurs infinitely often, and the step size
@@ -309,7 +309,7 @@ $Q$-learning is an off-policy, it has no influence on the sequence
 of state-action it observes, and therefore we have to make this
 assumption. The second requirement is two properties regarding the
 learning rates $\alpha$. The first states that the learning rates
-are large enough that we can (potentially) reach an value. The
+are large enough that we can (potentially) reach a value. The
 second states that the learning rates are sufficiently small (sum of
 squares finite) so that we will be able to converge locally.
 
@@ -318,7 +318,7 @@ of stochastic approximation. (We will not give the details of the
 proof of stochastic approximation, but will only outline the main
 building blocks and the methodology.) Given the stochastic
 approximation convergence theorem, we later show how to use it to
-derive he convergence of the $Q$-learning algorithm.
+derive the convergence of the $Q$-learning algorithm.
 
 
 \subsection{Stochastic Approximation}
@@ -385,13 +385,13 @@ $\|X_\ttime-X^*\|\leq \lambda_i$.
 %In addition $\lambda_{i+1}\leq\lambda_i (1+\discount)/2<\lambda_i$.
 %
 In each phase we have a deterministic contraction using the operator
-$H$. This implies that the deterministic contraction implies that
+$H$. The deterministic contraction implies that
 the space contracts by a factor $\discount<1$. We have to take care
 of the stochastic noise. We make the phase long enough so that the
 average of the noise is less than $(1-\discount)/2$ factor. This
 implies that the space contracts by
 $\lambda_{i+1}\leq\lambda_i(1+\discount)/2<\lambda_i $. This implies
-that as the number of phases increases we that that $\lambda_i<
+that as the number of phases increases $\lambda_i<
 ((1+\discount)/2)^i$ converges to zero.
 %each phase contracts by a constant and eventually we have convergence.
 
@@ -447,7 +447,7 @@ We can now rewrite the $Q$-learning, as follows,
 \end{align*}
 
 In order to apply Theorem~\ref{thm:stoch-approx}, we have the
-properties on the noise $\omega_\ttime$, and of the contraction of
+properties of the noise $\omega_\ttime$, and of the contraction of
 $H$. Therefore, we can derive Theorem~\ref{thm:Q-learning}, since
 the step size requirement is part of the theorem.
 
@@ -461,7 +461,7 @@ properties. The first is that sum diverges, i.e., $\sum_\ttime
 I(\state_\ttime=\state,\action_\ttime=\action)=\infty $, which
 intuitively implies that we can potentially reach any value. This is
 important, since we might have errors on the way, and this
-guarantees that the step sizes are large enough to possibly reach
+guarantees that the step sizes are large enough to possibly
 correct any error. (It does not guarantee that it will correct the
 errors, only that the step size is large enough to allow for it.)
 
@@ -508,9 +508,9 @@ $\sum_i\alpha_i=\infty$.
 The small enough step size will guarantee that we will converge even
 when the noise is not zero (but bounded).
 
-Many times step size are simply a function of the number of visits
+Many times step size is simply a function of the number of visits
 to $(\state,\action)$, which we denote by $n(\state,\action)$, and
-this widely used in practice. Two leading examples are:
+this is widely used in practice. Two leading examples are:
 \begin{enumerate}
 \item
 {\em Linear step size:}
@@ -556,7 +556,7 @@ When we solve the recursion we get that
 $Q_\ttime=\Theta(e^{-(1-\discount)t^{1-\theta}})$. This implies that
 for $t\geq \frac{1}{1-\discount}\log^{1/(1-\theta)} (1/\varepsilon)$
 we have $Q_\ttime \leq \varepsilon$. This is a poly-logarithmic
-dependency on $\varepsilon$, which is much better. Also, not that
+dependency on $\varepsilon$, which is much better. Also, note that
 $\theta$ is under our control, and we can set for example
 $\theta=2/3$. Note that unlike $\theta$, the setting of the discount
 factor $\discount$ has a huge influence on the objective function
