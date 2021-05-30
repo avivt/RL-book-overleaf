@@ -85,8 +85,7 @@ player can win (or almost always win) by selecting
 any $\varepsilon$-greedy would have a poor performance.
 
 Here we violated the assumption that the rewards depend only on the
-state. In this example they depend indirectly on the policy
-selected.
+state. In this example they depend indirectly on the policy selected by the opponent player.
 
 \section{Policy optimization}
 
@@ -112,21 +111,17 @@ mainly explore gradient based methods.
 
 We start by giving a few examples on how to parameterize the policy.
 The first is a {\em log linear policy}. We will assume an encoding
-of the state and action pairs, i.e., $\phi(\state,\action)$. The
-linear part will compute
-$\mu(\state,\action)=\phi(\state,\action)^\top \theta$. Given the
-values of $\mu(\state,\action)$ for each $\action\in \Actions$, the
-policy select action $\action$ with probability proportional to
+of the state and action pairs, i.e., $\phi(\state,\action)$. Given the parameter $\theta$, The linear part will compute $\mu(\state,\action)=\phi(\state,\action)^\top \theta$. Given the values of $\mu(\state,\action)$ for each $\action\in \Actions$, the policy select action $\action$ with probability proportional to
 $e^{\mu(\state,\action)}$. Namely,
 \[
 \policy(\action|\state,\theta)=
 \frac{e^{\mu(\state,\action)}}{\sum_{b\in
 \Actions}e^{\mu(\state,b)}}
 \]
+Note that this is essentially a soft-max selection over $\mu(\state,\action)$.
 
 The second example is a {\em Gaussian policy}, where the action
-space is a real number, i.e., $A=\mathbb{R}$. The encoding is of
-states, and the actions are any real number. Given a state $\state$
+space is a real number, i.e., $A=\mathbb{R}$. The encoding is of states, i.e., $\phi(\state)$, and the actions are any real number. Given a state $\state$
 we compute $\mu(\state)=\phi(\state)^\top\theta$. We select an
 action $\action$ from the normal distribution with mean
 $\mu(\state)$ and variance $\sigma^2$, i.e.,
@@ -143,8 +138,7 @@ J(\theta_\ttime)
 \]
 where $\alpha$ is a learning rate.
 
-One challenge we will have to address is to relate $\nabla_\theta
-J(\theta)$ to the gradients $\nabla \policy(\action|\state,\theta)$.
+One challenge we will have to address is to relate global gradient, $\nabla_\theta J(\theta)$, to the local gradients, $\nabla \policy(\action|\state,\theta)$.
 
 \subsection{Finite differences methods}
 
@@ -155,7 +149,7 @@ off-the-shelf robot for which the software is encoded already in the
 robot. In such cases we can estimate the gradient by introducing
 perturbations in the parameters.
 
-The simplest case is component-wise gradient estimates. Let $e_i$ be
+The simplest case is component-wise gradient estimates, which is also named \emph{coordinate ascent} . Let $e_i$ be
 a unit vector, i.e., has in the $i$-th entry a value $1$ and a value
 $0$ in all the other entries. The perturbation that we will add is
 $\delta e_i$ for some $\delta >0$. We will use the following
@@ -180,21 +174,20 @@ $\delta$ might have a large noise rate that we need to overcome (by
 using many samples). A large $\delta$ run the risk of facing the
 non-linearity of $J$.
 
-Rather then doing the computation per dimension, we can do a more
-global approach and use a least squares estimation of the gradient.
+Rather then performing separately the computation and optimization per dimension, we can perform a more global approach and use a least squares estimation of the gradient.
 Consider a random vector $u_i$, then we have
 \[
-J(\theta+\delta u_i)\approx J(\theta)+\delta (u_i)^\top \nabla
-J(\theta)
+J(\theta+\delta u_i)\approx J(\theta)+\delta u_i^\top \nabla
+J(\theta) \;.
 \]
 We can define the following least square problem,
 \[
 G= \arg\min_x \sum_i (J(\theta+\delta u_i)- J(\theta)-\delta
-(u_i)^\top x)^2,
+u_i^\top x)^2,
 \]
 where $G$ is our estimate for $\nabla J(\theta)$.
 
-We can move to matrix notation and define $\Delta
+We can reformulate the problem in matrix notation and define $\Delta
 J^{(i)}=J(\theta+\delta u_i)- J(\theta)$ and $\Delta J= [\cdots ,
 \Delta J^{(i)}, \cdots]^\top$. We define $\Delta \theta^{(i)}=\delta
 u_i$, and the matrix $[\Delta\Theta]=[\cdots
@@ -203,23 +196,19 @@ $\Delta\theta^{(i)}$.
 
 We would like to solve for the gradient, i.e,
 \[
-\Delta J\approx [\Delta \Theta]x
+\Delta J\approx [\Delta \Theta]x\;.
 \]
 This is a standard least square problem and the solution is
 \[
 G=([\Delta \Theta]^\top [\Delta \Theta])^{-1} [\Delta\Theta]^\top
-\Delta J
+\Delta J\;.
 \]
 
 One issue that we neglected is that we actually do not a have the
 value of $J(\theta)$. The solution is to solve also for the value of
 $J(\theta)$.
 %
-We can define a matrix $M=[1, [\Delta\Theta]]$, a vector of unknowns
-$x=[J(\theta), \nabla J(\theta)]$, and have the target be
-$z=[\cdots, J(\theta+\delta u_i),\cdots]$. We can now solve for
-$z\approx Mx$, and this will recover an estimate also for
-$J(\theta)$.
+We can define a matrix $M=[1, [\Delta\Theta]]$, i.e., adding a column of ones, a vector of unknowns $x=[J(\theta), \nabla J(\theta)]$, and have the target be $z=[\cdots, J(\theta+\delta u_i),\cdots]$. We can now solve for $z\approx Mx$, and this will recover an estimate also for $J(\theta)$.
 
 
 \section{Policy Gradient Theorem}
@@ -241,12 +230,11 @@ $\Value^\policy(\state)=E[\sum_{\ttime=1}^\tHorizon
 \label{thm:policy-gradient} For any policy
 $\policy(\cdot|\cdot;\theta)$, we have
 \[
-\nabla J(\theta)\propto \sum_{s\in S} \mu(\state) \sum_{\action\in
+\nabla J(\theta)= \sum_{s\in S} \mu(\state) \sum_{\action\in
 \Actions} Q^\policy (\state,\action)\nabla_\theta
 \policy(\action|\state;\theta)
 \]
-where $\mu(\state)=\nu(\state)/\tHorizon$ and
-$\nu(\state)=\sum_{\ttime=1}^\tHorizon\Pr[\state_\ttime=\state|\state_1,\theta]$.
+where $\mu(\state)=\sum_{\ttime=1}^\tHorizon\Pr[\state_\ttime=\state|\state_1,\theta]$.
 \end{theorem}
 
 \begin{proof}
@@ -268,29 +256,23 @@ p(\state_2|\state_1)p(\state_1|\state)
 S}\sum_{\ttime=1}^\tHorizon\Pr[\state_\ttime=x|\state_1=\state,\policy]\sum_\action
 Q^\policy (x,\action)\nabla\policy(\action|x)
 \end{align*}
-where the first identity follows since by averaging
-$Q^\policy(\state,\action)$ over the actions $\action$ with the
-probabilities induce by $\policy(\action|\state)$ we have right
-expectation of the immediate reward. The next state is distributed
-correctly, and therefore the identity holds. The second equality
-follows from the gradient of a multiplication. The third follows
-since $\nabla Q^\policy(\state,\action)= \nabla
-[\reward(\state,\action)+\gamma
+where the first identity follows since by averaging $Q^\policy(\state,\action)$ over the actions $\action$, with the
+probabilities induce by $\policy(\action|\state)$, we have both correct expectation of the immediate reward and the next state is distributed correctly. The second equality follows from the gradient of a multiplication, i.e., $\nabla AB=A\nabla B+B\nabla A$. The third follows since 
+$\nabla Q^\policy(\state,\action)= \nabla
+[\reward(\state,\action)+
 \sum_{\state'}p(\state'|\state,\action)\Value^\policy(\state'|\state,\action)]$.
 %
 The next two identities role the policy one step in to the future.
 %
-The last identity follows from unrolling $\state'$ to $\state''$,
-etc. and then reorganizing the terms.
+The last identity follows from unrolling $\state_1$ to $\state_2$ etc., and then reorganizing the terms.
 
 Using this we have
 \begin{align*}
 \nabla J(\theta) &= \nabla \Value^\policy (\state_0)\\
 &= \sum_\state \left(\sum_{\ttime=1}^\tHorizon\Pr[\state_\ttime=\state|\state_0,\policy] \right) \sum_\action Q^\policy (\state,\action) \nabla\policy(\action|\state) \\
-&= \sum_\state \nu(\state) \sum_\action Q^\policy (\state,\action) \nabla\policy(\action|\state) \\
+&= \sum_\state \mu(\state) \sum_\action Q^\policy (\state,\action) \nabla\policy(\action|\state;\theta) \\
 %&= \left(\sum_s \eta(\state)\right)\sum_s \frac{\eta(\state)}{\sum_x \eta(x)}  \sum_\action\nabla\policy(\action|\state) Q^\policy (\state,\action) \\
-&= \tHorizon  \sum_s \mu(\state) \sum_\action Q^\policy
-(\state,\action) \nabla\policy(\action|\state)
+%&= \tHorizon  \sum_s \mu(\state) \sum_\action Q^\policy (\state,\action) \nabla\policy(\action|\state)
 \end{align*}
 \end{proof}
 
@@ -326,7 +308,7 @@ p_1(1-p_1)\end{pmatrix} = (\reward_1-\reward_2) p_1(1-p_1) \begin{pmatrix}+1\\
 \]
 Updating in the direction of the gradient, in the case that
 $\reward_1>\reward_2$, would increase $\theta_1$ and decrease
-$\theta_2$, which will imply that $p_1$ will converge to $1$.
+$\theta_2$, and eventually $p_1$ will converge to $1$.
 
 To apply the Policy gradient theorem we need to compute the
 gradient,
@@ -337,9 +319,9 @@ gradient,
 \]
 and the policy gradient theorem gives us the same expression,
 \[
-\nabla J(\theta) \propto \reward_1 \nabla
-\policy(\action_1|\theta)+\reward_2 \nabla
-\policy(\action_2|\theta)=\reward_1 \begin{pmatrix} p_1(1-p_1)\\
+\nabla J(\theta) = \reward_1 \nabla
+\policy(\action_1;\theta)+\reward_2 \nabla
+\policy(\action_2;\theta)=\reward_1 \begin{pmatrix} p_1(1-p_1)\\
 -p_1(1-p_1)\end{pmatrix} + \reward_2 \begin{pmatrix} -p_1(1-p_1)\\
 p_1(1-p_1)\end{pmatrix}
 \]
@@ -366,32 +348,29 @@ following corollary,
 \label{thm:policy-gradient} For any policy
 $\policy(\cdot|\cdot;\theta)$, we have
 \[
-\nabla J(\theta)\propto \sum_{s\in S} \mu(\state) \sum_{\action\in
+\nabla J(\theta)= \sum_{s\in S} \mu(\state) \sum_{\action\in
 \Actions} \policy(\action|\state;\theta) Q^\policy
 (\state,\action)\nabla_\theta \log \policy(\action|\state;\theta) =
 E^\policy[Q^\policy (\state,\action)\nabla_\theta \log
 \policy(\action|\state;\theta)]
 \]
-where $\mu(\state)=\nu(\state)/\tHorizon$ and
-$\nu(\state)=\sum_{\ttime=1}^\tHorizon\Pr[\state_\ttime=\state|\state_1,\theta]$.
+where $\mu(\state)=\sum_{\ttime=1}^\tHorizon\Pr[\state_\ttime=\state|\state_1,\theta]$.
 \end{corollary}
 Note that in the above corollary both the state $\state$ and action
-$\action$ are sampled using the policy $\policy$. This avoids the
-need to sum over all actions, and leaves on the action selected by
-the policy.
+$\action$ are sampled using the policy $\policy$. This avoids the need to sum over all actions, and leaves only the action selected by the policy.
 
 We can now apply does the policy gradient to some simple policy
 class. For the log-linear policy class we have $\log
 \policy(\action|\state)\propto \phi(\state,\action)^\top \theta$,
 and then
 \[
-\nabla \log \policy(\action|\state)= \phi(\state,\action)-\sum_b
-\policy(b|\state;\theta) \phi(\state,b)
+\nabla \log \policy(\action|\state;\theta)= \phi(\state,\action) - \policy(\action|\state;\theta)\phi(\state,\action)\propto \phi(\state,\action)
+%-\sum_b \policy(b|\state;\theta) \phi(\state,b)
 \]
 and the update is $\Delta\theta \propto \alpha U
-(\phi(\state,\action)-v)$ where $E[U]=Q^\policy(\state,\action)$ and
-$v=\sum_b \policy(b|\state;\theta) \phi(\state,b)$.\footnote{YM: Can
-we  really ignore the normalizing term?}
+\phi(\state,\action)$ where $E[U]=Q^\policy(\state,\action)$.
+%and$v=\sum_b \policy(b|\state;\theta) \phi(\state,b)$.
+%\footnote{We have $\log \policy(\action|\state;\theta) =  $}
 
 For Gaussian policy class we have $\nabla \log
 \policy(\action|\state;\theta)\propto
@@ -445,14 +424,16 @@ Similarly
 \begin{pmatrix}0\\0\\1\\0\end{pmatrix} - (1-p_2)
 \begin{pmatrix}0\\0\\0\\1\end{pmatrix} = (1-p_2)\begin{pmatrix}0\\0\\1\\-1\end{pmatrix}
 \]
-The policy gradient theorem states that the expected retrun gradient
+The policy gradient theorem states that the expected return gradient
 is
+
 \[
 \mu(\state_0)Q^\policy(\state_0,\action_1)\policy(\action_1|\state_0;\theta)
 \nabla \policy(\action_1|\state_0;\theta) +
 \mu(\state_1)Q^\policy(\state_1,\action_1)\policy(\action_1|\state_1;\theta)
 \nabla \policy(\action_1|\state_1;\theta)
 \]
+
 where we dropped all the terms that evaluate to zero. plugging in
 our values we have
 \[
@@ -479,19 +460,21 @@ REINFORCE algorithm.
 \section{REINFORCE: Monte-Carlo updates}
 
 The REINFORCE algorithm uses a Monte-Carlo updates in conjunction
-with the policy gradient computation. Given a episode
+with the policy gradient computation. Given an episode
 $(\state_1,\action_1,\reward_1, \ldots ,
 \state_T,\action_T,\reward_T)$ for each $\ttime\in [1,T]$ updates,
+
 \[
 \theta\leftarrow \theta+\alpha R_{\ttime:T} \nabla \log
 \policy(\action_\ttime|\state_\ttime;\theta)
 \]
+
 where $R_{\ttime:T}=\sum_{i=\ttime}^T \reward_i$. (We are using here
-every-visit updates, however, sice we have a large state space, it
+every-visit updates, however, since we have a large state space, it
 is likely that we never observe the same state twice.)
 
 
-\subsection*{baseline function}
+\subsection*{Baseline function}
 We can extend the REINFORCE to add a baseline function.
 The baseline function $b(\state)$ can depend in an arbitrary way on
 the state, but does not depend on the action. The main observation
@@ -522,7 +505,7 @@ $b(\state)=E^\policy[Q^\policy(\state,\action)]=\Value^\policy(\state)$.
 We are left with the challenge of approximating
 $\Value^\policy(\state)$. On the one hand this is part of the
 learning. On the other hand we have developed tools to address this
-in the previous lecture on value function approximation. We can use
+in the previous chapter on value function approximation (Chapter~\ref{chapter:function-approximation}). We can use
 $\Value^\policy(\state)\approx V(\state;\weight)=b(\state)$. The
 good news is that any $b(\state)$ will keep the estimator unbiased,
 so we do not depend on $V(\state;\weight)$ to be unbiased.
@@ -536,10 +519,10 @@ will have a class of value approximation function $V(\cdot;\weight)$
 and a parameterized policy $\policy(\cdot|\cdot;\theta)$, and in
 addition to step size parameters, $\alpha,\beta>0$. Given an episode
 $(\state_1,\action_1,\reward_1,
-\ldots,\state_T,\action_T,\reward_T)$ for each $\ttime\in [1,T]$ we
-compute the $R_{\ttime:T}$ during the times $[\ttime,T]$, i.e.,
-$R_{\ttime:T}=\sum_{i=t}^T \reward_i$. The error in time $\ttime$ is
-$\Gamma_\ttime=R_{\ttime:T}-V(\state_\ttime;\weight)$. The updates
+\ldots,\state_\tHorizon,\action_\tHorizon,\reward_\tHorizon)$ for each $\ttime\in [1,\tHorizon]$ we
+compute the $R_{\ttime:\tHorizon}$ during the times $[\ttime,\tHorizon]$, i.e.,
+$R_{\ttime:\tHorizon}=\sum_{i=\ttime}^\tHorizon \reward_i$. The error in time $\ttime$ is
+$\Gamma_\ttime=R_{\ttime:\tHorizon}-V(\state_\ttime;\weight)$. The updates
 are
 \[
 \Delta w=\alpha \Gamma_\ttime \nabla V(\state_\ttime;\weight)
@@ -551,22 +534,12 @@ and
 \]
 
 We can extend this to handle also TD updates. We will use an
-actor-critic algorithm. We will use a $Q$-value updates for this
+actor-critic algorithm (see Chapter~\ref{section:actor-critic}). We will use a $Q$-value updates for this
 (but can be done similarly with $V$-values).
 
-The critic maintains an approximate $Q$ function
-$Q(\state,\action;\weight)$. For each time $\ttime$ it defines the
-TD error to be $\Gamma_\ttime = \reward_\ttime
-+Q(\state_{\ttime+1},\action_{\ttime+1};\weight)-Q(\state_\ttime,\action_\ttime;\weight)$.
-The update will be $\Delta w=\alpha\Gamma \nabla
-Q(\state_\ttime,\action_\ttime;\weight)$. The critic send the actor
-the TD error $\Gamma$.
+The critic maintains an approximate $Q$ function $Q(\state,\action;\weight)$. For each time $\ttime$ it defines the TD error to be $\Gamma_\ttime = \reward_\ttime +Q(\state_{\ttime+1},\action_{\ttime+1};\weight)-Q(\state_\ttime,\action_\ttime;\weight)$. The update will be $\Delta w=\alpha\Gamma_\ttime \nabla Q(\state_\ttime,\action_\ttime;\weight)$. The critic send the actor the TD error $\Gamma_\ttime$.
 
-The actor maintains a policy $\policy$ which is parameterized by
-$\theta$. Given a TD error $\Gamma$ it updates $\Delta \theta= \beta
-\Gamma \nabla \log \policy(\action_\ttime|\state_\ttime;\theta)$.
-Then it selects $\action_{\ttime+1}\sim
-\policy(\cdot|\state_{\ttime+1};\theta)$.
+The actor maintains a policy $\policy$ which is parameterized by $\theta$. Given a TD error $\Gamma_\ttime$ it updates $\Delta \theta= \beta \Gamma_\ttime \nabla \log \policy(\action_\ttime|\state_\ttime;\theta)$. Then it selects $\action_{\ttime+1}\sim \policy(\cdot|\state_{\ttime+1};\theta)$.
 
 We need to be careful in the way we select the function
 approximation $Q(\cdot;\weight)$ since it might introduce a bias.
