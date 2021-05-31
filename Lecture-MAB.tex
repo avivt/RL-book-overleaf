@@ -206,7 +206,7 @@ E\left[\text{Pseudo Regret}\right] & = &
  & = & \left[\frac{2}{\Delta}e^{-\Delta^{2}\frac{t}{2}}\right]_{0}^{\infty}\\
  & = & \frac{2}{\Delta}
 \end{align*}
-Notice that this bound does not depend on $T$!
+Notice that this regret bound does not depend on $T$!
 
 \subsection{Stochastic Multi-Arm Bandits}
 
@@ -260,7 +260,7 @@ outcomes which will result is stopping to try action $a_2$. For
 simplicity, assume that the sequence is the all zero sequence.
 
 Assume $\mu_2 = \frac{3}{4}$, but all $8R$ first rounds, playing
-$a_2$ yield the value zero (with probability
+$a_2$ yield the value zero (which happens with probability
 $\left(\frac{1}{4}\right)^{8R}$). We assumed that after $8R$ zeros
 for action $a_2$ the algorithm will stop playing $a_2$, even though
 it is the preferred action. In this case, we will get:
@@ -279,7 +279,7 @@ e^{-O(R)}T
 
 Which implies that:
 \[
-R=O\left(\log T\right)
+R=\Omega\left(\log T\right)
 \]
 Contrary to the assumption that $R$ does not depend on $T$.
 %\footnote{More formally, after $8R$ steps, there exists some
@@ -353,7 +353,7 @@ and therefore:
 
 Then, we can bound the expected regret as follows:
 \begin{align*}
-E[Regret] & \leq  \underbrace{\left({\displaystyle
+E[PseudoRegret] & \leq  \underbrace{\left({\displaystyle
 \sum_{j=1}^{k}\Delta_{j}}\right)M}_{Explore}+\underbrace{\left(T-k\cdot
 M\right)\cdot2\lambda}_{\text{B didn't
 happen}}+\underbrace{\frac{2}{T^{3}}\cdot T}_{\text{B happened}}\\
@@ -547,12 +547,12 @@ We would like to identify the best action, or an almost best action.
 We can define the goal in one of two ways.
 
 \paragraph{PAC criteria }
-An action $i$ is $\epsilon$-optimal if  $V$. The PAC ctriteria is
+An action $i$ is $\epsilon$-optimal if  $\mu_i\geq \mu^*-\epsilon$. The PAC criteria is
 that, given $\epsilon,\delta>0,$, with probability at least
 $1-\delta$, find an $\epsilon$ optimal action.
 
 \paragraph{Exact identification}
-Given $\Delta\le\mu^{*}-\mu_{i}$ (for every suboptimal action $i$),
+Given $\Delta\le\min_{i\neq a^*}\mu^{*}-\mu_{i}$ (for every suboptimal action $i$),
 find the optimal action $a_{*}$, with probability at least
 $1-\delta$.
 
@@ -589,7 +589,7 @@ This implies,
 \]
 
 And therefore $a={\displaystyle \arg\max_{i}\hat{\mu}_{i}}$ is the
-optimal action in probability $1-\delta$
+optimal action in probability $1-\delta$.
 
 We would like to slightly improve the sample size of this algorithm
 
@@ -644,7 +644,7 @@ actions.
 
 The total number of samples is therefore:
 
-\begin{align*}{ccc}
+\begin{align*}
  \sum_l |S_l| \cdot \frac{4}{\epsilon_l^2}\log \frac{3}{\delta_l} &=
 \sum_{l}\frac{k}{2^{l-1}}\frac{64}{\epsilon^{2}}\left(\frac{16}{9}\right)^{l-1}\log\frac{3\cdot2^{l}}{\delta}\\
 & =  {\displaystyle \sum_{l}k\left(\frac{8}{9}\right)^{l-1}\left[c\cdot\frac{\log\frac{1}{\delta}}{\epsilon^{2}}+\frac{\log3}{\epsilon^{2}}+\frac{l}{\epsilon^{2}}\right]}\\
@@ -659,39 +659,35 @@ The total number of samples is therefore:
 $Pr\left[\underbrace{{\displaystyle \max_{j\in
 S_{l}}\mu_{j}}}_{\text{action
 \ensuremath{l}}}\le\underbrace{{\displaystyle \max_{j\in
-S_{l+2}}\mu_{j}}}_{\text{action
+S_{l+1}}\mu_{j}}}_{\text{action
 \ensuremath{l+1}}}+\epsilon_{l}\right]\ge1-\delta_{l}$
 \end{theorem}
 
 \begin{proof}
-We do the proof for $l=1$, general $l$ is similar. Define
-$E_{1}=\left\{\hat{\mu}^{*}<\mu^{*}-\frac{\epsilon_{1}}{2}\right\}$.
-We have  $Pr\left[E_{1}\right]\le\frac{\delta_{1}}{3}$. If $E_{1}$
-did not happen, we define a bad set:
+%We do the proof for $l=1$, general $l$ is similar. 
+Let $\mu^*_l=\max_{j\in S_l} \mu_j$.
+Define $E_{l}=\left\{\hat{\mu}^{*}_l<\mu^{*}_l-\frac{\epsilon_{1}}{2}\right\}$.
+We have  $Pr\left[E_{l}\right]\le\frac{\delta_{l}}{3}$. If $E_{l}$ did not happen, we define a bad set:
 \[
-\text{Bad}=\left\{ j\text{ }:\text{ }\mu^{*}-\mu_{j}\ge\epsilon_{1},\text{ }\hat{\mu}_{j}\ge\hat{\mu}^{*}\right\}
+\text{Bad}=\left\{ j\text{ }:\text{ }\mu^{*}-\mu_{j}\ge\epsilon_{l},\text{ }\hat{\mu}_{j}\ge\hat{\mu}^{*}\right\}
 \]
-Consider an action $j$ such that $\mu^*-\mu_j\geq \epsilon_1$, then:
+Consider an action $j$ such that $\mu^*-\mu_j\geq \epsilon_l$, then:
 \[
 Pr[\hat{\mu}_{j}\geq
 \hat{\mu}^{*}|\underbrace{\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon_{1}}{2}}_{\urcorner
-E_{1}}\big] \le
-Pr[\hat{\mu}_{j}\ge\mu_{j}+\frac{\epsilon_{1}}{2}|\urcorner E_{1}]
+E_{l}}\big] \le
+Pr[\hat{\mu}_{j}\ge\mu_{j}+\frac{\epsilon_{1}}{2}|\urcorner E_{l}]
 \le  \frac{\delta_{1}}{3}
 \]
-Note that the probability is not negligible. We will show that it
-cannot happen to too many such actions. We will bound the
-expectation of the size of $Bad$,
+Note that the probability is not negligible. We will show that it cannot happen to too many such actions. We will bound the expectation of the size of $Bad$,
 \[
-E[|\text{Bad}||\urcorner E_{1}]\le k\frac{\delta_{1}}{3}
+E[|\text{Bad}||\urcorner E_{l}]\le k\frac{\delta_{1}}{3}
 \]
  with Markov's inequality we get:
 \[
-Pr\left[\left|\text{Bad}\right|\ge\frac{k}{2}\right|\urcorner E_{1}]
+Pr\left[\left|\text{Bad}\right|\ge\frac{k}{2}\right|\urcorner E_{l}]
  \le  \frac{E\left|\text{Bad}\right|}{k/2}
-  =  \frac{2}{3}\delta_{1}
+  =  \frac{2}{3}\delta_{l}
 \]
- with probability $1-\delta_{1}$: $\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon_{1}}{2}$
-and $\left|\text{Bad}\right|\le\frac{k}{2}$.
- Therefore: $\exists_{j}\notin\text{Bad}$ and $j\in S_{l+1}$.
+ with probability $1-\delta_{l}$: $\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon_{1}}{2}$ and $\left|\text{Bad}\right|\le\frac{k}{2}$. Therefore: $\exists_{j}\notin\text{Bad}$ and $j\in S_{l+1}$.
 \end{proof}

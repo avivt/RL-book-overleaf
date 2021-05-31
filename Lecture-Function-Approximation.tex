@@ -117,7 +117,7 @@ Then,
 &\leq \|T^\policy \Value^\policy -T^\policy V\|_\infty +\|T^\policy V - \Value^*\|_\infty\\
 &\leq \gamma\| \Value^\policy - V\|_\infty +\|T^* V - T^*\Value^*\|_\infty\\
 &\leq \gamma\| \Value^\policy - V\|_\infty +\gamma\| V - \Value^*\|_\infty\\
-&\leq \gamma(\| \Value^\policy - \Value^*\|_\infty+ \|\Value^*-\Value\|_\infty ) +\gamma\| V - \Value^*\|_\infty\;,
+&\leq \gamma(\| \Value^\policy - \Value^*\|_\infty+ \|\Value^*-V\|_\infty ) +\gamma\| V - \Value^*\|_\infty\;,
 \end{align*}
 where in the second inequality we used the fact that since since
 $\policy$ is greedy with respect to $V$ then $T^\policy V=T^* V$.
