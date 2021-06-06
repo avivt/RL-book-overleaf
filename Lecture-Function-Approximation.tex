@@ -245,7 +245,7 @@ $\nabla_\weight \widehat{V}(\state_\ttime;\weight)$ is called a
 semi-gradient. The update becomes,
 \[
 \Delta \weight (\state)= \alpha[\reward_\ttime +\gamma
-\widehat{V}(\state_{\ttime+1};\weight)-\widehat{V}(\state_\ttime)]\nabla_\weight
+\widehat{V}(\state_{\ttime+1};\weight)-\widehat{V}(\state_\ttime;\weight)]\nabla_\weight
 \widehat{V}(\state_\ttime;\weight)
 \]
 
@@ -702,7 +702,7 @@ TD-gammon moved location $24$. Following the TD-gammon, grandmasters
 changed their view and started playing those positions in the same
 way that TD-gammon did.
 
-\subsection{Attari games}
+\subsection{Atari games}
 
 The system was developed by DeepMind researchers during $2013-2015$.
 The system learns to play from the raw video frames, a variety of
