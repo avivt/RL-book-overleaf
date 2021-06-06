@@ -520,7 +520,7 @@ next state distributions differ by at most $\alpha$ in norm $L_1$.
 Clearly if $\alpha\approx 0$ then the distributions will be almost
 identical, but we like to get a quantitative bound on the
 difference, which will allow us to derive an upper bound of the
-required the sample size $m$.
+required sample size $m$.
 
 
 %Therefore, we would like to bound the $L_1$-norm between the state
@@ -751,7 +751,7 @@ not optimal. In \cite{DannB15} a sample bound of
 $O(\frac{|\States|^2|\Actions|\tHorizon^2\Rmax^2}{\varepsilon^2}\log\frac{1}{\delta}
 )$ is given.
 \item
-The dependency on the number on the number of states $|\States|$ and
+The dependency on the number of states $|\States|$ and
 actions $|\Actions|$, is due to the fact that we like a very high
 approximation of the next state distribution. We need to approximate
 $|\States|^2|\Actions|$ parameters, so for this task the bound is
@@ -1043,8 +1043,7 @@ state and action result in identical observations.)
 The above algorithm reconstructs the model completely. We can be
 slightly more refine. We can define an {\em optimistic} model, whose
 return upper bounds that of the true model. We can then solve for
-the optimal policy in the optimistic model, and if it does not reach
-reach a new state-action pair (after sufficiently long time) then it
+the optimal policy in the optimistic model, and if it does not reach a new state-action pair (after sufficiently long time) then it
 has to be the true optimal policy.
 
 We first define the optimistic observed model. Given an observation
