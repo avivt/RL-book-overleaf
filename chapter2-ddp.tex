@@ -418,7 +418,7 @@ policy $\policy$.
 \E^\policy_{\state_\ttime}[\Cost_{\ttime}(\state_\ttime)]
 %=\E^\policy[\Cost(\state_\ttime, \ldots , \state_\tHorizon)]
 = & \E^\policy_{\state_\ttime}
-\E^\policy_{\state_\ttime,\action_\ttime}[\cost_{\ttime}(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
+\E^\policy_{\action_\ttime}[\cost_{\ttime}(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
 \geq & \E^\policy_{\state_\ttime} \min_{\action_\ttime\in
 \Actions_\ttime}[\cost_{\ttime}(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
 = & \E^{\policy'}_{\state_\ttime} [\Cost_\ttime (\state_\ttime)]
