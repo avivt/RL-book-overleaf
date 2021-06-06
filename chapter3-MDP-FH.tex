@@ -448,9 +448,9 @@ horizon. To see that, add a new goal state, and from each state with
 probability $1-\discount$ jump to the goal state and terminate. The
 expected return of a policy would be the same in both models.
 Specifically, we add a state $\state_G$, such that
-$p(\state_G|\state,\action)=1-\discount$ for any state
-$\state\in\States/\{\state_G\}$ and action $\action\in\Actions$, while
-$p(\state'|\state,\action)=\discount p(\state'|\state,\action)$ for $\state,\state'\in\States/\{\state_G\}$ and action $\action\in\Actions$. The
+$p(\state_G|\state,\action)=1-\discount$, for any state
+$\state\in\States$ and action $\action\in\Actions$ and
+$p(\state'|\state,\action)=\discount p(\state'|\state,\action)$. The
 probability that we do not terminate by time $\ttime$ is exactly
 $\discount^\ttime$. Therefore, the expected return is ${\E^{\policy ,s}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})}$
 which is
