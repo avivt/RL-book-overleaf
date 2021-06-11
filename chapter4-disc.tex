@@ -198,9 +198,9 @@ which converges to 0 since $\discount  < 1$.
 \begin{itemize}
   \item The proof provides an explicit bound on $|{\Value^\policy }(\state) - {\Value_n}{\kern 1pt} (\state)|$. It may be seen that the convergence is exponential, with rate $O({\discount ^n})$.
   \item Using vector notation, it may be seen that
-          \[{\Value_n}{\kern 1pt}  = {r^\policy } + {P^\policy }{r^\policy } +  \ldots  + {({P^\policy })^{n - 1}}{r^\policy } + {({P^\policy })^n}{\Value_0} = \sum\limits_{\ttime = 0}^{n - 1} {{{({P^\policy })}^\ttime}{r^\policy }}  + {({P^\policy })^n}{\Value_0}.\]
+          \[{\Value_n}{\kern 1pt}  = {r^\policy } + \discount{P^\policy }{r^\policy } +  \ldots  + {(\discount{P^\policy })^{n - 1}}{r^\policy } + {(\discount{P^\policy })^n}{\Value_0} = \sum\limits_{\ttime = 0}^{n - 1} {{{(\discount{P^\policy })}^\ttime}{r^\policy }}  + {(\discount{P^\policy })^n}{\Value_0}.\]
 Similarly,    ${\Value^\policy } = \sum\limits_{\ttime = 0}^\infty
-{{{({P^\policy })}^\ttime}{r^\policy }}$.
+{{{(\discount{P^\policy })}^\ttime}{r^\policy }}$.
 \end{itemize}
 
 \paragraph{In summary:}
@@ -325,7 +325,7 @@ properties of some basic Dynamic Programming operators.
 
 \subsection{The contraction property}
 Recall that a norm $|| \cdot ||$ over $\reals^n$  is a real-valued
-function $\|\cdot\| : \reals^d \to \mathbb R$ such that, for any
+function $\|\cdot\| : \reals^d \to \mathbb R^+$ such that, for any
 pair of vectors $x,y \in \reals^d$  and scalar $a\in\reals$,
 \begin{enumerate}
   \item $||ax|| = |a| \cdot ||x||$,
@@ -508,8 +508,8 @@ $T_{}^*({\Value_1})(\state)$, namely
 Since the same action $\bar \action$ appears in both expressions, we
 can now continue to show the inequality (a) similarly to 1. Namely,
 \begin{align*}
- (T^\policy (\Value_1))(\state) - (T^\policy (\Value_2))(\state)  &= \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy(\state))\left( \Value_1(\state') - \Value_2(\state') \right) \\
- &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy (\state)) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
+ (T^* (\Value_1))(\state) - (T^* (\Value_2))(\state)  &= \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\bar \action)\left( \Value_1(\state') - \Value_2(\state') \right) \\
+ &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\bar \action) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
 \end{align*}
 
 (b) Showing $T_{}^*({\Value_2})(\state) - T_{}^*({\Value_1})(\state)

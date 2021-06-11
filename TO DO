@@ -11,3 +11,13 @@ Redo the Rmax algorithm and the analysis
 Lecture 6: Q-learning
 Add examples (from slides?)
 Exercise: show that the observed model is the maximum likelihood model.
+
+Lecture 7:
+
+Lecture 8: Function approximation
+
+Lecture 9: Policy gradient.
+Rewrite the start of the chapter.
+Other policy optimization techniques?
+Add a simple  case of tabular?
+Add more to the applications (or delete)

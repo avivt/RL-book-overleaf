@@ -75,7 +75,7 @@ vertices.)
 \item The Markov chain is
 \textit{irreducible} if all states belong to a single class (i.e.,
 all states communicate with each other).\\
-For a finite $X$, this implies that in $G(X,E)$ is strongly
+For a finite $X$, this implies that $G(X,E)$ is strongly
 connected.
 \item
 State $i$ has a \textit{period} $d_i=GCD \{m\geq
@@ -158,7 +158,7 @@ for some }}\ttime \ge 1|{X_0} = i)<q'_i +(1-q'_i)/2=(1+q'_i)/2<1$, which
 implies that state $i$ is transient.
 %
 If $q'_i=1$, this implies that after at most $m_0$ stages we are
-guarantee to return to $i$, hence the expected number of return to
+guaranteed to return to $i$, hence the expected number of return to
 state $i$ is infinite, i.e., $\sum\nolimits_{m = 1}^\infty
 {p_{i,i}^{(m)}}  = \infty $. This is in contradiction to the
 assumption that $\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  <
@@ -235,7 +235,7 @@ and null recurrent if $\E({T_i}) = \infty $.\\
 If the state space $X$
 is finite, all recurrent states are positive recurrent.\\
 This follows since the set of states that are null recurrent cannot
-have transitions from positive recurrent states and cannot have
+have transitions from positive recurrent states and cannot have a
 transition to transient states. If the chain never leaves the set of
 null recurrent states, then some state would have a return time
 which is at most the size of the set. If there is a positive
@@ -247,7 +247,7 @@ In the following we illustrate some of the notions that we define. we start with
 
 \begin{example}{\bf Random walk}
 Consider the following Markov chain over the integers. The states
-are the integers. The initial states is $0$. At each state $i$, with
+are the integers. The initial state is $0$. At each state $i$, with
 probability $1/2$ we move to $i+1$ and with probability $1/2$ to
 $i-1$. Namely, $p_{i,i+1}=1/2$, $p_{i,i-1}=1/2$, and $p_{i,j} =0$
 for $j \not\in \{i-1,i+ 1\}$. We will show that $T_i$ is finite with
