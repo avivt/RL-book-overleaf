@@ -62,7 +62,7 @@ similar) states coallesce to a single representation.
 \end{figure}
 
 \paragraph{Zero-sum games}\ \\
-The MDP model was not design for interactive zero-sum games,
+The MDP model was not designed for interactive zero-sum games,
 however, in many of the applications we saw, we train a policy to
 play a board game (such as backgammon). Any board game is an
 instance of a zero-sum game, since if one player wins the other
@@ -78,11 +78,11 @@ first player wins and if they differ the second player wins. The
 best policy for each player is stochastic (selecting each bit with
 probability half).
 
-An important observation is that if one of the player plays
+An important observation is that if one of the players plays
 deterministically (or almost deterministically), then the other
 player can win (or almost always win) by selecting
 (deterministically) the appropriate action. For this reason, even
-any $\varepsilon$-greedy would have a poor performance.
+an $\varepsilon$-greedy would have a poor performance.
 
 Here we violated the assumption that the rewards depend only on the
 state. In this example they depend indirectly on the policy selected by the opponent player.
@@ -138,7 +138,7 @@ J(\theta_\ttime)
 \]
 where $\alpha$ is a learning rate.
 
-One challenge we will have to address is to relate global gradient, $\nabla_\theta J(\theta)$, to the local gradients, $\nabla \policy(\action|\state,\theta)$.
+One challenge we will have to address is to relate the global gradient, $\nabla_\theta J(\theta)$, to the local gradients, $\nabla \policy(\action|\state,\theta)$.
 
 \subsection{Finite differences methods}
 
@@ -359,7 +359,7 @@ where $\mu(\state)=\sum_{\ttime=1}^\tHorizon\Pr[\state_\ttime=\state|\state_1,\t
 Note that in the above corollary both the state $\state$ and action
 $\action$ are sampled using the policy $\policy$. This avoids the need to sum over all actions, and leaves only the action selected by the policy.
 
-We can now apply does the policy gradient to some simple policy
+We can now apply the policy gradient to some simple policy
 class. For the log-linear policy class we have $\log
 \policy(\action|\state)\propto \phi(\state,\action)^\top \theta$,
 and then
