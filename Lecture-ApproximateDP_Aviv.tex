@@ -366,7 +366,7 @@ would converge to $\Pi_\epsilon V^\policy$ as $N\to \infty$. However, such an al
 \subsection{Solving the PBE}
 We now move to solving the projected Bellman equation.\\
 We would like to find $J = \FtrMtx \weights^*$ where $\weights^*$ solves
-$$\weights^* = \underset{{\weights \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\FtrMtx \weights - (R^\policy+\gamma P^\policy\FtrMtx \weights)||_\epsilon^2$$
+$$\weights^* = \underset{{\weights \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\FtrMtx \weights - (R^\policy+\gamma P^\policy\FtrMtx \weights^*)||_\epsilon^2$$
 Setting the gradient of the to $0$, we get
 $$\FtrMtx^T \Xi (\FtrMtx \weights^* - (R^\policy+\gamma P^\policy \FtrMtx \weights^*)) = 0$$
 where $\Xi = \textrm{diag} \ (\epsilon_1,...,\epsilon_n)$.\\

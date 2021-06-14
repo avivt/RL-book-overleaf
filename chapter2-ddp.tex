@@ -295,8 +295,8 @@ only influence on the cumulative cost is the expected instantaneous
 cost $\E[\cost_\ttime(\state_\ttime,\action_\ttime)]$. Namely, let
 \[
 \rho^\policy_\ttime(\state,\action)=\Pr_{\history'_{\ttime-1}}
-[\action_\ttime=\action,\state_\ttime=s]=\E_{\history'_{\ttime-1}}[\I
-[\state_\ttime=s,\action_\ttime=a]| \history'_{\ttime-1}],
+[\action_\ttime=\action,\state_\ttime=\state]=\E_{\history'_{\ttime-1}}[\I
+[\state_\ttime=\state,\action_\ttime=\action]| \history'_{\ttime-1}],
 \]
 where
 $\history'_{\ttime-1}=(\state_0,\action_0,\ldots,\state_{t-1},\action_{t-1})$
