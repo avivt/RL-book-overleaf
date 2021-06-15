@@ -367,7 +367,7 @@ would converge to $\Pi_\epsilon V^\policy$ as $N\to \infty$. However, such an al
 We now move to solving the projected Bellman equation.\\
 We would like to find $J = \FtrMtx \weights^*$ where $\weights^*$ solves
 $$\weights^* = \underset{{\weights \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\FtrMtx \weights - (R^\policy+\gamma P^\policy\FtrMtx \weights^*)||_\epsilon^2$$
-Setting the gradient of the to $0$, we get
+Setting the gradient to $0$, we get
 $$\FtrMtx^T \Xi (\FtrMtx \weights^* - (R^\policy+\gamma P^\policy \FtrMtx \weights^*)) = 0$$
 where $\Xi = \textrm{diag} \ (\epsilon_1,...,\epsilon_n)$.\\
 This is in fact the orthogonality condition from random signals.\\
@@ -414,9 +414,9 @@ where the projection $\Pi$ here denotes a non-linear least squares fit, or even 
 
 \item \textbf{Stochastic approximation -- TD(0):} Consider the function-approximation variant of the TD(0) algorithm (cf. Section \ref{ss:TD0})
 \begin{equation*}
-    \weights_{n+1} = \weights_n + \alpha_n \underbrace{( r(s_n,\policy(s_n)) + {\ftrs}(s_{n+1})^\top \weights_n - {\ftrs}(s_{n})^\top \weights_n)}_{\textrm{temporal difference}} \ftrs(s_{n}),
+    \weights_{n+1} = \weights_n + \alpha_n \underbrace{( r(s_n,\policy(s_n)) +\gamma {\ftrs}(s_{n+1})^\top \weights_n - {\ftrs}(s_{n})^\top \weights_n)}_{\textrm{temporal difference}} \ftrs(s_{n}),
 \end{equation*}
-where the temporal difference term is the approximation (w.r.t. the weights at time $n$) of $r(s_n,\policy(s_n)) + V(s_{n+1}) - V(s_n)$.
+where the temporal difference term is the approximation (w.r.t. the weights at time $n$) of $r(s_n,\policy(s_n)) +\gamma V(s_{n+1}) - V(s_n)$.
 \\
 This algorithm can be written as a stochastic approximation:
 \begin{equation*}
