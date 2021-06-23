@@ -817,7 +817,7 @@ and also
 \left|\widehat{\reward}(\state,\action)-\reward(\state,\action)\right|\leq\varepsilon
 \]
 This holds for $m=O(\frac{V^2_{max}}{\varepsilon^2}\log (N
-|\States|\;|\Actions|/\delta))$, where $V_{max}$ bound the maximum
+|\States|\;|\Actions|/\delta))$, where $V_{max}$ bounds the maximum
 value. I.e., for finite horizon $V_{max}=\tHorizon\; \Rmax$ and for
 discounted return $V_{max}=\frac{\Rmax}{1-\discount}$.
 
@@ -872,15 +872,14 @@ arbitrary policy.
 
 \section{On-Policy Learning}
 
-In the off-policy setting we where given some trajectories and used
-them to learn and model, and using it an approximately optimal
-policy. Essentially, we assumed that the trajectories are
-exploratory enough, in the sense that each $(\state,\action)$ has a
+In the off-policy setting we were given some trajectories and used
+them to learn a model which we used to derive an approximately optimal
+policy. Essentially, we assumed that the trajectories were
+exploratory enough, in the sense that each $(\state,\action)$ had a
 sufficient number of samples.
 %
 In the on-line setting it is the responsibility of the learner to
-perform the exploration. This would be the main challenge in this
-section.
+perform the exploration. This will be the main challenge of this section.
 
 We will consider two (similar) tasks. The first is to reconstruct
 the MDP to sufficient accuracy. Given such a reconstruction we can
