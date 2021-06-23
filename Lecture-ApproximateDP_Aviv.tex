@@ -377,7 +377,7 @@ where
 $$C = \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx, \ \ d = \FtrMtx^T\Xi R^\policy$$
 
 \paragraph{Solution approaches:}
-\begin{enumerate}\negspace
+\begin{enumerate}
 \item \textbf{Matrix inversion (LSTD)}: $$\weights^* = C^{-1}d$$
 In order to evaluate $C,d$, calculate a simulation-based approximation $\hat{C}_k,\hat{d}_k \rightarrow C,d$ by the LLN, and then use $\hat{\weights}_k = \hat{C}_k^{-1} \hat{d}_k$ -- this is the Least Squares Temporal Difference algorithm (LSTD). Note that the simulation must use the policy $\policy$, such that (after some burn-in time) the states are samples from the distribution $\epsilon$.\\
 Recall that
