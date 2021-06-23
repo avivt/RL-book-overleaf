@@ -366,8 +366,8 @@ would converge to $\Pi_\epsilon V^\policy$ as $N\to \infty$. However, such an al
 \subsection{Solving the PBE}
 We now move to solving the projected Bellman equation.\\
 We would like to find $J = \FtrMtx \weights^*$ where $\weights^*$ solves
-$$\weights^* = \underset{{\weights \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\FtrMtx \weights - (R^\policy+\gamma P^\policy\FtrMtx \weights)||_\epsilon^2$$
-Setting the gradient of the to $0$, we get
+$$\weights^* = \underset{{\weights \in \mathbb{R}^k}}{\operatorname{argmin}} \ ||\FtrMtx \weights - (R^\policy+\gamma P^\policy\FtrMtx \weights^*)||_\epsilon^2$$
+Setting the gradient to $0$, we get
 $$\FtrMtx^T \Xi (\FtrMtx \weights^* - (R^\policy+\gamma P^\policy \FtrMtx \weights^*)) = 0$$
 where $\Xi = \textrm{diag} \ (\epsilon_1,...,\epsilon_n)$.\\
 This is in fact the orthogonality condition from random signals.\\
@@ -377,7 +377,7 @@ where
 $$C = \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx, \ \ d = \FtrMtx^T\Xi R^\policy$$
 
 \paragraph{Solution approaches:}
-\begin{enumerate}\negspace
+\begin{enumerate}
 \item \textbf{Matrix inversion (LSTD)}: $$\weights^* = C^{-1}d$$
 In order to evaluate $C,d$, calculate a simulation-based approximation $\hat{C}_k,\hat{d}_k \rightarrow C,d$ by the LLN, and then use $\hat{\weights}_k = \hat{C}_k^{-1} \hat{d}_k$ -- this is the Least Squares Temporal Difference algorithm (LSTD). Note that the simulation must use the policy $\policy$, such that (after some burn-in time) the states are samples from the distribution $\epsilon$.\\
 Recall that
@@ -414,9 +414,9 @@ where the projection $\Pi$ here denotes a non-linear least squares fit, or even 
 
 \item \textbf{Stochastic approximation -- TD(0):} Consider the function-approximation variant of the TD(0) algorithm (cf. Section \ref{ss:TD0})
 \begin{equation*}
-    \weights_{n+1} = \weights_n + \alpha_n \underbrace{( r(s_n,\policy(s_n)) + {\ftrs}(s_{n+1})^\top \weights_n - {\ftrs}(s_{n})^\top \weights_n)}_{\textrm{temporal difference}} \ftrs(s_{n}),
+    \weights_{n+1} = \weights_n + \alpha_n \underbrace{( r(s_n,\policy(s_n)) +\gamma {\ftrs}(s_{n+1})^\top \weights_n - {\ftrs}(s_{n})^\top \weights_n)}_{\textrm{temporal difference}} \ftrs(s_{n}),
 \end{equation*}
-where the temporal difference term is the approximation (w.r.t. the weights at time $n$) of $r(s_n,\policy(s_n)) + V(s_{n+1}) - V(s_n)$.
+where the temporal difference term is the approximation (w.r.t. the weights at time $n$) of $r(s_n,\policy(s_n)) +\gamma V(s_{n+1}) - V(s_n)$.
 \\
 This algorithm can be written as a stochastic approximation:
 \begin{equation*}

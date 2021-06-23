@@ -898,219 +898,219 @@ $PI_{n+1}=\Value^{\policy_{n+1}}$, it implies that $PI_{n+1}\leq
 \end{proof}
 
 
-\section{Variants on Value Iteration and Policy Iteration}
+% \section{Variants on Value Iteration and Policy Iteration}
 
-\subsection{Value Iteration - Gauss Seidel Iteration}
-In the standard value iteration: ${\Value_{n + 1}} =
-T_{}^*({\Value_n})$, the vector ${\Value_n}$ is held fixed while all
-entries of ${\Value_{n + 1}}$ are updated. An alternative is to
-update each element ${\Value_n}(\state)$ of that vector as to
-${\Value_{n + 1}}(\state)$ as soon as the latter is computed, and
-continue the calculation with the new value. This procedure is
-guaranteed to be ``as good'' as the standard one, in some sense, and
-often speeds up convergence.
-
-
-\subsection{Asynchronous Value  Iteration}
-Here, in each iteration ${\Value_n} \Rightarrow {\Value_{n + 1}}$,
-only a subset of the entries of  ${\Value_n}$ (namely, a subset of
-all states) is updated. It can be shown that if each state is
-updated infinitely often, then ${\Value_n} \to {\Value^*}$.
-Asynchronous update can be used to focus the computational effort on
-``important'' parts of a large-state space.
+% \subsection{Value Iteration - Gauss Seidel Iteration}
+% In the standard value iteration: ${\Value_{n + 1}} =
+% T_{}^*({\Value_n})$, the vector ${\Value_n}$ is held fixed while all
+% entries of ${\Value_{n + 1}}$ are updated. An alternative is to
+% update each element ${\Value_n}(\state)$ of that vector as to
+% ${\Value_{n + 1}}(\state)$ as soon as the latter is computed, and
+% continue the calculation with the new value. This procedure is
+% guaranteed to be ``as good'' as the standard one, in some sense, and
+% often speeds up convergence.
 
 
+% \subsection{Asynchronous Value  Iteration}
+% Here, in each iteration ${\Value_n} \Rightarrow {\Value_{n + 1}}$,
+% only a subset of the entries of  ${\Value_n}$ (namely, a subset of
+% all states) is updated. It can be shown that if each state is
+% updated infinitely often, then ${\Value_n} \to {\Value^*}$.
+% Asynchronous update can be used to focus the computational effort on
+% ``important'' parts of a large-state space.
 
-\subsection{Modified (a.k.a. Generalized or Optimistic) Policy Iteration}\label{ss:mod_PI}
 
-This scheme combines policy improvement steps with value iteration
-for policy evaluation. This way the requirement for exact policy
-evaluation (computing  ${\Value^{{\policy _k}}} = {(I - \discount
-{P^{{\policy _k}}})^{ - 1}}{r^{{\policy _k}}}$) is avoided.
 
-The procedure starts with some initial value vector ${\Value_0}$,
-and iterates as follows:
-\begin{itemize}
-  \item Greedy policy computation:
+% \subsection{Modified (a.k.a. Generalized or Optimistic) Policy Iteration}\label{ss:mod_PI}
 
-Compute ${\policy _k} \in \arg {\max _\policy }T_{}^\policy
-({\Value_k})$, a greedy policy with respect to ${\Value_k}$.
-  \item Partial value iteration:
+% This scheme combines policy improvement steps with value iteration
+% for policy evaluation. This way the requirement for exact policy
+% evaluation (computing  ${\Value^{{\policy _k}}} = {(I - \discount
+% {P^{{\policy _k}}})^{ - 1}}{r^{{\policy _k}}}$) is avoided.
 
-Perform ${m_k}$ steps of value iteration, ${\Value_{k + 1}} =
-{(T_\discount ^{{\policy _k}})^{{m_k}}}({\Value_k})$.
-\end{itemize}
+% The procedure starts with some initial value vector ${\Value_0}$,
+% and iterates as follows:
+% \begin{itemize}
+%   \item Greedy policy computation:
 
-This algorithm guarantees convergence of ${\Value_ k}$ to
-${\Value^*}$.
+% Compute ${\policy _k} \in \arg {\max _\policy }T_{}^\policy
+% ({\Value_k})$, a greedy policy with respect to ${\Value_k}$.
+%   \item Partial value iteration:
+
+% Perform ${m_k}$ steps of value iteration, ${\Value_{k + 1}} =
+% {(T_\discount ^{{\policy _k}})^{{m_k}}}({\Value_k})$.
+% \end{itemize}
+
+% This algorithm guarantees convergence of ${\Value_ k}$ to
+% ${\Value^*}$.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\begin{leftbar}
-\section{Linear Program}
-\label{chapter-discount:section:LP}
+% \begin{leftbar}
+% \section{Linear Program}
+% \label{chapter-discount:section:LP}
 
-%[Good idea to add to get them familiar with the notion and notation for the very simple case.]
-
-
-
-%\section{Linear Programming for Finite Horizon}
-In this section we will use linear programming to derive the optimal
-policy for discounted return.
-%
-We will extend the linear programming given in Section
-\ref{C-MDP-FH:sec:LP} from Finite Horizon return to discounted
-return, but the derivation is similar in spirit.
-%
-%[YM: The preliminaries of the Linear Programming should move here
-%from Chapter of discounted return, if we keep this.]
-%
-We will see that both the primal and dual program will play an
-important part in defining the optimal policy. We will fix an
-initial state $\state_0$ and compute the optimal policy for it.
-
-We will start with the primal linear program, which will compute the
-optimal policy. For each state $\state$ and action $\action$ we will
-have a variable $x(\state,\action)$ that will indicate the
-discounted fraction of time we are at state $\state$ and perform
-action $\action$.
-
-To better understand what we mean by the ``discounted fraction of
-time'' consider a fixed policy $\policy$ and a trajectory
-$(\state_0, \ldots )$ generated by $\policy$. Define
-$X^\policy(\state,\action)=\sum_\ttime
-\I(\state_\ttime=\state,\action_\ttime=\action)$, which is a random
-variable. We are interested in
-$x^\policy(\state,\action)=\E[X^\policy(\state,\action)]$ which is
-the expected discounted fraction of time policy $\policy$ is in
-state $\state$ and performs action $\action$. The goal of our linear
-program is to compute $x^{\policy^*}$ for the optimal policy
-$\policy^*$.
-
-Our main constraint will be a flow constraint, stating that the
-discounted fraction of time we reach state $\state$ upper bounds the
-discounted fraction of time we exit it, times the discounted factor.
-Formally, for $\state\in\States$,
-\[
-\I(\state=\state_0)+\sum_{\action} x(\state,\action)\leq \discount
-\sum_{\state',\action'}
-x(\state',\action')\transitionprob(\state|\state'\action').
-\]
-Note that if we sum the inequalities over all states, we have
-\[
-1+\sum_{\state,\action} x(\state,\action)\leq\discount
-\sum_{\state',\action'} x(\state',\action')\sum_\state
-\transitionprob(\state|\state'\action')=\discount \sum_{\state',\action'}
-x(\state',\action').\]
-%
-which implies that $\sum_{\state,\action} x(\state,\action)\leq
-1/(1-\discount)$, as we should expect. Namely, in each time we are
-in some state, therefore the sum over states should be $\sum_\ttime
-\discount^\ttime=1/(1-\discount)$.
-
-The discounted return, which we would like to maximize, is
-$\E[\sum_\ttime
-\discount^\ttime\reward(\state_\ttime,\action_\ttime) ]$. We can
-regroup the sum by state and action and have
-$\sum_{\state,\action}\E[\sum_\ttime
-\discount^\ttime\reward(\state_\ttime,\action_\ttime)\I(\state_\ttime=\state,\action_\ttime=\action)]$,
-which is equivalent to $\sum_{\state,\action}\reward(\state,\action)
-\E[\sum_\ttime
-\discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)]$.
-Now our variable are $x(\state,\action)=\E[\sum_\ttime
-\discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)]$,
-and the expected return would be
-\[
-\sum_{\state,\action} \reward(\state,\action)x(\state,\action)
-\]
+% %[Good idea to add to get them familiar with the notion and notation for the very simple case.]
 
 
-The resulting linear program is the following.
 
-\begin{align*}
-\max_{x(\state,\action)}&\;\;\; \sum_{\state,\action}
-\reward(\state,\action)x(\state,\action)\\
-&\mbox{ such that }\\
-%
-&\I(\state=\state_0)+\sum_{\action} x(\state,\action)\leq \discount
-\sum_{\state',\action'} x(\state',\action')\transitionprob(\state|\state'\action')
-&\quad\forall \state \in {\States}, \action\in\Actions,\\
-%
-% &\sum_{\action}
-%x_{\ttime}(\state,\action)=\sum_{\state',\action'}
-%x_{\ttime-1}(\state',\action')p_{\ttime-1}(\state|\state'\action').
-% &\quad\forall
-%\state \in {\States_{\ttime}}, \action\in\Actions,
-%\ttime\in\T\\
-%
-&x(\state,\action) \geq 0  &\quad\forall \state \in {\States},
-\action\in\Actions,
-\\
-%
-%&x_{\ttime}(\state,\action) \leq 1   &\quad\forall \state \in
-%{\States_{\ttime}}, \action\in\Actions,
-%\ttime\in\{0,\ldots,\tHorizon-1\}\\
-%
-&\sum_{\action}x_{0}(\state_0,\action)=1 &\quad\forall \action\in\Actions,\\
-&x_{0}(\state,\action)=0,  &\quad\forall \state \in {\States},
-\state\neq \state_0\\
-\end{align*}
+% %\section{Linear Programming for Finite Horizon}
+% In this section we will use linear programming to derive the optimal
+% policy for discounted return.
+% %
+% We will extend the linear programming given in Section
+% \ref{C-MDP-FH:sec:LP} from Finite Horizon return to discounted
+% return, but the derivation is similar in spirit.
+% %
+% %[YM: The preliminaries of the Linear Programming should move here
+% %from Chapter of discounted return, if we keep this.]
+% %
+% We will see that both the primal and dual program will play an
+% important part in defining the optimal policy. We will fix an
+% initial state $\state_0$ and compute the optimal policy for it.
 
-Given the primal linear program we can derive the dual linear
-program.
-\begin{align*}
-\min_{z(\state)}  \;z_0(\state_0)&\\
-\mbox{ such that }\\
-%
- z(\state) &\geq
-\reward(\state,\action) + \discount
-\sum_{\state'}z(\state')\transitionprob(\state'|\state,\action) , &\quad\forall
-\state \in {\States},\action\in\Actions, \\ .
-\end{align*}
+% We will start with the primal linear program, which will compute the
+% optimal policy. For each state $\state$ and action $\action$ we will
+% have a variable $x(\state,\action)$ that will indicate the
+% discounted fraction of time we are at state $\state$ and perform
+% action $\action$.
 
-One can identify the dual random variables $z(\state)$ with the
-optimal vale function $\Value(\state)$. At the optimal solution of
-the dual linear program one can show that we have
-\begin{align*}
- z(\state) &= \max_\action \big\{
-\reward(\state,\action) + \discount
-\sum_{\state'}z(\state')p_{\ttime}(\state'|\state,\action) \big\} ,
-&\quad\forall \state \in {\States},
-\end{align*}
-which are the familiar Bellman optimality equations.
+% To better understand what we mean by the ``discounted fraction of
+% time'' consider a fixed policy $\policy$ and a trajectory
+% $(\state_0, \ldots )$ generated by $\policy$. Define
+% $X^\policy(\state,\action)=\sum_\ttime
+% \I(\state_\ttime=\state,\action_\ttime=\action)$, which is a random
+% variable. We are interested in
+% $x^\policy(\state,\action)=\E[X^\policy(\state,\action)]$ which is
+% the expected discounted fraction of time policy $\policy$ is in
+% state $\state$ and performs action $\action$. The goal of our linear
+% program is to compute $x^{\policy^*}$ for the optimal policy
+% $\policy^*$.
 
-%
-%
-%\begin{proposition}
-%The solution $v_\ttime(\state)$ of the linear program is the optimal
-%value function $\Value_{ttime}(\state)$.
-%\end{proposition}
-%
-%\begin{proof}
-%Let $v_\ttime(\state)$ be the solution of the linear program. We
-%will show by back ward induction that the values $v_\ttime(\state)$
-%are identical to $\Value_\ttime(\state)$ of the Finite-horizon
-%Dynamic Programming (Algorithm \ref{Alg:FHDP-DDP}), i.e,
-%$v_\ttime(\state)=\Value_\ttime(\state)$.
-%
-%At $\ttime=\tHorizon$ it holds by the initializations in both cases.
-%Consider $\ttime$ and assume that the inductive hypothesis holds for
-%$\ttime+1$. This implies that for every action $\action\in\Actions$
-%nd state $\state\in\States$, we have
-%\[{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))}=
-%{{\reward_{\ttime}}(\state,\action) + v_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))} .\]
-%Therefore we have
-%$v_\ttime(\state) \geq \Value_\ttime(\state)$. Since we are
-%minimizing over $v_\ttime(\state)$, we have $v_\ttime(\state) \geq
-%\Value_\ttime(\state)$.
-%\end{proof}
+% Our main constraint will be a flow constraint, stating that the
+% discounted fraction of time we reach state $\state$ upper bounds the
+% discounted fraction of time we exit it, times the discounted factor.
+% Formally, for $\state\in\States$,
+% \[
+% \I(\state=\state_0)+\sum_{\action} x(\state,\action)\leq \discount
+% \sum_{\state',\action'}
+% x(\state',\action')\transitionprob(\state|\state'\action').
+% \]
+% Note that if we sum the inequalities over all states, we have
+% \[
+% 1+\sum_{\state,\action} x(\state,\action)\leq\discount
+% \sum_{\state',\action'} x(\state',\action')\sum_\state
+% \transitionprob(\state|\state'\action')=\discount \sum_{\state',\action'}
+% x(\state',\action').\]
+% %
+% which implies that $\sum_{\state,\action} x(\state,\action)\leq
+% 1/(1-\discount)$, as we should expect. Namely, in each time we are
+% in some state, therefore the sum over states should be $\sum_\ttime
+% \discount^\ttime=1/(1-\discount)$.
 
-\end{leftbar}
+% The discounted return, which we would like to maximize, is
+% $\E[\sum_\ttime
+% \discount^\ttime\reward(\state_\ttime,\action_\ttime) ]$. We can
+% regroup the sum by state and action and have
+% $\sum_{\state,\action}\E[\sum_\ttime
+% \discount^\ttime\reward(\state_\ttime,\action_\ttime)\I(\state_\ttime=\state,\action_\ttime=\action)]$,
+% which is equivalent to $\sum_{\state,\action}\reward(\state,\action)
+% \E[\sum_\ttime
+% \discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)]$.
+% Now our variable are $x(\state,\action)=\E[\sum_\ttime
+% \discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)]$,
+% and the expected return would be
+% \[
+% \sum_{\state,\action} \reward(\state,\action)x(\state,\action)
+% \]
 
-\section*{Exercises}
-\input{exercises/MDPs_modified_PI}
-\input{exercises/MDPs_nonlinear_objective}
-\input{exercises/MDPs_Purchasing_with_a_Deadline}
+
+% The resulting linear program is the following.
+
+% \begin{align*}
+% \max_{x(\state,\action)}&\;\;\; \sum_{\state,\action}
+% \reward(\state,\action)x(\state,\action)\\
+% &\mbox{ such that }\\
+% %
+% &\I(\state=\state_0)+\sum_{\action} x(\state,\action)\leq \discount
+% \sum_{\state',\action'} x(\state',\action')\transitionprob(\state|\state'\action')
+% &\quad\forall \state \in {\States}, \action\in\Actions,\\
+% %
+% % &\sum_{\action}
+% %x_{\ttime}(\state,\action)=\sum_{\state',\action'}
+% %x_{\ttime-1}(\state',\action')p_{\ttime-1}(\state|\state'\action').
+% % &\quad\forall
+% %\state \in {\States_{\ttime}}, \action\in\Actions,
+% %\ttime\in\T\\
+% %
+% &x(\state,\action) \geq 0  &\quad\forall \state \in {\States},
+% \action\in\Actions,
+% \\
+% %
+% %&x_{\ttime}(\state,\action) \leq 1   &\quad\forall \state \in
+% %{\States_{\ttime}}, \action\in\Actions,
+% %\ttime\in\{0,\ldots,\tHorizon-1\}\\
+% %
+% &\sum_{\action}x_{0}(\state_0,\action)=1 &\quad\forall \action\in\Actions,\\
+% &x_{0}(\state,\action)=0,  &\quad\forall \state \in {\States},
+% \state\neq \state_0\\
+% \end{align*}
+
+% Given the primal linear program we can derive the dual linear
+% program.
+% \begin{align*}
+% \min_{z(\state)}  \;z_0(\state_0)&\\
+% \mbox{ such that }\\
+% %
+%  z(\state) &\geq
+% \reward(\state,\action) + \discount
+% \sum_{\state'}z(\state')\transitionprob(\state'|\state,\action) , &\quad\forall
+% \state \in {\States},\action\in\Actions, \\ .
+% \end{align*}
+
+% One can identify the dual random variables $z(\state)$ with the
+% optimal vale function $\Value(\state)$. At the optimal solution of
+% the dual linear program one can show that we have
+% \begin{align*}
+%  z(\state) &= \max_\action \big\{
+% \reward(\state,\action) + \discount
+% \sum_{\state'}z(\state')p_{\ttime}(\state'|\state,\action) \big\} ,
+% &\quad\forall \state \in {\States},
+% \end{align*}
+% which are the familiar Bellman optimality equations.
+
+% %
+% %
+% %\begin{proposition}
+% %The solution $v_\ttime(\state)$ of the linear program is the optimal
+% %value function $\Value_{ttime}(\state)$.
+% %\end{proposition}
+% %
+% %\begin{proof}
+% %Let $v_\ttime(\state)$ be the solution of the linear program. We
+% %will show by back ward induction that the values $v_\ttime(\state)$
+% %are identical to $\Value_\ttime(\state)$ of the Finite-horizon
+% %Dynamic Programming (Algorithm \ref{Alg:FHDP-DDP}), i.e,
+% %$v_\ttime(\state)=\Value_\ttime(\state)$.
+% %
+% %At $\ttime=\tHorizon$ it holds by the initializations in both cases.
+% %Consider $\ttime$ and assume that the inductive hypothesis holds for
+% %$\ttime+1$. This implies that for every action $\action\in\Actions$
+% %nd state $\state\in\States$, we have
+% %\[{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))}=
+% %{{\reward_{\ttime}}(\state,\action) + v_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))} .\]
+% %Therefore we have
+% %$v_\ttime(\state) \geq \Value_\ttime(\state)$. Since we are
+% %minimizing over $v_\ttime(\state)$, we have $v_\ttime(\state) \geq
+% %\Value_\ttime(\state)$.
+% %\end{proof}
+
+% \end{leftbar}
+
+% \section{Exercises}
+% \input{exercises/MDPs_modified_PI}
+% \input{exercises/MDPs_nonlinear_objective}
+% \input{exercises/MDPs_Purchasing_with_a_Deadline}

@@ -730,175 +730,175 @@ which is one of the basic Reinforcement Learning algorithms, and
 would be discussed in Chapter~\ref{chapter:learning-model-free}.
 
 
-\begin{leftbar}
-\section{Linear Program}
-\label{C-MDP-FH:sec:LP}
-%[Good idea to add to get them familiar with the notion and notation for the very simple case.]
+% \begin{leftbar}
+% \section{Linear Program}
+% \label{C-MDP-FH:sec:LP}
+% %[Good idea to add to get them familiar with the notion and notation for the very simple case.]
 
 
 
-%\section{Linear Programming for Finite Horizon}
+% %\section{Linear Programming for Finite Horizon}
 
-In this section we will extend the linear programming given in
-Section \ref{sec:ddp-FH-LP} from Deterministic Decision Processes to
-Markov Decision Processes. The derivation is almost identical and
-the difference is that replacing the deterministic next state
-$f_\ttime(\state,\action)$ by an expectation over $\state'$, such
-that each $\state'$ has a probability
-$p_\ttime(\state'|\state,\action)$. For completeness we do it in a
-detailed way.
+% In this section we will extend the linear programming given in
+% Section \ref{sec:ddp-FH-LP} from Deterministic Decision Processes to
+% Markov Decision Processes. The derivation is almost identical and
+% the difference is that replacing the deterministic next state
+% $f_\ttime(\state,\action)$ by an expectation over $\state'$, such
+% that each $\state'$ has a probability
+% $p_\ttime(\state'|\state,\action)$. For completeness we do it in a
+% detailed way.
 
-%[I think we should drop the remaining part of the section, maybe
-%leave on the linear programs]
+% %[I think we should drop the remaining part of the section, maybe
+% %leave on the linear programs]
 
-%[YM: The preliminaries of the Linear Programming should move here
-%from Chapter of discounted return, if we keep this.]
+% %[YM: The preliminaries of the Linear Programming should move here
+% %from Chapter of discounted return, if we keep this.]
 
-%In this section we will use linear programming to derive the optimal policy.
-%
-We will see that both the primal and dual program will play
-an important part in defining the optimal policy. We will fix an
-initial state $\state_0$ and compute the optimal policy for it.
+% %In this section we will use linear programming to derive the optimal policy.
+% %
+% We will see that both the primal and dual program will play
+% an important part in defining the optimal policy. We will fix an
+% initial state $\state_0$ and compute the optimal policy for it.
 
-We will start with the primal linear program, which will compute the
-optimal policy. For each time $\ttime$, state $\state$ and action
-$\action$ we will have a variable
-$x_{\ttime}(\state,\action)\in[0,1]$ that will indicate by
-probability that at time $\ttime$ we are at state $\state$ and
-perform action $\action$. For the terminal states $\state$ we will
-have a variable $x_{\tHorizon}(\state)\in[0,1]$ that will indicate
-whether the probability that we terminate at state $\state$.
+% We will start with the primal linear program, which will compute the
+% optimal policy. For each time $\ttime$, state $\state$ and action
+% $\action$ we will have a variable
+% $x_{\ttime}(\state,\action)\in[0,1]$ that will indicate by
+% probability that at time $\ttime$ we are at state $\state$ and
+% perform action $\action$. For the terminal states $\state$ we will
+% have a variable $x_{\tHorizon}(\state)\in[0,1]$ that will indicate
+% whether the probability that we terminate at state $\state$.
 
-Our main constraint will be a flow constraint, stating that the
-probability mass that leaves a state $\state$ at time $\ttime$ is
-bounded by the probability mass of reaching state $\state$ at time
-$\ttime-1$.
-%
-Formally,
-\[
-\sum_{\action} x_{\ttime}(\state,\action)\leq
-\sum_{\state',\action'}
-x_{\ttime-1}(\state',\action')p_{\ttime-1}(\state|\state'\action').
-\]
-and for terminal states simply
-\[
-x_{\tHorizon}(\state)\leq\sum_{\state',\action'}
-x_{\tHorizon-1}(\state',\action')p_{\tHorizon-1}(\state|\state',\action')
-\]
-The return, which we would like to maximize, would be
-\[
-\sum_{\ttime,\state,\action}
-\reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)
-\]
-%To have a linear program we will also need to relax the constraints
-%of $\{0,1\}$ to $[0,1]$
+% Our main constraint will be a flow constraint, stating that the
+% probability mass that leaves a state $\state$ at time $\ttime$ is
+% bounded by the probability mass of reaching state $\state$ at time
+% $\ttime-1$.
+% %
+% Formally,
+% \[
+% \sum_{\action} x_{\ttime}(\state,\action)\leq
+% \sum_{\state',\action'}
+% x_{\ttime-1}(\state',\action')p_{\ttime-1}(\state|\state'\action').
+% \]
+% and for terminal states simply
+% \[
+% x_{\tHorizon}(\state)\leq\sum_{\state',\action'}
+% x_{\tHorizon-1}(\state',\action')p_{\tHorizon-1}(\state|\state',\action')
+% \]
+% The return, which we would like to maximize, would be
+% \[
+% \sum_{\ttime,\state,\action}
+% \reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)
+% \]
+% %To have a linear program we will also need to relax the constraints
+% %of $\{0,1\}$ to $[0,1]$
 
-%\begin{align*}
-%\min_{v_\ttime(\state)}  \;\sum_{\ttime=0}^{\tHorizon}
-%v_\ttime(\state)&\\
-%\mbox{ such that }\\
-%\Value_{\tHorizon}^{}(\state) &= \reward_{\tHorizon}(\state)
-%\quad\forall
-%\state \in {\States_{\ttime}}\\
-% \Value_{\ttime}^{}(\state) &\geq
-%{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))} , \quad\forall \state \in
-%{\States_{\ttime}},\action\in\Actions
-%\ttime\in\{0,\ldots,\tHorizon-1\},\\ .
-%\end{align*}
+% %\begin{align*}
+% %\min_{v_\ttime(\state)}  \;\sum_{\ttime=0}^{\tHorizon}
+% %v_\ttime(\state)&\\
+% %\mbox{ such that }\\
+% %\Value_{\tHorizon}^{}(\state) &= \reward_{\tHorizon}(\state)
+% %\quad\forall
+% %\state \in {\States_{\ttime}}\\
+% % \Value_{\ttime}^{}(\state) &\geq
+% %{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))} , \quad\forall \state \in
+% %{\States_{\ttime}},\action\in\Actions
+% %\ttime\in\{0,\ldots,\tHorizon-1\},\\ .
+% %\end{align*}
 
-The resulting linear program is the following.
+% The resulting linear program is the following.
 
-\begin{align*}
-\max_{x_\ttime(\state,\action),x_{\tHorizon}(\state)}&\;\;\;
-\sum_{\ttime,\state,\action}
-\reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)\\
-&\mbox{ such that }\\
-&\sum_{\action} x_{\ttime}(\state,\action)\leq
-\sum_{\state',\action'}
-x_{\ttime-1}(\state',\action')p_{\ttime-1}(\state|\state'\action').
- &\quad\forall
-\state \in {\States_{\ttime}},
-\ttime\in\T\\
-&x_{\tHorizon}(\state)\leq \sum_{\state',\action'}
-x_{\tHorizon-1}(\state',\action')p_{\tHorizon-1}(\state|\state'\action')
-&\quad\forall \state \in
-{\States_{\tHorizon}}\\
-&x_{\ttime}(\state,\action) \geq 0  &\quad\forall \state \in
-{\States_{\ttime}}, \action\in\Actions,
-\ttime\in\{0,\ldots,\tHorizon-1\}\\
-%&x_{\ttime}(\state,\action) \leq 1   &\quad\forall \state \in
-%{\States_{\ttime}}, \action\in\Actions,
-%\ttime\in\{0,\ldots,\tHorizon-1\}\\
-&\sum_{\action}x_{0}(\state_0,\action)=1\\
-&x_{0}(\state,\action)=0,  &\quad\forall \state \in {\States_{0}},
-\state\neq \state_0\\
-\end{align*}
+% \begin{align*}
+% \max_{x_\ttime(\state,\action),x_{\tHorizon}(\state)}&\;\;\;
+% \sum_{\ttime,\state,\action}
+% \reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)\\
+% &\mbox{ such that }\\
+% &\sum_{\action} x_{\ttime}(\state,\action)\leq
+% \sum_{\state',\action'}
+% x_{\ttime-1}(\state',\action')p_{\ttime-1}(\state|\state'\action').
+%  &\quad\forall
+% \state \in {\States_{\ttime}},
+% \ttime\in\T\\
+% &x_{\tHorizon}(\state)\leq \sum_{\state',\action'}
+% x_{\tHorizon-1}(\state',\action')p_{\tHorizon-1}(\state|\state'\action')
+% &\quad\forall \state \in
+% {\States_{\tHorizon}}\\
+% &x_{\ttime}(\state,\action) \geq 0  &\quad\forall \state \in
+% {\States_{\ttime}}, \action\in\Actions,
+% \ttime\in\{0,\ldots,\tHorizon-1\}\\
+% %&x_{\ttime}(\state,\action) \leq 1   &\quad\forall \state \in
+% %{\States_{\ttime}}, \action\in\Actions,
+% %\ttime\in\{0,\ldots,\tHorizon-1\}\\
+% &\sum_{\action}x_{0}(\state_0,\action)=1\\
+% &x_{0}(\state,\action)=0,  &\quad\forall \state \in {\States_{0}},
+% \state\neq \state_0\\
+% \end{align*}
 
-At first sight it is surprising that we do not impose that
-$x_{\ttime}(\state,\action) \leq 1 $, however this is implicit in
-the program. Let $\Phi(\ttime)= \sum_{\state,\action}
-x_{\ttime}(\state,\action)$. From the initial conditions we have
-that $\Phi(0)=1$. When we sum over the state the flow condition
-(first inequality) we have that $\Phi(\ttime)\leq\Phi(\ttime-1)$.
-This implies that $\Phi(\ttime)\leq 1$.
+% At first sight it is surprising that we do not impose that
+% $x_{\ttime}(\state,\action) \leq 1 $, however this is implicit in
+% the program. Let $\Phi(\ttime)= \sum_{\state,\action}
+% x_{\ttime}(\state,\action)$. From the initial conditions we have
+% that $\Phi(0)=1$. When we sum over the state the flow condition
+% (first inequality) we have that $\Phi(\ttime)\leq\Phi(\ttime-1)$.
+% This implies that $\Phi(\ttime)\leq 1$.
 
-Given the primal linear program we can derive the dual linear
-program.
-\begin{align*}
-\min_{z_\ttime(\state)}  \;z_0(\state_0)&\\
-\mbox{ such that }\\
-z_{\tHorizon}(\state) &= \reward_{\tHorizon}(\state) &\quad\forall
-\state \in {\States_{\ttime}}\\
- z_{\ttime}(\state) &\geq
-\reward_{\ttime}(\state,\action) + \sum_{\state'}z_{\ttime +
-1}(\state')p_{\ttime}(\state'|\state,\action) , &\quad\forall \state
-\in {\States_{\ttime}},\action\in\Actions, \ttime\in\T,\\ .
-\end{align*}
+% Given the primal linear program we can derive the dual linear
+% program.
+% \begin{align*}
+% \min_{z_\ttime(\state)}  \;z_0(\state_0)&\\
+% \mbox{ such that }\\
+% z_{\tHorizon}(\state) &= \reward_{\tHorizon}(\state) &\quad\forall
+% \state \in {\States_{\ttime}}\\
+%  z_{\ttime}(\state) &\geq
+% \reward_{\ttime}(\state,\action) + \sum_{\state'}z_{\ttime +
+% 1}(\state')p_{\ttime}(\state'|\state,\action) , &\quad\forall \state
+% \in {\States_{\ttime}},\action\in\Actions, \ttime\in\T,\\ .
+% \end{align*}
 
-One can identify the dual random variables $z_\ttime(\state)$ with
-the optimal vale function $\Value_\ttime(\state)$. At the optimal
-solution of the dual linear program one can show that we have
-\begin{align*}
- z_{\ttime}(\state) &= \max_\action \big\{
-\reward_{\ttime}(\state,\action) + \sum_{\state'}z_{\ttime +
-1}(\state')p_{\ttime}(\state'|\state,\action) \big\} , &\quad\forall
-\state \in {\States_{\ttime}}, \ttime\in\T,
-\end{align*}
-which are the familiar Bellman optimality equations.
+% One can identify the dual random variables $z_\ttime(\state)$ with
+% the optimal vale function $\Value_\ttime(\state)$. At the optimal
+% solution of the dual linear program one can show that we have
+% \begin{align*}
+%  z_{\ttime}(\state) &= \max_\action \big\{
+% \reward_{\ttime}(\state,\action) + \sum_{\state'}z_{\ttime +
+% 1}(\state')p_{\ttime}(\state'|\state,\action) \big\} , &\quad\forall
+% \state \in {\States_{\ttime}}, \ttime\in\T,
+% \end{align*}
+% which are the familiar Bellman optimality equations.
 
-%[[Maybe we need a proof?]]
-%(Formally, we need to show this by induction on $\ttime$
+% %[[Maybe we need a proof?]]
+% %(Formally, we need to show this by induction on $\ttime$
 
-%
-%
-%\begin{proposition}
-%The solution $v_\ttime(\state)$ of the linear program is the optimal
-%value function $\Value_{ttime}(\state)$.
-%\end{proposition}
-%
-%\begin{proof}
-%Let $v_\ttime(\state)$ be the solution of the linear program. We
-%will show by back ward induction that the values $v_\ttime(\state)$
-%are identical to $\Value_\ttime(\state)$ of the Finite-horizon
-%Dynamic Programming (Algorithm \ref{Alg:FHDP-DDP}), i.e,
-%$v_\ttime(\state)=\Value_\ttime(\state)$.
-%
-%At $\ttime=\tHorizon$ it holds by the initializations in both cases.
-%Consider $\ttime$ and assume that the inductive hypothesis holds for
-%$\ttime+1$. This implies that for every action $\action\in\Actions$
-%nd state $\state\in\States$, we have
-%\[{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))}=
-%{{\reward_{\ttime}}(\state,\action) + v_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))} .\]
-%Therefore we have
-%$v_\ttime(\state) \geq \Value_\ttime(\state)$. Since we are
-%minimizing over $v_\ttime(\state)$, we have $v_\ttime(\state) \geq
-%\Value_\ttime(\state)$.
-%\end{proof}
+% %
+% %
+% %\begin{proposition}
+% %The solution $v_\ttime(\state)$ of the linear program is the optimal
+% %value function $\Value_{ttime}(\state)$.
+% %\end{proposition}
+% %
+% %\begin{proof}
+% %Let $v_\ttime(\state)$ be the solution of the linear program. We
+% %will show by back ward induction that the values $v_\ttime(\state)$
+% %are identical to $\Value_\ttime(\state)$ of the Finite-horizon
+% %Dynamic Programming (Algorithm \ref{Alg:FHDP-DDP}), i.e,
+% %$v_\ttime(\state)=\Value_\ttime(\state)$.
+% %
+% %At $\ttime=\tHorizon$ it holds by the initializations in both cases.
+% %Consider $\ttime$ and assume that the inductive hypothesis holds for
+% %$\ttime+1$. This implies that for every action $\action\in\Actions$
+% %nd state $\state\in\States$, we have
+% %\[{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))}=
+% %{{\reward_{\ttime}}(\state,\action) + v_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))} .\]
+% %Therefore we have
+% %$v_\ttime(\state) \geq \Value_\ttime(\state)$. Since we are
+% %minimizing over $v_\ttime(\state)$, we have $v_\ttime(\state) \geq
+% %\Value_\ttime(\state)$.
+% %\end{proof}
 
-\end{leftbar}
+% \end{leftbar}
 
 
 %\paragraph{To summarize:}

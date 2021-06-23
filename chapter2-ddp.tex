@@ -295,8 +295,8 @@ only influence on the cumulative cost is the expected instantaneous
 cost $\E[\cost_\ttime(\state_\ttime,\action_\ttime)]$. Namely, let
 \[
 \rho^\policy_\ttime(\state,\action)=\Pr_{\history'_{\ttime-1}}
-[\action_\ttime=\action,\state_\ttime=s]=\E_{\history'_{\ttime-1}}[\I
-[\state_\ttime=s,\action_\ttime=a]| \history'_{\ttime-1}],
+[\action_\ttime=\action,\state_\ttime=\state]=\E_{\history'_{\ttime-1}}[\I
+[\state_\ttime=\state,\action_\ttime=\action]| \history'_{\ttime-1}],
 \]
 where
 $\history'_{\ttime-1}=(\state_0,\action_0,\ldots,\state_{t-1},\action_{t-1})$
@@ -711,147 +711,147 @@ in speech recognition and bioinformatics, among other areas.
 % +|E|)$
 % \end{enumerate}
 
-\begin{leftbar}
+% \begin{leftbar}
 
-\section{Linear Programming for Finite Horizon}
-\label{sec:ddp-FH-LP}
+% \section{Linear Programming for Finite Horizon}
+% \label{sec:ddp-FH-LP}
 
-%[YM: The preliminaries of the Linear Programming should move here
-%from Chapter of discounted return, if we keep this.]
+% %[YM: The preliminaries of the Linear Programming should move here
+% %from Chapter of discounted return, if we keep this.]
 
-In this section we will use linear programming to derive the optimal
-policy. We will see that both the primal and dual program will play
-an important part in defining the optimal policy. We will fix an
-initial state $\state_0$ and compute the optimal policy for it.
+% In this section we will use linear programming to derive the optimal
+% policy. We will see that both the primal and dual program will play
+% an important part in defining the optimal policy. We will fix an
+% initial state $\state_0$ and compute the optimal policy for it.
 
-We will start with the primal linear program, which will compute the
-optimal policy. For each time $\ttime$, state $\state$ and action
-$\action$ we will have a variable $x_{\ttime}(\state,\action)\in\{0,1\}$ that
-will indicate by $1$ that at time $\ttime$ we are at state $\state$
-and perform action $\action$. For the terminal states $\state$ we
-will have a variable $x_{\tHorizon}(\state)\in\{0,1\}$ that will
-indicate whether we terminate at state $\state$.
+% We will start with the primal linear program, which will compute the
+% optimal policy. For each time $\ttime$, state $\state$ and action
+% $\action$ we will have a variable $x_{\ttime}(\state,\action)\in\{0,1\}$ that
+% will indicate by $1$ that at time $\ttime$ we are at state $\state$
+% and perform action $\action$. For the terminal states $\state$ we
+% will have a variable $x_{\tHorizon}(\state)\in\{0,1\}$ that will
+% indicate whether we terminate at state $\state$.
 
-Our main constraint will be a flow constraint, stating that if we
-reach state $\state$ at time $\ttime-1$ then we exit it at time
-$\ttime$. Formally,
-\[
-\sum_{\action}
-x_{\ttime}(\state,\action)=\sum_{\state',\action':f_{\ttime-1}(\state',\action')=\state}
-x_{\ttime-1}(\state',\action').
-\]
-and for terminal states simply
-\[
-x_{\tHorizon}(\state)=\sum_{\state',\action':f_{\tHorizon-1}(\state',\action')=\state}
-x_{\tHorizon-1}(\state',\action')
-\]
-The return, which we would like to maximize, would be
-\[
-\sum_{\ttime,\state,\action}
-\reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)
-\]
-To have a linear program we will need to relax the constraints of
-$\{0,1\}$ to $[0,1]$
+% Our main constraint will be a flow constraint, stating that if we
+% reach state $\state$ at time $\ttime-1$ then we exit it at time
+% $\ttime$. Formally,
+% \[
+% \sum_{\action}
+% x_{\ttime}(\state,\action)=\sum_{\state',\action':f_{\ttime-1}(\state',\action')=\state}
+% x_{\ttime-1}(\state',\action').
+% \]
+% and for terminal states simply
+% \[
+% x_{\tHorizon}(\state)=\sum_{\state',\action':f_{\tHorizon-1}(\state',\action')=\state}
+% x_{\tHorizon-1}(\state',\action')
+% \]
+% The return, which we would like to maximize, would be
+% \[
+% \sum_{\ttime,\state,\action}
+% \reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)
+% \]
+% To have a linear program we will need to relax the constraints of
+% $\{0,1\}$ to $[0,1]$
 
-%\begin{align*}
-%\min_{v_\ttime(\state)}  \;\sum_{\ttime=0}^{\tHorizon}
-%v_\ttime(\state)&\\
-%\mbox{ such that }\\
-%\Value_{\tHorizon}^{}(\state) &= \reward_{\tHorizon}(\state)
-%\quad\forall
-%\state \in {\States_{\ttime}}\\
-% \Value_{\ttime}^{}(\state) &\geq
-%{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))} , \quad\forall \state \in
-%{\States_{\ttime}},\action\in\Actions
-%\ttime\in\{0,\ldots,\tHorizon-1\},\\ .
-%\end{align*}
+% %\begin{align*}
+% %\min_{v_\ttime(\state)}  \;\sum_{\ttime=0}^{\tHorizon}
+% %v_\ttime(\state)&\\
+% %\mbox{ such that }\\
+% %\Value_{\tHorizon}^{}(\state) &= \reward_{\tHorizon}(\state)
+% %\quad\forall
+% %\state \in {\States_{\ttime}}\\
+% % \Value_{\ttime}^{}(\state) &\geq
+% %{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))} , \quad\forall \state \in
+% %{\States_{\ttime}},\action\in\Actions
+% %\ttime\in\{0,\ldots,\tHorizon-1\},\\ .
+% %\end{align*}
 
-The resulting linear program is the following.
+% The resulting linear program is the following.
 
-\begin{align*}
-\max_{x_\ttime(\state,\action),x_{\tHorizon}(\state)}&\;\;\;
-\sum_{\ttime,\state,\action}
-\reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)\\
-&\mbox{ such that }\\
-&\sum_{\action}
-x_{\ttime}(\state,\action)=\sum_{\state',\action':f_{\ttime-1}(\state',\action')=\state}
-x_{\ttime-1}(\state',\action').
- &\quad\forall
-\state \in {\States_{\ttime}},
-\ttime\in\T\\
-&x_{\tHorizon}(\state)=\sum_{\state',\action':f_{\tHorizon-1}(\state',\action')=\state}
-x_{\tHorizon-1}(\state',\action') &\quad\forall \state \in
-{\States_{\tHorizon}}\\
-&x_{\ttime}(\state,\action) \geq 0  &\quad\forall \state \in
-{\States_{\ttime}}, \action\in\Actions,
-\ttime\in\{0,\ldots,\tHorizon-1\}\\
-%&x_{\ttime}(\state,\action) \leq 1   &\quad\forall \state \in
-%{\States_{\ttime}}, \action\in\Actions,
-%\ttime\in\{0,\ldots,\tHorizon-1\}\\
-&\sum_{\action}x_{0}(\state_0,\action)=1\\
-&x_{0}(\state,\action)=0,  &\quad\forall \state \in {\States_{0}},
-\state\neq \state_0\\
-\end{align*}
+% \begin{align*}
+% \max_{x_\ttime(\state,\action),x_{\tHorizon}(\state)}&\;\;\;
+% \sum_{\ttime,\state,\action}
+% \reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)\\
+% &\mbox{ such that }\\
+% &\sum_{\action}
+% x_{\ttime}(\state,\action)=\sum_{\state',\action':f_{\ttime-1}(\state',\action')=\state}
+% x_{\ttime-1}(\state',\action').
+%  &\quad\forall
+% \state \in {\States_{\ttime}},
+% \ttime\in\T\\
+% &x_{\tHorizon}(\state)=\sum_{\state',\action':f_{\tHorizon-1}(\state',\action')=\state}
+% x_{\tHorizon-1}(\state',\action') &\quad\forall \state \in
+% {\States_{\tHorizon}}\\
+% &x_{\ttime}(\state,\action) \geq 0  &\quad\forall \state \in
+% {\States_{\ttime}}, \action\in\Actions,
+% \ttime\in\{0,\ldots,\tHorizon-1\}\\
+% %&x_{\ttime}(\state,\action) \leq 1   &\quad\forall \state \in
+% %{\States_{\ttime}}, \action\in\Actions,
+% %\ttime\in\{0,\ldots,\tHorizon-1\}\\
+% &\sum_{\action}x_{0}(\state_0,\action)=1\\
+% &x_{0}(\state,\action)=0,  &\quad\forall \state \in {\States_{0}},
+% \state\neq \state_0\\
+% \end{align*}
 
-Note that we (implicitly) have
-$\sum_{\action\in\Actions,\state\in\States_{\ttime}}
-x_{\ttime}(\state,\action)=1$, and we can prove it by induction on
-$\ttime$.
+% Note that we (implicitly) have
+% $\sum_{\action\in\Actions,\state\in\States_{\ttime}}
+% x_{\ttime}(\state,\action)=1$, and we can prove it by induction on
+% $\ttime$.
 
-Given the primal linear program we can derive the dual linear
-program.
-\begin{align*}
-\min_{z_\ttime(\state)}  \;z_0(\state_0)&\\
-\mbox{ such that }\\
-z_{\tHorizon}(\state) &= \reward_{\tHorizon}(\state) &\quad\forall
-\state \in {\States_{\ttime}}\\
- z_{\ttime}(\state) &\geq
-{{\reward_{\ttime}}(\state,\action) + z_{\ttime +
-1}^{}({f_{\ttime}}(\state,\action))} , &\quad\forall \state \in
-{\States_{\ttime}},\action\in\Actions, \ttime\in\T,\\ .
-\end{align*}
+% Given the primal linear program we can derive the dual linear
+% program.
+% \begin{align*}
+% \min_{z_\ttime(\state)}  \;z_0(\state_0)&\\
+% \mbox{ such that }\\
+% z_{\tHorizon}(\state) &= \reward_{\tHorizon}(\state) &\quad\forall
+% \state \in {\States_{\ttime}}\\
+%  z_{\ttime}(\state) &\geq
+% {{\reward_{\ttime}}(\state,\action) + z_{\ttime +
+% 1}^{}({f_{\ttime}}(\state,\action))} , &\quad\forall \state \in
+% {\States_{\ttime}},\action\in\Actions, \ttime\in\T,\\ .
+% \end{align*}
 
-One can identify the dual random variables $z_\ttime(\state)$ with
-the optimal value function $\Value_\ttime(\state)$. At the optimal
-solution of the dual linear program one can show that we have
-\begin{align*}
- z_{\ttime}(\state) &= \max_\action \big\{
-{{\reward_{\ttime}}(\state,\action) + z_{\ttime +
-1}^{}({f_{\ttime}}(\state,\action))} \big\} , &\quad\forall \state
-\in {\States_{\ttime}}, \ttime\in\T,
-\end{align*}
-which is the familiar Bellman optimality equations.
+% One can identify the dual random variables $z_\ttime(\state)$ with
+% the optimal value function $\Value_\ttime(\state)$. At the optimal
+% solution of the dual linear program one can show that we have
+% \begin{align*}
+%  z_{\ttime}(\state) &= \max_\action \big\{
+% {{\reward_{\ttime}}(\state,\action) + z_{\ttime +
+% 1}^{}({f_{\ttime}}(\state,\action))} \big\} , &\quad\forall \state
+% \in {\States_{\ttime}}, \ttime\in\T,
+% \end{align*}
+% which is the familiar Bellman optimality equations.
 
-%
-%
-%\begin{proposition}
-%The solution $v_\ttime(\state)$ of the linear program is the optimal
-%value function $\Value_{ttime}(\state)$.
-%\end{proposition}
-%
-%\begin{proof}
-%Let $v_\ttime(\state)$ be the solution of the linear program. We
-%will show by back ward induction that the values $v_\ttime(\state)$
-%are identical to $\Value_\ttime(\state)$ of the Finite-horizon
-%Dynamic Programming (Algorithm \ref{Alg:FHDP-DDP}), i.e,
-%$v_\ttime(\state)=\Value_\ttime(\state)$.
-%
-%At $\ttime=\tHorizon$ it holds by the initializations in both cases.
-%Consider $\ttime$ and assume that the inductive hypothesis holds for
-%$\ttime+1$. This implies that for every action $\action\in\Actions$
-%nd state $\state\in\States$, we have
-%\[{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))}=
-%{{\reward_{\ttime}}(\state,\action) + v_{\ttime +
-%1}^{}({f_{\ttime}}(\state,\action))} .\]
-%Therefore we have
-%$v_\ttime(\state) \geq \Value_\ttime(\state)$. Since we are
-%minimizing over $v_\ttime(\state)$, we have $v_\ttime(\state) \geq
-%\Value_\ttime(\state)$.
-%\end{proof}
+% %
+% %
+% %\begin{proposition}
+% %The solution $v_\ttime(\state)$ of the linear program is the optimal
+% %value function $\Value_{ttime}(\state)$.
+% %\end{proposition}
+% %
+% %\begin{proof}
+% %Let $v_\ttime(\state)$ be the solution of the linear program. We
+% %will show by back ward induction that the values $v_\ttime(\state)$
+% %are identical to $\Value_\ttime(\state)$ of the Finite-horizon
+% %Dynamic Programming (Algorithm \ref{Alg:FHDP-DDP}), i.e,
+% %$v_\ttime(\state)=\Value_\ttime(\state)$.
+% %
+% %At $\ttime=\tHorizon$ it holds by the initializations in both cases.
+% %Consider $\ttime$ and assume that the inductive hypothesis holds for
+% %$\ttime+1$. This implies that for every action $\action\in\Actions$
+% %nd state $\state\in\States$, we have
+% %\[{{\reward_{\ttime}}(\state,\action) + \Value_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))}=
+% %{{\reward_{\ttime}}(\state,\action) + v_{\ttime +
+% %1}^{}({f_{\ttime}}(\state,\action))} .\]
+% %Therefore we have
+% %$v_\ttime(\state) \geq \Value_\ttime(\state)$. Since we are
+% %minimizing over $v_\ttime(\state)$, we have $v_\ttime(\state) \geq
+% %\Value_\ttime(\state)$.
+% %\end{proof}
 
-\end{leftbar}
+% \end{leftbar}
 
 
 
@@ -1287,43 +1287,43 @@ Substituting back $\action_\ttime^*$ in the expression for $\Value_\ttime(\state
 
 From the construction in the proof of Proposition \ref{prop:lqr} one can recover the sequence of optimal controllers $\action_\ttime^*$. By substituting the optimal controls in the forward dynamics equation, one can also recover the optimal state trajectory.
 
-\begin{leftbar}
-\subsection*{Full Derivation for Scalar Case}
-For the sake of clarity, we first present a derivation for the case of a scalar state and action. The derivation for the general setting follows along similar lines, and is described afterward.
+% \begin{leftbar}
+% \subsection*{Full Derivation for Scalar Case}
+% For the sake of clarity, we first present a derivation for the case of a scalar state and action. The derivation for the general setting follows along similar lines, and is described afterward.
 
-Consider the problem:
-\begin{equation}\label{eq:lqr_scalar}
-    \begin{split}
-        \min_{\action_0,\dots,\action_{\tHorizon}} & \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime), \\
-        s.t. \quad & {\state_{\ttime+1}} = A_\ttime \state_\ttime + B_\ttime \action_\ttime, \\
-        & \cost_\ttime = Q_\ttime \state_\ttime^2 + R_\ttime \action_\ttime^2, \quad \forall \ttime=0,\dots,\tHorizon-1, \\
-        & \cost_\tHorizon = Q_\tHorizon \state_\ttime^2.
-    \end{split}
-\end{equation}
-where $\state_0$ is given, and $Q_\ttime=Q_\ttime^\top \geq 0$, $R_\ttime = R_\ttime^\top > 0 $ are state-cost and control-cost scalars.
+% Consider the problem:
+% \begin{equation}\label{eq:lqr_scalar}
+%     \begin{split}
+%         \min_{\action_0,\dots,\action_{\tHorizon}} & \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime), \\
+%         s.t. \quad & {\state_{\ttime+1}} = A_\ttime \state_\ttime + B_\ttime \action_\ttime, \\
+%         & \cost_\ttime = Q_\ttime \state_\ttime^2 + R_\ttime \action_\ttime^2, \quad \forall \ttime=0,\dots,\tHorizon-1, \\
+%         & \cost_\tHorizon = Q_\tHorizon \state_\ttime^2.
+%     \end{split}
+% \end{equation}
+% where $\state_0$ is given, and $Q_\ttime=Q_\ttime^\top \geq 0$, $R_\ttime = R_\ttime^\top > 0 $ are state-cost and control-cost scalars.
 
-We will solve Problem \ref{eq:lqr_scalar} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttime$, that is, $\Value_\ttime(\state) = \min_{\action_\ttime,\dots,\action_\tHorizon} \sum_{\ttime'=\ttime}^\tHorizon \cost_{\ttime'}(\state_{\ttime'}, \action_{\ttime'}) \quad \textrm{s.t.} \quad \state_\ttime = \state$. 
+% We will solve Problem \ref{eq:lqr_scalar} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttime$, that is, $\Value_\ttime(\state) = \min_{\action_\ttime,\dots,\action_\tHorizon} \sum_{\ttime'=\ttime}^\tHorizon \cost_{\ttime'}(\state_{\ttime'}, \action_{\ttime'}) \quad \textrm{s.t.} \quad \state_\ttime = \state$. 
 
-\paragraph{Proposition:}
-The value function has a quadratic form: $\Value_\ttime(\state) = P_\ttime \state^2$. 
+% \paragraph{Proposition:}
+% The value function has a quadratic form: $\Value_\ttime(\state) = P_\ttime \state^2$. 
 
-\begin{proof}
-We prove by induction. For $\ttime=\tHorizon$, this holds by definition, as $\Value_\tHorizon(\state) = Q_\tHorizon \state^2$. Now, assume that $\Value_{\ttime+1}(\state) = P_{\ttime+1} \state^2$. We have that 
-\begin{equation*}
-\begin{split}
-        \Value_\ttime(\state) &= \min_{\action_\ttime} Q_\ttime \state^2 + R_\ttime \action_\ttime^2 + \Value_{\ttime+1}(A_\ttime \state + B_\ttime \action_\ttime) \\
-        &= \min_{\action_\ttime} Q_\ttime \state^2 + R_\ttime \action_\ttime^2 + P_{\ttime+1} (A_\ttime \state + B_\ttime \action_\ttime)^2 \\
-        &= Q_\ttime \state^2 + P_{\ttime+1} (A_\ttime \state)^2 + \min_{\action_\ttime} \left((R_\ttime + P_{\ttime+1} B_\ttime^2) \action_\ttime^2 + 2A_\ttime \state P_{\ttime+1} B_\ttime \action_\ttime\right)
-\end{split}
-\end{equation*}
-The objective is quadratic in $\action_\ttime$, and solving the minimization gives 
-$$\action_\ttime^* = -(R_\ttime + P_{\ttime+1} B_\ttime^2)^{-1} B_\ttime P_{\ttime+1} A_\ttime \state. $$ 
-Substituting back $\action_\ttime^*$ in the expression for $\Value_\ttime(\state)$ gives a quadratic expression in $\state$:
-$$
-\Value_\ttime(\state) = (Q_\ttime + P_{\ttime+1}A_\ttime^2 -B_\ttime^2 P_{\ttime+1}^2 A_\ttime^2 (R_\ttime + P_{\ttime+1} B_\ttime^2)^{-1}) \state^2. 
-$$
-\end{proof}
-\end{leftbar}
+% \begin{proof}
+% We prove by induction. For $\ttime=\tHorizon$, this holds by definition, as $\Value_\tHorizon(\state) = Q_\tHorizon \state^2$. Now, assume that $\Value_{\ttime+1}(\state) = P_{\ttime+1} \state^2$. We have that 
+% \begin{equation*}
+% \begin{split}
+%         \Value_\ttime(\state) &= \min_{\action_\ttime} Q_\ttime \state^2 + R_\ttime \action_\ttime^2 + \Value_{\ttime+1}(A_\ttime \state + B_\ttime \action_\ttime) \\
+%         &= \min_{\action_\ttime} Q_\ttime \state^2 + R_\ttime \action_\ttime^2 + P_{\ttime+1} (A_\ttime \state + B_\ttime \action_\ttime)^2 \\
+%         &= Q_\ttime \state^2 + P_{\ttime+1} (A_\ttime \state)^2 + \min_{\action_\ttime} \left((R_\ttime + P_{\ttime+1} B_\ttime^2) \action_\ttime^2 + 2A_\ttime \state P_{\ttime+1} B_\ttime \action_\ttime\right)
+% \end{split}
+% \end{equation*}
+% The objective is quadratic in $\action_\ttime$, and solving the minimization gives 
+% $$\action_\ttime^* = -(R_\ttime + P_{\ttime+1} B_\ttime^2)^{-1} B_\ttime P_{\ttime+1} A_\ttime \state. $$ 
+% Substituting back $\action_\ttime^*$ in the expression for $\Value_\ttime(\state)$ gives a quadratic expression in $\state$:
+% $$
+% \Value_\ttime(\state) = (Q_\ttime + P_{\ttime+1}A_\ttime^2 -B_\ttime^2 P_{\ttime+1}^2 A_\ttime^2 (R_\ttime + P_{\ttime+1} B_\ttime^2)^{-1}) \state^2. 
+% $$
+% \end{proof}
+% \end{leftbar}
 
 \paragraph{Remarks:}
 \begin{enumerate}
@@ -1368,19 +1368,19 @@ The iterative LQR algorithm works by applying this approximation iteratively:
 
 In practice, the iLQR algorithm is typically much more stable and efficient than the gradient descent approach.
 
-\section{Historical Notes:}
-\begin{itemize}
-  \item Dynamic Programming was popularized in the 1950's and 1960's by \textbf{Richard Bellman} (1920-1984), an American mathematician. Bellman, who coined the term Dynamic Programming, formulated the general theory and proposed numerous applications in control and operations research.
-  \item \textbf{Andrew Viterbi} (born 1935) is an American professor of electric engineer, a pioneer in the field of digital communications, and co-founder of Qualcomm Inc. (together with Irwin Jacobs). He has had close ties with the Technion, and has made many contributions to our department.
-  \item \textbf{Richard Karp} (born 1935) is an American professor
-  of computer science, known for his contributions to the theory of
-  computing.
-\end{itemize}
+% \section{Historical Notes:}
+% \begin{itemize}
+%   \item Dynamic Programming was popularized in the 1950's and 1960's by \textbf{Richard Bellman} (1920-1984), an American mathematician. Bellman, who coined the term Dynamic Programming, formulated the general theory and proposed numerous applications in control and operations research.
+%   \item \textbf{Andrew Viterbi} (born 1935) is an American professor of electric engineer, a pioneer in the field of digital communications, and co-founder of Qualcomm Inc. (together with Irwin Jacobs). He has had close ties with the Technion, and has made many contributions to our department.
+%   \item \textbf{Richard Karp} (born 1935) is an American professor
+%   of computer science, known for his contributions to the theory of
+%   computing.
+% \end{itemize}
 
 
-\section*{Exercises}
-\input{exercises/DP_sum_of_ints}
-\input{exercises/DP_tree_counting}
-\input{exercises/DP_all_pairs_sp}
+% \section*{Exercises}
+% \input{exercises/DP_sum_of_ints}
+% \input{exercises/DP_tree_counting}
+% \input{exercises/DP_all_pairs_sp}
 
 %\end{document}
