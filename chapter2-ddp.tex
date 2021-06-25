@@ -1045,6 +1045,7 @@ Obviously, we cannot expect the estimate $\heur(\nodev)$ to be exact -- if we kn
 
 \begin{definition}
 A heuristic is said to be \textbf{consistent} if for every adjacent vertices $\nodeu,\nodev$ we have that $$\cost(\nodev,\nodeu)+\heur[\nodeu]-\heur[\nodev] \geq 0.$$
+$$\heur[\nodev_d]=0$$  
 A heuristic is said to be \textbf{admissible} if it is a lower bound of the shortest path to the goal, i.e., for every vertex $\nodeu$ we have that $$\heur[\nodeu] \leq \minlen[\nodeu,\nodev_d],$$
 where we recall that $\minlen[\nodeu,\nodev]$ denotes the length of the shortest path between $\nodeu$ and $\nodev$.
 \end{definition}
@@ -1209,8 +1210,7 @@ negative cycles. We now consider the formula,
 Therefore we have
 \[
 \mu^*=\Delta=\min_{v\in V} \max_{0\leq k\leq n-1}
-\{\frac{d_n(v)-d_{\ttime}
-(v)}{n-k}\}
+\{\frac{d_n(v)-d_{k}(v)}{n-k}\}   
 \]
 which completes the proof.
 \end{proof}
