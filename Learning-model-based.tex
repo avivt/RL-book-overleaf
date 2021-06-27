@@ -893,8 +893,8 @@ time steps we are playing near optimal action.
 
 Recall that a Deterministic Decision Process (DDP) is modeled by a
 directed graph, where the states are the vertices, and each action
-is associate with an edge. For simplicity we will assume that the
-graph is strongly connected, i.e., there is a directed path between
+is associated with an edge. For simplicity we will assume that the
+graph is strongly connected, i.e. there is a directed path between
 any two states. (See Chapter~\ref{chapter:DDP}.)
 
 %For a directed graph $G(V,E)$ we define a traversal as a path (not
@@ -949,10 +949,10 @@ $|\States|^2\;|\Actions|$.
 To compute a path from the known state-action pairs to some unknown
 state-action pair, we reduce this task to a planning task in DDP.
 %
-For each known state-action pair  we define a reward of zero and the
-next state using the observed next state. For each unknon
-state-action pair we define a reward of $\Rmax$ and the next state
-is to stay at the same state. We can now solve for the optimal
+For each known state-action pair  we define the reward to be zero and the
+next state to be the observed next state. For each unknown
+state-action pair we define the reward to be $\Rmax$ and the next state
+as the same state, i.e we stay in the same state. We can now solve for the optimal
 policy (infinite horizon average reward) of our model. As long as
 there are unobserved state-action pairs, the optimal policy will
 reach one of them.
@@ -983,9 +983,8 @@ $\tilde{\reward}(\state,\action)=\Rmax$.
 
 
 We can now present the on-policy exploration algorithm. Initially
-set $\tilde{M}_0$ to have for every $(\state,\action)$ the
-$\tilde{f}(\state,\action)=\state$ and
-$\tilde{\reward}(\state,\action)=\Rmax$. Initialize $\ttime=0$. At
+set $\tilde{M}_0$ to have $\tilde{f}(\state,\action)=\state$ and
+$\tilde{\reward}(\state,\action)=\Rmax$ for every $(\state,\action)$. Initialize $\ttime=0$. At
 time $\ttime$ do the following.
 \begin{enumerate}
 %\item
@@ -1040,7 +1039,7 @@ state and action result in identical observations.)
 \end{proof}
 
 The above algorithm reconstructs the model completely. We can be
-slightly more refine. We can define an {\em optimistic} model, whose
+slightly more refined. We can define an {\em optimistic} model, whose
 return upper bounds that of the true model. We can then solve for
 the optimal policy in the optimistic model, and if it does not reach a new state-action pair (after sufficiently long time) then it
 has to be the true optimal policy.
