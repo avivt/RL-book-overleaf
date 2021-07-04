@@ -51,8 +51,8 @@ addition to reaching the final state $x_T$ we would like to minimize
 some cost function, which depends on the states and actions. We will
 look at {\em quadratic cost} function $J(\cdot)$. Given an initial
 state $x_0$ and a sequence of actions $u=(u_1, \ldots , u_{T})$, we
-define the cost $J(u)$ using two positive semi-definite symmetric matrices
-$Q$ and $R$ (namely,  $Q,R \succ 0$ and $Q=Q^\top$ and $R=R^\top$). We will also assume that $R$ is full rank (this is mainly for simplicity).
+define the cost $J(u)$ using two semi-definite symmetric matrices
+$Q$ and $R$ (namely,  $Q,R \succ 0$ and $Q=Q^\top$ and $R=R^\top$).
 The cost will be
 \[
 J(u)=\sum_{t=1}^T x_t^\top Q x_t + u_t^\top R u_t
@@ -204,7 +204,7 @@ Figure~\ref{fig:L12-cost-tradeoff}.)
  \begin{figure}
 %   % Requires \usepackage{graphicx}
    \begin{centering}
-  % \includegraphics[width=0.5\textwidth]{figures\cost-tradeoff.PNG}
+ %  \includegraphics[width=0.5\textwidth]{figures\cost-tradeoff.PNG}
    \caption{Tradeoff in the cost of state and control}\label{fig:L12-cost-tradeoff}
   \end{centering}
  \end{figure}
@@ -312,12 +312,12 @@ We can now solve for $u$:
 \[
 \nabla_u V_{t-1}^*(x_{t-1})=2u^\top R+2(Ax_{t-1}+Bu)^\top P_t B=0
 \]
-which, using that $P_t$ is symmetric, implies that
+which implies that
 \[
 u_{t-1}^*=-(R+B^\top P_tB)^{-1}B^\top P_t A x_{t-1}=-K_{t-1}x_{t-1}
 \]
 Since $P_t$ is a p.s.d. matrix,  then $R+B^\top P_t B$ is a p.s.d.
-matrix. Since $R$ is full rank then we have an inverse.
+matrix. If $R$ is full rank then we have an inverse.
 %
 This completes the
 part that $u_{t-1}$ is linear in $x_{t-1}$.
@@ -349,7 +349,8 @@ V_0^*(x_0)=\min_{u_0,\ldots} \sum_{t=0}^\infty x_t^\top Q x_t
 \]
 where $x_{t+1}=Ax_t+Bu_t$.
 
-First, since we have an infinite sum, we need to ask whether the value, which is an infinite sum of costs, is finite. In the case that we can reach $x_t=0$, then
+First, since we have an infinite sum, we need to ask whether the
+costs are finite. In the case that we can reach $x_t=0$, then
 afterwards, we have that the costs are zero, so the sum is finite.
 
 Similar to the finite horizon case, we have,
@@ -419,7 +420,7 @@ states are $x\in \mathbb{R}^n$. We will claim that $t=n-1$ will be
 sufficient.
 
 The Cayley-Hamilton theorem states that for any matrix $A$, we have
-that $A^n$ is linearly dependent on $A^i$ for $i<n$. A simple proof is to
+that $A^n$ is linearly dependent on $A^i$ for $i<n$. One proof is to
 consider the characteristic polynomial $p(\lambda)=det(\lambda I
 -A)=\sum_{i=0}^n c_i \lambda^i$, where $c_n=1$. Since setting
 $\lambda=A$ we get the zero matrix, which implies that
@@ -431,9 +432,7 @@ C=[ B\; AB\; A^2B\; \cdots A^{n-1} B]
 This also guarantees that the ARE has a solution. (See the slides
 for examples)
 
-\section{Stability}
-
-The stability is define with respect to a given policy. We will call a policy stable if running the policy generates states $x_t$ that converge to zero. we will be mainly interested in the stability of the optimal policy.
+\section{LQR: Stability}
 
 Let $P$ be the solution to the ARE. Then $K=(R+B^\top P
 B)^{-1}B^\top PA$ and $u^*=-Kx$.
@@ -485,7 +484,7 @@ vector $c\in\mathbb{R}^n$. Namely,
 \[
 x_{t+1}=Ax_t+Bu_t+c
 \]
-The cost is as before $x_t^\top Qx_t+u_t^\top Ru_t$.  The affine
+The cost is as before $x_t^\top Qx_t+u_t^\top Ru_t$.  We an affine
 system the control remains linear. One way to show that is to redo
 all the math. A simpler option is a reduction.
 \[
@@ -518,7 +517,7 @@ We can now apply everything we know about the LQR. We get that the
 optimal control $u^*_t$ is linear in $z_t$ and hence linear in
 $x_t$.
 
-\subsection{Smoothness}
+\subsection{LQR: Smoothness}
 
 We would like to penalize for changing the control. Let $\Delta
 u_t=u_t-u_{t-1}$. Our new cost becomes
@@ -527,7 +526,7 @@ x^\top_t Qx_t +u_t^\top R u_t + (\Delta u_t)^\top R' \Delta u_t
 \]
 and the dynamics remain $x_{t+1}=A x_t + B u_t$.
 
-We can reduce this case also to the standard LQR, as follows,
+We can reduce this case also to the standard LQR.
 \[
 \begin{bmatrix}
 x_{t+1}\\
@@ -550,9 +549,9 @@ I
 This implies that we have a new state $z_t=\begin{bmatrix}
 x_{t}\\
 u_{t-1}
-\end{bmatrix}$, the action is $\Delta u_t $, and the new dynamics become
+\end{bmatrix}$, and the new dynamics become
 \[
-z_{t+1}=A'z_t+B'\Delta u_t
+z_{t+1}=A'z_t+B'u_t
 \]
 and cost $Q'$ and $R'$ where
 \[
@@ -572,13 +571,14 @@ We add a Gaussian noise to the dynamics,
 \[
 x_{t+1}=A x_t + B u_t +w_t
 \]
-where $w_t \sim N(0,W)$ is sampled from a normal distribution with zero mean and a correlation matrix $W\in \mathbb{R}^{n\times n }$.
+where $w_t \sim N(0,W)$ for a correlation matrix $W\in
+\mathbb{R}^{n\times n }$.
 
 We have the same objective, but now we like to minimize the expected
 cost. Note that now the expected cost in each time is none zero (due
 to the noise).
 
-For a finite horizon we have that the expected cost, from state $x_t$, is
+For a finite horizon we have
 \[
 V^*_t(x_t)= x_t^\top P_t x_t + m_t
 \]
@@ -600,7 +600,7 @@ This implies that
 V^*_{t-1}(x_{t-1})=\min_{u_{t-1}} x_{t-1}^\top Qx_{t-1}+u_{t-1}^\top
 Ru_{t-1}+(Ax_{t-1}+Bu_{t-1})^\top P_t (Ax_{t-1}+Bu_{t-1})+m_{t-1}
 \]
-where $m_{t-1}=m_t +E[\omega^\top P \omega]=m_t +\sum_{i,j} W[i,j]P_t[i,j]=m_t +Tr(WP_t)$.
+where $m_{t-1}=m_t +Tr(WP_t)=m_t +\sum_{i,j} W[i,j]P_t[i,j]$.
 
 Note that the solution to the LQG is identical to that of the LQR.
 
