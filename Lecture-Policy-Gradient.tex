@@ -429,9 +429,9 @@ is
 
 \[
 \mu(\state_0)Q^\policy(\state_0,\action_1)\policy(\action_1|\state_0;\theta)
-\nabla \policy(\action_1|\state_0;\theta) +
+\nabla \log \policy(\action_1|\state_0;\theta) +
 \mu(\state_1)Q^\policy(\state_1,\action_1)\policy(\action_1|\state_1;\theta)
-\nabla \policy(\action_1|\state_1;\theta)
+\nabla \log \policy(\action_1|\state_1;\theta)
 \]
 
 where we dropped all the terms that evaluate to zero. plugging in
