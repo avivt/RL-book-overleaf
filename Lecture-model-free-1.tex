@@ -330,7 +330,7 @@ We later use it to show convergence of online learning algorithms.
 
 The stochastic approximation has a state space $\States$, and
 updates an approximation $X(\state)$ at each iteration. The updates
-are in the direction of $(HX)(\state)+w$ where $H$ is a (possibly
+are in the direction of $(HX)(\state)+w$ where $H$ is an (possibly
 non-linear) operator and $\omega$ is a zero mean bounded noise. The
 iterative algorithm takes the following general form:
 \[
@@ -353,7 +353,7 @@ $h_{\ttime-1}$ is the history up to time $\ttime$.
 \item Contraction: There exists $X^*$ such that for any $X$ we have $\|HX-X^*\|_\infty
 \leq \discount \|X-X^*\|_\infty$. (This implies that $HX^*=X^*$.
 Note that since $H$ is a contracting operator, this property is
-guarantee to holds.)
+guaranteed to holds.)
 \end{enumerate}
 
 The following is the convergence theorem for well behaved iterative
