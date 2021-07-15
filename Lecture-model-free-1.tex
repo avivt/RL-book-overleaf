@@ -429,7 +429,7 @@ Recall that
 \begin{align*}
  Q_{\ttime+1}(\state_\ttime,\action_\ttime) & :=   (1-\alpha_\ttime(\state_\ttime,\action_\ttime) ) Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)  [\reward_\ttime +
 \discount \max_{\action'} Q_\ttime (\state_{\ttime}',
-\action')-Q_\ttime (\state_\ttime,\action_\ttime) ]
+\action') ]
 \end{align*}
 Let $\Phi_\ttime=\reward_\ttime + \discount \max_{\action'} Q_\ttime
 (\state_{\ttime+1}, \action')$. This implies that $E[\Phi_\ttime]=
