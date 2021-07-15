@@ -242,8 +242,8 @@ $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime}')$,
 
 We now extend the $Q$-learning algorithm from DDP to MDP. The main
 difference is that now we will need to average multiple observations
-to converge to the value of $Q*$. For this we introduce generate for
-learning rates, $\alpha_\ttime(\state,\action)$. We allow the
+to converge to the value of $Q*$. For this we introduce
+learning rates for each state-action pair, $\alpha_\ttime(\state,\action)$. We allow the
 learning rate to depend both on the state $\state$, action $\action$
 and time $\ttime$. For example $\alpha_\ttime(\state,\action)=1/n$
 where $n$ is the number of times we updated $(\state,\action)$ up to
@@ -330,7 +330,7 @@ We later use it to show convergence of online learning algorithms.
 
 The stochastic approximation has a state space $\States$, and
 updates an approximation $X(\state)$ at each iteration. The updates
-are in the direction of $(HX)(\state)+w$ where $H$ is an (possibly
+are in the direction of $(HX)(\state)+\omega$ where $H$ is a (possibly
 non-linear) operator and $\omega$ is a zero mean bounded noise. The
 iterative algorithm takes the following general form:
 \[
@@ -473,7 +473,7 @@ guarantee that once we are close to the correct value, the step size
 will be small enough that we actually converge, and not bounce
 around.
 
-Consider of the following experiment. Suppose from some time $\tau$
+Consider the following experiment. Suppose from some time $\tau$
 we update using only $Q^*$, then we clearly would like to converge.
 For simplicity assume there is no noise, i.e., $\omega_\ttime=0$ for
 $\ttime\geq\tau$ and assume a single state., i.e., $Q^*\in \Reals$.
@@ -588,8 +588,8 @@ the algorithm, and we would need to specify how to select them.
 When designing the algorithm we need to think of two contradicting
 objectives in selecting the actions. The first is the need to
 explore, perform each action infinitely often. This implies that we
-need, for each state $\state$ and action $\action$, to have that $E[\sum_\ttime
-\policy_\ttime(\action|\state)]=\infty$. Then by Borel-Cantelli
+need, for each state $\state$ and action $\action$, to have that $\sum_\ttime
+\policy_\ttime(\action|\state)=\infty$. Then by the Borel-Cantelli
 lemma we have with probability $1$ an infinite number of times that
 we select action $\action$ in state $\state$ (actually, we need
 independence of the events, or at least a Martingale property, which
@@ -756,7 +756,7 @@ since $\Value^\policy(\state)=E[\sum_{i=0}^{\infty} \discount^i
 
 The above lemma uses the greedy policy, but as we discussed before,
 we would like to add exploration. We would like to claim that if
-$\varepsilon$ is mall, then the difference in return between the
+$\varepsilon$ is small, then the difference in return between the
 greedy policy and the $\varepsilon$-greedy policy would be small. We
 will show a more general result, showing that for any policy, if we
 add a perturbation of $\varepsilon$ to the action selection, then
@@ -950,7 +950,7 @@ state per episode.
 \paragraph{First visit}
 We update every state that appears in the episode, but update it
 only once. Given an episode $(\state_1, \action_1, \reward_1, \ldots
-, \state_k,\action_k,\reward_k)$ for each state $\state$ that appear
+, \state_k,\action_k,\reward_k)$ for each state $\state$ that appears
 in the episode, we consider the first appearance of $\state$, say
 $\state_j$, and update $\widehat{\Value}^\policy(\state)$ using
 $G^\state=\sum_{i=j}^k \reward_i$. Namely, we compute the actual
@@ -960,13 +960,13 @@ return from state $\state$, e.g.,
 $E[G^\state]=\Value^\policy(\state)$.
 
 \paragraph{Every visit}
-We do an update during each step of in the episode. Namely, given an
+We do an update at each step of the episode. Namely, given an
 episode $(\state_1, \action_1, \reward_1, \ldots ,
 \state_k,\action_k,\reward_k)$ for each state $\state_j$ that
 appears in the episode, we update each
 $\widehat{\Value}^\policy(\state_j)$ using
-$G^{\state_j}=\sum_{i=j}^k \reward_i$. Namely, we compute the actual
-return from every state $\state_j$ to the end, and use it to update
+$G^{\state_j}=\sum_{i=j}^k \reward_i$. We compute the actual
+return from every state $\state_j$ until the end and use it to update
 our approximation. Note that a state can be updated multiple times
 in  a single episode using this approach. We will later show that
 this estimator is biased, due to the dependency between different
@@ -1019,13 +1019,13 @@ estimate would be
 $\widehat{\Value}^\policy(\state)=(1/m)\sum_{i=1}^m G^\state_i$.
 Since the different $G^\state_i$ are independent, we can use a
 concentration bound, to claim that the error is small. Actually we
-will need two different bounds. The first would say that if we run
+will need two different bounds. The first will say that if we run
 $n$ episodes, then with high probability we have at least $m$
-episodes in which state $\state$ appear. The second would say that if
-we have $m$ episodes in which state $\state$ appear, then we will
-well approximate the value function at $\state$. For the first part,
-we clearly would need to depend on the probability of reaching state
-$\state$ in an episode. Call a state $\state$ as $\alpha$-good if
+episodes in which state $\state$ appears. The second will say that if
+we have $m$ episodes in which state $\state$ appears, then we will
+have a good approximation of the value function at $\state$. For the first part,
+we clearly will need to depend on the probability of reaching state
+$\state$ in an episode. Call a state $\state$ $\alpha$-good if
 the probability that $\policy$ visits $\state$ in an episode is at
 least $\alpha$.
 %This is summarized in t
@@ -1086,13 +1086,13 @@ For the maximum likelihood (ML) model $M$ we have $p^*=1/4$ and
 therefore $V(\state_1;M)=4$.
 
 In general the Maximum Likelihood model value does not always
-coincide with the {\tt First Visit} Monte-carlo estimate. However we
+coincide with the {\tt First Visit} Monte-Carlo estimate. However we
 can make the following interesting connection.
 
 Clearly, when updating state $\state$ using {\tt First Visit}, we
 ignore all the episodes that do not include $\state$, and also for
 each the remaining episodes, that do include $\state$, we ignore the
-prefix until the fist appearance of $\state$. Let us modify the
+prefix until the first appearance of $\state$. Let us modify the
 sample by deleting those parts (episodes in which $\state$ does not
 appear, and for each episode that $\state$ appears, start it at the
 first appearance of $\state$). Call this the {\em reduced sample}.
@@ -1100,7 +1100,7 @@ first appearance of $\state$). Call this the {\em reduced sample}.
 
 The maximum likelihood model, given a set of episodes, is simply the
 observed model. (We will not show here that the observed model is
-indeed the maximum likelihood model, but it is a good ex cerise for the reader to show it.) 
+indeed the maximum likelihood model, but it is a good exercise for the reader to show it.) 
 Namely, for each state-action
 pair $(\state,\action)$ let $n(\state,\action)$ be the number of
 times it appears, let $n(\state,\action,\state')$ be the number of
@@ -1168,8 +1168,8 @@ an independent unbiased sample of the return.
 %
 For {\tt Every Visit} the situation is more complicated, since there
 are different updates from the same episode, and therefore they are
-dependent. The first issue that we have to resolve is how do we like
-to average for the {\tt Every Visit} updates. Let $G^\state_{i,j}$
+dependent. The first issue that we have to resolve is how we would like
+to average the {\tt Every Visit} updates. Let $G^\state_{i,j}$
 be the $j$-th update in the $i$-th episode for state $\state$. Let
 $n_i$ be the number of updates in episode $i$ and $N$ the overall
 number of episodes.
@@ -1336,7 +1336,7 @@ Q^{\policy_1}(\state,\action)+(1-\varepsilon)Q^{\policy_1}(\state,\bar{\action}_
 Q^{\policy_1}(\state,\action)+(1-\varepsilon)\sum_{\action \in
 \Actions}
 \frac{\policy_1(\action|\state)-\varepsilon/|\Actions|}{1-\varepsilon}Q^{\policy_1}(\state,\action)\\
-&=\sum_{\action \in \Actions} \policy_1(\action|\state)Q^{\policy_1}(\state,\bar{\action})=\Value^{\policy_1}(\state)\\
+&=\sum_{\action \in \Actions} \policy_1(\action|\state)Q^{\policy_1}(\state,\action)=\Value^{\policy_1}(\state)\\
 \end{align*}
 The inequality follows, since we are essentially concentrating of
 the action that $\policy_1(\cdot|\state)$ selects with probability

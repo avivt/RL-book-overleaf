@@ -21,7 +21,7 @@ solution in some detail.
 %5.8 Some variants on Value and Policy Iteration
 %5.9 Linear Programming Solutions
 
-\section{Problem Statement}\label{sec:inf_horizon_prob}
+\section{Problem Statement} \label{sec:inf_horizon_prob}
 
 We consider a stationary (time-invariant) MDP, with a finite state
 space $\States$, finite action set $\Actions$, and transition kernel
@@ -406,7 +406,7 @@ $\|T(v^*)-v^*\|=0$.
 triangle\ inequality)\\
 & = & \|T(v^*)-T(v_{n-1})\|  +  \|v_n-v^*\|\\
 & \leq & \beta\|\underbrace{v^*-v_{n-1}}_{\rightarrow 0 }\|  +
-\|\underbrace{v^{n}-v^*}_{\rightarrow 0}\|
+\|\underbrace{v_{n}-v^*}_{\rightarrow 0}\|
 \end{eqnarray*}
 Since $v^*$ is the limit of $v_n$, i.e.,
 $\lim_{n\rightarrow\infty}\|\vec{v}_n-\vec{v^*}\| = 0 $ hence
@@ -650,7 +650,7 @@ have a criteria that would depend only on the observed quantities.
 \begin{lemma}
  If $\|\Value_{n+1}-\Value_{n}\|_\infty < \epsilon \cdot \frac{1-\discount}{2\discount}$ then $\|\Value_{n+1} -
 \Value^{*}\|_\infty < \frac{\varepsilon}{2}$ and
-$|\Value^{\policy_{n+1}}-\Value^*|\leq \varepsilon$, where
+$\|\Value^{\policy_{n+1}}-\Value^*\|\leq \varepsilon$, where
 $\policy_{n+1}$ is the greedy policy w.r.t. $\Value_{n+1}$.
 \end{lemma}
 \begin{proof}
@@ -831,7 +831,7 @@ iteration  than Value Iteration, as we show in the next section.
 Another consideration is that the number of iterations of Value
 Iteration increases as the discount factor $\discount $ approaches
 $1$, while the number of policies (which upper bound the number of
-iterations of Policy Iteration) is independent from $\discount$.
+iterations of Policy Iteration) is independent of $\discount$.
 
 
 \section{A Comparison between VI and PI Algorithms}
