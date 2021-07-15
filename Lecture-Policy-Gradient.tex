@@ -413,25 +413,25 @@ $\mu(\state_3)=2-p_1-p_1 p_2$. The gradient of the action in each
 state is:
 \[
 \nabla \policy(\action_1|\state_0;\theta)=
-\begin{pmatrix}1\\0\\0\\0\end{pmatrix} - p_1
-\begin{pmatrix}1\\0\\0\\0\end{pmatrix} - (1-p_1)
-\begin{pmatrix}0\\1\\0\\0\end{pmatrix} = (1-p_1)\begin{pmatrix}1\\-1\\0\\0\end{pmatrix}
+p_1\begin{pmatrix}1\\0\\0\\0\end{pmatrix} - p^2_1
+\begin{pmatrix}1\\0\\0\\0\end{pmatrix} - p_1(1-p_1)
+\begin{pmatrix}0\\1\\0\\0\end{pmatrix} = p_1(1-p_1)\begin{pmatrix}1\\-1\\0\\0\end{pmatrix}
 \]
 Similarly
 \[
 \nabla \policy(\action_1|\state_1;\theta)=
-\begin{pmatrix}0\\0\\1\\0\end{pmatrix} - p_2
-\begin{pmatrix}0\\0\\1\\0\end{pmatrix} - (1-p_2)
-\begin{pmatrix}0\\0\\0\\1\end{pmatrix} = (1-p_2)\begin{pmatrix}0\\0\\1\\-1\end{pmatrix}
+p_2\begin{pmatrix}0\\0\\1\\0\end{pmatrix} - p_2^2
+\begin{pmatrix}0\\0\\1\\0\end{pmatrix} - p_2(1-p_2)
+\begin{pmatrix}0\\0\\0\\1\end{pmatrix} = p_2(1-p_2)\begin{pmatrix}0\\0\\1\\-1\end{pmatrix}
 \]
 The policy gradient theorem states that the expected return gradient
 is
 
 \[
 \mu(\state_0)Q^\policy(\state_0,\action_1)\policy(\action_1|\state_0;\theta)
-\nabla \policy(\action_1|\state_0;\theta) +
+\nabla \log \policy(\action_1|\state_0;\theta) +
 \mu(\state_1)Q^\policy(\state_1,\action_1)\policy(\action_1|\state_1;\theta)
-\nabla \policy(\action_1|\state_1;\theta)
+\nabla \log \policy(\action_1|\state_1;\theta)
 \]
 
 where we dropped all the terms that evaluate to zero. plugging in

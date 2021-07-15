@@ -1045,6 +1045,7 @@ Obviously, we cannot expect the estimate $\heur(\nodev)$ to be exact -- if we kn
 
 \begin{definition}
 A heuristic is said to be \textbf{consistent} if for every adjacent vertices $\nodeu,\nodev$ we have that $$\cost(\nodev,\nodeu)+\heur[\nodeu]-\heur[\nodev] \geq 0.$$
+$$\heur[\nodev_d]=0$$  
 A heuristic is said to be \textbf{admissible} if it is a lower bound of the shortest path to the goal, i.e., for every vertex $\nodeu$ we have that $$\heur[\nodeu] \leq \minlen[\nodeu,\nodev_d],$$
 where we recall that $\minlen[\nodeu,\nodev]$ denotes the length of the shortest path between $\nodeu$ and $\nodev$.
 \end{definition}
@@ -1209,8 +1210,7 @@ negative cycles. We now consider the formula,
 Therefore we have
 \[
 \mu^*=\Delta=\min_{v\in V} \max_{0\leq k\leq n-1}
-\{\frac{d_n(v)-d_{\ttime}
-(v)}{n-k}\}
+\{\frac{d_n(v)-d_{k}(v)}{n-k}\}   
 \]
 which completes the proof.
 \end{proof}
@@ -1245,7 +1245,7 @@ A simple approach for solving Problem \ref{eq:opt_control} is using gradient bas
 \begin{equation*}
 \begin{split}
         \Value(\action_0,\dots,\action_\tHorizon) &= \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime) \\
-        & = \cost_0(\state_0, \action_0) + \cost_1(f_0(\state_0,\action_0), \action_1) + \dots + \cost_\tHorizon(f_{\tHorizon - 1}(f_{\tHorizon - 1}(\dots ),\action_{\tHorizon-1}), \action_\tHorizon).
+        & = \cost_0(\state_0, \action_0) + \cost_1(f_0(\state_0,\action_0), \action_1) + \dots + \cost_\tHorizon(f_{\tHorizon - 1}(f_{\tHorizon - 2}(\dots ),\action_{\tHorizon-1}), \action_\tHorizon).
 \end{split}
 \end{equation*}
 Using our differentiability assumption, we know $\frac{\partial f_\ttime}{\partial \state_\ttime}, \frac{\partial f_\ttime}{\partial \action_\ttime}, \frac{\partial \cost_\ttime}{\partial \state_\ttime}, \frac{\partial \cost_\ttime}{\partial \action_\ttime}$. Thus, using repeated application of the chain rule, we can calculate $\frac{\partial \Value}{\partial \action_\ttime}$, and optimize $\Value$ using gradient descent. There are, however, two potential issues with this approach. The first is that we will only be guaranteed a locally optimal solution. The second is that in practice, a first-order gradient optimization algorithm often converges very slowly.
