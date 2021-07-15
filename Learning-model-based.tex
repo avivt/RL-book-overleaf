@@ -204,12 +204,12 @@ horizon.
 
 Define the expected return of a policy $\policy$ with the true rewards
 \[
-\Value^\policy_\tHorizon(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\tHorizon
+\Value^\policy_\tHorizon(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^{\tHorizon+1}
 \reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)].
 \]
 and with the estimated rewards
 \[
-\widehat{\Value}^\policy_\tHorizon(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^\tHorizon
+\widehat{\Value}^\policy_\tHorizon(\state_0)=\E^{\policy,\state_0}[\sum_{\ttime=0}^{\tHorizon+1}
 \widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)].
 \]
 We are interested in bounding the difference between the two
@@ -221,9 +221,9 @@ a given trajectory $\sigma=(\state_0,\action_0,\ldots,
 \state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ we
 define
 \[
-error(\policy,\sigma)= \left(\sum_{\ttime=0}^\tHorizon
+error(\policy,\sigma)= \left(\sum_{\ttime=0}^{\tHorizon+1}
 \reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)\right)-
-\left(\sum_{\ttime=0}^\tHorizon
+\left(\sum_{\ttime=0}^{\tHorizon+1}
 \widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)\right)
 \]
 taking the expectation over trajectories we define,
@@ -638,7 +638,7 @@ Assume that model $\widehat{M}$ is an $\alpha$-approximate model of $M$. For the
 |\Value^\policy_\discount(\state_0;M)-\Value^\policy_\discount(\state_0;\widehat{M})|\leq
 \varepsilon
 \]
-for $\alpha\leq \frac{(1-\discount)^2\varepsilon}{\Rmax}$
+for $\alpha\leq \frac{(1-\discount)^2\varepsilon}{\Rmax\discount}$
 %$\alpha\leq \frac{ 0.5 \varepsilon(1-\discount)^2}{\Rmax\log^2(\Rmax/(\varepsilon(1-\discount)))}$.
 %, for some constant $c>0$.
 \end{lemma}
@@ -727,13 +727,12 @@ policy. Namely,
 When considering the total sample size, we need to consider all
 state-action pairs. For the finite horizon, the total sample size is
 \[
-m\tHorizon|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2}
-|\States|^2 |\Actions| \tHorizon^5 \log
-(|\States|\;|\Actions|/\delta))
+m\tHorizon|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2} \tHorizon^5 |\States|\;|\Actions| (|\States|+\log
+(|\States|\;|\Actions|/\delta)))
 \]
 and for the discounted return
 \[
-m|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2(1-\discount)^4} |\States|^2 |\Actions|  \log(|\States|\;|\Actions|/\delta))
+m|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2(1-\discount)^4} |\States|\;|\Actions| (|\States|+\log (|\States|\;|\Actions|/\delta)))
 %\log^4\frac{\Rmax}{\varepsilon(1-\discount)})
 \]
 
