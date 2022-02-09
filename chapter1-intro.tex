@@ -16,14 +16,14 @@ mean the same thing, but focus on a specific collection of techniques that came 
 Reinforcement learning spans a large number of disciplines.
 Naturally, by our own indoctrination, we are going to look through the lens of Computer Science
 and Machine Learning. From an engineering perspective, optimal control is 
-the ``mother'' of RL with many of the concepts that are used in RL naturally come from optimal control. 
-Other notable origins are in Operation Research, where the initial mathematical works have originated.
-Addition disciplines include: Neuroscience, Psychology, Statistics and
+the ``mother'' of RL, and many of the concepts that are used in RL naturally come from optimal control. 
+Other notable origins are in Operations Research, where the initial mathematical frameworks have originated.
+Additional disciplines include: Neuroscience, Psychology, Statistics and
 Economics.
 
-The origins of the term ``reinforcement learning'' is in psychology, where it refers to learning by trail and error. 
+The origins of the term ``reinforcement learning'' is in psychology, where it refers to learning by trial and error. 
 While this inspired much work in the early days of the field, current approaches are mostly based on
-machine learning an optimal control. We refer the reader to Section 1.6 in \cite{book:Sutton} for an
+machine learning and optimal control. We refer the reader to Section 1.6 in \cite{SuttonB98} for an
 a detailed history of RL as a field. 
 
 \section{Motivation for RL}
@@ -34,50 +34,47 @@ has been impressively applied for solving challenging RL tasks.
 But for us, the interest comes from the {\em promise} of RL and its
 potential to be an effective tool for control and behavior in dynamic environments.
 
-Over the years reinforcement learning has proven to be highly
-successful for playing board games over a long history. Gerald
-Tesauro in 1992 developed the TD-gammon \cite{XX}, which uses a two layer
-neural-network to achieve a high performance backgammon computer
-game. The network was trained by bootstrapping it from scratch and
-learned a temporal differences function. One of the amazing features
-of the TD-gammon was that even in the {\em first} move, it used a
-different game move than the grandmasters, who later adopted the new
-game move once they observe TD-gammon playing it \cite{XX}.
-
-Recently, Deep Mind have developed a deep neural-network
-to play Go, which is able to beat the best Go players in the world.
-Developing a human-level computer Go program has been a challenge
-that has persisted for decades.
+Over the years, reinforcement learning has proven to be highly
+successful for playing board games that require long horizon planning. 
 Early in 1962, Arthur Samuel developed a checkers game, which was at
 the level of the best human. His original framework included many of
 the ingredients which latter contributed to RL,
-as well as search heuristic for large domains.
+as well as search heuristics for large domains.
+Gerald
+Tesauro in 1992 developed the TD-gammon \cite{Tesauro95}, which used a two layer
+neural-network to achieve a high performance agent for playing a backgammon computer
+game. The network was trained from scratch, by playing against itself in simulation, and using a temporal differences learning rule. One of the amazing features
+of TD-gammon was that even in the {\em first} move, it played a
+different game move than the typical opening that backgammon grandmasters use. Indeed, this move was later adopted in the backgammon community \cite{Tesauro02}.
+Recently, DeepMind have developed AlphaGo -- a deep neural-network based agent
+for playing Go, which was able to beat the best Go players in the world, solving a long-standing challenge for artificial intelligence \cite{silver2016mastering}. 
 
 To complete the picture of computer board games, we should mention
 Deep Blue, from 1996, which was able to beat the world champion then,
-Kasparov. This program was mainly built on a heuristic search, and
-developed a new simple hardware to support it. Recently, Deep Mind
-came out with a deep neural-network that matched the best chess
-programs (which are already much better than any human players).
+Kasparov. This program mainly built on heuristic search, and new hardware was developed to support it. Recently, DeepMind's
+AlphaZero matched the best chess
+programs (which are already much better than any human players), using a reinforcement learning approach \cite{silver2017mastering}.
 
 Another domain, popularized by DeepMind, is playing Atari video
-games \cite{XX}, which where popular in the 1980's. DeepMind were able to
-show how deep neural networks can achieve human level performance,
-using only the video picture as input (and having no additional
-information about the goal of the game). There has been many successes in games
-such Starcraft\cite{xx}, Dotta \cite{xx}, and others.
+games \cite{mnih2015human}, which were popular in the 1980's. DeepMind were able to
+show that deep neural networks can achieve human level performance,
+using only the raw video image and the game score as input (and having no additional
+information about the goal of the game). 
+% There has been many successes in games
+% such Starcraft\cite{xx}, Dotta \cite{xx}, and others.
 
-Looking in to the future, the real promise of RL
+Looking to the future, the real promise of RL
 is learning in interactive settings. Probably one the most important
 applications is robotics, where reaching a human level performance
 would have far outreaching consequences.
 
+\section{The Need for This Book}
 
+There are already several books on RL. However, while teaching RL in class, we felt that there is a gap between advanced textbooks that focus on one aspect or another of the art, and more general books that opt for readability rather than rigor. Coming from computer science and electrical engineering backgrounds, we like to teach RL in a rigorous, self-contained manner. This book serves this purpose, and is based on our lecture notes for an advanced undergraduate course that we have taught for over 7 years at Tel Aviv University and at Technion.
 
-\medskip
-\noindent{\it Mathematical Model}
+\section{Mathematical Model}
 %
-The main mathematical model we will use is Markov Decision Process
+The main mathematical model we will use is the Markov Decision Process
 (MDP). The model tries to capture uncertainty in the dynamics of the
 environment, the actions and our knowledge. The main focus would be
 on decision making, namely, selecting actions. The evaluation would
@@ -92,505 +89,514 @@ The algorithm would be faced with an inherent tradeoff between
 exploitation (getting the most reward given the current information)
 and exploration (gathering more information about the environment).
 
-\section{The Need for This Book}
-
-The are several other books out there that deal with RL. While teaching RL in class we felt that there is a gap between advanced textbooks that focus on one aspect or another of the art and more general books that opt for readability rather than rigor. As we are computer scientist and electrical engineers, we like teaching RL in a rigorous self-contained manner. This book was used 
-
-\section{Markov Decision Process (MDP)}
-
-Our main formal model would be a Markov Decision Process (MDP) will
-be composed from:
-\begin{itemize}
-\item
-$\States$: a finite set of states.
-\item
-$\state_0\in \States$: is the start state.
-\item
-$\Actions$: a finite set of actions.
-\item
-$\transitionprob:\States\times \Actions\rightarrow \Delta(\States)
-$: a stochastic transition probability function, where
-$\Delta(\States)$ is the set of probability distributions over
-$\States$. We denote by $\transitionprob(\cdot|\state,\action)$ the
-distribution of next state, when doing action $\action$ in state
-$\state$.
-\item
-$\Rewards$: an immediate reward. In general $\Rewards$ would depend
-on the current state $\state$ and action $\action$, and in general
-it can be a random variable. In most cases we will focus on the
-expectation of $\Rewards(\state,\action)$. We will assume that the
-immediate reward $\Rewards$ is bounded, specifically, that it is
-always in the range $[0,1]$.
-\end{itemize}
-
-%When we have an MDP, the
-A run of the MDP is characterized by a {\em trajectory}, which has
-quadruples $(\state_\ttime,\action_\ttime, \reward_\ttime,
-\state_{\ttime+1})$, where $\state_\ttime$ is the state at time
-$\ttime$, $\action_\ttime$ is the action performed at time $\ttime$
-in $\state_\ttime$, $\reward_\ttime$ is the immediate reward, and
-$\state_{\ttime+1}$ is the next state. Clearly, $\reward_\ttime$ is
-distributed according to $\Rewards(\state_\ttime,\action_\ttime)$
-and $\state_{\ttime+1}$ is distributed according to
-$\transitionprob(\cdot|\state_\ttime,\action_\ttime)$.
-
-\medskip
-\noindent{\em Return function}
-%
-We like to combine the immediate rewards to a single value, which we
-call {\em return}, that we will optimize. The decision to reduce all
-the immediate rewards to a single value is already a major modeling
-decision. When defining the return we will consider whether earlier
-immediate rewards are more important than later rewards. Also, there
-is an issue whether the system is {\em terminating}, namely
-terminates after a finite number of steps, or is {\em continuous},
-which implies that it runs forever. Usually, the return would be
-linear in the immediate rewards, and we will be interested in
-maximizing expected return. For that reason, we will be mostly
-interested in the expectation of the immediate rewards.
-
-Popular return functions include:
-\begin{enumerate}
-\item
-{\em Finite horizon:} There is a parameter $\tHorizon$ and the
-return is the sum of the first $\tHorizon$ rewards, i.e.,
-$\sum_{\ttime=1}^\tHorizon \reward_\ttime$.
-\item
-{\em Infinite discounted return:} There is a parameter
-$\discount\in(0,1)$ and the discounted return is
-$\sum_{\ttime=0}^\infty \discount^t \reward_\ttime$. Note that since
-$\reward_\ttime\in[0,1]$, the return is bounded by
-$1/(1-\discount)$.
-\item
-{\em Average Reward:} where we take the limit of the average
-immediate reward. Specifically, $\lim_{\tHorizon\rightarrow \infty}
-\frac{1}{tHorizon} \E[\sum_{\ttime=1}^\tHorizon \reward_\ttime]$.
-\item
-{\em Sum of the rewards:} this applies only to the case of
-terminating MDP, since otherwise it might be infinite.
-\end{enumerate}
-
-\medskip
-\noindent{\em Example of an MDP:}
-%
-Consider an inventory control problem. At day $\ttime$ we have
-$x_\ttime \geq 0$ remaining items from previous days. We order
-$\action_\ttime\geq 0$ new items, which is our action. We have a
-demand of $d_\ttime\geq 0$, the amount consumer want to buy at day
-$\ttime$. We have
-$\state_\ttime=\min(d_\ttime,x_\ttime+\action_\ttime)$ items bought.
-For day $\ttime+1$ we have $x_{\ttime+1}$ remaining items, i.e.,
-$x_{\ttime+1}=\max(0,x_\ttime+\action_\ttime-d_\ttime)$.
-
-We can now formalize the immediate reward, based on $P$, the profit
-per item, $J(\cdot)$ the cost to order, and $C(\cdot)$ the cost of
-inventory. Our immediate reward is,
-\[
-\Rewards(x_\ttime,\action_\ttime)=P\state_\ttime-J(\action_\ttime)-C(x_{\ttime+1})
-\]
-Our goal can be to maximize a discounted return function over the
-immediate rewards, where the discounting represents the interest
-rate.
-
-\medskip
-\noindent{\em Action selection:} We assume that the state of the
-system is ``observable'', namely, we know in which state we are. Our
-goal would be to select action as to maximize the expected return.
-For the remainder of the lecture we focus on the discounted return.
-
-Let a policy be a mapping from states to actions. Due to the Markov
-property of the system, we can show that the optimal
-history-dependent strategy is a deterministic policy, namely, it
-does not depend on the history and selects at each state a single
-action.
-
-\begin{theorem}
-There exists a deterministic policy which maximizes the discounted
-return.
-\end{theorem}
-
-Note that the optimal policy does not depend on the start state!
-
-\medskip
-\noindent{\em Multi-Arm Bandits (MAB):}
-%
-A simple well-studied variant of the MDP model are MABs, which are
-essentially an MDP with a single state. Given the model it is clear
-that the optimal policy would select the action with the highest
-immediate reward. However, when we need to learn the stochastic
-rewards, we have a tradeoff between using the action with the
-highest observed immediate reward versus trying new actions, and
-getting a better approximation of their expectation.
-
-\section{Planning}
-
-Planning problems capture the case that we are given a complete
-model of the MDP and would like to perform some task. Two popular
-tasks are the following:
-\begin{itemize}
-\item
-{\bf Policy evaluation}: Given a policy $\policy$ evaluate its
-expected return.
-\item
-{\bf Optimal control}: Compute an optimal policy $\policy^*$. For
-the infinite discounted return we have that $\policy^*$ maximizes
-the return from any start state.
-\end{itemize}
-
-We start with policy evaluation. An important ingredients in the
-planning process would be the following two value functions, which
-depend on the policy $\policy$.
-\begin{itemize}
-\item
-$\Value^\policy(\state)$, which is the expected return of $\policy$
-starting from state $\state$.
-\item
-$\QValue^\policy(\state,\action)$, which is the expected return of
-$\policy$ starting from state $\state$ doing action $\action$ and
-then following $\policy$.
-\end{itemize}
-
-We denote by $\Value^*(\state)$ and $\QValue^*(\state,\action)$ the
-value function and the $\QValue$-value function, respectively, of
-the optimal policy $\policy^*$. For the optimal policy we have,
-\[
-\forall \state\in \States \;\;\; \Value^*(\state)=\max_\policy
-\Value^\policy(\state)
-\]
-Namely, the optimal policy is optimal from any start state.
-
-\medskip
-\noindent{\em Policy Evaluation}
-%
-We can now solve the policy evaluation problem for the discounted
-return. We can write the following identities.
-% known as Bellman equations.
-\[
-\forall \state\in \States:\;\;\; \Value^\policy(\state)=
-\E_{\state'\sim
-\transitionprob(s,\policy(\state))}[\Rewards(s,\policy(\state))+\discount
-\Value^\policy(\state')]
-\]
-This gives a system of linear equations where the unknowns are
-$\Value^\policy(\state)$. We have $|\States|$ equations and
-$|\States|$ unknowns, so there exists some solution.
-
-\medskip
-\noindent{\em Optimal Control:} We can write the identity for the
-optimal $\QValue$-function.
-\[
-\QValue^\policy(\state,\action)=\E_{\state'\sim
-\transitionprob(s,\policy(\state))}[\Rewards(\state,\action)+\discount
-\Value^\policy(\state')]
-\]
-Note that for a deterministic policy $\policy$ we have
-$\Value^\policy(\state)=\QValue^\policy(\state,\policy(\state))$.
-
-The following theorem gives a characterization of the optimal policy
-(also known as Bellman Eq).
-\begin{theorem}
-A policy $\policy$ is optimal if and only if at each state $\state$
-we have
-\[
-\Value^\policy(\state)=\max_\action
-\{\QValue^\policy(\state,\action)\}
-\]
-\end{theorem}
-
-\begin{proof} We will show here only the {\em only if} part (the other direction will be give later in the course).
-Assume that there is a state $\state$ and action $\action$ such that
-\[
-\Value^\policy(\state) < \QValue^\policy(\state,\action)
-\]
-The strategy of performing in state $\state$ action $\action$ and
-then using policy $\policy$ outperforms policy $\policy$, and so
-policy $\policy$ is not optimal.
-
-The improvement would be valid for each visit of state $\state$, so
-the policy that performs action $\action$ in state $\state$ improves
-over policy $\policy$ (and is also a policy, a mapping from states
-to actions).
-\end{proof}
-
-\medskip
-\noindent{\em Computing the optimal policy:}
-%
-There are three popular algorithms to compute the optimal policy
-given an MDP model.
-\begin{itemize}
-\item
-{\em Linear Program}
-\item
-{\em Value Iteration}: at iteration $\ttime$ compute
-\[
-V_{\ttime+1}(\state)= \max_\action \E_{\state'\sim
-\transitionprob(\cdot
-|\action,\state)}[\Rewards(\state,\policy(\state))+\discount
-V_\ttime(\state')]
-\]
-We will show that at each iteration the distance from the optimal
-value function $\Value^*$ is decreased by $1-\discount$, namely
-$\|V_{\ttime+1}-\Value^*\|_\infty\leq
-(1-\discount)\|V_\ttime-\Value^*\|_\infty$.
-\item
-{\em Policy Iteration}:
-\[
-\policy_{\ttime+1}(\state) =\arg \max_\action
-\{\QValue^{\policy_\ttime}(\state,\action)\}.
-\]
-We will show that the number of iterations of policy iteration is
-bounded by that of value iteration, but each iteration is
-computationally more intensive.
-\end{itemize}
-
-\section{Learning Algorithms}
-
-We now would like to address the case that the MDP model is unknown.
-We  still have the two primary tasks: (1) policy evaluation, and (2)
-optimal control.
-
-%The policy evaluation would have a rather trivial solutoin, simply
-%run the policy and observe its return.
-
-We will use two different approaches. The {\em model based}
-approach, first learns a model and then uses it. The {\em model
-free} approach learns directly a policy.
-
-\subsection{Model Based Learning}
-
-The basic idea is very intuitive. We like to estimate the model from
-observations. Given a trajectory, we can decompose it to quadruplets
-$(\state_\ttime,\action_\ttime, \reward_\ttime,
-\state_{\ttime_+1})$. We can learn both the immediate rewards
-$\Rewards(\state,\action)$ and the transition function
-$\transitionprob(\cdot|\state,\action)$ from those quadruplets.
-
-\medskip
-\noindent{\em Building the observed model (off-policy):}
-%
-Given
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ we
-define the observed model as follows. Let
-$\#(\state,\action)=\sum_{\ttime=1}^\tHorizon
-\I(\state_\ttime=\state,\action_\ttime=\action)$, where $\I(\cdot)$
-is the indicator function. The observed reward would be
-$$\widehat{\Rewards}(\state,\action)=\sum_{\ttime=1}^\tHorizon \reward_\ttime \frac{\I(\state_\ttime=\state,\action_\ttime=\action)}{\#(\state,\action)}.$$ The observed
-next state distribution would be:
-$$\widehat{\transitionprob}(\state'|\state,\action)=\frac{\sum_{\ttime=1}^\tHorizon
- \I(\state_\ttime=\state,\action_\ttime=\action,\state_{\ttime+1}=\state')}{\#(\state,\action)}.$$
-
-Given an observed model, we can compute an optimal policy for the
-observed model. The following intuitive claim can be (and would be)
-made formal (later in the course).
-
-\begin{claim}
-If the observed model is ``accurate'' then the optimal policy for
-the observed model is a near optimal policy for the true model.
-\end{claim}
-
-There is a hidden assumption that we have enough samples for each
-state $\state$ and action $\action$. An important question is how
-many samples we need for each $(\state,\action)$ to get an accurate
-observed model.
-
-\medskip
-\noindent{\em Building the observed model (on-policy):}
-%
-In an on-policy the learner can control the actions. How can it use
-this ability to accelerate the learning. The simple idea is to try
-to visit states which we have not visit sufficiently, which will
-help us to build an accurate observed model.
-
-A basic idea is to split the states to two parts. Well observed
-states, from which we have sufficient samples for each action.
-Relatively unknown states, from which we have not sampled
-sufficiently. The idea is that from the well sampled states, we have
-a good model. Now we can ``imagine'' that the immediate reward in
-the relatively unknown states is maximal, while the immediate
-rewards in the well observed states is zero. We will also assume
-that once we get to a relatively unknown state we stay in such a
-state. Given such a model, we can solve for the planning problem.
-The optimal policy for this (imaginary) model will find a shortest
-path to the relatively unknown states, giving us an additional
-observation for those states. Eventually, states would move from the
-relatively unknown states to the well known states. Once the set of
-relatively unknown states is empty, we are done with the learning
-phase.
-
-\medskip
-\noindent{\em Monte-Carlo Methods}
-%
-For those methods it is easiest to think of a terminating MDP which
-works in episodes.
-%
-The Monte Carlo algorithm runs an episode using the policy.
-%
-Given the trajectories we like  to build an observed model. However,
-there might be statistical issues.
-%
-Unlike the continuous trajectory, now only the first arrival to a
-state is an independent sample!
-%
-Additional visits to the state might be correlated with previous
-outcomes!
-
-\subsection{Model free learning}
-
-Model free learning algorithm try to learn directly the value
-function or the policy, and circumvent learning the model.
-
-There is a variety of model free learning algorithms. They differ by
-the value function they estimate, $\QValue$ or $\Value$, and whether
-they are off-policy or on-policy. The main challenge is to analyze
-their dynamics and guarantee their convergence.
-
-\subsection{$\QValue$-learning: off-policy}
-
-The $\QValue$-learning algorithm estimates directly the optimal
-learning function. It receives as input a long trajectory and
-outputs an estimate for the $\QValue$ function.
-
-The idea is to focus on the difference between the current estimate
-and the observed values. Given the time $\ttime$ quadruple
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$,
-we define
-\[
-\Delta_\ttime= Q_\ttime(\state_\ttime,\action_\ttime) -
-\reward_\ttime - \discount \max_\action
-Q_\ttime(\state_{\ttime+1},\action)
-\]
-We have a learning rate $\alpha_\ttime(\state,\action)$ which may
-depend on the number of times, until time $\ttime$, we executed
-$(\state,\action)$. We now update our estimate to
-$\QValue^{\ttime+1}$ as follows,
-\[
-Q_{\ttime+1}(\state_\ttime,\action_\ttime)=Q_{\ttime+1}(\state_\ttime,\action_\ttime)-\alpha(\state_\ttime,\action_\ttime)\Delta_\ttime
-\]
-Note that once $Q_\ttime=\QValue^*$ then $E[\Delta_\ttime]=0$. The
-challenge in the analysis is to study the dynamics of the stochastic
-process and show the convergence.
 
 
+\section{Book Organization}
 
-\subsection{Temporal Differences}
+The book is thematically comprised of two main parts -- \textit{planning} and \textit{learning}. 
 
-The Temporal Differences (TD) computes an estimate to the $V$ value
-function of the current policy. The error at time $\ttime$ is
-\[
-\Delta_\ttime=
-V_\ttime(\state_\ttime)-\reward_\ttime-V_\ttime(\state_{\ttime+1})
-\]
-and, using the learning rate
-$\alpha_\ttime(\state_\ttime,\action_\ttime)$ we update
-\[
-V_{\ttime+1}(\state_\ttime)=V_\ttime(\state_\ttime)-\alpha_\ttime(\state_\ttime,\action_\ttime)
-\Delta_\ttime
-\]
-The above is called $TD(0)$, which focuses on the last transition.
-In general we can add a parameter $\lambda$ which defines
-$TD(\lambda)$. The parameter allows us to update the current value
-also using recent observed rewards. The $\lambda$ can be viewed as a
-discounting, which is used for the update (and not the return!). The
-eligibility of a state counts how many times a state is visited
-(discounted by $\lambda$). The eligibility trace of a state $\state$
-is
-\[
-e_\ttime(\state)=\sum_{i=1}^\ttime (\lambda\discount)^{\ttime-i}
-\I(\state_{\ttime-i}=\state) =
-(\lambda\discount)e_{\ttime-1}(\state)+\I(\state_{\ttime}=\state)
-\]
-Given the eligibility trace the new estimated value, in {\em every}
-state $\state$, is
-\[
-V_{\ttime+1}(\state)=V_\ttime(\state)-\alpha_\ttime(\state_\ttime,\action_\ttime)
-\Delta_\ttime e_\ttime(\state)
-\]
-The idea is that we propagate the rewards faster to recently visited
-states.
+\paragraph{Planning:} The planning theme develops the fundamentals of optimal decision making in the face of uncertainty, under the Markov decision process model. The basic assumption in planning is that the MDP model is \textit{known} (yet, as the model is stochastic, uncertainty must still be accounted for in making decisions)
+In Chapter \ref{chapter:DDP} we introduce the problem and basic algorithmic ideas under the deterministic setting. In Chapter \ref{chapter:MC} we review the topic of Markov chains, which the Markov decision process model is based on, and
+then, in Chapter \ref{chapter:MDP-FH} we introduce the finite horizon MDP model and a fundamental dynamic programming approach. Chapter \ref{chapter:disc} covers the infinite horizon discounted setting.
+% and episodic settings, respectively.
+
+\paragraph{Learning:} The learning theme covers decision making when the MDP model is \textit{not known in advance}. Chapter \ref{chapter-model-based} introduces the \textit{model-based} approach, where the agent explicitly learns an MDP model from its experience and uses it for planning decisions. Chapter \ref{chapter:learning-model-free} covers an alternative \textit{model-free} approach, where decisions are learned without explicitly building a model. Chapters \ref{chapter:function-approximation} and \ref{chapter:policy-gradient} address learning of approximately optimal solutions in \textit{large} problems, that is, problems where the underlying MDP model is intractable to solve. Chapter \ref{chapter:function-approximation} approaches this topic using approximation of the value function, while Chapter \ref{chapter:policy-gradient} considers policy approximations. 
+% To complete the picture, Chapter \ref{chapter:tree-based-search} considers online planning using tree-search methods.
+% \section{Markov Decision Process (MDP)}
+
+% Our main formal model would be a Markov Decision Process (MDP) will
+% be composed from:
+% \begin{itemize}
+% \item
+% $\States$: a finite set of states.
+% \item
+% $\state_0\in \States$: is the start state.
+% \item
+% $\Actions$: a finite set of actions.
+% \item
+% $\transitionprob:\States\times \Actions\rightarrow \Delta(\States)
+% $: a stochastic transition probability function, where
+% $\Delta(\States)$ is the set of probability distributions over
+% $\States$. We denote by $\transitionprob(\cdot|\state,\action)$ the
+% distribution of next state, when doing action $\action$ in state
+% $\state$.
+% \item
+% $\Rewards$: an immediate reward. In general $\Rewards$ would depend
+% on the current state $\state$ and action $\action$, and in general
+% it can be a random variable. In most cases we will focus on the
+% expectation of $\Rewards(\state,\action)$. We will assume that the
+% immediate reward $\Rewards$ is bounded, specifically, that it is
+% always in the range $[0,1]$.
+% \end{itemize}
+
+% %When we have an MDP, the
+% A run of the MDP is characterized by a {\em trajectory}, which has
+% quadruples $(\state_\ttime,\action_\ttime, \reward_\ttime,
+% \state_{\ttime+1})$, where $\state_\ttime$ is the state at time
+% $\ttime$, $\action_\ttime$ is the action performed at time $\ttime$
+% in $\state_\ttime$, $\reward_\ttime$ is the immediate reward, and
+% $\state_{\ttime+1}$ is the next state. Clearly, $\reward_\ttime$ is
+% distributed according to $\Rewards(\state_\ttime,\action_\ttime)$
+% and $\state_{\ttime+1}$ is distributed according to
+% $\transitionprob(\cdot|\state_\ttime,\action_\ttime)$.
+
+% \medskip
+% \noindent{\em Return function}
+% %
+% We like to combine the immediate rewards to a single value, which we
+% call {\em return}, that we will optimize. The decision to reduce all
+% the immediate rewards to a single value is already a major modeling
+% decision. When defining the return we will consider whether earlier
+% immediate rewards are more important than later rewards. Also, there
+% is an issue whether the system is {\em terminating}, namely
+% terminates after a finite number of steps, or is {\em continuous},
+% which implies that it runs forever. Usually, the return would be
+% linear in the immediate rewards, and we will be interested in
+% maximizing expected return. For that reason, we will be mostly
+% interested in the expectation of the immediate rewards.
+
+% Popular return functions include:
+% \begin{enumerate}
+% \item
+% {\em Finite horizon:} There is a parameter $\tHorizon$ and the
+% return is the sum of the first $\tHorizon$ rewards, i.e.,
+% $\sum_{\ttime=1}^\tHorizon \reward_\ttime$.
+% \item
+% {\em Infinite discounted return:} There is a parameter
+% $\discount\in(0,1)$ and the discounted return is
+% $\sum_{\ttime=0}^\infty \discount^t \reward_\ttime$. Note that since
+% $\reward_\ttime\in[0,1]$, the return is bounded by
+% $1/(1-\discount)$.
+% \item
+% {\em Average Reward:} where we take the limit of the average
+% immediate reward. Specifically, $\lim_{\tHorizon\rightarrow \infty}
+% \frac{1}{tHorizon} \E[\sum_{\ttime=1}^\tHorizon \reward_\ttime]$.
+% \item
+% {\em Sum of the rewards:} this applies only to the case of
+% terminating MDP, since otherwise it might be infinite.
+% \end{enumerate}
+
+% \medskip
+% \noindent{\em Example of an MDP:}
+% %
+% Consider an inventory control problem. At day $\ttime$ we have
+% $x_\ttime \geq 0$ remaining items from previous days. We order
+% $\action_\ttime\geq 0$ new items, which is our action. We have a
+% demand of $d_\ttime\geq 0$, the amount consumer want to buy at day
+% $\ttime$. We have
+% $\state_\ttime=\min(d_\ttime,x_\ttime+\action_\ttime)$ items bought.
+% For day $\ttime+1$ we have $x_{\ttime+1}$ remaining items, i.e.,
+% $x_{\ttime+1}=\max(0,x_\ttime+\action_\ttime-d_\ttime)$.
+
+% We can now formalize the immediate reward, based on $P$, the profit
+% per item, $J(\cdot)$ the cost to order, and $C(\cdot)$ the cost of
+% inventory. Our immediate reward is,
+% \[
+% \Rewards(x_\ttime,\action_\ttime)=P\state_\ttime-J(\action_\ttime)-C(x_{\ttime+1})
+% \]
+% Our goal can be to maximize a discounted return function over the
+% immediate rewards, where the discounting represents the interest
+% rate.
+
+% \medskip
+% \noindent{\em Action selection:} We assume that the state of the
+% system is ``observable'', namely, we know in which state we are. Our
+% goal would be to select action as to maximize the expected return.
+% For the remainder of the lecture we focus on the discounted return.
+
+% Let a policy be a mapping from states to actions. Due to the Markov
+% property of the system, we can show that the optimal
+% history-dependent strategy is a deterministic policy, namely, it
+% does not depend on the history and selects at each state a single
+% action.
+
+% \begin{theorem}
+% There exists a deterministic policy which maximizes the discounted
+% return.
+% \end{theorem}
+
+% Note that the optimal policy does not depend on the start state!
+
+% \medskip
+% \noindent{\em Multi-Arm Bandits (MAB):}
+% %
+% A simple well-studied variant of the MDP model are MABs, which are
+% essentially an MDP with a single state. Given the model it is clear
+% that the optimal policy would select the action with the highest
+% immediate reward. However, when we need to learn the stochastic
+% rewards, we have a tradeoff between using the action with the
+% highest observed immediate reward versus trying new actions, and
+% getting a better approximation of their expectation.
+
+% \section{Planning}
+
+% Planning problems capture the case that we are given a complete
+% model of the MDP and would like to perform some task. Two popular
+% tasks are the following:
+% \begin{itemize}
+% \item
+% {\bf Policy evaluation}: Given a policy $\policy$ evaluate its
+% expected return.
+% \item
+% {\bf Optimal control}: Compute an optimal policy $\policy^*$. For
+% the infinite discounted return we have that $\policy^*$ maximizes
+% the return from any start state.
+% \end{itemize}
+
+% We start with policy evaluation. An important ingredients in the
+% planning process would be the following two value functions, which
+% depend on the policy $\policy$.
+% \begin{itemize}
+% \item
+% $\Value^\policy(\state)$, which is the expected return of $\policy$
+% starting from state $\state$.
+% \item
+% $\QValue^\policy(\state,\action)$, which is the expected return of
+% $\policy$ starting from state $\state$ doing action $\action$ and
+% then following $\policy$.
+% \end{itemize}
+
+% We denote by $\Value^*(\state)$ and $\QValue^*(\state,\action)$ the
+% value function and the $\QValue$-value function, respectively, of
+% the optimal policy $\policy^*$. For the optimal policy we have,
+% \[
+% \forall \state\in \States \;\;\; \Value^*(\state)=\max_\policy
+% \Value^\policy(\state)
+% \]
+% Namely, the optimal policy is optimal from any start state.
+
+% \medskip
+% \noindent{\em Policy Evaluation}
+% %
+% We can now solve the policy evaluation problem for the discounted
+% return. We can write the following identities.
+% % known as Bellman equations.
+% \[
+% \forall \state\in \States:\;\;\; \Value^\policy(\state)=
+% \E_{\state'\sim
+% \transitionprob(s,\policy(\state))}[\Rewards(s,\policy(\state))+\discount
+% \Value^\policy(\state')]
+% \]
+% This gives a system of linear equations where the unknowns are
+% $\Value^\policy(\state)$. We have $|\States|$ equations and
+% $|\States|$ unknowns, so there exists some solution.
+
+% \medskip
+% \noindent{\em Optimal Control:} We can write the identity for the
+% optimal $\QValue$-function.
+% \[
+% \QValue^\policy(\state,\action)=\E_{\state'\sim
+% \transitionprob(s,\policy(\state))}[\Rewards(\state,\action)+\discount
+% \Value^\policy(\state')]
+% \]
+% Note that for a deterministic policy $\policy$ we have
+% $\Value^\policy(\state)=\QValue^\policy(\state,\policy(\state))$.
+
+% The following theorem gives a characterization of the optimal policy
+% (also known as Bellman Eq).
+% \begin{theorem}
+% A policy $\policy$ is optimal if and only if at each state $\state$
+% we have
+% \[
+% \Value^\policy(\state)=\max_\action
+% \{\QValue^\policy(\state,\action)\}
+% \]
+% \end{theorem}
+
+% \begin{proof} We will show here only the {\em only if} part (the other direction will be give later in the course).
+% Assume that there is a state $\state$ and action $\action$ such that
+% \[
+% \Value^\policy(\state) < \QValue^\policy(\state,\action)
+% \]
+% The strategy of performing in state $\state$ action $\action$ and
+% then using policy $\policy$ outperforms policy $\policy$, and so
+% policy $\policy$ is not optimal.
+
+% The improvement would be valid for each visit of state $\state$, so
+% the policy that performs action $\action$ in state $\state$ improves
+% over policy $\policy$ (and is also a policy, a mapping from states
+% to actions).
+% \end{proof}
+
+% \medskip
+% \noindent{\em Computing the optimal policy:}
+% %
+% There are three popular algorithms to compute the optimal policy
+% given an MDP model.
+% \begin{itemize}
+% \item
+% {\em Linear Program}
+% \item
+% {\em Value Iteration}: at iteration $\ttime$ compute
+% \[
+% V_{\ttime+1}(\state)= \max_\action \E_{\state'\sim
+% \transitionprob(\cdot
+% |\action,\state)}[\Rewards(\state,\policy(\state))+\discount
+% V_\ttime(\state')]
+% \]
+% We will show that at each iteration the distance from the optimal
+% value function $\Value^*$ is decreased by $1-\discount$, namely
+% $\|V_{\ttime+1}-\Value^*\|_\infty\leq
+% (1-\discount)\|V_\ttime-\Value^*\|_\infty$.
+% \item
+% {\em Policy Iteration}:
+% \[
+% \policy_{\ttime+1}(\state) =\arg \max_\action
+% \{\QValue^{\policy_\ttime}(\state,\action)\}.
+% \]
+% We will show that the number of iterations of policy iteration is
+% bounded by that of value iteration, but each iteration is
+% computationally more intensive.
+% \end{itemize}
+
+% \section{Learning Algorithms}
+
+% We now would like to address the case that the MDP model is unknown.
+% We  still have the two primary tasks: (1) policy evaluation, and (2)
+% optimal control.
+
+% %The policy evaluation would have a rather trivial solutoin, simply
+% %run the policy and observe its return.
+
+% We will use two different approaches. The {\em model based}
+% approach, first learns a model and then uses it. The {\em model
+% free} approach learns directly a policy.
+
+% \subsection{Model Based Learning}
+
+% The basic idea is very intuitive. We like to estimate the model from
+% observations. Given a trajectory, we can decompose it to quadruplets
+% $(\state_\ttime,\action_\ttime, \reward_\ttime,
+% \state_{\ttime_+1})$. We can learn both the immediate rewards
+% $\Rewards(\state,\action)$ and the transition function
+% $\transitionprob(\cdot|\state,\action)$ from those quadruplets.
+
+% \medskip
+% \noindent{\em Building the observed model (off-policy):}
+% %
+% Given
+% $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ we
+% define the observed model as follows. Let
+% $\#(\state,\action)=\sum_{\ttime=1}^\tHorizon
+% \I(\state_\ttime=\state,\action_\ttime=\action)$, where $\I(\cdot)$
+% is the indicator function. The observed reward would be
+% $$\widehat{\Rewards}(\state,\action)=\sum_{\ttime=1}^\tHorizon \reward_\ttime \frac{\I(\state_\ttime=\state,\action_\ttime=\action)}{\#(\state,\action)}.$$ The observed
+% next state distribution would be:
+% $$\widehat{\transitionprob}(\state'|\state,\action)=\frac{\sum_{\ttime=1}^\tHorizon
+%  \I(\state_\ttime=\state,\action_\ttime=\action,\state_{\ttime+1}=\state')}{\#(\state,\action)}.$$
+
+% Given an observed model, we can compute an optimal policy for the
+% observed model. The following intuitive claim can be (and would be)
+% made formal (later in the course).
+
+% \begin{claim}
+% If the observed model is ``accurate'' then the optimal policy for
+% the observed model is a near optimal policy for the true model.
+% \end{claim}
+
+% There is a hidden assumption that we have enough samples for each
+% state $\state$ and action $\action$. An important question is how
+% many samples we need for each $(\state,\action)$ to get an accurate
+% observed model.
+
+% \medskip
+% \noindent{\em Building the observed model (on-policy):}
+% %
+% In an on-policy the learner can control the actions. How can it use
+% this ability to accelerate the learning. The simple idea is to try
+% to visit states which we have not visit sufficiently, which will
+% help us to build an accurate observed model.
+
+% A basic idea is to split the states to two parts. Well observed
+% states, from which we have sufficient samples for each action.
+% Relatively unknown states, from which we have not sampled
+% sufficiently. The idea is that from the well sampled states, we have
+% a good model. Now we can ``imagine'' that the immediate reward in
+% the relatively unknown states is maximal, while the immediate
+% rewards in the well observed states is zero. We will also assume
+% that once we get to a relatively unknown state we stay in such a
+% state. Given such a model, we can solve for the planning problem.
+% The optimal policy for this (imaginary) model will find a shortest
+% path to the relatively unknown states, giving us an additional
+% observation for those states. Eventually, states would move from the
+% relatively unknown states to the well known states. Once the set of
+% relatively unknown states is empty, we are done with the learning
+% phase.
+
+% \medskip
+% \noindent{\em Monte-Carlo Methods}
+% %
+% For those methods it is easiest to think of a terminating MDP which
+% works in episodes.
+% %
+% The Monte Carlo algorithm runs an episode using the policy.
+% %
+% Given the trajectories we like  to build an observed model. However,
+% there might be statistical issues.
+% %
+% Unlike the continuous trajectory, now only the first arrival to a
+% state is an independent sample!
+% %
+% Additional visits to the state might be correlated with previous
+% outcomes!
+
+% \subsection{Model free learning}
+
+% Model free learning algorithm try to learn directly the value
+% function or the policy, and circumvent learning the model.
+
+% There is a variety of model free learning algorithms. They differ by
+% the value function they estimate, $\QValue$ or $\Value$, and whether
+% they are off-policy or on-policy. The main challenge is to analyze
+% their dynamics and guarantee their convergence.
+
+% \subsection{$\QValue$-learning: off-policy}
+
+% The $\QValue$-learning algorithm estimates directly the optimal
+% learning function. It receives as input a long trajectory and
+% outputs an estimate for the $\QValue$ function.
+
+% The idea is to focus on the difference between the current estimate
+% and the observed values. Given the time $\ttime$ quadruple
+% $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$,
+% we define
+% \[
+% \Delta_\ttime= Q_\ttime(\state_\ttime,\action_\ttime) -
+% \reward_\ttime - \discount \max_\action
+% Q_\ttime(\state_{\ttime+1},\action)
+% \]
+% We have a learning rate $\alpha_\ttime(\state,\action)$ which may
+% depend on the number of times, until time $\ttime$, we executed
+% $(\state,\action)$. We now update our estimate to
+% $\QValue^{\ttime+1}$ as follows,
+% \[
+% Q_{\ttime+1}(\state_\ttime,\action_\ttime)=Q_{\ttime+1}(\state_\ttime,\action_\ttime)-\alpha(\state_\ttime,\action_\ttime)\Delta_\ttime
+% \]
+% Note that once $Q_\ttime=\QValue^*$ then $E[\Delta_\ttime]=0$. The
+% challenge in the analysis is to study the dynamics of the stochastic
+% process and show the convergence.
 
 
 
+% \subsection{Temporal Differences}
 
-\section{Large state MDP}
+% The Temporal Differences (TD) computes an estimate to the $V$ value
+% function of the current policy. The error at time $\ttime$ is
+% \[
+% \Delta_\ttime=
+% V_\ttime(\state_\ttime)-\reward_\ttime-V_\ttime(\state_{\ttime+1})
+% \]
+% and, using the learning rate
+% $\alpha_\ttime(\state_\ttime,\action_\ttime)$ we update
+% \[
+% V_{\ttime+1}(\state_\ttime)=V_\ttime(\state_\ttime)-\alpha_\ttime(\state_\ttime,\action_\ttime)
+% \Delta_\ttime
+% \]
+% The above is called $TD(0)$, which focuses on the last transition.
+% In general we can add a parameter $\lambda$ which defines
+% $TD(\lambda)$. The parameter allows us to update the current value
+% also using recent observed rewards. The $\lambda$ can be viewed as a
+% discounting, which is used for the update (and not the return!). The
+% eligibility of a state counts how many times a state is visited
+% (discounted by $\lambda$). The eligibility trace of a state $\state$
+% is
+% \[
+% e_\ttime(\state)=\sum_{i=1}^\ttime (\lambda\discount)^{\ttime-i}
+% \I(\state_{\ttime-i}=\state) =
+% (\lambda\discount)e_{\ttime-1}(\state)+\I(\state_{\ttime}=\state)
+% \]
+% Given the eligibility trace the new estimated value, in {\em every}
+% state $\state$, is
+% \[
+% V_{\ttime+1}(\state)=V_\ttime(\state)-\alpha_\ttime(\state_\ttime,\action_\ttime)
+% \Delta_\ttime e_\ttime(\state)
+% \]
+% The idea is that we propagate the rewards faster to recently visited
+% states.
 
-In the previous learning algorithms we assumed that the number of
-states is sufficiently small, since we build lookup table index by
-states. However, in many applications the number of states is
-exponential in the number of natural parameters. Overcoming this
-challenge can be done in many ways, here are a few popular ones.
-\begin{enumerate}
-\item
-{\em Restricted value function:} The main idea is to use a value
-function from a limited class. Two extreme solutions are linear
-functions and deep neural networks. This is similar to supervised
-learning, where we learn using a given function class. Especially
-popular are Deep Q-Networks (DQN) which learn the $\QValue$ values
-using a deep neural network.
-\item
-{\em Restricted policy class:} We fix a policy class
-$\Pi=\{\policy:\States\rightarrow \Actions\}$. The main challenge is
-given $\policy\in \Pi$ to estimate $\Value^\policy$ or
-$\QValue^\policy$. Given the estimate of $\QValue^\policy$ we can
-improve the policy by computing a greedy policy $\policy'=\arg\max
-\QValue^\policy$. The quality clearly depends on the approximation
-of both the $\QValue^\policy$ and the ability to fit
-$\policy'=\arg\max \QValue^\policy$ to $\Pi$.
 
-One challenge is how to compute the gradient of a policy, to update
-its parameters. The challenge is that the update influences not only
-the action probabilities, but also the distribution  of the states.
-\item
-{\em Restricted MDP model:} We can make assumptions about the MDP
-structure, for example, MAB assumes a single state.
-\item
-{\em Generative model:} We are given an implicit representation of
-the MDP using a generative model. The model, given
-$(\state,\action)$ return $(\reward,\state')$, appropriately
-distributed.
-\end{enumerate}
 
-\section{Course Schedule}
 
-\begin{itemize}
-\item
-Part 1: MDP basics and planning
-\begin{itemize}
-\item
-Deterministic Decision Processes: Finite Horizon and Average cost
-\item
-Markov Chains and Markov Decision Processes: Finite Horizon
-\item
-MDP: discounted infinite horizon
-\end{itemize}
-\item
-Part 2: MDP learning Model Based and Model free
-\begin{itemize}
-\item
-Model based learning: off-policy, on-policy, Rmax
-\item
-Model free learning: Q-learning, SARSA, Monte-Carlo
-\item
-Model free learning: TD(0), TD($\lambda$), Importance Sampling,
-Action-Critic
-\end{itemize}
-\item
-Part 3: Large state MDP Policy Gradient, Deep Q-Network
-\begin{itemize}
-\item
-Value Function Approximation
-\item
-Policy Gradient
-\end{itemize}
-\item
-Part 4: Special MDPs
-\begin{itemize}
-\item
-Stochastic Multi-Arm Bandits
-\item
-Partially Observable MDP (POMDP)
-\item
-Linear Dynamics models (LQR)
-\item
-Generative model; Inverse RL
-\end{itemize}
-\end{itemize}
+% \section{Large state MDP}
+
+% In the previous learning algorithms we assumed that the number of
+% states is sufficiently small, since we build lookup table index by
+% states. However, in many applications the number of states is
+% exponential in the number of natural parameters. Overcoming this
+% challenge can be done in many ways, here are a few popular ones.
+% \begin{enumerate}
+% \item
+% {\em Restricted value function:} The main idea is to use a value
+% function from a limited class. Two extreme solutions are linear
+% functions and deep neural networks. This is similar to supervised
+% learning, where we learn using a given function class. Especially
+% popular are Deep Q-Networks (DQN) which learn the $\QValue$ values
+% using a deep neural network.
+% \item
+% {\em Restricted policy class:} We fix a policy class
+% $\Pi=\{\policy:\States\rightarrow \Actions\}$. The main challenge is
+% given $\policy\in \Pi$ to estimate $\Value^\policy$ or
+% $\QValue^\policy$. Given the estimate of $\QValue^\policy$ we can
+% improve the policy by computing a greedy policy $\policy'=\arg\max
+% \QValue^\policy$. The quality clearly depends on the approximation
+% of both the $\QValue^\policy$ and the ability to fit
+% $\policy'=\arg\max \QValue^\policy$ to $\Pi$.
+
+% One challenge is how to compute the gradient of a policy, to update
+% its parameters. The challenge is that the update influences not only
+% the action probabilities, but also the distribution  of the states.
+% \item
+% {\em Restricted MDP model:} We can make assumptions about the MDP
+% structure, for example, MAB assumes a single state.
+% \item
+% {\em Generative model:} We are given an implicit representation of
+% the MDP using a generative model. The model, given
+% $(\state,\action)$ return $(\reward,\state')$, appropriately
+% distributed.
+% \end{enumerate}
+
+% \section{Course Schedule}
+
+% \begin{itemize}
+% \item
+% Part 1: MDP basics and planning
+% \begin{itemize}
+% \item
+% Deterministic Decision Processes: Finite Horizon and Average cost
+% \item
+% Markov Chains and Markov Decision Processes: Finite Horizon
+% \item
+% MDP: discounted infinite horizon
+% \end{itemize}
+% \item
+% Part 2: MDP learning Model Based and Model free
+% \begin{itemize}
+% \item
+% Model based learning: off-policy, on-policy, Rmax
+% \item
+% Model free learning: Q-learning, SARSA, Monte-Carlo
+% \item
+% Model free learning: TD(0), TD($\lambda$), Importance Sampling,
+% Action-Critic
+% \end{itemize}
+% \item
+% Part 3: Large state MDP Policy Gradient, Deep Q-Network
+% \begin{itemize}
+% \item
+% Value Function Approximation
+% \item
+% Policy Gradient
+% \end{itemize}
+% \item
+% Part 4: Special MDPs
+% \begin{itemize}
+% \item
+% Stochastic Multi-Arm Bandits
+% \item
+% Partially Observable MDP (POMDP)
+% \item
+% Linear Dynamics models (LQR)
+% \item
+% Generative model; Inverse RL
+% \end{itemize}
+% \end{itemize}

@@ -278,7 +278,8 @@ Using this we have
 
 \begin{example}
 Consider an MDP with a single state $\state$ (which is also called
-Multi-Arm Bandit, and is discussed in Chapter \ref{chapter:MAB}).
+Multi-Arm Bandit)
+% , and is discussed in Chapter \ref{chapter:MAB}).
 Assume we have only two actions, action $\action_1$ has expected
 reward $\reward_1$ and action $\action_2$ has expected reward
 $\reward_2$.
@@ -345,7 +346,7 @@ Consider the following simple identity,
 This implies that we can restate the Policy Gradient Theorem as the
 following corollary,
 \begin{corollary}[Policy Gradient Corollary]
-\label{thm:policy-gradient} For any policy
+\label{thm:policy-gradient-corr} For any policy
 $\policy(\cdot|\cdot;\theta)$, we have
 \[
 \nabla J(\theta)= \sum_{s\in S} \mu(\state) \sum_{\action\in

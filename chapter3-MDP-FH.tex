@@ -4,12 +4,12 @@ problems for \emph{deterministic} systems. In many problems of
 interest, the system dynamics also involves \emph{randomness}, which
 leads us to stochastic decision problems. In this chapter we
 introduce the basic model of Markov Decision Processes (MDP), which
-will be considered in the rest of the book, and discuss the finite
-horizon return.
+will be considered throughout the rest of the book, and discuss optimal decision making in the finite
+horizon setting.
 
 
 
-\section{Controlled Markov Chains}
+\section{Markov Decision Process}
 
 A Markov Decision Process consists of two main parts:
 \begin{enumerate}
@@ -214,7 +214,8 @@ Implicit in these definitions of control policies is the assumption
 that the current state ${\state_\ttime}$ can be fully observed
 before the action ${\action_\ttime}$ is chosen . If this is not the
 case we need to consider the problem of a Partially Observed MDP
-(POMDP), which is more involved and will be discussed in Chapter \ref{chapter:POMDP}.
+(POMDP), which is more involved and is not discussed in this book.
+% will be discussed in Chapter \ref{chapter:POMDP}.
 \end{remark}
 
 \section{Performance Criteria}
@@ -421,8 +422,8 @@ in Chapter \ref{chapter:disc}.
 \[\Value_{av}^\policy (\state) = \mathop {\lim \inf }\limits_{\tHorizon \to \infty } {\E^{\policy ,s}}(\frac{1}{\tHorizon}\sum\limits_{\ttime = 0}^{\tHorizon -1} {\reward({\state_\ttime},{\action_\ttime})} )\]
 The theory of average-return planning problems is more involved, and
 relies to a larger extent on the theory of Markov chains (see
-Chapter~\ref{chapter:MC}). The average return is discussed in
-Chapter \ref{chapter:average}.
+Chapter~\ref{chapter:MC}). 
+% The average return is discussed in Chapter \ref{chapter:average}.
 
 
 
@@ -461,8 +462,8 @@ shortest-path problem to stochastic settings.  Some conditions on
 the system dynamics and reward function must be imposed for the
 problem to be well posed (e.g., that a goal state may be reached
 with probability one). Such problems are known as stochastic
-shortest path problems, or also episodic MDP planning problems. See
-more in Chapter \ref{chapter:ssp}.
+shortest path problems, or also episodic MDP planning problems. 
+% See more in Chapter \ref{chapter:ssp}.
 
 \section{Sufficiency of Markov Policies}
 In all the performance criteria defined above, the criterion is
@@ -565,7 +566,7 @@ Observe that:
 \begin{align*}
 V_k^\policy (\state) &= {\E^\policy }\left( {{R_k} + \sum\nolimits_{\ttime = k + 1}^\tHorizon {{R_\ttime}|} \;{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
  &= {\E^\policy }\left( {{\E^\policy }\left( {{R_k} + \sum\nolimits_{\ttime = k + 1}^\tHorizon {{R_\ttime}} |\;{\state_k} = \state,{\action_k} = {\policy _k}(\state),{\state_{k + 1}}} \right)|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
- &= {\E^\policy }\left( {\reward_kß({\state_k},{\action_k}) + V_{k + 1}^\policy ({\state_{k + 1}})|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
+ &= {\E^\policy }\left( {\reward_k({\state_k},{\action_k}) + V_{k + 1}^\policy ({\state_{k + 1}})|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
  &= {\reward_k}(s,{\policy _k}(\state)) + \sum\nolimits_{\state' \in {\States_{k + 1}}} {{p_k}(\state'|s,{\policy _k}(\state))} \;V_{k + 1}^\policy (\state')
 \end{align*}
 The first identity is simply writing the value function explicitly,

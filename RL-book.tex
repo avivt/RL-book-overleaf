@@ -4,8 +4,9 @@
 \usepackage{color}
 \usepackage{amsmath}
 \usepackage{amssymb}
-\usepackage{hyperref}
+% \usepackage{hyperref}
 \usepackage{fullpage}
+\usepackage{natbib}
 
 
 %
@@ -60,8 +61,13 @@
 
 
 \title{Reinforcement Learning: Foundations}
-\date{February 2021}                                           % Activate to display a given date or no date
+\date{February 2022
+\\
+  \textcolor{red}{This book is still work in progress. In particular, references to literature are not complete. We would be grateful for notification about errors or comments of any kind. }
+
+}                                           % Activate to display a given date or no date
 \author{Shie Mannor, Yishay Mansour and Aviv Tamar}
+
 
 \begin{document}
 \maketitle
@@ -84,35 +90,35 @@
 \label{chapter:MC}
 \input{chapter3-MC-v1}
 
-\chapter{Markov Decision Processes and Finite Horizon}
+\chapter{Markov Decision Processes and Finite Horizon Dynamic Programming}
 \label{chapter:MDP-FH}
 \input{chapter3-MDP-FH}
 
 
-%\chapter{Markov Chains, Markov Decision Processes and Finite Horizon (need to split)}
-%\input{chapter3-MC}
-%\input{exercise2}
+% %\chapter{Markov Chains, Markov Decision Processes and Finite Horizon (need to split)}
+% %\input{chapter3-MC}
+% %\input{exercise2}
 
-\chapter{MDPs with Discounted Infinite Return}
+\chapter{Discounted Markov Decision Processes}
 \label{chapter:disc}
 \input{chapter4-disc}
-%\input{exercises3}
+% \input{exercises3}
 
-\chapter{Stochastic shortest paths}
-\label{chapter:ssp}
-\input{chapter5-ssp}
+% \chapter{Stochastic Shortest Paths}
+% \label{chapter:ssp}
+% \input{chapter5-ssp}
 
 
-\chapter{Average cost}
-\label{chapter:average}
+% \chapter{Average cost}
+% \label{chapter:average}
 
-\chapter{Tabular learning: Model based}
+\chapter{Reinforcement Learning: Model Based}\label{chapter-model-based}
 \input{Learning-model-based.tex}
 %\input{exercises6}
 
 
 
-\chapter{Tabular learning: Model free}
+\chapter{Reinforcement Learning: Model Free}
 \label{chapter:learning-model-free}
 \input{Lecture-model-free-1.tex}
 %\end{document}
@@ -120,50 +126,52 @@
 \input{Lecture-model-free-2.tex}
 %\input{exercises7}
 
-\chapter{Tabular learning: off-policy}
-%\input{Lecture10}
+% \chapter{Tabular learning: off-policy}
+% %\input{Lecture10}
 
-\chapter{Large state space: value function approximation}
+\chapter{Large State Spaces: Value Function Approximation}
 \label{chapter:function-approximation}
 \input{Lecture-Function-Approximation.tex}
 %\input{Lecture-Function-Approximation-advanced.tex}
 %\input{exercises8}
 
-\chapter{Large state space: Policy Gradient Methods}
+\chapter{Large State Space: Policy Gradient Methods}
+\label{chapter:policy-gradient}
 \input{Lecture-Policy-Gradient.tex}
 
-\chapter{Large state space: tree based optimization}
-%\input{Lecture6}
-%\input{exercises4}
+% \chapter{Large state space: tree based optimization}
+% \label{chapter:tree-based-search}
+% %\input{Lecture6}
+% %\input{exercises4}
 
-%\chapter{Learning in Simple Bandits Problems}
-%\input{Lecture7}
-%\input{exercises5}
+% %\chapter{Learning in Simple Bandits Problems}
+% %\input{Lecture7}
+% %\input{exercises5}
 
-\chapter{Deep RL}
+% \chapter{Deep RL}
 
-\chapter{ Multi-Arm bandits}
-\label{chapter:MAB}
-\input{Lecture-MAB.tex}
-%\end{document}
+% \chapter{ Multi-Arm bandits}
+% \label{chapter:MAB}
+% \input{Lecture-MAB.tex}
+% %\end{document}
 
 
 
-\chapter{POMDP}
-\label{chapter:POMDP}
-\input{Lecture-POMDP.tex}
+% \chapter{POMDP}
+% \label{chapter:POMDP}
+% \input{Lecture-POMDP.tex}
 
-\chapter{LQR}
-\label{chapter:LQR}
-\input{Lecture-LQR}
+% \chapter{LQR}
+% \label{chapter:LQR}
+% \input{Lecture-LQR}
 
-\chapter{Generative model}
-\label{chapter:generative}
-\input{Lecture-Generative}
+% \chapter{Generative model}
+% \label{chapter:generative}
+% \input{Lecture-Generative}
 
-\chapter{Inverse RL and Apprenticeship learning}
-\label{chapter:IRL}
-\input{Lecture-IRL.tex}
+% \chapter{Inverse RL and Apprenticeship learning}
+% \label{chapter:IRL}
+% \input{Lecture-IRL.tex}
 
 \appendix
 
@@ -171,9 +179,10 @@
 \label{chapter:dp}
 \input{Lecture-DP.tex}
 
+
+\bibliographystyle{plain}
 \bibliography{bib-lecture}
 %\bibliography{bib-lecture5,bib-lecture}
-\bibliographystyle{plain}
 %\bibliography{bib-lecture5}
 %\bibliographystyle{plain}
 \end{document}

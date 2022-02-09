@@ -4,13 +4,13 @@
 
 
 
-This class of problems provides a natural extension of the standard shortest-path problem to stochastic settings. When we view Stochastic Shortest Paths (SSP) as an extension of the graph theoretic notion of shortest paths, we can motivate it by having the edges no completely deterministic, but rather having a probability of ending a different state.
+This class of problems provides a natural extension of the standard shortest-path problem to stochastic settings. When we view Stochastic Shortest Paths (SSP) as an extension of the graph theoretic notion of shortest paths, we can motivate it by having the edges not completely deterministic, but rather having a probability of ending in a different state.
 %
 Probably a better view, is to think of the edges as general actions, which induce a distribution over the next state.
 %
 The goal state can be either a single state or a set of states, both notions would be equivalent. 
 
-The SSP problem includes an important sub-category, which is {\em episodic MDP}. In an episodic MDP we are guarantee to complete the episode in (expected) finite time, regardless of the policy we employ. This will not be true of a general SSP, as some policies 
+The SSP problem includes an important sub-category, which is {\em episodic MDP}. In an episodic MDP we are guarantee to complete the episode in (expected) finite time, regardless of the policy we employ. This will not be true for a general SSP, as some policies might get `stuck in a loop' and never terminate.
 
 
 Some conditions on the system dynamics and reward function must be imposed for the problem to be well posed (e.g., that a goal state may be reached  with probability one).
