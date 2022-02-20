@@ -23,30 +23,54 @@ For general git guidelines, see the guides here: https://guides.github.com/
 Common Macros:
 
 \newcommand{\mdp}{\mathcal{M}}
+
 \newcommand{\Actions}{\mathcal{A}}
+
 \newcommand{\action}{{\tt a}}
+
 \newcommand{\States}{\mathcal{S}}
+
 \newcommand{\state}{{\tt s}}
+
 \newcommand{\transitionprob}{{\tt p}}
+
 \newcommand{\ttime}{{\tt t}}
+
 \newcommand{\tHorizon}{{\tt T}}
+
 \newcommand{\weight}{{\tt w}}
+
 \newcommand{\observation}{{\tt o}}
+
 \newcommand{\thistory}{{\tt h}}
+
 \newcommand{\Cost}{\mathcal{C}}
+
 \newcommand{\cost}{{\tt c}}
+
 \newcommand{\discount}{\gamma}
+
 \newcommand{\Rmax}{{\tt R}_{\max }}
+
 \newcommand{\Vmax}{{\tt V}_{\max }}
+
 \newcommand{\reward}{{\tt r}}
+
 \newcommand{\terminalreward}{r^T}
+
 \newcommand{\histories}{\mathcal{H}}
+
 \newcommand{\operator}{\mathcal{T}}
+
 \newcommand{\policy}{\pi}
+
 \newcommand{\Policies}{\Pi}
 
 \newcommand{\reals}{\ensuremath{\mathbb{R}}}
+
 \newcommand{\var}{\ensuremath{\mathrm{Var}}}
+
 \newcommand{\E}{\ensuremath{\mathbb{E}}}
+
 \renewcommand{\P}{\ensuremath{\mathbb{P}}}
 
