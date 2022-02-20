@@ -73,7 +73,7 @@ deterministic, but this is not the case in simultaneous-move games.
 %might be stochastic.
 
 Consider a penny-matching game, in which each player simultaneously
-select a bit $\{0,1\}$. If the two selected bits are identical the
+selects a bit $\{0,1\}$. If the two selected bits are identical the
 first player wins and if they differ the second player wins. The
 best policy for each player is stochastic (selecting each bit with
 probability half).
@@ -111,7 +111,7 @@ mainly explore gradient based methods.
 
 We start by giving a few examples on how to parameterize the policy.
 The first is a {\em log linear policy}. We will assume an encoding
-of the state and action pairs, i.e., $\phi(\state,\action)$. Given the parameter $\theta$, The linear part will compute $\mu(\state,\action)=\phi(\state,\action)^\top \theta$. Given the values of $\mu(\state,\action)$ for each $\action\in \Actions$, the policy select action $\action$ with probability proportional to
+of the state and action pairs, i.e., $\phi(\state,\action)$. Given the parameter $\theta$, The linear part will compute $\mu(\state,\action)=\phi(\state,\action)^\top \theta$. Given the values of $\mu(\state,\action)$ for each $\action\in \Actions$, the policy selects action $\action$ with probability proportional to
 $e^{\mu(\state,\action)}$. Namely,
 \[
 \policy(\action|\state,\theta)=
@@ -142,7 +142,7 @@ One challenge we will have to address is to relate the global gradient, $\nabla_
 
 \subsection{Finite differences methods}
 
-This methods can be used even when we do not have a representation
+These methods can be used even when we do not have a representation
 of the gradient of the policy or even the policy itself. This may
 arise many times when we have, for example, access to an
 off-the-shelf robot for which the software is encoded already in the
@@ -460,7 +460,7 @@ REINFORCE algorithm.
 
 \section{REINFORCE: Monte-Carlo updates}
 
-The REINFORCE algorithm uses a Monte-Carlo updates in conjunction
+The REINFORCE algorithm uses Monte-Carlo updates in conjunction
 with the policy gradient computation. Given an episode
 $(\state_1,\action_1,\reward_1, \ldots ,
 \state_T,\action_T,\reward_T)$ for each $\ttime\in [1,T]$ updates,
@@ -498,7 +498,7 @@ it is reasonable to use for $b(\state)$ the value of the state,
 i.e., $b(\state)=\Value^\policy(\state)$. The motivation for this is
 to reduce the variance of the estimator. If we assume that the
 magnitude of the gradients $\|\nabla
-\policy(\action|\state;\theta)\|$ is similar for all action
+\policy(\action|\state;\theta)\|$ is similar for all actions
 $\action\in \Actions$, we are left with $E^\policy
 [(Q^\policy(\state,\action)-b(\state))^2]$ which is minimized by
 $b(\state)=E^\policy[Q^\policy(\state,\action)]=\Value^\policy(\state)$.
@@ -624,7 +624,7 @@ For this the UT Austin team used reinforcement learning, and
 specifically policy gradient.
 
 The robot is controlled through 12 parameters which include: (1) For
-the front and rear legs tree parameters: height, x-pos., y-pos. (2)
+the front and rear legs three parameters: height, x-pos., y-pos. (2)
 For the locus:  length/skew multiplier. (3) height of the body both
 front and rear. (4) Time (per foot) to go through locus, and (5)
 time (per foot) on ground or in the air.
@@ -715,7 +715,7 @@ Figure~\ref{fig:AlphaGo-arch}.)
 The SL network is trained to predict the human moves. It is a deep
 network (13 layers), and the goal is to output
 $p(\action|\state;\sigma)$ where $\sigma$ are the parameters of the
-network. The parameters are update using a gradient step,
+network. The parameters are updated using a gradient step,
 \[
 \Delta \sigma \propto \frac{\partial \log
 p(\action|\state;\sigma)}{\partial \sigma}
@@ -736,7 +736,7 @@ $\rho$ are the parameters of the network. The network structure is
 identical to that of SL, and the RL is initialized to the weights of
 SL, i.e., $\sigma$.
 
-The RL is trained using self-play. Rather then playing against the
+The RL is trained using self-play. Rather than playing against the
 most recent network, the opponent is selected at random between the
 recent RL configurations. This is done to avoid overfitting. The
 rewards of the game are given only at the end (win or lose).
