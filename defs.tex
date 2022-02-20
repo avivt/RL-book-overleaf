@@ -1,8 +1,33 @@
-%\documentclass[11pt]{report}
-\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
-%\geometry{letterpaper}                   % ... or a4paper or a5paper or ...
-%\geometry{landscape}                % Activate for for rotated page geometry
-%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+% The following macros are used to generate nice code for programs.
+% See example on how to use it below
+%
+%%%%%%%%%%%%%%%%%%%%% program macros %%%%%%%%%%%%%%%%%
+\newcommand{\Do}{{\small\bf do}\ }
+\newcommand{\Return}{{\small\bf return\ }}
+\newcommand{\Proc}[1]{#1\+}
+\newcommand{\Returns}{{\small\bf returns}}
+\newcommand{\Procbegin}{{\small\bf begin}}
+\newcommand{\If}{{\small\bf if}\ \=\+}
+\newcommand{\Then}{{\small\bf then}\ \=\+}
+\newcommand{\Else}{\<{\small\bf else}\ \>}
+\newcommand{\Elseif}{\<{\small\bf elseif}\ }
+\newcommand{\Endif}{\<{\small\bf end\ if\ }\-\-}
+\newcommand{\Endproc}[1]{{\small\bf end} #1\-}
+\newcommand{\For}{{\small\bf for}\ \=\+}
+\newcommand{\Endfor}{{\small\bf end\ for}\ \-}
+\newcommand{\Loop}{{\bf loop}\ \= \+}
+\newcommand{\Endloop}{{\bf end\ loop}\ \-}
+\newenvironment{program}{
+    \begin{minipage}{\textwidth}
+    \begin{tabbing}
+    \ \ \ \ \=\kill
+  }{
+    \end{tabbing}
+    \end{minipage}
+  }
+
+
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. 
 \usepackage{graphicx}
 \usepackage{amssymb}
 \usepackage{epstopdf}
@@ -62,8 +87,6 @@
 \newcommand{\thistory}{{\tt h}}
 \newcommand{\Cost}{\mathcal{C}}
 \newcommand{\cost}{{\tt c}}
-%\newcommand{\Value}{V}
-%\newcommand{\reward}{r}
 \newcommand{\discount}{\gamma}
 \newcommand{\Rmax}{{\tt R}_{\max }}
 \newcommand{\Vmax}{{\tt V}_{\max }}
@@ -187,3 +210,19 @@
 \numberwithin{remark}{chapter}
 \newtheorem{algorithm_}{Algorithm}
 \numberwithin{algorithm_}{chapter}
+
+%
+% this command enables to remove a whole part of the text
+% from the printout
+% to use it just enter
+% \remove{
+% before the text to be excluded and
+% }
+% after the text
+\newcommand{\remove}[1]{}
+%
+
+%
+\newcommand{\topic}[2]{\section{#1} \index{#2} \markright{#1}}
+\newcommand{\subtopic}[2]{\subsection{#1} \index{#2}}
+\newcommand{\subsubtopic}[2]{\subsubsection{#1} \index{#2}}
