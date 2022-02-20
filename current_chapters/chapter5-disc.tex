@@ -469,7 +469,7 @@ The following statements hold:
 \begin{enumerate}
   \item $T_{}^\policy $ is a $\discount$-contraction operator with respect to the max-norm,  namely
                       $||T_{}^\policy ({\Value_1}) - T_{}^\policy ({\Value_2})|{|_\infty } \le \discount ||{\Value_1} - {\Value_2}|{|_\infty }$ for all $\Value_1,\Value_2\in \reals^{|\States|}$.
-  \item Similarly, $T_{}^*$ is an $\discount$-contraction operator with respect to the max-norm.
+  \item Similarly, $T_{}^*$ is a $\discount$-contraction operator with respect to the max-norm.
 \end{enumerate}
 \end{theorem}
 
@@ -822,7 +822,7 @@ iteration, while Value Iteration requires $O(|\Actions| \cdot
 |\States|^2)$ per iteration.
 %
 However, in many cases the Policy Iteration has a smaller number of
-iteration  than Value Iteration, as we show in the next section.
+iterations than Value Iteration, as we show in the next section.
 %
 %with the number of iterations being typically small. In contrast,
 %Value Iteration requires $O(|\Actions| \cdot |\States|^2)$ per step,
@@ -934,7 +934,7 @@ $PI_{n+1}=\Value^{\policy_{n+1}}$, it implies that $PI_{n+1}\leq
 
 % Compute ${\policy _k} \in \arg {\max _\policy }T_{}^\policy
 % ({\Value_k})$, a greedy policy with respect to ${\Value_k}$.
-%   \item Partial value iteration:
+%   \item Partial fixed-point value iteration:
 
 % Perform ${m_k}$ steps of value iteration, ${\Value_{k + 1}} =
 % {(T_\discount ^{{\policy _k}})^{{m_k}}}({\Value_k})$.
