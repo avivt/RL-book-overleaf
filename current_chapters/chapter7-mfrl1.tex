@@ -353,7 +353,7 @@ $h_{\ttime-1}$ is the history up to time $\ttime$.
 \item Contraction: There exists $X^*$ such that for any $X$ we have $\|HX-X^*\|_\infty
 \leq \discount \|X-X^*\|_\infty$. (This implies that $HX^*=X^*$.
 Note that since $H$ is a contracting operator, this property is
-guaranteed to holds.)
+guaranteed to hold.)
 \end{enumerate}
 
 The following is the convergence theorem for well behaved iterative
@@ -675,7 +675,7 @@ values for $\varepsilon_n$ are linear, $\varepsilon_\ttime=1/n$, or
 polynomial, $\varepsilon_\ttime=1/n^\theta$ for $\theta\in(0.5,1)$.
 
 The {\em soft-max}, has as a parameter a sequence of
-$\beta_\ttime\geq 0$ and select $\policy(\state;Q)=\action$, for
+$\beta_\ttime\geq 0$ and selects $\policy(\state;Q)=\action$, for
 each $\action \in \Actions$, with probability $\frac{e^{\beta_\ttime
 Q(\state,\action)}}{\sum_{\action'\in \Actions}e^{\beta_\ttime
 Q(\state,\action')}}$. Note that for $\beta_\ttime=0$ we get the
@@ -1091,7 +1091,7 @@ can make the following interesting connection.
 
 Clearly, when updating state $\state$ using {\tt First Visit}, we
 ignore all the episodes that do not include $\state$, and also for
-each the remaining episodes, that do include $\state$, we ignore the
+each of the remaining episodes, that do include $\state$, we ignore the
 prefix until the first appearance of $\state$. Let us modify the
 sample by deleting those parts (episodes in which $\state$ does not
 appear, and for each episode that $\state$ appears, start it at the
@@ -1259,7 +1259,7 @@ Recall that the squared error is summing over all the observation
 the squared error. Assume we have $\state_{i,j}$ as the $j$-th state
 in the $i$-th episode, and it has return $G_{i,j}$, i.e., the sum of
 the rewards from in episode $i$ from step $j$ until the end of the
-episode. Let $\widehat{V}(\state_{i,j})$ be the estimate that {\tt
+episode. Let $\widehat{V}(\state_{i,j})$ be the estimate of {\tt
 Every Visit} for state $\state_{i,j}$. (Note that states
 $\state_{i,j}$ are not unique, and we can have
 $\state=\state_{i_1,j_1}=\state_{i_2,j_2}$.) The square error is
