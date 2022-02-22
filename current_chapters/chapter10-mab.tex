@@ -7,7 +7,7 @@ single state and a fixed set $A$ of $k$ actions (a.k.a., arms). We
 consider a finite horizon problem, where the horizon is $T$.
 Clearly, the planning problem is trivial, simply select the action
 with the highest expected reward. We will concentrate on the
-learning perspective, where the expected reward of each action are
+learning perspective, where the expected reward of each action is
 unknown.
 
 At each round $1\leq t\leq T$ the player selects and executes an
@@ -203,7 +203,7 @@ E\left[\text{Pseudo Regret}\right] & = &
  \sum_{t=1}^{\infty}\Delta\Pr\left[S_{2}(t)\ge S_{1}(t)\right]\\
  & \le &  \sum_{t=1}^{\infty}\Delta e^{-\Delta^{2}\frac{t}{2}}\\
  & \le &  \int_{0}^{\infty}\Delta e^{-\Delta^{2}\frac{t}{2}}dt\\
- & = & \left[\frac{2}{\Delta}e^{-\Delta^{2}\frac{t}{2}}\right]_{0}^{\infty}\\
+ & = & \left[-\frac{2}{\Delta}e^{-\Delta^{2}\frac{t}{2}}\right]_{0}^{\infty}\\
  & = & \frac{2}{\Delta}
 \end{align*}
 Notice that this regret bound does not depend on $T$!
@@ -256,7 +256,7 @@ Pr\left[M < 8R \right]>\frac{1}{2}
 Hence, the probability that after $8R$ rounds, the algorithm will
 stop playing $a_2$ (if $\mu_2 = \frac{1}{4}$) is at least
 $\frac{1}{2}$. This implies that there is some sequence of $8R$
-outcomes which will result is stopping to try action $a_2$. For
+outcomes which will result in stopping to try action $a_2$. For
 simplicity, assume that the sequence is the all zero sequence.
 
 Assume $\mu_2 = \frac{3}{4}$, but all $8R$ first rounds, playing
@@ -519,14 +519,14 @@ Rearranging, we have,
 \[
 2\lambda_t(i)\ge\mu^{*}-\mu_{i}=\Delta_{i}
 \]
-Each time we chosen action $i$, we could not have made a very big
+Each time we chose action $i$, we could not have made a very big
 mistake because:
 \[
 \Delta_{i}\leq\text{ }2\cdot\sqrt{\frac{8\log T}{n_{t}(i)}}
 \]
 
 And therefore if $i$ is very far off from the optimal action we
-would not choose it too many times. We can bound the number of time
+would not choose it too many times. We can bound the number of times
 action $i$ is used by,
 \[
 n_{t}(i)\leq\frac{c}{\Delta_{i}^{2}}\log T
@@ -548,7 +548,7 @@ We can define the goal in one of two ways.
 
 \paragraph{PAC criteria }
 An action $i$ is $\epsilon$-optimal if  $\mu_i\geq \mu^*-\epsilon$. The PAC criteria is
-that, given $\epsilon,\delta>0,$, with probability at least
+that, given $\epsilon,\delta>0$, with probability at least
 $1-\delta$, find an $\epsilon$ optimal action.
 
 \paragraph{Exact identification}
