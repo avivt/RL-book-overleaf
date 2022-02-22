@@ -5,7 +5,7 @@ optimal planning problem. We restrict the discussion here to
 deterministic (rather than stochastic) systems. We consider two
 basic settings: (1) the finite-horizon decision problem and its
 recursive solution via finite-horizon Dynamic Programming, and (2) the
-average cost and it related minimum average weight cycle.
+average cost and its related minimum average weight cycle.
 
 \section{Discrete Dynamic Systems}
 We consider a discrete-time dynamic system, of the form:
@@ -1143,7 +1143,7 @@ $\mu^*$.
 \begin{theorem}
 The value of the minimum cost cycle is
 \[
-\mu^*=\min_{v\in S} \max_{0\leq k \leq n-1}
+\mu^*=\min_{v\in V} \max_{0\leq k \leq n-1}
 \frac{d_n(v)-d_{k}(v)}{n-k}\;,
 \]
 where we define $\infty-\infty$ as $\infty$.
