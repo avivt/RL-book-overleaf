@@ -188,7 +188,7 @@ J(\weight)=\langle\frac{\partial}{\partial \weight_1}J(\weight),
 \ldots , \frac{\partial}{\partial \weight_d}J(\weight)\rangle$, and
 update the weights in the negative direction of the gradient,
 namely, $\Delta \weight=-\alpha\nabla_\weight J(\weight)$, where
-$\alpha$ is the step size of the learning rate. In supervised
+$\alpha$ is the step size or the learning rate. In supervised
 learning we are guaranteed that the process will converge to a local
 minimum (or a saddle point).
 
@@ -651,7 +651,7 @@ At convergence we have $\weight=A^{-1}b$.
 Tesauro developed the TD-gammon in the late 1980's and 1990's. The
 system uses a neural network approximation, using a $TD(\lambda)$
 updates. The initial system was able to win against other computer
-programs, which where hand-designed, and later matched the
+programs, which were hand-designed, and later matched the
 performance of the best human. For the training the system used
 self-play, namely playing against itself.
 
@@ -666,7 +666,7 @@ and for each of the two colors, we have four Boolean inputs. The
 first indicates if there is a single chip, the second indicates two
 or more chips, the third indicates exactly three chips and the
 fourth indicates four or more chips. We have two Boolean variables
-that indicate who turn it is (one for white and one for black).
+that indicate whose turn it is (one for white and one for black).
 Finally, we have two aggregate inputs, per color: (1) number of
 chips divided by $2$ and (2) number of chips removed divided by
 $15$.
@@ -716,7 +716,7 @@ games. The neural network has three convolutional layers followed by
 one completely connected layer. The output layer has multiple
 outputs. The nodes in the network use RelU gates.
 
-The DQN innovations are: (1) Experience reply, reusing the same
+The DQN innovations are: (1) Experience replay, reusing the same
 example many times, (2) fixed Q-target, when setting the target
 update, and (3) clipping the error. To better understand the
 innovations, we need to consider the flow of the training.
@@ -725,8 +725,8 @@ In the training, we first select an action $\action_\ttime$, using
 $\varepsilon$-greedy policy. We observe the reward and the next
 state
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$,
-and store them in the reply memory. We sample a mini-batch from the
-reply memory. For each sample we use the fixed-Q-target (more
+and store them in the replay memory. We sample a mini-batch from the
+replay memory. For each sample we use the fixed-Q-target (more
 latter). We use the SGD to minimize the MSE.
 
 For the fixed-Q-target, we do the update as follows. We have two
@@ -766,5 +766,5 @@ The DeepMind system for playing Attari games is described in
 \cite{MnihKSRVBGRFOPB15}.
 
 
-Part of the outline borrows from David Silver class notes and the
+Part of the outline borrows from David Silver class notes and
 the book of Sutton and Barto \cite{SuttonB98}.
