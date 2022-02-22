@@ -290,7 +290,7 @@ policies $\policy$ of $M$ to $\policy'$ policies of $M'$, such that:
 running $\pi$ in $M$ for horizon $\tHorizon$ generates reward
 trajectory $R=(R_0, \ldots , R_{\tHorizon})$ and running $\pi'$ in
 $M'$ for horizon $\tHorizon+1$ generates reward trajectory $R=(R_1,
-\ldots , R_{\tHorizon+1})$, then the distribution of $R$ and $R'$
+\ldots , R_{\tHorizon+1})$, then the distributions of $R$ and $R'$
 are identical.
 %$\Value_\tHorizon^{\policy,M}(\state_0)=\Value_{\tHorizon+1}^{\policy_1,M_1}$
 \end{theorem}
@@ -501,7 +501,7 @@ deterministic policy. The proof that every stochastic history
 dependent strategy has an equivalent stochastic Markovian policy
 (Theorem~\ref{chp2:HS-MS}) showed how to generate the same
 state-action distribution, and applies to other setting as well. The
-proof that every stochastic Markovian policy has a deterministic
+proof that every stochastic Markovian policy has an equivalent (or better) deterministic
 Markovian policy (Theorem~\ref{chp2:stochastic-deterministic})
 depended on the finite horizon, but it is easy to extend it to any
 linear return function as well.
@@ -610,7 +610,7 @@ The following holds:
 \begin{enumerate}
 \item
 Backward recursion:  Set $V_\tHorizon^{}(\state) = {\reward_\tHorizon}(\state)$ for $\state\in {\States_\tHorizon}$.\\
-     For $k = \tHorizon -1, \ldots ,0$, $V_k^{}(\state)$  compute using the following recursion:
+     For $k = \tHorizon -1, \ldots ,0$, compute $V_k^{}(\state)$ using the following recursion:
 \[V_k^{}(\state) = \mathop {\max }\limits_{\action \in {\Actions_k}} \left\{ {{\reward_k}(\state,\action) + \sum\nolimits_{\state' \in {\States_{k + 1}}} {{p_k}(\state'|\state,\action)\,} V_{k + 1}^{}(\state')} \right\},  \quad  \state \in {\States_k}.\]
 We have that $V_k(s)=V^*_k(s)$.
 \item
@@ -716,7 +716,7 @@ implies that $\policy^*$ is the optimal policy.
 
 \subsection{The Q function}
 Let
-\[{Q^*_k}(\state,\action) \buildrel \Delta \over = {\reward_k}(\state,\action) + \sum\nolimits_{\state' \in {S_k}} {{p_k}(\state'|\state,\action)\,V_k^{*}(\state')} .\]
+\[{Q^*_k}(\state,\action) \buildrel \Delta \over = {\reward_k}(\state,\action) + \sum\nolimits_{\state' \in {S_k}} {{p_k}(\state'|\state,\action)\,V_{k+1}^{*}(\state')} .\]
 This is known as the optimal state-action value function, or simply
 as the \emph{Q-function}. ${Q^*_k}(\state,\action)$ is the expected
 return from stage $k$ onward, if we choose ${\action_k} = \action$
