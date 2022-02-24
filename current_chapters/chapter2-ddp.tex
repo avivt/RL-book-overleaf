@@ -35,7 +35,7 @@ do not depend on the time $\ttime$. In that case we
 \Actions({\state_{\ttime}}).\]
 \end{remark}
 \begin{remark}
-    The state dynamics may be augmented by an output equation:
+    The state dynamics may be augmented by an output observation:
 \[{\observation_{\ttime}} = {\fObservation_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}),\]
 where  $\observation_{\ttime}$ is the system observation, or the
 output. In most of this book we  implicitly assume that
@@ -413,7 +413,7 @@ over paths. At time $\ttime$, $\policy'$ is defined to minimize the
 cost to go from $\state_\ttime$, given that we follow $\policy$ from
 $\ttime+1$ to $\tHorizon$. Therefore the cost can only decrease.
 Formally, let $\E^\policy[\cdot]$ be the expectation with respect to
-policy $\policy$.
+policy $\policy$. We have,
 \begin{align*}
 \E^\policy_{\state_\ttime}[\Cost_{\ttime}(\state_\ttime)]
 %=\E^\policy[\Cost(\state_\ttime, \ldots , \state_\tHorizon)]
@@ -506,7 +506,7 @@ policies. Clearly it is not computationally feasible to enumerate
 them all.
 
 Fortunately, Dynamic Programming offers a drastic reduction of the
-computational complexity for this problem.
+computational complexity for this problem, as presented in the next Section.
 
 \section{Finite Horizon Dynamic Programming}
 
@@ -695,7 +695,7 @@ in speech recognition and bioinformatics, among other areas.
 
 % \section{Shortest Paths}
 % We can formulate a DDP problems similar to shortest path problems.
-% Given a directed graph $G(V,E)$,  there is a set of goal states
+% Given a directed graph $\graph(\nodes,\edges)$,  there is a set of goal states
 % $\States_G$, and the goal is to reach one of the goal states.
 % Formally, when we reach a goal state we stay there and have a zero
 % cost. For such a DDP the optimal policy would be to compute a
@@ -857,10 +857,11 @@ in speech recognition and bioinformatics, among other areas.
 
 \section{Shortest Path on a Graph}
 The problem of finding the shortest path over a graph is one of the most fundamental problems in graph theory and computer science. We shall briefly consider here three major algorithms for this problem that are closely related to dynamic programming, namely: The Bellman-Ford algorithm, Dijkstra's algorithm, and A$^*$.
+An extensive presentation of the topic can be found in almost any book on algorithms, such as \cite{cormen2009introduction,KleinbergTardos06,DasguptaPapadimitriouVazirani08}.
 
 \subsection{Problem Statement}
 We introduce several definitions from graph-theory.
-\begin{definition}\textbf{Weighted Graphs:} Consider a graph $\graph = (\nodes,\edges)$ that consists of a finite set of vertices (or nodes) $\nodes = \{ \node\} $ and a finite set of edges (or links) $\edges = \{ \edge\} $. We will consider directed graphs, where each edge $\edge$ is equivalent to an ordered pair $({\node_1},{\node_2}) \equiv (s(\edge),d(\edge))$ of vertices. To each edge we assign a real-valued weight (or cost) $\cost(\edge) = \cost({\node_1},{\node_2})$.
+\begin{definition}\textbf{Weighted Graphs:} Consider a graph $\graph = (\nodes,\edges)$ that consists of a finite set of vertices (or nodes) $\nodes = \{ \node\} $ and a finite set of edges (or links) $\edges = \{ \edge\} \subseteq \nodes\times\nodes$. We will consider directed graphs, where each edge $\edge$ is equivalent to an ordered pair $({\node_1},{\node_2}) \equiv (s(\edge),d(\edge))$ of vertices. To each edge we assign a real-valued weight (or cost) $\cost(\edge) = \cost({\node_1},{\node_2})$.
 \end{definition}
 \begin{definition}\textbf{Path:}
 A path $\spath$ on $\graph$ from ${\node_0}$ to ${\node_k}$ is a sequence $({\node_0},{\node_1},{\node_2}, \ldots ,{\node_k})$ of vertices such that $({\node_i},{\node_{i + 1}}) \in \edges$. A path is \textbf{simple} if all edges in the path are distinct.
@@ -874,10 +875,10 @@ $\pathlen(\spath) = \sum\limits_{i = 1}^k {\cost({\node_{i - 1}},{\node_i})} $.
 A \textbf{shortest path} from $u$ to $v$ is a path from $u$ to $v$ that has the smallest length  $\pathlen(\spath)$ among such paths. Denote this minimal length as $\minlen(u,v)$ (with $\minlen(u,v) = \infty $ if no path exists from $u$ to $v$).
 The shortest path problem has the following variants:
 \begin{itemize}
-  \item Single pair problem:  Find the shortest path from a given source vertex $s$ to a given destination vertex $t$.
-  \item Single source problem: Find the shortest path from a given source vertex $s$ to all other vertices.
-  \item Single destination: Find the shortest path to a given destination node $t$ from all other vertices.
-  \item All pair problem.
+  \item Single pair problem:  Find the shortest path from a given source vertex $u$ to a given destination vertex $v$.
+  \item Single source problem: Find the shortest path from a given source vertex $u$ to all other vertices.
+  \item Single destination: Find the shortest path to a given destination node $v$ from all other vertices.
+  \item All pair problem: Find the shortest path from every source vertex $u$ to every destination vertex $v$.
 \end{itemize}
 
 We note that the single-source and single-destination problems are symmetric and can be treated as one.  The all-pair problem can of course be solved by multiple applications of the other algorithms, but there exist algorithms which are especially suited for this problem.
@@ -942,7 +943,10 @@ To understand the algorithm, we observe that after round $i$, $d[\nodev]$ holds 
 \subsection{Dijkstra's Algorithm}
 Dijkstra's algorithm (introduced in 1959) provides a more efficient algorithm for the single-destination shortest path problem. This algorithm is restricted to non-negative link weights, i.e., $\cost(\nodev,\nodeu) \ge 0$.
 
-The algorithm essentially determines the minimal distance $d(\nodev,\nodev_d)$ of the vertices to the destination in order of that distance, namely the closest vertex first, then the second-closest, etc.  The algorithm is roughly described below, with more details in the recitation.
+The algorithm essentially determines the minimal distance $d(\nodev,\nodev_d)$ of the vertices to the destination in order of that distance, namely the closest vertex first, then the second-closest, etc.  The algorithm is 
+%roughly 
+described below.
+%, with more details in the recitation.
 The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to the destination has been determined. The other vertices $\nodes\backslash \vertexset$ are held in a queue. It proceeds as follows.
 
 \begin{algorithm_}\textbf{Dijkstra's Algorithm}
@@ -966,7 +970,7 @@ The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to
 \tab{\tab{if $d[\nodev] > \cost(\nodev,\nodeu) + d[\nodeu]$,}}
 
 \tab{\tab{\tab{	set  $d[\nodev] = \cost(\nodev,\nodeu) + d[\nodeu]$,  $\policy [\nodev] = \nodeu$ }}}
-\item return $\{ d[\nodev],\policy [\nodev] \ |\ v \in V\} $
+\item return $\{ d[\nodev],\policy [\nodev] \ |\ v \in \nodes\} $
 \end{enumerate}
 \end{algorithm_}
 
@@ -1083,8 +1087,8 @@ For a deterministic stationary policy, the policy converges to a
 simple cycle, and the average cost is the average cost of the edges
 on the cycle. (Recall, we are considering only DDP.)
 
-Given a directed graph $G(V,E)$, let $\Omega$ be the collection of
-all cycles in $G(V,E)$. For each cycle $\omega=(v_1, \ldots ,
+Given a directed graph $\graph(\nodes,\edges)$, let $\Omega$ be the collection of
+all cycles in $\graph(\nodes,\edges)$. For each cycle $\omega=(v_1, \ldots ,
 v_{k})$, we define $c(\omega)=\sum_{i=1}^k c(v_i,v_{i+1})$, where
 $(v_i,v_{i+1})$ is the $i$-th edge in the cycle $\omega$. Let
 $\mu(\omega)=\frac{c(\omega)}{k}$. The {\em minimum average cost cycle}
@@ -1120,7 +1124,7 @@ $\theta$. The average cost of $\omega$ is $\mu(\omega)\geq\mu^*$.
 Delete $\omega$ from $\theta$, reducing the number of edges by
 $|\omega|$ and the cumulative cost by $\mu(\omega)|\omega|$. We
 continue the process until there is no remaining cycles, which
-implies that we have at most $|V|=n$ nodes remaining. Therefore, the
+implies that we have at most $|\nodes|=n$ nodes remaining. Therefore, the
 costs of $\omega$ was at least $(\tHorizon-n)\mu^*$. This implies
 that the average cost of $\theta$ is at least $\E[\Cost_{avg}^{\policy^{,}}]=\mu^*-\epsilon\geq
 (1-\frac{n}{\tHorizon})\mu^*$. For $\epsilon>\mu^* n/\tHorizon$ we
@@ -1129,21 +1133,20 @@ have a contradiction.
 
 Next we develop an algorithm for computing the minimum average cost
 cycle, which implies an optimal policy for DDP for average costs.
-The input is a directed graph $G(V,E)$ with edge cost $\cost:E\rightarrow {\mathbb R}$.
+The input is a directed graph $\graph(\nodes,\edges)$ with edge cost $\cost:\edges\rightarrow {\mathbb R}$.
 
 %The algorithm (due to Karp [1978]). \begin  Set a
-We first give a characterization of $\mu^*$. Set a root $r\in V$.
+We first give a characterization of $\mu^*$. Set a root $r\in \nodes$.
 Let $F_{k}(v)$ be paths of length $k$ from $r$ to $v$. Let
 $d_{k}(v)=\min_{p\in F_{k}(v)} \cost(p)$, where if
-$F_{k}(v)=\emptyset$ then $d_{k}(v)=\infty$. The following theorem
-(due to [R. Karp, A characterization of the minimum cycle mean in
-digraph, Discrete mathematics, 1978]) gives a characterization of
-$\mu^*$.
+$F_{k}(v)=\emptyset$ then $d_{k}(v)=\infty$. The following theorem of Karp \cite{Karp78}
+%(due to [R. Karp, A characterization of the minimum cycle mean in digraph, Discrete mathematics, 1978]) 
+gives a characterization of $\mu^*$.
 
 \begin{theorem}
 The value of the minimum cost cycle is
 \[
-\mu^*=\min_{v\in V} \max_{0\leq k \leq n-1}
+\mu^*=\min_{v\in \nodes} \max_{0\leq k \leq n-1}
 \frac{d_n(v)-d_{k}(v)}{n-k}\;,
 \]
 where we define $\infty-\infty$ as $\infty$.
@@ -1154,20 +1157,20 @@ We have two cases, $\mu^*=0$ and $\mu^*>0$. We assume that the graph
 has no negative cycle (we can guarantee this by adding a large
 number $M$ to all the weights).
 
-We start with $\mu^*=0$. This implies that we have in $G(V,E)$ a
+We start with $\mu^*=0$. This implies that we have in $\graph(\nodes,\edges)$ a
 cycle of weight zero, but no negative cycle. For the theorem it is
 sufficient to show that
 \[
 \min_{v\in S} \max_{0\leq k \leq n-1} \{d_n(v)-d_{k}(v)\}=0.
 \]
 
-For every node $v\in V$ there is a path of length $k\in[0,n-1]$ of
+For every node $v\in \nodes$ there is a path of length $k\in[0,n-1]$ of
 cost $d(v)$, the cost of the shortest path from $r$ to $v$. This
 implies that
 \[
 \max_{0\leq k \leq n-1} \{d_n(v)-d_{k}(v)\}=d_n(v)-d(v)\geq 0
 \]
-We need to show that for some $v\in V$ we have $d_n(v)=d(v)$, which
+We need to show that for some $v\in \nodes$ we have $d_n(v)=d(v)$, which
 implies that $\min_{v\in S} \{d_n(v)-d(v)\}=0$.
 
 Consider a cycle $\omega$ of cost $\Cost(\omega)=0$ (there is one,
@@ -1176,7 +1179,7 @@ a shortest path $P$ from $r$ to $v$ which then cycles around $\omega$ and has
 length at least $n$. The path $P$ is a shortest path to $v$
 (although not necessarily simple). This implies that any sub-path of
 $P$ is also a shortest path. Let $P'$ be a sub-path of $P$ of length
-$n$ and let it end in $u\in V$.
+$n$ and let it end in $u\in \nodes$.
 %
 Path $P'$ is a shortest path to $u$, since it is a prefix of a
 shortest path $P$.
@@ -1192,24 +1195,24 @@ zero cycle and no negative cycle. We can now apply the previous
 case. It only remains to show that the formula changes by exactly
 $\Delta=\mu^*$.
 
-Formally, for every edge $e\in E$ let $\cost'(e)=\cost(e)-\Delta$.
+Formally, for every edge $e\in \edges$ let $\cost'(e)=\cost(e)-\Delta$.
 For any path $p$ we have $\Cost'(p)=\Cost(p)-|p|\Delta$, and for any
 cycle $\omega$ we have $\mu'(\omega)=\mu(\omega)-\Delta$. This
 implies that for $\Delta=\mu^*$ we have a cycle of cost zero and no
 negative cycles. We now consider the formula,
 \begin{align*}
-0=(\mu')^*=&\min_{v\in V} \max_{0\leq k\leq n-1}
+0=(\mu')^*=&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
 \{\frac{d'_n(v)-d'_{k}(v)}{n-k}\}\\
-=&\min_{v\in V} \max_{0\leq k\leq n-1}
+=&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
 \{\frac{d_n(v)-n\Delta-d_{k}(v)+k\Delta}{n-k}\}\\
-=&\min_{v\in V} \max_{0\leq k\leq n-1}
+=&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
 \{\frac{d_n(v)-d_{k}(v)}{n-k}-\Delta\}\\
-=&\min_{v\in V} \max_{0\leq k\leq n-1}
+=&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
 \{\frac{d_n(v)-d_{k}(v)}{n-k}\}-\Delta
 \end{align*}
 Therefore we have
 \[
-\mu^*=\Delta=\min_{v\in V} \max_{0\leq k\leq n-1}
+\mu^*=\Delta=\min_{v\in \nodes} \max_{0\leq k\leq n-1}
 \{\frac{d_n(v)-d_{k}(v)}{n-k}\}   
 \]
 which completes the proof.
@@ -1221,12 +1224,11 @@ the formula, but some care is needed to be taken. It is true that for some
 minimizing pair $(v,k)$ the path of length $n$ from $r$ to $v$ has a
 cycle of length $n-k$, which is the suffix of the path. The solution
 is that for the path $p$, from $r$ to $v$ of length $n$, any simple
-cycle is a minimum average cost cycle. (See, [``A note of finding
-minimum mean cycle'', Mmamu Chaturvedi and Ross M. McConnell, IPL
-2017]).
+cycle is a minimum average cost cycle. (See \cite{ChaturvediM17}.)
+%(See, [``A note of finding minimum mean cycle'', Mmamu Chaturvedi and Ross M. McConnell, IPL 2017]).
 
 The running time of computing the minimum average cost cycle is
-$O(|V|\cdot |E|)$.
+$O(|\nodes|\cdot |\edges|)$.
 
 
 

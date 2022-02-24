@@ -36,7 +36,7 @@ potential to be an effective tool for control and behavior in dynamic environmen
 
 Over the years, reinforcement learning has proven to be highly
 successful for playing board games that require long horizon planning. 
-Early in 1962, Arthur Samuel developed a checkers game, which was at
+Early in 1962, Arthur Samuel \cite{Samuel62} developed a checkers game, which was at
 the level of the best human. His original framework included many of
 the ingredients which latter contributed to RL,
 as well as search heuristics for large domains.
@@ -51,7 +51,7 @@ for playing Go, which was able to beat the best Go players in the world, solving
 
 To complete the picture of computer board games, we should mention
 Deep Blue, from 1996, which was able to beat the world champion then,
-Kasparov. This program mainly built on heuristic search, and new hardware was developed to support it. Recently, DeepMind's
+Kasparov \cite{DeepBlue}. This program mainly built on heuristic search, and new hardware was developed to support it. Recently, DeepMind's
 AlphaZero matched the best chess
 programs (which are already much better than any human players), using a reinforcement learning approach \cite{silver2017mastering}.
 
@@ -100,7 +100,7 @@ In Chapter \ref{chapter:DDP} we introduce the problem and basic algorithmic idea
 then, in Chapter \ref{chapter:MDP-FH} we introduce the finite horizon MDP model and a fundamental dynamic programming approach. Chapter \ref{chapter:disc} covers the infinite horizon discounted setting.
 % and episodic settings, respectively.
 
-\paragraph{Learning:} The learning theme covers decision making when the MDP model is \textit{not known in advance}. Chapter \ref{chapter-model-based} introduces the \textit{model-based} approach, where the agent explicitly learns an MDP model from its experience and uses it for planning decisions. Chapter \ref{chapter:learning-model-free} covers an alternative \textit{model-free} approach, where decisions are learned without explicitly building a model. Chapters \ref{chapter:function-approximation} and \ref{chapter:policy-gradient} address learning of approximately optimal solutions in \textit{large} problems, that is, problems where the underlying MDP model is intractable to solve. Chapter \ref{chapter:function-approximation} approaches this topic using approximation of the value function, while Chapter \ref{chapter:policy-gradient} considers policy approximations. 
+\paragraph{Learning:} The learning theme covers decision making when the MDP model is \textit{not known in advance}. Chapter \ref{chapter-model-based} introduces the \textit{model-based} approach, where the agent explicitly learns an MDP model from its experience and uses it for planning decisions. Chapter \ref{chapter:learning-model-free} covers an alternative \textit{model-free} approach, where decisions are learned without explicitly building a model. Chapters \ref{chapter:function-approximation} and \ref{chapter:policy-gradient} address learning of approximately optimal solutions in \textit{large} problems, that is, problems where the underlying MDP model is intractable to solve. Chapter \ref{chapter:function-approximation} approaches this topic using approximation of the value function, while Chapter \ref{chapter:policy-gradient} considers policy approximations. In Chapter \ref{chapter:MAB} we consider the special case of Multi-Arm Bandits, which can be viewed as a MDP with a single state and unknown rewards. 
 % To complete the picture, Chapter \ref{chapter:tree-based-search} considers online planning using tree-search methods.
 % \section{Markov Decision Process (MDP)}
 
