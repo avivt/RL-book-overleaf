@@ -343,12 +343,21 @@ $\policy'\in\Pi_{MS}$ as follows. For every state $\state\in
 \[
 \policy'_\ttime(\action|\state)=\Pr_{\history_{\ttime-1}}
 [\action_\ttime=\action|\state_\ttime=\state]=\frac{\rho^\policy_\ttime(\state,\action)}{\sum_{\action'\in
-\Actions_\ttime} \rho^\policy_\ttime(\state,\action')}
+\Actions_\ttime} \rho^\policy_\ttime(\state,\action')}.
 \]
 By definition $\policy'$ is Markovian (depends only on the time
-$\ttime$ and the realized state $\state$). By construction
-$\rho_\ttime^{\policy}(\state,\action)=\rho_\ttime^{\policy'}(\state,\action)$
-is identical, which implies that
+$\ttime$ and the realized state $\state$). 
+
+We now claim that $\rho_\ttime^{\policy}(\state,\action)=\rho_\ttime^{\policy'}(\state,\action)$. 
+To see this, let us denote $\rho^\policy_\ttime(\state)=\Pr_{\history'_{\ttime-1}}
+[\state_\ttime=\state]$. By construction, we have that
+$\rho_\ttime^{\policy'}(\state,\action) = \rho_\ttime^{\policy'}(\state)\policy'(\action|\state) = \rho_\ttime^{\policy'}(\state) \frac{\rho_\ttime^{\policy}(\state,\action)}{\rho_\ttime^{\policy}(\state)}$. 
+We now show by induction that $\rho_\ttime^{\policy'}(\state) = {\rho_\ttime^{\policy}(\state)}$. 
+For the base of the induction, by definition we have that $\rho_0^{\policy}(\state)=\rho_0^{\policy'}(\state)$. Assume that $\rho_\ttime^{\policy'}(\state) = {\rho_\ttime^{\policy}(\state)}$. Then, by the above, we have that $\rho_\ttime^{\policy'}(\state,\action)=\rho_\ttime^{\policy}(\state,\action)$. Then, $\rho_{\ttime+1}^{\policy'}(\state)=\sum_{\action',\state'} \Pr
+[\state_{t+1}=\state|\action_\ttime=\action',\state_\ttime=\state']\rho_\ttime^{\policy'}(\state',\action')=\sum_{\action',\state'} \Pr
+[\state_{t+1}=\state|\action_\ttime=\action',\state_\ttime=\state']\rho_\ttime^{\policy}(\state',\action')=\rho_{\ttime+1}^{\policy}(\state)$.
+
+Finally, we obtain that $\rho_\ttime^{\policy'}(\state,\action) = \rho_\ttime^{\policy}(\state,\action)$, and therefore
 $\E[\Cost^\policy(\state_0)]=\E[\Cost^{\policy'}(\state_0)]$.
 \end{proof}
 
