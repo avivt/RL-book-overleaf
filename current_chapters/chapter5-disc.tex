@@ -136,7 +136,7 @@ has a unique solution ${\Value^\policy }$, which is given by
 We only need to show that the square matrix $I - \discount
 {P^\policy }$ is non-singular.  Let $({\lambda _i})$ denote the
 eigenvalues of the matrix ${P^\policy }$. Since ${P^\policy }$ is a
-stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$.
+stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$ (See the proof of Theorem~\ref{Thm:MC-stationary}).
 Now, the eignevalues of $I - \discount {P^\policy }$ are $(1 -
 \discount {\lambda _i})$, and satisfy $|1 - \discount {\lambda _i}|
 \ge 1 - \discount  > 0$.
@@ -794,7 +794,7 @@ following identities:
 \[
 \Value^{ \policy }= \Value^{\bar \policy } = T^{\bar \policy}(\Value^{\bar \policy })=T^{\bar \policy }(\Value^{\policy})
 %=T^*(\Value^{\bar  \policy })
-=T^*(\Value^{ \policy })
+=T^*(\Value^{ \policy }),
 \]
 where the first equality is by our assumption. The second equality
 follows since $\Value^{\bar \policy } $ is the fixed point of its

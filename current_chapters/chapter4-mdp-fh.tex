@@ -268,13 +268,13 @@ For $\lambda  > 0$, the exponent gives higher weight to high rewards, and the op
 
 In the case that the rewards are stochastic, but have a discrete
 support, we can construct an equivalent MDP in which all the rewards
-are deterministic and has the same distribution of rewards. This
+are deterministic and trajectories have the same distribution of rewards. This
 implies that the important challenge is the stochastic state
 transition function, and the rewards can be assumed to be
 deterministic.
 %
 Formally, given a trajectory we define a {\em rewards trajectory} as
-the sub-trajectory that includes only the rewards, i.e., for a trajectory $(\state_0,\action_0,reward_0,state_1, \ldots)$ the reward trajectory is  $(\reward_0, \reward_1, \ldots)$.
+the sub-trajectory that includes only the rewards, i.e., for a trajectory $(\state_0,\action_0,\reward_0,state_1, \ldots)$ the reward trajectory is  $(\reward_0, \reward_1, \ldots)$.
 
 
 %[Add HW to do the same for discounted]
@@ -296,6 +296,8 @@ are identical.
 \end{theorem}
 
 \begin{proof}
+For simplicity we assume that the MDP is loop-free, namely you can reach any state at most once in a trajectory. This is mainly to simplify the notation.
+
 The basic idea is to encode the rewards in the states of $M'$ which
 are
 %. Let ${\cal K}=\{1,\ldots , k\}$. We define a new state space
@@ -414,7 +416,7 @@ expected reward obtained at stage $\ttime$ is $\E[{R_\ttime}] =
 \[\Value_\discount ^\policy (\state) = {\E^\policy }(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} |{\state_0} = \state) \equiv {\E^{\policy ,s}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} )\;,\]
 where $0 < \discount  < 1$ is the discount factor. Mathematically,
 the discount factor ensures convergence of the sum (whenever the
-reward sequence is bounded). This makes the problem ``well behaved",
+reward sequence is unbounded). This makes the problem ``well behaved",
 and relatively easy to analyze. The discounted return is discussed
 in Chapter \ref{chapter:disc}.
 
@@ -448,12 +450,12 @@ Stochastic shortest path includes also the discounted infinite
 horizon. To see that, add a new goal state, and from each state with
 probability $1-\discount$ jump to the goal state and terminate. The
 expected return of a policy would be the same in both models.
-Specifically, we add a state $\state_G$, such that
-$p(\state_G|\state,\action)=1-\discount$, for any state
+Specifically, we add a state $\state_G$ and modify the transition probability to $p'$, such that
+$p'(\state_G|\state,\action)=1-\discount$, for any state
 $\state\in\States$ and action $\action\in\Actions$ and
-$p(\state'|\state,\action)=\discount p(\state'|\state,\action)$. The
+$p'(\state'|\state,\action)=\discount p(\state'|\state,\action)$. The
 probability that we do not terminate by time $\ttime$ is exactly
-$\discount^\ttime$. Therefore, the expected return is ${\E^{\policy ,s}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})}$
+$\discount^\ttime$. Therefore, the expected return is $\E^{\policy ,s}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})})$
 which is
 identical to the discounted return.
 
@@ -462,7 +464,7 @@ shortest-path problem to stochastic settings.  Some conditions on
 the system dynamics and reward function must be imposed for the
 problem to be well posed (e.g., that a goal state may be reached
 with probability one). Such problems are known as stochastic
-shortest path problems, or also episodic MDP planning problems. 
+shortest path problems, or also episodic MDP  problems. 
 % See more in Chapter \ref{chapter:ssp}.
 
 \section{Sufficiency of Markov Policies}
@@ -504,7 +506,7 @@ state-action distribution, and applies to other setting as well. The
 proof that every stochastic Markovian policy has an equivalent (or better) deterministic
 Markovian policy (Theorem~\ref{chp2:stochastic-deterministic})
 depended on the finite horizon, but it is easy to extend it to any
-linear return function as well.
+linear return function as well. (We leave the formal proof as an exercise to the reader.)  
 
 \section{Finite-Horizon Dynamic Programming}
 
@@ -578,7 +580,7 @@ The second identity uses the law of total probability, we are
 conditioning on state $\state_{k+1}$, and taking the expectation
 over it.
 %
-The third identity observes that the expected value of the sum is actually the value function at $\state_{k+1}$. The last identity writes the expectation over $\state_{k+1}$ explicitly.
+The third identity observes that the expected value of the sum is actually the value function at $\state_{k+1}$. The last identity writes the expectation over $\state_{k+1}$ explicitly. This completes the proof of the lemma.
 \end{proof}
 
 \paragraph{Remarks:}

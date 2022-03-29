@@ -2,7 +2,7 @@
 
 %\section{Markov Chains}
 
-Extending the decision making framework of Chapter \ref{chapter:DDP} to stochastic models requires a mathematical model for decision making under uncertainty. With the goal of presenting such a model in mind, in this chapter we cover the fundamentals of the Markov chain stochastic process.
+Extending the deterministic decision making framework of Chapter \ref{chapter:DDP} to stochastic models requires a mathematical model for decision making under uncertainty. With the goal of presenting such a model in mind, in this chapter we cover the fundamentals of the Markov chain stochastic process.
 
 % We start by considering a stochastic dynamics model which does not have any actions, so that we can concentrate on the dynamics.
 
@@ -27,8 +27,8 @@ distributions:
 
 Define $p_{i,j}^{(m)} = {\cal P}({X_m} = j|{X_0} = i),$ the $m$-step
 transition probabilities.  It is easy to verify that $p_{i,j}^{(m)}
-= {[{P^m}]_{ij}}$  (here ${P^m}$ is the $m$-th power of the matrix
-$P$).
+= {[{P^m}]_{ij}}$, where ${P^m}$ is the $m$-th power of the matrix
+$P$.
 
 \begin{example}
 \footnote{Simple MC, two states, running example.} Consider the
@@ -56,13 +56,14 @@ later.
 \paragraph{State classification:}
 
 \begin{itemize}
-\item State $j$ is \textit{accessible} from $i$  (denoted by $i \to j$) if $p_{i,j}^{(m)} > 0$ for some $m \ge
+\item State $j$ is \textit{accessible} (or \textit{reachable}) from $i$  (denoted by $i \to j$) if $p_{i,j}^{(m)} > 0$ for some $m \ge
 1$.\\
 For a finite $X$  we can compute the accessibility property as
 follows. Construct a directed graph $G(X,E)$ where the vertices are
 the states $X$ and there is a directed edge $(i,j)$ if $p_{i,j}>0$.
 State $j$ is accessible from state $i$ iff there exists a directed
-path in $G(X,E)$ from $i$ to $j$.
+path in $G(X,E)$ from $i$ to $j$.\\
+Note that the relation is transitive. If $i \to j$ and $j \to k$ then $i \to k$. This follows since $i \to j$ implies that there is $m_1$ such that  $p_{i,j}^{(m_2)} > 0$. Similarly, since $j \to k$ there is $m_2$ such that  $p_{j,k}^{(m_2)} > 0$. Therefore, for $m=m_1+m_2$ we have $p_{i,k}^{(m)} > p_{i,j}^{(m_1)}p_{j,k}^{(m_2)}>0$.
 \item States $i$ and $j$ are \textit{communicating} states (or communicate) if $i \to j$ and $j \to
 i$.\\
 For a finite $X$, this implies that in $G(X,E)$ there is both a
@@ -205,11 +206,10 @@ assumption that $\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  <
 
 
 \item Recurrence is a class property.\\
-To see this consider two states $i$ and $j$ such that $j$ is
-accessible from $i$ and $i$ is recurrent. Since $i$ is recurrant
+To see this consider two states $i$ and $j$ in the same communicating class and $i$ is recurrent. Since $i$ is recurrent
 $\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  = \infty $. Since $j$
 is accessible from $i$ there is a $k$ such that $p_{i,j}^{(k)}
->0$. Since $i$ is recurrent, there exists a $k'$ such that
+>0$. Since $i$ is accessible from $j$, there exists a $k'$ such that
 $p_{j,i}^{(k')}>0$. We can lower bound $\sum\nolimits_{m = 1}^\infty
 {p_{j,j}^{(m)}}$ by $\sum_{m = 1}^\infty
 {p_{j,i}^{(k')}}{p_{i,i}^{(m)}} {p_{i,j}^{(k)}} = \infty $.
@@ -255,14 +255,14 @@ for $j \not\in \{i-1,i+ 1\}$. We will show that $T_i$ is finite with
 probability $1$ and $\E[T_i]=\infty$. This implies that all the
 states are null recurrent.
 
-To compute $\E[T_i]$ consider what happens in one and two steps. Let
+To compute $\E[T_i]$ consider what happens after one and two steps. Let
 $Z_{i,i-1}$ be the time to move from $i$ to $i-1$. Note that  we
 have \[
 \E[T_i]=1+0.5\E[Z_{i+1,i}]+0.5\E[Z_{i-1,i}]=1+\E[Z_{1,0}],
 \]
 since, due to symmetry, $\E[Z_{i,i+1}]=\E[Z_{i+1,i}]=\E[Z_{1,0}]$.
 
-In two steps we are either back to $i$, or at state $i+2$ or $i-2$.
+After two steps we are either back to $i$, or at state $i+2$ or state $i-2$.
 For $\E[T_i]$ we have that
 \begin{align*}
 \E[T_i]=&
@@ -270,17 +270,18 @@ For $\E[T_i]$ we have that
 =&2+\frac{1}{4} (\E[Z_{i+2,i+1}]+\E[Z_{i+1,i}])+\frac{1}{4}( \E[Z_{i-2,i-1}]+\E[Z_{i-1,i}])\\
  =&2+E[Z_{1,0}]\\
 \end{align*}
+where the first identity uses the fact that $Z_{i+2,i}=Z_{i+2,i+1}+Z_{i+1,i}$, since in order tp reach from state $i+2$ to state $i$ we need to first reach from state $i+2$ state $i+1$, and then from state $i+1$ to state $i$.
 
 This implies that we have
 \[
-\E[T_i]=1+\E[Z_{1,0}]=2+E[Z_{1,0}]
+1+\E[Z_{1,0}]=\E[T_i]=2+E[Z_{1,0}]
 \]
 Clearly, there is no finite value for $\E[Z_{1,0}]$ which will
-satisfy the equation, which implies $\E[Z_{1,0}]=\infty$, and hence
+satisfy both equations, which implies $\E[Z_{1,0}]=\infty$, and hence
 $\E[T_i]=\infty$.
 
 To show that state $0$ is a recurrent state, note that the probability
-that at time $2k$ we are at state $0$ is exactly $p_{0,0}^{(2k)}=\binom{2k}{k}2^{-2k}\approx \frac{c}{\sqrt{k}}$, for some $c>0$. This
+that at time $2k$ we are at state $0$ is exactly $p_{0,0}^{(2k)}=\binom{2k}{k}2^{-2k}\approx \frac{c}{\sqrt{k}}$, for some constant $c>0$. This
 implies that
 $$
 \sum\nolimits_{m = 1}^\infty {p_{0,0}^{(m)}}\approx \sum\nolimits_{m
@@ -557,7 +558,7 @@ p_{j,i}\mu_j=\mu_j$. The equations \eqref{eq:DB} are called the
 \emph{detailed balance equations}. A Markov chain that satisfies
 these equations is called \emph{reversible}.
 
-\begin{example}[\textbf{Discrete-time queue}] Consider a discrete-time queue, with queue length $X_\ttime\in \mathbb{N}_0=\{0,1,2,\dots\}$. At time instant $\ttime$, ${A_\ttime}$ new jobs arrive, and then up to ${S_\ttime}$ jobs can be served, so that
+\begin{example}[\textbf{Discrete-time queue}] Consider a discrete-time queue, with queue length $X_\ttime\in \mathbb{N}_0=\{0,1,2,\dots\}$. At time  $\ttime$, ${A_\ttime}$ new jobs arrive, and then up to ${S_\ttime}$ jobs can be served, so that
 \[{X_{\ttime +1}} = {({X_\ttime} + {A_\ttime} - {S_\ttime})^ + }.\]
 Suppose that $({S_\ttime})$ is a sequence of i.i.d. RVs, and
 similarly $({A_\ttime})$ is a sequence of i.i.d. RVs, with
@@ -593,6 +594,17 @@ The mixing time measures how fast the Markov chain converges to the steady state
 \]
 The mixing time $\tau$ is defined as the time to reach a total variation of at most $1/4$:
 \[
-\|p^{(\tau)}-\mu\|_{TV}\leq 1/4
+\|s_0 P^{\tau}-\mu\|_{TV}=\|p^{(\tau)}-\mu\|_{TV}\leq \frac{1}{4}\| s_0-\mu\|_{TV}
 \]
-where $\mu$ is the steady state distribution and $p^{(\tau)}$ is the state distribution after $\tau$ steps.
+where $\mu$ is the steady state distribution and $p^{(\tau)}$ is the state distribution after $\tau$ steps starting with an initial state distribution $s_0$.
+
+Note that after $2m$ time steps we have 
+\[
+\|s_0 P^{2\tau}-\mu\|_{TV}=\|p^{(\tau)}P^{\tau}-\mu\|_{TV}\leq \frac{1}{4}\| p^{(\tau)}-\mu\|_{TV}\leq \frac{1}{4^2}\| s_0-\mu\|_{TV}.
+\]
+In general, after $km$ time steps we have 
+\[
+\|s_0 P^{k\tau}-\mu\|_{TV}=\|p^{((k-1)\tau)}P^{\tau}-\mu\|_{TV}\leq \frac{1}{4}\| p^{((k-1)\tau)}-\mu\|_{TV}\leq \frac{1}{4^k}\| s_0-\mu\|_{TV}.
+\]
+where the formal proof is by induction on $k\geq1$.
+

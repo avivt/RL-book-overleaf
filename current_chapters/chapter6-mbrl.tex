@@ -69,14 +69,14 @@ $
 (\state,\action,\reward,\state')
 $
 where $\reward$ is sampled from $\Rewards(\state,\action)$ and
-$\state'$ is sampled from $p(\cdot|\state,\action)$.
+$\state'$ is sampled from $\transitionprob(\cdot|\state,\action)$.
 
 Our goal is to output an MDP
-$(\States,\Actions,\widehat{\reward},\widehat{p})$, where $\States$
+$(\States,\Actions,\widehat{\reward},\widehat{\transitionprob})$, where $\States$
 is the set of states, $\Actions$ is the set of actions,
 $\widehat{\reward}(\state,\action)$ is the approximate expected
 reward of $\Rewards(\state,\action)\in[0,\Rmax]$, and
-$\widehat{p}(\state'|\state,\action)$ is the approximate probability
+$\widehat{\transitionprob}(\state'|\state,\action)$ is the approximate probability
 of reaching state $\state'$ when we are in state $\state$ and doing
 action $\action$. Intuitively, we would like to have the approximate
 model and the true model have a similar expected value for any policy.
@@ -152,7 +152,7 @@ $|\reward(\state,\action)-\widehat{\reward}(\state,\action)|\leq
 
 \begin{proof}
 First, we will need to scale the random variables to $[0,1]$, which
-will be achieved by dividing by $\Rmax$. Then, by the
+will be achieved by dividing them by $\Rmax$. Then, by the
 Chernoff-Hoffding bound (Corollary~\ref{cor:chernoff}), using
 $\varepsilon'= \frac{\varepsilon}{\Rmax}$ and $\delta'=
 \frac{\delta}{|\States|\;|\Actions|}$, we have that for each
@@ -190,7 +190,7 @@ horizon.
 
 \subsubsection{Influence of reward estimation errors: Finite horizon}
 
-Fix a deterministic Markov policy $\policy\in  {\Pi _{MD}}$. We want
+Fix a stochastic Markov policy $\policy\in  {\Pi _{MS}}$. We want
 to compare the return using $\reward_\ttime(\state,\action)$ versus
 $\widehat{\reward}_\ttime(\state,\action)$ and $\reward_\tHorizon(\state)$
 versus $\widehat{\reward}_\tHorizon(\state)$. We will assume that
@@ -224,9 +224,9 @@ define
 error(\policy,\sigma)= \left(\sum_{\ttime=0}^\tHorizon
 \reward_\ttime(\state_\ttime,\action_\ttime)+\reward_\tHorizon(\state_\tHorizon)\right)-
 \left(\sum_{\ttime=0}^\tHorizon
-\widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)\right)
+\widehat{\reward}_\ttime(\state_\ttime,\action_\ttime)+\widehat{\reward}_\tHorizon(\state_\tHorizon)\right).
 \]
-taking the expectation over trajectories we define,
+Taking the expectation over trajectories we define,
 \[
 error(\policy)=|\E^{\policy,\state_0} [error(\policy,\sigma)]|.
 \]
@@ -238,12 +238,12 @@ Assume that for every $(\state,\action)$ and $\ttime$ we have
 $|\reward_\ttime(\state,\action)-\widehat{\reward}_\ttime(\state,\action)|\leq
 \varepsilon$ and for every $\state$ we have
 $|\reward_\tHorizon(\state)-\widehat{\reward}_\tHorizon(\state)|\leq
-\varepsilon$. Then, for any policy $\policy\in  {\Pi _{MD}}$ we have
+\varepsilon$. Then, for any policy $\policy\in  {\Pi _{MS}}$ we have
 $error(\policy)\leq \varepsilon(\tHorizon+1)$.
 \end{lemma}
 
 \begin{proof}
-Since $\policy\in  {\Pi _{MD}}$ it implies that $\policy$ depends
+Since $\policy\in  {\Pi _{MS}}$ it implies that $\policy$ depends
 only on the time $\ttime$ and state $\state_\ttime$.
 %
 Therefore, probability of each trajectory
@@ -310,7 +310,7 @@ Then,
 \end{theorem}
 
 \begin{proof}
-%From the definition of $error(\policy)$ and since for any $\policy\in  {\Pi _{MD}}$ we showed that
+%From the definition of $error(\policy)$ and since for any $\policy\in  {\Pi _{MS}}$ we showed that
 By Lemma~\ref{lemma:approx-FH-error},  for any policy $\policy$, we
 have that $error(\policy)\leq \varepsilon(\tHorizon+1)$. This
 implies that,
@@ -337,7 +337,7 @@ The theorem follows by adding the three inequalities.
 
 \subsubsection{Influence of reward estimation errors: discounted return}
 
-Fix a stationary deterministic policy $\policy\in {\Pi _{SD}}$.
+Fix a stationary stochastic policy $\policy\in {\Pi _{SS}}$.
 Again, define the expected return of policy $\policy$ with the true
 rewards
 \[
@@ -374,12 +374,12 @@ error(\policy)=|\E^{\policy,\state_0} [error(\policy,\sigma)]|.
 %
 Assume that for every $(\state,\action)$ we have
 $|\reward_\ttime(\state,\action)-\widehat{\reward}_\ttime(\state,\action)|\leq
-\varepsilon$. Then, for any policy $\policy\in {\Pi _{SD}}$ we have
+\varepsilon$. Then, for any policy $\policy\in {\Pi _{SS}}$ we have
 $error(\policy)\leq \frac{\varepsilon}{1-\discount}$.
 \end{lemma}
 
 \begin{proof}
-Since the policy $\policy\in {\Pi _{SD}}$ is stationary, the
+Since the policy $\policy\in {\Pi _{SS}}$ is stationary, the
 probability of each trajectory $\sigma=(\state_0,\action_0,\ldots,
 \state_{\tHorizon-1},\action_{\tHorizon-1},\state_\tHorizon)$ is the
 same under $\reward(\state,\action)$ and
@@ -434,7 +434,7 @@ $|\reward(\state,\action)-\widehat{\reward}(\state,\action)|\leq
 \begin{proof}
 %From the definition of $error(\policy)$ and since
 By Lemma \ref{lemma:approx-disc-error} for any $\policy\in {\Pi
-_{SD}}$ we have $error(\policy)\leq
+_{SS}}$ we have $error(\policy)\leq
 \frac{\varepsilon}{1-\discount}$. Therefore,
 \[
 \Value^{\policy^*}_\discount(\state_0)-
@@ -465,7 +465,7 @@ $(\state,\action)$, we consider $m$ i.i.d.
 $(\state,\action,\state'_i)$, for $1\leq i\leq m$. We define the
 observed transition distribution,
 \[
-\widehat{p}(\state'|\state,\action)=\frac{|\{i:\state'_i=\state',\state_{i-1}=\state,\action_{i-1}=\action\}|}{m}
+\widehat{\transitionprob}(\state'|\state,\action)=\frac{|\{i:\state'_i=\state',\state_{i-1}=\state,\action_{i-1}=\action\}|}{m}
 \]
 Our main goal would be to evaluate the observed model as a function
 of the sample size $m$.
@@ -490,7 +490,7 @@ where $\|q_1-q_2\|_1=\sum_{\state \in \States}
 \begin{align*} |\E_{s\sim q_1}[f(\state)]- \E_{s\sim q_2}[f(\state)]|
 &=|\sum_{\state \in \States} f(\state)q_1(\state) - \sum_{\state \in \States} f(\state)q_2(\state)| \\
 &\leq \sum_{\state \in \States} f(\state)|q_1(\state) - q_2(\state)|\\
- &\leq F_{max} \|q_1-q_2\|_1
+ &\leq F_{max} \|q_1-q_2\|_1,
 \end{align*}
 where the first identity is the explicit expectation, the second is by the triangle inequality, and the third is by bounding the values of $f$ by the maximum possible value.
 \end{proof}
@@ -592,7 +592,7 @@ A model $\widehat{M}$ is an $\alpha$-approximate model of $M$
 if for every state-action $(\state,\action)$ we have: (1)
 $|\widehat{\reward}(\state,\action)-\reward(\state,\action)|\leq
 \alpha$ and (2)
-$\|\widehat{p}(\cdot|\state,\action)-p(\cdot|\state,\action)\|_1\leq\alpha$.
+$\|\widehat{\transitionprob}(\cdot|\state,\action)-\transitionprob(\cdot|\state,\action)\|_1\leq\alpha$.
 \end{definition}
 
 Since we have two different models, we define the value function of a policy $\pi$ in a model $M$ as $\Value^\policy_\tHorizon(\state_0;M)$.
@@ -605,14 +605,14 @@ guarantees that approximate models have similar return.
 %
 %Assume that $\|M_1-M_2\|_{\infty,1}\leq \alpha$.
 %
-Assume that model $\widehat{M}$ is an $\alpha$-approximate model of
+Fix $\alpha\leq \frac{\varepsilon}{\Rmax \tHorizon^2}$, and
+sssume that model $\widehat{M}$ is an $\alpha$-approximate model of
 $M$. For the finite horizon return, for any policy $\policy \in
- {\Pi _{MD}}$, we have
+ {\Pi _{MS}}$, we have
 \[
 |\Value^\policy_\tHorizon(\state_0;M)-\Value^\policy_\tHorizon(\state_0;\widehat{M})|\leq
 \varepsilon
 \]
-for $\alpha\leq \frac{\varepsilon}{\Rmax \tHorizon^2}$
 \end{lemma}
 
 \begin{proof}
@@ -633,12 +633,12 @@ return.
 \begin{lemma}
 \label{lemma:approx-model-dic}
 %
-Assume that model $\widehat{M}$ is an $\alpha$-approximate model of $M$. For the discounted return, for any policy $\policy \in  {\Pi_{SD}}$, we have
+Fix $\alpha\leq \frac{(1-\discount)^2\varepsilon}{\Rmax}$, and
+assume that model $\widehat{M}$ is an $\alpha$-approximate model of $M$. For the discounted return, for any policy $\policy \in  {\Pi_{SS}}$, we have
 \[
 |\Value^\policy_\discount(\state_0;M)-\Value^\policy_\discount(\state_0;\widehat{M})|\leq
 \varepsilon
 \]
-for $\alpha\leq \frac{(1-\discount)^2\varepsilon}{\Rmax}$
 %$\alpha\leq \frac{ 0.5 \varepsilon(1-\discount)^2}{\Rmax\log^2(\Rmax/(\varepsilon(1-\discount)))}$.
 %, for some constant $c>0$.
 \end{lemma}
@@ -647,7 +647,7 @@ for $\alpha\leq \frac{(1-\discount)^2\varepsilon}{\Rmax}$
 By Theorem~\ref{thm:l1-error} the distance between the state distributions of $M$ and $\widehat{M}$ at time $\ttime$ is bounded by $\alpha\ttime$. Since the maximum reward  is $\Rmax$, by Theorem~\ref{thm:dist-l1} the difference is bounded by
 $\sum_{\ttime=0}^\infty \alpha\ttime \Rmax\discount^t$.
 The sum 
-$$\sum_{\ttime=0}^\infty \ttime \discount^t=\frac{\discount}{1-\discount}\sum_{\ttime=0}^\infty \ttime \discount^{t-1}(1-\discount)=\frac{\discount}{(1-\discount)^2}$$
+$$\sum_{\ttime=0}^\infty \ttime \discount^t=\frac{\discount}{1-\discount}\sum_{\ttime=0}^\infty \ttime \discount^{t-1}(1-\discount)=\frac{\discount}{(1-\discount)^2}< \frac{1}{(1-\discount)^2}$$
 where the last equality uses the expected value of a geometric distribution with parameter $\discount$.
 %
 %$\leq \alpha\tHorizon^2\Rmax$. For $\alpha\leq \frac{\varepsilon}{\Rmax \tHorizon^2}$ it
@@ -675,7 +675,8 @@ observe the value $i$ in $\hat{n}_i$ outcomes. Then,
 \end{lemma}
 
 For completeness we give the proof. (The proof can also be found at
-Proposition A6.6 of van der Vaart and Wellner)
+Proposition A6.6 of %van der Vaart and Wellner 
+\cite{van1996weak})
 \begin{proof}
 Note that,
 \[
@@ -699,12 +700,12 @@ state-action pair $(\state,\action)$. Plugging in the value of
 $\alpha$, for the finite horizon, we have
 \[
 m=O(\frac{\Rmax^2}{\varepsilon^2} \tHorizon^4 (|\States|+\log
-(|\States|\;|\Actions|/\delta)))
+(|\States|\;|\Actions|/\delta))),
 \]
 and for the discounted return
 \[
-O(\frac{\Rmax^2}{\varepsilon^2}  \frac{1}{(1-\discount)^4}
-(|\States|+\log (|\States|\;|\Actions|/\delta))
+m=O(\frac{\Rmax^2}{\varepsilon^2}  \frac{1}{(1-\discount)^4}
+(|\States|+\log (|\States|\;|\Actions|/\delta)).
 %\log^4\frac{\Rmax}{\varepsilon(1-\discount)}))
 \]
 
@@ -729,11 +730,11 @@ state-action pairs. For the finite horizon, the total sample size is
 \[
 m\tHorizon|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2}
 |\States|^2 |\Actions| \tHorizon^5 \log
-(|\States|\;|\Actions|/\delta))
+(|\States|\;|\Actions|/\delta)),
 \]
 and for the discounted return
 \[
-m|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2(1-\discount)^4} |\States|^2 |\Actions|  \log(|\States|\;|\Actions|/\delta))
+m|\States|\;|\Actions|=O(\frac{\Rmax^2}{\varepsilon^2(1-\discount)^4} |\States|^2 |\Actions|  \log(|\States|\;|\Actions|/\delta)).
 %\log^4\frac{\Rmax}{\varepsilon(1-\discount)})
 \]
 
@@ -777,14 +778,14 @@ In iteration $n$ we compute
 \begin{align*}
 V_{n+1}(\state)&=\max_{\action\in \Actions} \{
 \reward(\state,\action)+\discount \sum_{\state'\in S}
-p(\state'|\state,\action)
+\transitionprob(\state'|\state,\action)
 V_n(\state')\}\\
 &=\max_{\action\in \Actions} \{ \reward(\state,\action)+\discount
-E_{\state'\sim p(\cdot |\state,\action)} [V_n(\state')]\}
+E_{\state'\sim \transitionprob(\cdot |\state,\action)} [V_n(\state')]\}
 \end{align*}
 
 We showed that $\lim_{n\rightarrow \infty}V_n =V^*$, and that the
-convergence rate is $O(\frac{\discount^n}{1-\discount}\Rmax)$.
+error rate is $O(\frac{\discount^n}{1-\discount}\Rmax)$.
 %
 This implies that if we run for $N$ iterations, where
 $N=\frac{1}{1-\discount}\log
@@ -802,7 +803,7 @@ The Approximate Value Iteration (AVI) using the sample would be,
 \widehat{V}_n(\state'_i)\right\}
 \]
 %where the sample is $\{(\state,\action,\state'_i)\}_{i\in[1,m]}$
-where $\widehat{\reward}=\frac{1}{m}\sum_{i=1}^m \reward_i$.
+where $\widehat{\reward}(\state,\action)=\frac{1}{m}\sum_{i=1}^m \reward_i(\state,\action)$.
 
 The intuition is that if we have a large enough sample, AVI  will
 approximate the Value Iteration. We set $m$ such that, with
@@ -821,7 +822,7 @@ This holds for $m=O(\frac{V^2_{max}}{\varepsilon^2}\log (N
 value. I.e., for finite horizon $V_{max}=\tHorizon\; \Rmax$ and for
 discounted return $V_{max}=\frac{\Rmax}{1-\discount}$.
 
-Assume that we have, for every $\state \in \States$,
+Assume that for every state $\state \in \States$  we have
 \[
 \left|\widehat{V}_n(\state) - V_n(\state)\right|\leq \lambda
 \]
@@ -830,14 +831,14 @@ Then
 \left|\widehat{V}_{n+1}(\state)-V_{n+1}(\state)\right|& =
 \left|\widehat{\reward}(\state,\action)+\discount
 \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
-\reward(\state,\action)-\discount E_{\state'\sim p(\cdot
+\reward(\state,\action)-\discount E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
 &\leq |\widehat{\reward}(\state,\action)- \reward(\state,\action)|
 +\discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
-E_{\state'\sim p(\cdot
+E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
 %
- &\leq \varepsilon+\discount\lambda\leq \lambda
+ &\leq \varepsilon+\discount\lambda\leq \lambda,
 \end{align*}
 where the last inequality holds for $\lambda\geq
 \frac{\varepsilon}{1-\discount}$.
@@ -862,7 +863,7 @@ m=O(\frac{1}{\varepsilon^2}\log \frac{ |\States| \;|\Actions|\log (
 \]
 Running the Approximate Value Iteration for
 $N=\frac{1}{1-\discount}\log \frac{\Rmax}{\varepsilon(1-\discount)}$
-results in an $\varepsilon$-approximation of the optimal value
+iterations results in an $\varepsilon$-approximation of the optimal value
 function.
 \end{theorem}
 
@@ -894,7 +895,7 @@ time steps we are playing near optimal action.
 Recall that a Deterministic Decision Process (DDP) is modeled by a
 directed graph, where the states are the vertices, and each action
 is associated with an edge. For simplicity we will assume that the
-graph is strongly connected, i.e. there is a directed path between
+graph is strongly connected, i.e., there is a directed path between
 any two states. (See Chapter~\ref{chapter:DDP}.)
 
 %For a directed graph $G(V,E)$ we define a traversal as a path (not
@@ -936,23 +937,23 @@ any two states. (See Chapter~\ref{chapter:DDP}.)
 %For reconstructing a DDP we essentially need a traversal, i.e.,
 
 We will start by showing how to recover the DDP. The basic idea is
-rather simple. We partition the state-action pairs to {\tt known}
-and {\tt unknown}. Initially all states-action pairs are unknown.
-Each unknown state-action that we execute is moved to known. Each
-time we look for a path from the current state to some unknown
-state-action pair. When all the state-action pairs are known we are
+rather simple. We partition the state-action pairs to \texttt{known}
+and \texttt{unknown}. Initially all states-action pairs are \texttt{unknown}.
+Each \texttt{unknown} state-action that we execute is moved to \texttt{known}. Each
+time we look for a path from the current state to some \texttt{unknown}
+state-action pair. When all the state-action pairs are \texttt{known} we are
 done. This implies that we have at most $|\States|\;|\Actions|$
 iterations, and since the maximum length of such a path is at most
 $|\States|$, the total number of time steps would be bounded by
 $|\States|^2\;|\Actions|$.
 
-To compute a path from the known state-action pairs to some unknown
+To compute a path from the \texttt{known} state-action pairs to some \texttt{unknown}
 state-action pair, we reduce this task to a planning task in DDP.
 %
-For each known state-action pair  we define the reward to be zero and the
-next state to be the observed next state. For each unknown
+For each \texttt{known} state-action pair  we define the reward to be zero and the
+next state to be the observed next state. For each \texttt{unknown}
 state-action pair we define the reward to be $\Rmax$ and the next state
-as the same state, i.e we stay in the same state. We can now solve for the optimal
+as the same state, i.e., we stay in the same state. We can now solve for the optimal
 policy (infinite horizon average reward) of our model. As long as
 there are unobserved state-action pairs, the optimal policy will
 reach one of them.
@@ -973,7 +974,7 @@ recovers the DDP in at most $O(|\States|^2 |\Actions|)$
 \begin{proof}
 We first define the explored model. Given an observation set
 $\{(\state_\ttime,\action_\ttime ,\reward_\ttime,
-\state_{\ttime+1})\}$, we define an explored model $\tilde{M}$,
+\state_{\ttime+1})\}$, we define an explored model $\widetilde{M}$,
 where $\tilde{f}(\state_\ttime,\action_\ttime)=\state_{\ttime+1}$
 and $\tilde{\reward}(\state,\action)=0$.
 %
@@ -983,7 +984,7 @@ $\tilde{\reward}(\state,\action)=\Rmax$.
 
 
 We can now present the on-policy exploration algorithm. Initially
-set $\tilde{M}_0$ to have $\tilde{f}(\state,\action)=\state$ and
+set $\widetilde{M}_0$ to have $\tilde{f}(\state,\action)=\state$ and
 $\tilde{\reward}(\state,\action)=\Rmax$ for every $(\state,\action)$. Initialize $\ttime=0$. At
 time $\ttime$ do the following.
 \begin{enumerate}
@@ -994,12 +995,12 @@ time $\ttime$ do the following.
 %\item
 %Let $\ttime=0$.
 %\item
-%Build the explored model $\tilde{M}_\tHorizon$.
+%Build the explored model $\widetilde{M}_\tHorizon$.
 \item
 Compute $\tilde{\policy}^*_\ttime$, the optimal policy for
-$\tilde{M}_\ttime$, for the infinite horizon average reward return.
+$\widetilde{M}_\ttime$, for the infinite horizon average reward return.
 \item
-If the return of $\tilde{\policy}^*_\ttime$ on $\tilde{M}_\ttime$ is
+If the return of $\tilde{\policy}^*_\ttime$ on $\widetilde{M}_\ttime$ is
 zero, then terminate.
 \item
 Use $\action_\ttime=\tilde{\policy}^*_\ttime(\state_{\ttime})$.
@@ -1009,7 +1010,7 @@ $\state_{\ttime+1}$ and add
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ to
 the observation set.
 \item
-Modify $\tilde{M}_\ttime$ to  $\tilde{M}_{\ttime+1}$
+Modify $\widetilde{M}_\ttime$ to  $\widetilde{M}_{\ttime+1}$
 %be identical to
 %except (potentially)
 by setting for state $\state_\ttime$ and action $\action_\ttime$ the
@@ -1022,9 +1023,11 @@ $(\state_\ttime,\action_\ttime)$.)
 We claim that at termination we have observed each state-action pair
 at least once. Otherwise, there will be state-action pairs that
 would have a reward of $\Rmax$ and at least one of those pairs would
-be reachable from the current known states. So the optimal policy
+be reachable from the current \texttt{known} states. So the optimal policy
 would have a return of $\Rmax$ contradicting the fact that it had
 return of zero.
+
+The time to termination can be bounded by  $O(|\States|^2 |\Actions|)$, since we have  $|\States|\; |\Actions|$ state-action pairs and while we did not terminate, we reach an \texttt{unknown} state-action pair after at most  $|\States|$ steps.
 
 After the algorithm terminates, define the following model. Given
 the observations during the run of the algorithm
@@ -1055,7 +1058,7 @@ For $(\state,\action)$ which do not appear in the observation set,
 we define $\widehat{f}(\state,\action)=\state$ and
 $\widehat{\reward}(\state,\action)=\Rmax$.
 
-First, we claim that for any $\policy\in {\Pi _{SD}}$ the optimistic
+First, we claim that for any $\policy\in {\Pi _{SS}}$ the optimistic
 observed model $\widehat{M}$ can only increase the value compared to
 the true model $M$. Namely,
 \[
@@ -1063,7 +1066,7 @@ the true model $M$. Namely,
 \]
 The increase holds for any trajectory, and note that once $\policy$
 reaches $(\state,\action)$ that was not observed, its reward will be
-$\Rmax$ forever. (This is since $\policy\in {\Pi _{SD}}$.)
+$\Rmax$ forever. (This is since $\policy\in {\Pi _{SS}}$.)
 
 We can now present the on-policy learning algorithm.
 %
@@ -1089,7 +1092,7 @@ $\state_{\ttime+1}$ and add
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ to
 the observation set.
 \item
-Modify $\tilde{M}_\ttime$ to  $\tilde{M}_{\ttime+1}$
+Modify $\widetilde{M}_\ttime$ to  $\widetilde{M}_{\ttime+1}$
 %be identical to
 %except (potentially)
 by setting for state $\state_\ttime$ and action $\action_\ttime$ the
@@ -1115,8 +1118,8 @@ We can now state the convergence of the algorithm to the optimal
 policy.
 
 \begin{theorem}
-After $\tHorizon=|\States|^2|\Actions|$ time steps the policy
-$\widehat{\policy}^*_\tHorizon$ is optimal for the true model $M$.
+After $\tau\leq|\States|^2|\Actions|$ time steps the policy
+$\widehat{\policy}^*_\tau$ never changes and it is optimal for the true model $M$.
 \end{theorem}
 
 \begin{proof}
@@ -1131,24 +1134,26 @@ Next, we show that we either make a change in $\widehat{M}_\ttime$
 during the next $|\States|$ steps or we never make any more changes.
 The model $M$ is deterministic, if we do not change the policy in
 the next $|\States|$ time steps, the policy
-$\widehat{\policy}^*_\tHorizon \in {\Pi _{MD}}$ reach a cycle and
+$\widehat{\policy}^*_\tau \in {\Pi _{SD}}$ reach a cycle and
 continue on this cycle forever. Hence, the model will never change.
 
 We showed that the number of changes is at most
 $|\States|\;|\Actions|$, and the time between changes is at most
-$|\States|$. This implies that after time $\tHorizon\leq
+$|\States|$. This implies that after time $\tau\leq
 |\States|^2|\Actions|$ we never change.
 
-The return of $\widehat{\policy}^*_\tHorizon$ after time $\tHorizon$
-is identical in $\widehat{M}_\tHorizon$ and $M$, since all the edges
-it traverses are known. Let $\widehat{V}^*$ be its return. Assume
-that the policy $\policy^*$ has a strictly higher return in $M$,
-i.e., $V^*>\widehat{V}^*$. This implies that the return of
-$\policy^*$ is at least $V^*>\widehat{V}^*$ in
-$\widehat{M}_\tHorizon$, since the rewards in
-$\widehat{M}_\tHorizon$ are always at least those in $M$. This
-contradicts the fact that $\widehat{\policy}^*_\tHorizon$ is optimal
-for $\widehat{M}_\tHorizon$.
+The return of $\widehat{\policy}^*_\tau$ after time $\tau$
+is identical in $\widehat{M}_\tau$ and $M$, since all the edges
+it traverses are \texttt{known}. Therefore, $V^{\widehat{\policy}^*_\tau}(s;M)=V^{\widehat{\policy}^*_\tau}(s;\widehat{M}_\tau)$. Since $\widehat{\policy}^*_\tau$ is the optimal policy in $\widehat{M}_\tau$ we have that $V^{\widehat{\policy}^*_\tau}(s;\widehat{M}_\tau)\geq V^{\policy^*}(s;\widehat{M}_\tau)$, where $\policy^*$ is the optimal policy in $M$. By the optimism we have $ V^{\policy^*}(s;M^*_\tau)\geq  V^{\policy^*}(s;M) $. We established that $ V^{\widehat{\policy}^*_\tau}(s;M) \geq V^{\policy^*}(s;M) $, but due to the optimality of $\policy^*$ we have $\policy^*=\widehat{\policy}^*_\tau$.
+%
+% Let $\widehat{V}^*$ be its return. Assume
+% that the policy $\policy^*$ has a strictly higher return in $M$,
+% i.e., $V^*>\widehat{V}^*$. This implies that the return of
+% $\policy^*$ is at least $V^*>\widehat{V}^*$ in
+% $\widehat{M}_\tHorizon$, since the rewards in
+% $\widehat{M}_\tHorizon$ are always at least those in $M$. This
+% contradicts the fact that $\widehat{\policy}^*_\tHorizon$ is optimal
+% for $\widehat{M}_\tHorizon$.
 \end{proof}
 
 In this section we used the infinite horizon average reward, however
@@ -1158,21 +1163,15 @@ and the claims would be almost identical.
 
 
 %\newpage
-\subsection{On-policy learning MDP: $E^3$}
+\subsection{On-policy learning MDP: (Explicit Explore or Exploit ($E^3$)}
 
 We will now extend the techniques we developed for DDP to a general
 MDP. We will move from infinite horizon average reward to finite
 horizon, mainly for simplicity, however, the techniques presented
 can be applied to a variety of return criteria.
 
-The main difference between a DDP and MDP is that in a DDP it is
-sufficient to have a single sample $(\state,\action)$ to know both
-the reward and the next state. In a general MDP we need to have a
-larger sample of $(\state,\action)$ to approximate it well. (Recall
-that to have an $\alpha$-approximate model it is sufficient to have
-from each state-action pair $m=O((|\States|+\log(\tHorizon
-|\States|\;|\Actions|/\delta)))$.)
-%from {\tt unknown} to {\tt known}.
+The main difference between a DDP and MDP is that in a DDP it is sufficient to have a single state-action sample $(\state,\action)$ to know both the reward and the next state. In a general MDP we need to have a larger number of state-action samples of $(\state,\action)$ to approximate it well. (Recall that to have an $\alpha$-approximate model it is sufficient to have from each state-action pair $m=O(|\States|+\log(\tHorizon |\States|\;|\Actions|/\delta))$ samples.)
+%from \texttt{unknown} to \texttt{known}.
 Otherwise, the algorithms would be very similar.
 
 We start with the $E^3$ (Explicit Explore or Exploit) algorithm of
@@ -1185,85 +1184,88 @@ policy, such state-action pairs would be implicitly ignored.)
 As in the DDP we will maintain an explored model. Given an
 observation set $\{(\state_\ttime,\action_\ttime ,\reward_\ttime,
 \state_{\ttime+1})\}$, we define a state-action $(\state,\action)$
-pair {\tt known } if we have $m$ times $\ttime_i$, $1\leq i \leq m$,
-where $\state_{\ttime_i}=\state$ and $\action_{\ttime_i}=\action$.
-Otherwise it is {\tt unknown}. We define the observed distribution
-of a known $(\state,\action)$ to be
+pair \texttt{known} if we have $m$ times $\ttime_i$, $1\leq i \leq m$,
+where $\state_{\ttime_i}=\state$ and $\action_{\ttime_i}=\action$,
+otherwise it is \texttt{unknown}. We define the observed distribution
+of a \texttt{known} $(\state,\action)$ to be
 \[
-\widehat{p}(\state'|\state,\action)= \frac{|\{\ttime_i
+\widehat{\transitionprob}(\state'|\state,\action)= \frac{|\{\ttime_i
 :\state_{\ttime_i+1}=\state',\state_{\ttime_i}=\state,\action_{\ttime_i}=\action\}|}{m}
 \]
 and the observed reward to be,
 \[
-\widehat{r}(\state,\action)=\frac{1}{m}\sum_{i=1}^m
+\widehat{\reward}(\state,\action)=\frac{1}{m}\sum_{i=1}^m
 \reward_{\ttime_i}
 \]
 
 
-We define the explored model $\tilde{M}$ as follows. We add a new
-state $\state_1$. For each known $(\state,\action)$, we set the next
-state distribution $\tilde{p}(\cdot|\state,\action)$ to be the
-observed distribution $\widehat{p}(\cdot|\state,\action)$, and the
+We define the explored model $\widetilde{M}$ as follows. We add a new
+state $\state_1$. For each \texttt{known} $(\state,\action)$, we set the next
+state distribution $\tilde{\transitionprob}(\cdot|\state,\action)$ to be the
+observed distribution $\widehat{\transitionprob}(\cdot|\state,\action)$, and the
 reward to be zero, i.e., $\tilde{\reward}(\state,\action)=0$.
 %
-For unknown $(\state,\action)$, we define
-$\tilde{p}(\state,\action)=\state_1$ and
-$\tilde{\reward}(\state,\action)=\Rmax$. For state $\state_1$ we
-have $\tilde{p}(\state_1,\action)=\state_1$ and
+For \texttt{unknown} $(\state,\action)$, we define
+$\tilde{\transitionprob}(\state,\action)=\state_1$ and
+$\tilde{\reward}(\state,\action)=1$. For state $\state_1$ we
+have $\tilde{\transitionprob}(\state_1,\action)=\state_1$ and
 $\tilde{\reward}(\state_1,\action)=0$ for any action
-$\action\in\Actions$ .
+$\action\in\Actions$.
+The terminal reward of any state $\state$ is zero, i.e., $\tilde{\reward}_\tHorizon(\state)=0$.
 %
-Note that the expected value of any policy $\policy$ in $\tilde{M}$
-is {\em exactly} the probability it will reach an unknown
+Note that the expected value of any policy $\policy$ in $\widetilde{M}$
+is {\em exactly} the probability it will reach an \texttt{unknown}
 state-action pair.
 
 We can now specify the $E^3$ (Explicit Explore or Exploit)
 algorithm. The algorithm has three parameters: (1) $m$, how many
-samples we need to change a state-action from unknown to known, (2)
-$\tHorizon$, which is the finite horizon, and (3) $\varepsilon$, the
+samples we need to change a state-action from \texttt{unknown} to \texttt{known}, (2)
+$\tHorizon$, the finite horizon parameter, and (3) $\varepsilon$, the
 accuracy parameter.
 
-Initially all state-action pairs are unknown and we set $\tilde{M}$
+Initially all state-action pairs are \texttt{unknown} and we set $\widetilde{M}$
 accordingly. We initialize $\ttime=0$, and at time $\ttime$ do the
 following.
 \begin{enumerate}
 \item
 Compute $\tilde{\policy}^*_\ttime$, the optimal policy for
-$\tilde{M}$, for the finite horizon return.
+$\widetilde{M}$, for the finite horizon return with horizon $\tHorizon$.
 \item
-If the expected return of $\tilde{\policy}^*_\ttime$ on $\tilde{M}$
+If the expected return of $\tilde{\policy}^*_\ttime$ on $\widetilde{M}$
 is less than $\varepsilon/2$, then terminate.
 \item
-Use $\action_\ttime=\tilde{\policy}^*_\ttime(\state_{\ttime})$.
+Run policy $\tilde{\policy}^*_\ttime(\state_{\ttime})$ and observe a trajectory $(\state_0,\action_0,\reward_0,\state_1, \ldots, \state_\tHorizon)$
+%Use $\action_\ttime=\tilde{\policy}^*_\ttime(\state_{\ttime})$.
 \item
-Observe the reward $\reward_\ttime$ and the next state
-$\state_{\ttime+1}$ and add
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+_1})$
-to the observations.
+%Observe the reward $\reward_\ttime$ and the next state
+%$\state_{\ttime+1}$ and add
+Add to the observations the quadruples
+$(\state_i,\action_i,\reward_i,\state_{i+1})$
+for $0\leq i\leq \tHorizon-1$.
 \item
-If $(\state_\ttime,\action_\ttime)$ became known for the first time,
-update $\tilde{M}$ entries for $(\state_\ttime,\action_\ttime)$.
+For each $(\state,\action)$ which became \texttt{known} for the first time,
+update $\widetilde{M}$ entries for $(\state,\action)$.
 \end{enumerate}
 
-At termination we define $M'$ as follows. For each known
+At termination we define $M'$ as follows. For each \texttt{known} state-action pair
 $(\state,\action)$, we set the next state distribution to be the
-observed distribution $\widehat{p}(\cdot|\state,\action)$, and the
+observed distribution $\widehat{\transitionprob}(\cdot|\state,\action)$, and the
 reward to be the observed reward, i.e.,
-$\widehat{r}(\state,\action)$.
+$\widehat{\reward}(\state,\action)$.
 %
-For unknown $(\state,\action)$, we can define the rewards and next
+For \texttt{unknown} $(\state,\action)$, we can define the rewards and next
 state distribution arbitrarily. For concreteness, we will use the
-following: $\widehat{p}(\state,\action)=\state$ and
+following: $\widehat{\transitionprob}(\state,\action)=\state$ and
 $\widehat{\reward}(\state,\action)=\Rmax$.
 
 \begin{theorem}
 Let $m\geq
-\frac{2\log(2)|\States|+\log(|\States|\;|\Actions|/\delta)}{\alpha^2}$
+\frac{|\States|+\log(|\States|\;|\Actions|/\delta)}{\alpha^2}$
 and $\alpha=\frac{\varepsilon/4}{\Rmax \tHorizon^2}$.
 %
 The $E^3$ (Explicit Explore or Exploit) algorithm recovers an MDP
 $M'$, such that for any policy $\policy$ the expected return on $M'$
-and $M$ differ by at most $\varepsilon$, i.e.,
+and $M$ differ by at most $\varepsilon(\tHorizon+1)$, i.e.,
 $$|\Value^\policy_{M'}(\state_0)-\Value^\policy_M(\state_0) |\leq
 \varepsilon\tHorizon+\varepsilon. $$
  In addition, the expected number of time
@@ -1277,81 +1279,87 @@ have that for every state $\state$ and action $\action$ we have that
 both the observed and true next state distribution are $\alpha$
 close and the difference between the observed and true reward is at
 most $\alpha$. Namely,
-$\|p(|\state,\action)-\widehat{p}(\cdot|\state,\action)\|_1\leq
+$\|\transitionprob(|\state,\action)-\widehat{\transitionprob}(\cdot|\state,\action)\|_1\leq
 \alpha$ and
 $|\reward(\state,\action)-\widehat{\reward}(\state,\action)|\leq
 \alpha$.
+As we saw before, for this it is sufficient to have that
+Let $m\geq
+\frac{|\States|+\log(|\States|\;|\Actions|/\delta)}{\alpha^2}$.
 
-Let $\tilde{M}_\ttime$ be the model at time $\ttime$. We define
+Let $\widetilde{M}_\ttime$ be the model at time $\ttime$. We define and intermediate model
 $\tilde{M'}_\ttime$ to be the model where we replace the observed
-next-state distributions with the true next state distributions.
+next-state distributions with the true next state distributions for the \texttt{known} state-action pairs.
 Since the two models are $\alpha$-approximate, their expected return
 differ by at most $\alpha\tHorizon^2\Rmax\leq \varepsilon/4$.
 
-Note that the probability of reaching an unknown state in $M$ and
-$\tilde{M}'_\ttime$ at time $\ttime$ is identical. This is since the
-two models agree on the known states, and once an unknown state is
+Note that the probability of reaching some \texttt{unknown} state in the true model $M$ and the intermediate model
+$\widetilde{M}'_\ttime$ at time $\ttime$ is identical. This is since the
+two models agree on the \texttt{known} states, and once an \texttt{unknown} state is
 reached, we are done.
+
+We will show that while the probability of reaching some \texttt{unknown} state in the true model is large (larger than $0.75\varepsilon$) we will not terminate. This will guarantee that when we terminate the probability of reaching any \texttt{unknown} state is negligible, and hence we can conceptually ignore such state and still be near optimal. The second part is to show that we do terminate and bound the expected time until termination. For this part we will show that once every policy has a low probability of reaching some \texttt{unknown} state in the true model  (less than $0.25\varepsilon$) then we will terminate. 
+%This will imply that, in expectation, we have at most $O(1/\varepsilon)$ times between updates to the model, and overall bound the number of iterations by $O(|\States|\;|\Actions|/\varepsilon)$
 
 Assume there is a policy $\policy$ that at time $\ttime$ in the true
 model $M$ has a probability of at least $(3/4)\varepsilon$ to reach
-an unknown state.(Note that the set of known and unknown states
+an \texttt{unknown} state. (Note that the set of \texttt{known} and \texttt{unknown} states
 change with $\ttime$.) Recall that this implies that $\policy$ has
-the same probability in $\tilde{M}'_\ttime$. This policy $\policy$
-has a probability of at least $(1/2)\varepsilon$ to reach an unknown
-state in $\tilde{M}_\ttime$ since $\tilde{M}'_\ttime$ and
-$\tilde{M}_\ttime$ are $\alpha$-approximate.
+the same probability in $\widetilde{M}'_\ttime$. Therefore, this policy $\policy$
+has a probability of at least $(1/2)\varepsilon$ to reach an \texttt{unknown}
+state in $\widetilde{M}_\ttime$ since $\widetilde{M}'_\ttime$ and
+$\widetilde{M}_\ttime$ are $\alpha$-approximate. This implies that we will not terminate while there is such a policy $\pi$.
 
 Similarly, once at time $\ttime$, every policy $\policy$ in the true
 model $M$ has a probability of at most $(1/4)\varepsilon$ to reach an
 unknown state, then we are guaranteed to terminate. This is since the
-probability of $\policy$ to reach an unknown state is identical in
-$M$ and $\tilde{M}'_\ttime$. Since the expected return of $\policy$
-in $\tilde{M}'_\ttime$ and $\tilde{M}$ differ by at most
-$\varepsilon/4$, the probability of $\policy$ to reach an unknown
-state in $\tilde{M}_\ttime$ is at most $\varepsilon/2$. This is
+probability of $\policy$ to reach an \texttt{unknown} state is identical in
+$M$ and $\widetilde{M}'_\ttime$. Since the expected return of $\policy$
+in $\widetilde{M}'_\ttime$ and $\widetilde{M}$ differ by at most
+$\varepsilon/4$, the probability of $\policy$ to reach an \texttt{unknown}
+state in $\widetilde{M}_\ttime$ is at most $\varepsilon/2$. This is
 exactly our termination condition.
 %
-This also implies that in expectation we have $O(1/\varepsilon)$
-iterations until termination.
+
+
 
 Assume termination at time $\ttime$. At time $\ttime$ every policy
 $\policy$ has a probability of at most $(1/2)\varepsilon$ to reach
-some unknown state in $\tilde{M}_\ttime$. This implies that
+some \texttt{unknown} state in $\widetilde{M}_\ttime$. This implies that
 $\policy$ has a probability of at most $(3/4)\varepsilon$ to reach
-some unknown state in $M$.
+some \texttt{unknown} state in $M$.
 
 
 %We claim that at termination the probability of any policy to reach
-%an unknown state-action pair is at most $\varepsilon$. This follows
+%an \texttt{unknown} state-action pair is at most $\varepsilon$. This follows
 %since the expected value of any policy is the probability it reaches
-%an unknown state-action pair. Since we are considering the optimal
+%an \texttt{unknown} state-action pair. Since we are considering the optimal
 %policy, it upper bounds the probability of any other policy. This
-%implies that for any reward function, the effect of the unknown
+%implies that for any reward function, the effect of the \texttt{unknown}
 %state-action pairs on the expected value of any policy can be
 %bounded by $\varepsilon \tHorizon$.
 
 After the algorithm terminates, we define the model $M'$ using the
-observed distributions and rewards for any known state-action pair.
-Since every known state-action pair is sampled $m$ times, we have
+observed distributions and rewards for any \texttt{known} state-action pair.
+Since every \texttt{known} state-action pair is sampled $m$ times, we have
 that with probability $1-\delta$ the model $M'$
-$\alpha$-approximation of the true model $M$, in the known
+$\alpha$-approximation of the true model $M$, in the \texttt{known}
 state-action pairs.
 
 When we compare
 $|\Value^\policy_{M'}(\state_0)-\Value^\policy_M(\state_0)|$ we
-separate the difference due to unknown states and known states. The
-contribution of unknown states is at most $\varepsilon\tHorizon$,
-since the probability of reaching them is at most
+separate the difference due to trajectories that include \texttt{unknown} states and due to trajectories in which all the states are \texttt{known} states. 
+The contribution of trajectories with  \texttt{unknown} states is at most $\varepsilon\tHorizon$,
+since the probability of reaching any \texttt{unknown} state is at most
 $(3/4)\varepsilon<\varepsilon$ and the maximum return is
-$\tHorizon$. The difference in the known states is at most
+$\tHorizon$. The difference in trajectories in which all the states are \texttt{known} states is at most
 $\varepsilon/4<\varepsilon$ since $M$ and $M'$ are $\alpha$
 approximate, and the selection of $\alpha$ guarantees that the
 difference in expectation is at most $\varepsilon/4$
 (Lemma~\ref{lemma:approx-model-FH}).
 
 In each iteration, until we terminate, we have a probability of at
-least $\varepsilon/4$ to reach an unknown state-action. We can reach
+least $\varepsilon/4$ to reach some \texttt{unknown} state-action. We can reach
 unknown state-action pairs at most $m |\States|\;|\Actions|$.
 Therefore the expected number of time steps is  $O(m\tHorizon
 |\States|\;|\Actions|/\varepsilon)$.
@@ -1365,86 +1373,90 @@ continuous phase, and there will be no need to explicitly switch
 from exploration to exploitation.
 
 Similar to the DDP, we will use the principle of {\em Optimism in
-face of uncertainty}. Namely, we substitute the unknown quantities
+face of uncertainty}. Namely, we substitute the \texttt{unknown} quantities
 by the maximum possible values.
 %For rewards, this means $\Rmax$. For transitions
 %
-In addition, Similar to DDP and $E^3$, we will partition the
-state-action pairs $(\state,\action)$ {\tt known} and {\tt unknown}.
+In addition, similar to DDP and $E^3$, we will partition the
+state-action pairs $(\state,\action)$ \texttt{known} and \texttt{unknown}.
 %
 The main difference from DDP, and similar to $E^3$, is that in a DDP
 it is sufficient to have a single sample to move $(\state,\action)$
-from {\tt unknown} to {\tt known}. In a general MDP we need to have a
-larger sample to move $(\state,\action)$ from {\tt unknown} to {\tt
+from \texttt{unknown} to \texttt{known}. In a general MDP we need to have a
+larger sample to move $(\state,\action)$ from \texttt{unknown} to {\tt
 known}. Otherwise, the {\tt R-max} algorithm would be very similar
 to the one in DDP. In the following, we describe algorithm {\tt
 R-max}, which performs on-policy learning of MDPs.
 
+We can now specify the {\tt R-max} algorithm. The algorithm has two
+parameters: (1) $m$, how many samples we need to change a
+state-action from \texttt{unknown} to \texttt{known}, and (2) $\tHorizon$, which is
+the finite horizon parameter.
+
 {\em Initialization:} Initially, we set for each $(\state,\action)$
 a next state distribution which always return to $\state$, i.e.,
-$p(\state|\state,\action)=1$ and $p(\state'|\state,\action)=0$ for
+$\transitionprob(\state|\state,\action)=1$ and $\transitionprob(\state'|\state,\action)=0$ for
 $\state'\neq s$. We set the reward to be maximal, i.e.,
 $\reward(\state,\action)=\Rmax$. We mark $(\state,\action)$ to be
-{\tt unknown}.
+\texttt{unknown}.
 
 {\em Execution:} At time $\ttime$. (1) Build a model
 $\widehat{M}_\ttime$, explained later. (2) Compute
 $\widehat{\policy}^*_\ttime$ the optimal finite horizon policy for
-$\widehat{M}_\ttime$, and (3) Execute
-$\action_\ttime=\widehat{\policy}^*_\ttime(\state_\ttime)$ and
-observe $\reward_\ttime$ and $\state_{\ttime+1}$.
+$\widehat{M}_\ttime$, where $\tHorizon$ is the horizon, and (3) Execute
+$\widehat{\policy}^*_\ttime(\state_\ttime)$ and
+observe a trajectory $(\state_0,\action_0,\reward_0,\state_1, \ldots, \state_\tHorizon)$.
+%$\reward_\ttime$ and $\state_{\ttime+1}$.
 
 {\em Building a model:} At time $\ttime$, if the number of samples
-of $(\state,\action)$ is {\em exactly} $m$ for the {\em first time},
-then: modify $p(\cdot|\state,\action)$ to the observed transition
+of $(\state,\action)$ is for the {\em first time} at least $m$,
+then: modify $\transitionprob(\cdot|\state,\action)$ to the observed transition
 distribution, $\reward(\state,\action)$ to the average observed
 reward for $(\state,\action)$ and mark $(\state,\action)$ as {\tt
 known}. Note that we update each $(\state,\action)$ only once, when
-it moves from {\tt unknown} to {\tt known}.
+it moves from \texttt{unknown} to \texttt{known}.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Given a set of observations, we define the model $\tilde{M}$ as
-follows. For each known $(\state,\action)$, we set the next state
-distribution $\tilde{p}$ to be the observed distribution
-$\widehat{p}(\cdot|\state,\action)$, and the reward
+Given a set of observations, we define the model $\widetilde{M}$ as
+follows. For each \texttt{known} $(\state,\action)$, we set the next state
+distribution $\tilde{\transitionprob}$ to be the observed distribution
+$\widehat{\transitionprob}(\cdot|\state,\action)$, and the reward
 $\tilde{\reward}$ to be the observed distribution, i.e.,
 $\widehat{\reward}(\state,\action)$.
 %
-For unknown $(\state,\action)$, we define
-$\tilde{p}(\state,\action)=\state$ and
+For \texttt{unknown} $(\state,\action)$, we define
+$\tilde{\transitionprob}(\state,\action)=\state$ and
 $\tilde{\reward}(\state,\action)=\Rmax$. Note that the main
 difference from $E^3$ is the fact that we set the rewards of the
 know state-action pairs to be their observed reward (and not zero,
 at $E^3$ does).
 
-We can now specify the {\tt R-max} algorithm. The algorithm has two
-parameters: (1) $m$, how many samples we need to change a
-state-action from unknown to known, and (2) $\tHorizon$, which is
-the finite horizon.
 
-Initially all state-action pairs are unknown and we set $\tilde{M}$
-accordingly. We initialize the time $\ttime=0$, and at $\ttime$ do
-the following.
-\begin{enumerate}
-\item
-Let $k$ be the number of steps remaining in the current episode.
-%If $\ttime$ is a start on a new episode, then
-Compute $\tilde{\policy}^*_\ttime$, the optimal policy for
-$\tilde{M}$, for the finite horizon return with horizon $k$.
-\item
-Use $\action_\ttime=\tilde{\policy}^*_\ttime(\state_{\ttime})$.
-\item
-Observe the reward $\reward_\ttime$ and the next state
-$\state_{\ttime+1}$ and add
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+_1})$
-to the observations.
-\item
-If $(\state_\ttime,\action_\ttime)$ became known for the first time,
-update $\tilde{M}$ entries for $(\state_\ttime,\action_\ttime)$.
-\end{enumerate}
+
+% Initially all state-action pairs are \texttt{unknown} and we set $\widetilde{M}$
+% accordingly. We initialize the time $\ttime=0$, and at iteration $\ttime$ do
+% the following:
+% \begin{enumerate}
+% \item
+% Let $k$ be the number of steps remaining in the current episode.
+% %If $\ttime$ is a start on a new episode, then
+% Compute $\tilde{\policy}^*_\ttime$, the optimal policy for
+% $\widetilde{M}$, for the finite horizon return with horizon $k$.
+% \item
+% Use $\action_\ttime=\tilde{\policy}^*_\ttime(\state_{\ttime})$.
+% \item
+% Observe the reward $\reward_\ttime$ and the next state
+% $\state_{\ttime+1}$ and add
+% $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+_1})$
+% to the observations.
+% \item
+% If $(\state_\ttime,\action_\ttime)$ became \texttt{known} for the first time,
+% update $\tilde{M}$ entries for $(\state_\ttime,\action_\ttime)$.
+% \end{enumerate}
+
 Note that there are two main differences from $E^3$. First, when a
-state-action becomes known, we set the reward to be the observed
+state-action becomes \texttt{known}, we set the reward to be the observed
 reward (and not zero, as in $E^3$). Second, there is no test for
 termination, but we continuously run the same algorithm (although at
 some point the policy will stop changing).
@@ -1455,55 +1467,84 @@ Here is the basic intuition for algorithm {\tt R-max}. We consider
 the finite horizon return with horizon $\tHorizon$.  In each episode
 we run $\widehat{\policy}^*_\ttime$ for $\tHorizon$ time steps.
 Either, with some non-negligible probability we explore a
-state-action $(\state,\action)$ which is {\tt unknown}, in this case
+state-action $(\state,\action)$ which is \texttt{unknown}, in this case
 we make progress on the exploration.  This can happen at most
 $m|\States|\;|\Actions|$ times. Alternatively, with high probability
 we do not reach any state-action $(\state,\action)$ which is {\tt
 unknown}, in which case we are optimal on the observed model, and
 near optimal on the true model.
 
-For the analysis define an event $NEW$, which is the event that we
-visit some {\tt unknown} state-action $(\state,\action)$ during the
-episode (of $\tHorizon$ time steps). For the return of
-$\widehat{\policy}^*_\ttime$, when $\ttime$ is a start of an episode
-(i.e., $k=\tHorizon$), we have,
+For the analysis define an event $NEW_\ttime$, which is the event that we
+visit some \texttt{unknown} state-action $(\state,\action)$ during the iteration $\ttime$.
+\begin{claim}
+For the return of $\widehat{\policy}^*_\ttime$, we have,
 \[
 V^{\widehat{\policy}^*_\ttime}(\state_0)\geq V^*(\state_0) -
-\Pr[NEW]\Vmax-\lambda
+\Pr[NEW_\ttime]\tHorizon-\lambda
 \]
-where $\Vmax=\tHorizon$ is the maximum $\tHorizon$ return, and
-$\lambda$ is the approximation error, and we can bound it by
-$\varepsilon/2$ by setting $m$ large enough.
+where $\lambda$ is the approximation error for any two models which are $\alpha$-approximate.
+%, i.e., $\lambda\geq |V^{\widehat{\policy}}(\state_0;M)-V^{\widehat{\policy}}(\state_0;\widehat{M}_t)$, for any policy $\policy$.
+\end{claim}
 
-We consider two cases, depending on the probability of $NEW$. First,
-we consider the case that the probability of $NEW$ is small. If
-$\Pr[NEW]\leq \frac{\varepsilon}{2\Vmax}$, then
+\begin{proof}
+Let $\policy^*$ be the optimal policy in the true model $M$. Since we selected policy $\widehat{\policy}^*_\ttime$ for our model $\widehat{M}_t$, we have $V^{\widehat{\policy}^*_\ttime}(\state_0;\widehat{M}_t)\geq V^{\policy^*}(\state_0;\widehat{M}_t)$. 
+
+We now define an intermediate model $\widehat{M'}_t$ which replaces the transitions and rewards in the \texttt{known} state-action pairs by the true transition probabilities and rewards. We have that $\widehat{M'}_t$ and $\widehat{M}_t$ are $\alpha$-approximate.
+By the definition of $\lambda$ we have $V^{\policy^*}(\state_0;\widehat{M}_t)\geq V^{\policy^*}(\state_0;\widehat{M'}_t)-\lambda$. In addition, $V^{\policy^*}(\state_0;\widehat{M'}_t)\geq V^{\policy^*}(\state_0;M)=V^*(\state_0)$, since in $\widehat{M'}_t$ we only increased the rewards of the \texttt{unknown} state-action pairs such that when we reach them we are guarantee maximal rewards until the end of the trajectory.
+
+For our policy $\widehat{\policy}^*_\ttime$ we have that 
+ $V^{\widehat{\policy}^*_\ttime}(\state_0;\widehat{M'}_t)+\lambda\geq V^{\widehat{\policy}^*_\ttime}(\state_0;\widehat{M}_t)$, since the models are $\alpha$-approximate.
+%
+In $M$ and $\widehat{M'}_t$, any trajectory that does not reach any \texttt{unknown} state-action pair, has the same probability in both models. This implies that 
+  $V^{\widehat{\policy}^*_\ttime}(\state_0;M)\geq V^{\widehat{\policy}^*_\ttime}(\state_0;\widehat{M'}_t)-\Pr[NEW_\ttime]\tHorizon$, since the maximum return is $\tHorizon$. Combining all the inequalities derives the claim.
+ %In addition, we can bound trivially the difference in return between any trajectoory 
+%=V^*(\state_0)-\lambda$.
+\end{proof}
+
+
+%The reason is that for trajectories which do not reach an \texttt{unknown} state-action pair, we have (approximately) the same 
+
+We set the sample size $m$ such that $\lambda \leq\varepsilon/2$.
+%and we can bound it by
+%$\varepsilon/2$ by setting $m$ large enough.
+
+We consider two cases, depending on the probability of $NEW_\ttime$. First,
+we consider the case that the probability of $NEW_\ttime$ is small. If
+$\Pr[NEW]\leq \frac{\varepsilon}{2\tHorizon}$, then
 $V^{\widehat{\policy}^*_\ttime}(\state_0)\geq V^*(\state_0)
 -\varepsilon/2 -\varepsilon/2$, since we assume that $\lambda\leq
 \varepsilon/2$.
 
-Second, we consider the case that the probability of $NEW$ is large.
-If $\Pr[NEW] > \frac{\varepsilon}{2\Vmax}$. Then, there is a good
-probability to visit an {\tt unknown} $(\state,\action)$, but this
+Second, we consider the case that the probability of $NEW_\ttime$ is large.
+If $\Pr[NEW] > \frac{\varepsilon}{2\tHorizon}$. Then, there is a good
+probability to visit an \texttt{unknown} state-action pair $(\state,\action)$, but this
 can happen at most $m|\States|\;|\Actions|$. Therefore, the expected
-number of such blocks is at most
-$m|\States|\;|\Actions|\frac{2\Vmax}{\varepsilon}$.
+number of such iterations is at most
+$m|\States|\;|\Actions|\frac{2\tHorizon}{\varepsilon}$.
+This implies the following theorem.
 
-This implies that only in
+\begin{theorem}
+With probability $1-\delta$ algorithm \texttt{R-MAX} will not be $\varepsilon$-optimal, i.e., have an expected return less than $V^*-\varepsilon$, in at most 
 \[
 m|\States|\;|\Actions|\frac{2\Vmax}{\varepsilon}
 \]
-episodes, the algorithm {\tt R-MAX} will be more than $\varepsilon$
-sub-optimal, i.e., have an expected return less than
-$V^*-\varepsilon$.
+iterations.
+\end{theorem}
+% This implies that only in
+% \[
+% m|\States|\;|\Actions|\frac{2\Vmax}{\varepsilon}
+% \]
+% iterations, the algorithm \texttt{R-MAX} will not be $\varepsilon$-optimal, i.e., have an expected return less than $V^*-\varepsilon$.
+
+\noindent\textit{Remark:} Note that we do not guarantee a termination after which we can fix the policy. The main technical issue that we have is that the probability of the event $NEW_\ttime$ is non-increasing. This sis since when we switch policies, we might considerably increase the probability of reaching \texttt{unknown} state-action pairs. For this reason we settle for a weaker guarantee that the number of sub-optimal iterations is bounded. Note that in $E^3$ we separated the exploration and exploitation and have a clear transition between the two, and therefore we can terminate and output a near-optimal policy.
+
 
 \section{Bibliography Remarks}
 
 
 The first polynomial time model based learning algorithm is $E^3$
-(Explicit Explore or Exploit) of \cite{KearnsS02}. While we did not
-outline the $E^3$ algorithm, we did describe the effective horizon
-and the simulation lemma from there.
+(Explicit Explore or Exploit) of \cite{KearnsS02}. 
+%While we did not outline the $E^3$ algorithm, we did describe the effective horizon and the simulation lemma from there.
 
 The improved sampling bounds for the optimal policy using
 approximate Value Iteration is following \cite{KearnsS98a}.
