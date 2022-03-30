@@ -1097,7 +1097,7 @@ pair $(\state,\action)$ let $n(\state,\action)$ be the number of
 times it appears, let $n(\state,\action,\state')$ be the number of
 times $\state'$ is observed following executing action $\action$ in
 state $\state$. The observed transition model is
-$\widehat{p}(\state'|\state,\action)=n(\state,\action,\state')/n(\state,\action)$.
+$\widehat(\state'|\state,\action)=n(\state,\action,\state')/n(\state,\action)$.
 Assume that in the $i$-th execution of action $\action$ in state
 $\state$ we observe a reward $\reward_i$ then the observed reward is
 $\widehat{\reward}(\state,\action)=(1/n(\state,\action))\sum_{i=1}^{n(\state,\action)}
@@ -1139,15 +1139,15 @@ where the last equality follows by changing the order of summation
 It remains to show that $\mu(\state)=n(\state)/N$. We have the
 following identities. For $v\neq \state_0$:
 \[
-\mu(v)=\sum_u \widehat{p}(v|u)\mu(u)
+\mu(v)=\sum_u \widehat(v|u)\mu(u)
 \]
 For the initial state we have
 \[
-\mu(\state_0)=1+ \sum_u \widehat{p}(\state_0|u)\mu(u)
+\mu(\state_0)=1+ \sum_u \widehat(\state_0|u)\mu(u)
 \]
 Note that $n(v)=\sum_u n(u,v)$ for $v\neq \state_0$ and
 $n(\state_0)=N+\sum_u n(u,\state_0)$, and recall that
-$\widehat{p}(v|u)=n(u,v)/n(u)$. One can verify the identities by
+$\widehat(v|u)=n(u,v)/n(u)$. One can verify the identities by
 plugging in these values.
 \end{proof}
 
