@@ -142,12 +142,12 @@ rewards $\widehat{\reward}(\state,\action)$ are the average rewards
 of $(\state,\action)$, i.e.,
 $\widehat{\reward}(\state,\action)=\frac{1}{n(\state,\action)}\sum_{\ttime:\state_\ttime=\state,\action_\ttime=\action}\reward_\ttime$
 and
-$\widehat{p}(\state'|\state,\action)=\frac{n(\state,\action,\state')}{n(\state,\action)}$,
+$\widehat{\transitionprob}(\state'|\state,\action)=\frac{n(\state,\action,\state')}{n(\state,\action)}$,
 where $n(\state,\action,\state')$ is the number of samples that have
 $\state_{\ttime+1}=\state'$ when $\state_\ttime=\state$ and
 $\action_\ttime =\action$.
 
-The following theorem states that the value of $\policy$ on the
+The following theorem states that the value of the policy $\policy$ on the
 empirical model is identical to that of $TD(0)$ (running on the
 sample until convergence, namely, continuously sampling uniformly
 $t\in[1,T]$ and using $(\state_\ttime,
@@ -172,12 +172,12 @@ convergence we have $E[\Delta_\ttime]=0$ and hence,
 \reward_\ttime+\discount
 \widehat{V}(\state_{\ttime+1})=\widehat{\reward}(\state,\action)+\discount
 E_{\state'\sim
-\widehat{p}(\cdot|\state,\action)}[\widehat{V}(\state')]
+\widehat{\transitionprob}(\cdot|\state,\action)}[\widehat{V}(\state')]
 \]
 where $\action=\policy(\state)$.
 \end{proof}
 
-In is worth to compare the above theorem to the case of Monte Carlo
+It is worth to compare the above theorem to the case of Monte Carlo
 (Theorem~\ref{thm:MC-ML}). Here we are using the entire sample, and
 we have the same ML model for any state $\state$. In the Monte-Carlo
 case we used a reduced sample, which depends on the state $\state$
@@ -205,16 +205,16 @@ stochastic approximation iterative algorithm
 
 We first define a linear operator $H$ for the policy $\policy$,
 \[
-(Hv)(\state)=\reward(\state,\policy(\state))+\discount\sum_{\state'}p(\state'|\state,\policy(\state))v(\state')
+(Hv)(\state)=\reward(\state,\policy(\state))+\discount\sum_{\state'}\transitionprob(\state'|\state,\policy(\state))v(\state')
 \]
 Note that $H$ is the operator $T^\policy$ we define in
 Section~\ref{ss:DP_op}.
 
-As we saw before, the operator $H$ is a $\discount$-contracting
+As we saw before, the operator $H$ is a $\discount$-contracting, namely,
 operator
 \begin{align*}
 \|Hv_1-Hv_2\|_\infty &= \discount \max_{s} |
-\sum_{\state'}p(\state'|\state,\policy(\state))(v_1(\state')-v_2(\state'))|\\
+\sum_{\state'}\transitionprob(\state'|\state,\policy(\state))(v_1(\state')-v_2(\state'))|\\
 &\leq \discount\max_{\state'} |v_1(\state')-v_2(\state')|\\
 &\leq \discount \|v_1-v_2\|_\infty
 \end{align*}
@@ -230,7 +230,7 @@ where $\Phi_\ttime=\reward_\ttime+\discount
 V_\ttime(\state_{\ttime+1})$. We would like to consider the expected
 value of $\Phi_\ttime$. Clearly,
 $E[\reward_\ttime]=\reward(\state_\ttime,\policy(\state_\ttime))$
-and $\state_{\ttime+1} \sim p(\cdot |\state_\ttime,\action_\ttime)$.
+and $\state_{\ttime+1} \sim \transitionprob(\cdot |\state_\ttime,\action_\ttime)$.
 This implies that $E[\Phi_\ttime]=(HV_\ttime)(\state_\ttime)$.
 Therefore, we can define the noise term $\omega_\ttime$ as follows,
 \[
@@ -248,8 +248,8 @@ V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\tti
 \]
 The requirement of the step size appears in the statement of the
 theorem (and so holds). The noise $\omega_\ttime$ has both
-$E[\omega_\ttime]=0$ and $|\omega_\ttime|\leq V_{max}$. And the
-operator $H$ is contracting with a fix-point $\Value^\policy$.
+$E[\omega_\ttime]=0$ and $|\omega_\ttime|\leq V_{max}$. The
+operator $H$ is $\discount$-contracting with a fix-point $\Value^\policy$.
 Therefore, using Theorem~\ref{thm:stoch-approx}, we established
 Theorem~\ref{thm:TD0-conrg}.
 
@@ -267,7 +267,7 @@ $\Value^\policy(\state_{\ttime+1})$ and the expectation is what we
 like to estimate (assuming our estimates converge).
 \item
 [DP]
- We have $\Value^\policy(\state)=\sum_{\action}\policy(\action|\state)[\reward(\state,\action)+\discount \sum_{\state'}p(\state'|\state,\action)\Value^\policy(\state')]$. In DP we
+ We have $\Value^\policy(\state)=\sum_{\action}\policy(\action|\state)[\reward(\state,\action)+\discount \sum_{\state'}\transitionprob(\state'|\state,\action)\Value^\policy(\state')]$. In DP we
  have the entire model, and use it to compute expectations.
 \end{itemize}
 
@@ -318,14 +318,18 @@ follows:
 \Delta^{(n)}_\ttime=\sum_{i=0}^{n-1} \discount^i \Delta_{\ttime+i}
 \]
 This follows since
-\[
-\sum_{i=0}^{n-1} \discount^i \Delta_{\ttime+i}=\sum_{i=0}^{n-1}
+\begin{align*}
+\sum_{i=0}^{n-1} \discount^i \Delta_{\ttime+i}
+=&\sum_{i=0}^{n-1}
 \discount^i \reward_{\ttime+i}+ \sum_{i=0}^{n-1} \discount^{i+1}
 \widehat{V}(\state_{\ttime+i+1})- \sum_{i=0}^{n-1} \discount^{i}
-\widehat{V}(\state_{\ttime+i})=\sum_{i=0}^{n-1} \discount^i
+\widehat{V}(\state_{\ttime+i})\\
+=&\sum_{i=0}^{n-1} \discount^i
 \reward_{\ttime+i}+\discount^n
-\widehat{V}(\state_{\ttime+n})-\widehat{V}(\state_\ttime)
-\]
+\widehat{V}(\state_{\ttime+n})-\widehat{V}(\state_\ttime)\\
+=&R^{(n)}_\ttime(\state_\ttime)-\widehat{V}(\state_\ttime)=\Delta^{(n)}_\ttime
+\end{align*}
+
 
 Using the $n$-step look-ahead we have
 $\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime
@@ -425,8 +429,7 @@ Monte-carlo updates, and many times achieves superior performance to
 both.
 %
 Similar to $TD(0)$, also  $TD(\lambda)$ can be written as a
-stochastic approximation iterative algorithm, and one can derive its
-convergence.
+stochastic approximation iterative algorithm, and one can derive its convergence.\footnote{YM: Do we want to add it? Maybe HW?}
 %
 In the next section we show the equivalence of the forward and
 backward $TD(\lambda)$ updates.
@@ -434,26 +437,25 @@ backward $TD(\lambda)$ updates.
 
 \subsection{The equivalence of the forward and backward view}
 
-We would like to show that indeed the forward and backward view
-result in the same overall update.
+We would like to show that indeed the forward and backward view result in the same overall update.\footnote{YM: should we move to the Harm van Seijen, Richard S. Sutton: True Online TD(lambda). ICML 2014: 692-700}
 
 For the forward view we define the updates to be
-$\Delta^F_\ttime(\state)=\alpha(R^\lambda_\ttime-V_\ttime(\state))$,
+$\Delta V^F_\ttime(\state)=\alpha(R^\lambda_\ttime-V_\ttime(\state))$,
 where $R^\lambda_\ttime=(1-\lambda)\sum_{n=1}^\infty
 \lambda^{n-1}R_\ttime^{(n)}$. Equivalently,
-$\Delta^F_\ttime(\state)=\alpha (1-\lambda)\sum_{n=1}^\infty
-\Delta_\ttime ^{(n)}$.
+$\Delta V^F_\ttime(\state)=\alpha (1-\lambda)\sum_{n=1}^\infty \lambda^{n-1}\Delta_\ttime ^{(n)}$.
 
 
 For the backward view we define the updates to be
-$\Delta^B_\ttime(\state)=\alpha\Delta_\ttime e_\ttime(\state)$,
+$\Delta V^B_\ttime(\state)=\alpha\Delta_\ttime e_\ttime(\state)$,
 where the eligibility trace is
 $e_\ttime(\state)=\sum_{k=0}^\ttime(\lambda\discount)^{\ttime-k}I(\state=\state_k)$.
 
 \begin{theorem}
+For any state $\state$
 %For any trajectory of length $T$ we have
 \[
-\sum_{\ttime=0}^{\infty} \Delta V ^B_\ttime
+\sum_{\ttime=0}^{\infty} \Delta V^B_\ttime
 (\state)=\sum_{\ttime=0}^{\infty} \Delta V_\ttime^F(\state)
 I(\state_\ttime=\state)
 \]
@@ -462,7 +464,7 @@ I(\state_\ttime=\state)
 \begin{proof}
 Consider the sum of the forward updates for state $\state$:
 \begin{align}
-\sum_{\ttime=0}^{\infty } \Delta \Value^F_\ttime (\state)&=
+\sum_{\ttime=0}^{\infty } \Delta V^F_\ttime (\state)&=
 \sum_{\ttime=0}^{\infty} \alpha
 (1-\lambda) \sum_{n=\ttime}^{\infty} \lambda^{n-\ttime}\Delta_\ttime^{(n)} I(\state=\state_\ttime)\nonumber\\
 %
@@ -490,7 +492,7 @@ and in the last identity we note that $\sum_{i=0}^\infty
 
 For the backward view for state $\state$ we have
 \begin{align}
-\sum_{\ttime=0}^{\infty } \Delta \Value^B_\ttime (\state)&=\sum_{\ttime=0}^{\infty} \alpha
+\sum_{\ttime=0}^{\infty } \Delta V^B_\ttime (\state)&=\sum_{\ttime=0}^{\infty} \alpha
 \Delta_\ttime(\state) e_{\ttime}(\state)\\
 &=\sum_{\ttime=0}^{\infty} \alpha
 \Delta_\ttime(\state) \sum_{k=0}^\ttime (\discount\lambda)^{\ttime-k} I(\state=\state_\ttime)\nonumber\\
@@ -547,7 +549,7 @@ e_\ttime(\state,\action)\Delta_\ttime
 
 \subsection{Importance Sampling}
 
-Importance sapling is a simple general technique to estimate the
+Importance sampling is a simple general technique to estimate the
 mean with respect to a given distribution, while sampling from a
 different distribution. To be specific, let $Q$ be the sampling
 distribution and $P$ the evaluation distribution. The basic idea is
@@ -559,7 +561,7 @@ f(x)=E_{x\sim Q} [\frac{P(x)}{Q(x)}f(x)]
 This implies that given a sample $\{x_1, \ldots , x_m\}$ from $Q$,
 we can estimate $E_{x\sim P}[f(x)]$ using $\sum_{i=1}^m
 \frac{P(x_i)}{Q(x_i)}f(x_i)$.
-
+%
 The importance sampling gives an unbiased estimator, but the
 variance of the estimator might be huge, since it depends on
 $P(x)/Q(x)$.
