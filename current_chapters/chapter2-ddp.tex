@@ -990,6 +990,18 @@ The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to
   \item	With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|\nodes|)$ time, leading to overall running time of $O(|\nodes{|^2} + |\edges|)$ for the algorithm. Using a basic (binary heap) priority queue brings the running time to $O((|\nodes| + |\edges|)\log |\nodes|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|\nodes|\log |\nodes| + |\edges|)$.
 \end{enumerate}
 
+In the following, we prove that Dijkstra's is \textit{complete}, i.e., that is finds the shortest path. Let $d^*[\nodev]$ denote the shortest path length from $\nodev$ to $\nodev_d$
+\begin{theorem}
+Assume that $\cost(\nodev,\nodeu)\geq 0$ for all $\nodeu,\nodev\in\vertexset$. Then Dijkstra's algorithm terminates with $d[\nodev] = d^*[\nodev]$ for all $\nodev\in\vertexset$.
+\end{theorem}
+\begin{proof}
+We first prove by induction that $d[\nodev] \geq d^*[\nodev]$ throughout the execution of the algorithm. This obviously holds at initialization. Now, assume $d[\nodev] \geq d^*[\nodev] \quad \forall \nodev\in\nodes$ before a relaxation step of edge $\nodex,\nodey$. If $d[\nodex]$ changes after the relaxation we have $d[\nodex] = \cost(\nodex,\nodey) + d[\nodey] \geq \cost(\nodex,\nodey) + d^*[\nodey] \geq d^*[\nodex]$, where the last inequality is Bellman's equation.
+
+We will next prove by induction that throughout the execution of the algorithm, for each $\nodev \in \vertexset$ we have $d[\nodev] = d^*[\nodev]$.
+The first vertex added to $\vertexset$ is $\nodev_d$, for which the statement holds. Now, assume by contradiction that $\nodeu$ is the first node that is going to be added to $\vertexset$ for which $d[\nodeu] \neq d^*[\nodeu]$. We must have that $\nodeu$ is connected to $\nodev_d$, otherwise $d[\nodeu] = d^*[\nodeu] = \infty$. Let $p$ denote the shortest path from $\nodeu$ to $\nodev_d$. Since $p$ connects a node in $\nodes\backslash \vertexset$ to a node in $\vertexset$, it must cross the boundary of $\vertexset$. We can thus write it as $p = \nodeu \to \nodex \to \nodey \to \nodev_d$, where $\nodex \in \nodes\backslash \vertexset$, $y \in \vertexset$, and the path $\nodey \to \nodev_d$ is inside $\vertexset$.
+By the induction hypothesis, $d[\nodey] = d^*[\nodey]$. Since $\nodex$ is on the shortest path, it must have been updated when $\nodey$ was inserted into $\vertexset$, so $d[\nodex] = d^*[\nodey] + \cost(\nodex,\nodey) = d^*[\nodex]$. Since the weights are non-negative, we must have $d[\nodex] = d^*[\nodex] \leq d^*[\nodeu] \leq d[\nodeu]$ (the last inequality is from the induction proof above). But because both $\nodeu$ and $\nodex$ were in $\vertexset$ and we chose to update $\nodeu$, we must have $d[\nodex] \geq d[\nodeu]$, so $d^*[\nodeu] = d[\nodeu]$.
+\end{proof}
+
 \subsection{Dijkstra's Algorithm for Single Pair Problems}
 
 For the single pair problem, Dijkstra's algorithm can be written in the Single Source Problem formulation, and terminated once the destination node is reached, i.e., when it is popped from the queue. From the discussion above, it is clear that the algorithm will terminate exactly when the shortest path between the source and destination is found.
