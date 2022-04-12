@@ -63,7 +63,7 @@ follows. Construct a directed graph $G(X,E)$ where the vertices are
 the states $X$ and there is a directed edge $(i,j)$ if $p_{i,j}>0$.
 State $j$ is accessible from state $i$ iff there exists a directed
 path in $G(X,E)$ from $i$ to $j$.\\
-Note that the relation is transitive. If $i \to j$ and $j \to k$ then $i \to k$. This follows since $i \to j$ implies that there is $m_1$ such that  $p_{i,j}^{(m_2)} > 0$. Similarly, since $j \to k$ there is $m_2$ such that  $p_{j,k}^{(m_2)} > 0$. Therefore, for $m=m_1+m_2$ we have $p_{i,k}^{(m)} > p_{i,j}^{(m_1)}p_{j,k}^{(m_2)}>0$.
+Note that the relation is transitive. If $i \to j$ and $j \to k$ then $i \to k$. This follows since $i \to j$ implies that there is $m_1$ such that  $p_{i,j}^{(m_1)} > 0$. Similarly, since $j \to k$ there is $m_2$ such that  $p_{j,k}^{(m_2)} > 0$. Therefore, for $m=m_1+m_2$ we have $p_{i,k}^{(m)} > p_{i,j}^{(m_1)}p_{j,k}^{(m_2)}>0$.
 \item States $i$ and $j$ are \textit{communicating} states (or communicate) if $i \to j$ and $j \to
 i$.\\
 For a finite $X$, this implies that in $G(X,E)$ there is both a
@@ -281,7 +281,7 @@ satisfy both equations, which implies $\E[Z_{1,0}]=\infty$, and hence
 $\E[T_i]=\infty$.
 
 To show that state $0$ is a recurrent state, note that the probability
-that at time $2k$ we are at state $0$ is exactly $p_{0,0}^{(2k)}=\binom{2k}{k}2^{-2k}\approx \frac{c}{\sqrt{k}}$, for some constant $c>0$. This
+that at time $2k$ we are at state $0$ is exactly $p_{0,0}^{(2k)}=\binom{2k}{k}2^{-2k}\approx \frac{c}{\sqrt{k}}$ (using Stirling's approximation), for some constant $c>0$. This
 implies that
 $$
 \sum\nolimits_{m = 1}^\infty {p_{0,0}^{(m)}}\approx \sum\nolimits_{m
@@ -300,22 +300,22 @@ This Markov chain will have all (non-negative) integers as possitive recurrent s
 {\bf Random walk with jumps.}
 %
 Consider the following Markov chain over the integers. The states
-are the integers. The initial states is $0$. At each state $i$, with
+are the integers. The initial state is $0$. At each state $i$, with
 probability $1/2$ we move to $i+1$ and with probability $1/2$ we
 return to $0$. Namely, $p_{i,i+1}=1/2$, $p_{i,0}=1/2$, and $p_{i,j}
 =0$ for $j \not\in \{0,i+ 1\}$. We will show that $\E[T_i]<\infty$
 (which implies that $T_i$ is finite with probability $1$).
 
 From any state we return to $0$ with probability $1/2$, therefore
-$\E[T_0]=3$. (The expected return is composed from the first move from $0$ to $1$ and then we have a geometric distribution with expectation $2$.) We will show that for state $i$ we have
-$\E[T_i]\leq3+3\cdot 2^{i-1}$. We will decompose $T_i$ to two parts. The
-first is the return to $0$, this part has expectation $3$. The
+$\E[T_0]=2$ (The return time is $1$ with probability $1/2$, $2$ with probability $(1/2)^2$, $k$ with probability $(1/2)^k$, and computing the expectation gives $\sum_{k=1}^\infty k/2^k = 2$). We will show that for state $i$ we have
+$\E[T_i]\leq2+2\cdot 2^{i-1}$. We will decompose $T_i$ to two parts. The
+first is the return to $0$, this part has expectation $2$. The
 second is to reach state $i$ from state $0$. Consider an epoch as
 the time between two visits to $0$. The probability that an epoch
 would reach $i$ is exactly $2^{-(i-1)}$. The expected time of an epoch
-is $3$ (the expected time to return to state $0$). The expected time
+is $2$ (the expected time to return to state $0$). The expected time
 to return to state $0$, given that we did not reach state $i$ is
-less than $3$. Therefore, $\E[T_i]\leq 3+3\cdot 2^{i-1}$.
+less than $2$. Therefore, $\E[T_i]\leq 2+2\cdot 2^{i-1}$.
 
 Note that this Markov chain is aperiodic.
 \end{example}
@@ -598,11 +598,11 @@ The mixing time $\tau$ is defined as the time to reach a total variation of at m
 \]
 where $\mu$ is the steady state distribution and $p^{(\tau)}$ is the state distribution after $\tau$ steps starting with an initial state distribution $s_0$.
 
-Note that after $2m$ time steps we have 
+Note that after $2\tau$ time steps we have 
 \[
 \|s_0 P^{2\tau}-\mu\|_{TV}=\|p^{(\tau)}P^{\tau}-\mu\|_{TV}\leq \frac{1}{4}\| p^{(\tau)}-\mu\|_{TV}\leq \frac{1}{4^2}\| s_0-\mu\|_{TV}.
 \]
-In general, after $km$ time steps we have 
+In general, after $k\tau$ time steps we have 
 \[
 \|s_0 P^{k\tau}-\mu\|_{TV}=\|p^{((k-1)\tau)}P^{\tau}-\mu\|_{TV}\leq \frac{1}{4}\| p^{((k-1)\tau)}-\mu\|_{TV}\leq \frac{1}{4^k}\| s_0-\mu\|_{TV}.
 \]

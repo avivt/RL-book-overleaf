@@ -1028,7 +1028,7 @@ For the single pair problem, Dijkstra's algorithm can be written in the Single S
 
 \tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
 
-\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodeu] = \nodev$ }}}
+\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
 \item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
 \end{enumerate}
 \end{algorithm_}
@@ -1061,7 +1061,7 @@ The A$^*$ algorithm implements this idea through the use of a heuristic function
 
 \tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
 
-\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodeu] = \nodev$ }}}
+\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
 \item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
 \end{enumerate}
 \end{algorithm_}
