@@ -312,10 +312,10 @@ $\E[T_i]\leq2+2\cdot 2^{i-1}$. We will decompose $T_i$ to two parts. The
 first is the return to $0$, this part has expectation $2$. The
 second is to reach state $i$ from state $0$. Consider an epoch as
 the time between two visits to $0$. The probability that an epoch
-would reach $i$ is exactly $2^{-(i-1)}$. The expected time of an epoch
+would reach $i$ is exactly $2^{-i}$. The expected time of an epoch
 is $2$ (the expected time to return to state $0$). The expected time
 to return to state $0$, given that we did not reach state $i$ is
-less than $2$. Therefore, $\E[T_i]\leq 2+2\cdot 2^{i-1}$.
+less than $2$. Therefore, $\E[T_i]\leq 2+2\cdot 2^{i}$.
 
 Note that this Markov chain is aperiodic.
 \end{example}

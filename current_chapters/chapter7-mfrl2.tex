@@ -439,6 +439,26 @@ backward $TD(\lambda)$ updates.
 
 We would like to show that indeed the forward and backward view result in the same overall update.\footnote{YM: should we move to the Harm van Seijen, Richard S. Sutton: True Online TD(lambda). ICML 2014: 692-700}
 
+Consider the following intuition. Assume that state $\state$ occurs in time $\tau_1$. This occurrence will contribute to the forward view $\sum_{\ttime=0}^\infty \lambda^\ttime\discount^\ttime\Delta_{\tau_1+\ttime} $.
+The same contribution applies to any time $\tau_j$ where state $\state$ occurs. The sum of those contributions would be $\sum_{j=1}^M \lambda^\ttime\discount^\ttime\Delta_{\tau_j+\ttime} $, where $M$ is the number of occurrences of state $\state$. Now we compute the contribution of any update $\Delta_i$. The updates of $\Delta_i$ will  contribute to any update of state $\state$ which occurs at time $\tau_j\leq i$. The total update of $\Delta_i$ would be $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}\Delta_i $. Note that $e_i(\state)$ st time $i$ equals to $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}$, which implies that the update equals $e_i(\state)\Delta_i$.So the sum of the updates should be equivalent. Figure~\ref{fig-TD-lambda-forward-backward} has an illustrative example.
+We will derive it more formally in the proof that follows.
+
+\begin{figure}
+    \centering
+    %\includegraphics{}
+  $$  
+  \begin{matrix}
+                & \Delta_0 & \Delta_1 & \Delta_2 & \Delta_3 &  \Delta_4 & \Delta_5 & \Delta_6 & \Delta_7 \\
+\state_0=\state & 1 & \lambda\discount & (\lambda\discount)^2 & (\lambda\discount)^3& (\lambda\discount)^4 & (\lambda\discount)^5& (\lambda\discount)^6 &(\lambda\discount)^7\\
+\state_2=\state &  & & 1 & \lambda\discount & (\lambda\discount)^2 & (\lambda\discount)^3& (\lambda\discount)^4  & (\lambda\discount)^5\\
+\state_5=\state &  &  & & & & 1 & \lambda\discount & (\lambda\discount)^2\\
+ & e_0(\state) & e_1(\state) & e_2(\state)& e_3(\state) & e_4(\state) & e_5(\state) & e_6(\state) & e_7(\state)
+\end{matrix}
+$$
+    \caption{An example for $TD(\lambda)$ updates of state $\state$ that occurs at times $0$, $2$ and $5$. The forward update appear the rows. Each column is  the coefficients of the update of $\Delta_i$, and their sum equals $e_i(\state)$.} \label{fig-TD-lambda-forward-backward}
+\end{figure}
+
+
 For the forward view we define the updates to be
 $\Delta V^F_\ttime(\state)=\alpha(R^\lambda_\ttime-V_\ttime(\state))$,
 where $R^\lambda_\ttime=(1-\lambda)\sum_{n=1}^\infty
@@ -608,6 +628,13 @@ and we have
 This update is much more stable, since we have only one factor
 multiplying the observed reward.
 
+\begin{example}
+Consider an MDP with a single state and two actions. We consider a finite horizon return with parameter $\tHorizon$. Policy $\pi$ at each time selects one of the two actions uniformly at random. The policy $\rho$ selects action one always.
+
+Using the Monte Carlo approach, when considering complete trajectories, only after expected  $ 2^\tHorizon$ trajectories we have a trajectory which has $\tHorizon$ times action one. (Note that the update will have weight $2^\tHorizon$.)
+
+Using the $TD(0)$ updates, each time action one is selected by $\pi$ we can do an update the estimates of $\rho$ (with a factor of $2$).
+\end{example}
 
 \subsection{Actor-critic methodology}
 \label{section:actor-critic}
@@ -619,6 +646,13 @@ observes the current state, and the value function, and selects an
 action. The critic, observes the current state (and action) and
 reward and outputs a value function. See
 Figure~\ref{fig:L7-Actor-Critic}.
+
+The Critic has as input the current state and reward. The goal of the critic is to evaluate current policy. This can be done in many ways, for example:
+Monte Carlo, TD, Q-learning, etc.
+
+The Actor has as input the value and state. The goal of the actor is to improve the current policy. This can be done in many ways, for example, $\epsilon$-greedy, soft-max, SARSA, etc.
+
+
 
 \begin{figure}
   % Requires \usepackage{graphicx}
