@@ -434,9 +434,9 @@ We have that
 \[
 \E[\pi^{(m)}_j]=\E[\frac{1}{m}\sum_{t=1}^m \I
 (X_t=j)]=\frac{1}{m}\sum_{t=1}^m \Pr
-[X_t=j|X_0=x_0]=\frac{1}{m}\sum_{t=1}^m x_0^\top P^t
+[X_t=j|X_0=x_0]=\frac{1}{m}\sum_{t=1}^m x_0^\top P^t e_j,
 \]
-Let $v_1, \ldots , v_n$ be the eigenvectors of $P$ with eigenvalues
+where $e_j$ denotes a vector of zeros, with $1$ only in the $j$'s element. Let $v_1, \ldots , v_n$ be the eigenvectors of $P$ with eigenvalues
 $\lambda_1 \geq  \ldots \geq  \lambda_n$. By
 Theorem~\ref{Thm:MC-stationary} we have that $v_1=\mu$, the stationary
 distribution and $\lambda_1=1>\lambda_i$ for $i\geq 2$. Rewrite
