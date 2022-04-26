@@ -629,11 +629,14 @@ This update is much more stable, since we have only one factor
 multiplying the observed reward.
 
 \begin{example}
-Consider an MDP with a single state and two actions. We consider a finite horizon return with parameter $\tHorizon$. Policy $\pi$ at each time selects one of the two actions uniformly at random. The policy $\rho$ selects action one always.
+Consider an MDP with a single state and two actions (also called multi-arm bandit, which we will cover in Chapter~\ref{chapter:MAB}). We consider a finite horizon return with parameter $\tHorizon$. Policy $\pi$ at each time selects one of the two actions uniformly at random. The policy $\rho$ selects action one always.
 
-Using the Monte Carlo approach, when considering complete trajectories, only after expected  $ 2^\tHorizon$ trajectories we have a trajectory which has $\tHorizon$ times action one. (Note that the update will have weight $2^\tHorizon$.)
+Using the Monte Carlo approach, when considering complete trajectories, only after expected  $ 2^\tHorizon$ trajectories we have a trajectory in which for $\tHorizon$ times action one was selected. (Note that the update will have weight $2^\tHorizon$.)
 
-Using the $TD(0)$ updates, each time action one is selected by $\pi$ we can do an update the estimates of $\rho$ (with a factor of $2$).
+Using the $TD(0)$ updates, each time action one is selected by $\pi$ we can do an update the estimates of $\rho$ (with a factor of $2$). 
+%This implies that in order to have 
+
+To compare the two approaches, consider the number of trajectories required to get an $\epsilon$ approximation for the return of $\rho$. Using Monte-Carlo, we need $O(\tHorizon 2^\tHorizon/\epsilon^2)$ trajectories, in expectation. In contrast, for $TD(0)$ we need only $O(\tHorizon/\epsilon^2)$ trajectories. The huge gap is due to the fact that $TD(0)$ utilizes partial trajectories while Monte-Carlo requires the entire trajectory to agree with $\rho$.
 \end{example}
 
 \subsection{Actor-critic methodology}

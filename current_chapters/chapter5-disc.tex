@@ -25,7 +25,7 @@ solution in some detail.
 
 We consider a stationary (time-invariant) MDP, with a finite state
 space $\States$, finite action set $\Actions$, and transition kernel
-$P = (\transitionprob(\state'|\state,\action))$ over the infinite time horizon
+$\transitionkernel = \{\transitionprob(\state'|\state,\action)\}$ over  the infinite time horizon
 ${\T} = \{ 0,1,2, \ldots \} $.
 
 Our goal is to maximize the expected discounted return, which is
@@ -112,16 +112,16 @@ beginning of the proof.
 \end{proof}
 
 We can write the linear equations in \eqref{eq:FP_Bellman} in vector
-form as follows. Define the column vector ${r^\policy } =
-{({r^\policy }(\state))_{\state \in \States}}$ with components
-${r^\policy }(\state) = \reward(\state,\policy (\state))$, and the
-transition matrix ${P^\policy }$ with components ${P^\policy
+form as follows. Define the column vector ${\reward^\policy } =
+{({\reward^\policy }(\state))_{\state \in \States}}$ with components
+${\reward^\policy }(\state) = \reward(\state,\policy (\state))$, and the
+transition matrix ${\transitionkernel^\policy }$ with components ${\transitionkernel^\policy
 }(\state'|\state) = \transitionprob(\state'|\state,\policy (\state))$. Finally,
 let ${\Value^\policy }$ denote a column vector with components
 ${\Value^\policy }(\state)$. Then \eqref{eq:FP_Bellman} is
 equivalent to the linear equation set
 \begin{equation}\label{eq:PF_Bellman_vector}
-{\Value^\policy } = {r^\policy } + \discount {P^\policy
+{\Value^\policy } = {\reward^\policy } + \discount {\transitionkernel^\policy
 }{\Value^\policy }
 \end{equation}
 
@@ -129,15 +129,15 @@ equivalent to the linear equation set
 The set of linear equations \eqref{eq:FP_Bellman} or
 \eqref{eq:PF_Bellman_vector}, with ${\Value^\policy }$ as variables,
 has a unique solution ${\Value^\policy }$, which is given by
-\[{\Value^\policy } = {(I - \discount {P^\policy })^{ -
-1}}{r^\policy }.\]
+\[{\Value^\policy } = {(I - \discount {\transitionkernel^\policy })^{ -
+1}}{\reward^\policy }.\]
 \end{lemma}
 \begin{proof}
 We only need to show that the square matrix $I - \discount
-{P^\policy }$ is non-singular.  Let $({\lambda _i})$ denote the
-eigenvalues of the matrix ${P^\policy }$. Since ${P^\policy }$ is a
+{\transitionkernel^\policy }$ is non-singular.  Let $({\lambda _i})$ denote the
+eigenvalues of the matrix ${\transitionkernel^\policy }$. Since ${\transitionkernel^\policy }$ is a
 stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$ (See the proof of Theorem~\ref{Thm:MC-stationary}).
-Now, the eignevalues of $I - \discount {P^\policy }$ are $(1 -
+Now, the eignevalues of $I - \discount {\transitionkernel^\policy }$ are $(1 -
 \discount {\lambda _i})$, and satisfy $|1 - \discount {\lambda _i}|
 \ge 1 - \discount  > 0$.
 \end{proof}
@@ -148,12 +148,12 @@ Combining Lemma \ref{lem:FP_Bellman} and Lemma \ref{eq:PF_Bellman_vector}, we ob
 Let $\pi\in \Pi_{SD}$. The value function ${\Value^\policy } =
 [{\Value^\policy }(\state)]$ is the unique solution of equation
 \eqref{eq:PF_Bellman_vector}, given by \[{\Value^\policy } = {(I -
-\discount {P^\policy })^{ - 1}}{r^\policy }.\]
+\discount {\transitionkernel^\policy })^{ - 1}}{\reward^\policy }.\]
 \end{proposition}
 
 Proposition \ref{prop:FP_Bellman} provides a closed-form formula for
 computing $\Value_{}^\policy$. However, for large systems, computing
-the inverse ${(I - \discount {P^\policy })^{ - 1}}$ may be
+the inverse ${(I - \discount {\transitionkernel^\policy })^{ - 1}}$ may be
 computationally expensive. In that case, the following value
 iteration algorithm provides an alternative, iterative method for
 computing $\Value_{}^\policy$.
@@ -164,7 +164,7 @@ computing $\Value_{}^\policy$.
   \item For $n = 0,1,2, \ldots $, set
 \[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\forall \state \in \States\]
 \tab{or, equivalently,}
-\[{\Value_{n + 1}} = {r^\policy } + \discount {P^\policy }{\Value_n}.\]
+\[{\Value_{n + 1}} = {\reward^\policy } + \discount {\transitionkernel^\policy }{\Value_n}.\]
 \end{enumerate}
 \end{algorithm_}
 %Then \[{\Value_n} \to \Value_{}^\policy \]component-wise, that is,
@@ -178,7 +178,7 @@ We have ${\Value_n} \to \Value_{}^\policy$ component-wise, that is,
 Note first that,
 \begin{align*}
 {\Value_1}{\kern 1pt} (\state) &= \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_0^{}{\kern 1pt} (\state')} \;\\
- &= {\E^\policy }(\reward({\state_0},{a_0}) + \discount {\Value_0}({\state_1})|{\state_0} = \state).
+ &= {\E^\policy }(\reward({\state_0},{\action_0}) + \discount {\Value_0}({\state_1})|{\state_0} = \state).
 \end{align*}
 Continuing similarly, we obtain that
 \[{\Value_n}{\kern 1pt} (\state) = {\E^\policy }(\sum\limits_{\ttime = 0}^{n - 1} {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})}  + {\discount ^n}{\Value_0}({s_n})|{\state_0} = \state).\]
@@ -198,9 +198,9 @@ which converges to 0 since $\discount  < 1$.
 \begin{itemize}
   \item The proof provides an explicit bound on $|{\Value^\policy }(\state) - {\Value_n}{\kern 1pt} (\state)|$. It may be seen that the convergence is exponential, with rate $O({\discount ^n})$.
   \item Using vector notation, it may be seen that
-          \[{\Value_n}{\kern 1pt}  = {r^\policy } + \discount{P^\policy }{r^\policy } +  \ldots  + {(\discount{P^\policy })^{n - 1}}{r^\policy } + {(\discount{P^\policy })^n}{\Value_0} = \sum\limits_{\ttime = 0}^{n - 1} {{{(\discount{P^\policy })}^\ttime}{r^\policy }}  + {(\discount{P^\policy })^n}{\Value_0}.\]
+          \[{\Value_n}{\kern 1pt}  = {\reward^\policy } + \discount{\transitionkernel^\policy }{\reward^\policy } +  \ldots  + {(\discount{\transitionkernel^\policy })^{n - 1}}{\reward^\policy } + {(\discount{\transitionkernel^\policy })^n}{\Value_0} = \sum\limits_{\ttime = 0}^{n - 1} {{{(\discount{\transitionkernel^\policy })}^\ttime}{\reward^\policy }}  + {(\discount{\transitionkernel^\policy })^n}{\Value_0}.\]
 Similarly,    ${\Value^\policy } = \sum\limits_{\ttime = 0}^\infty
-{{{(\discount{P^\policy })}^\ttime}{r^\policy }}$.
+{{{(\discount{\transitionkernel^\policy })}^\ttime}{\reward^\policy }}$.
 \end{itemize}
 
 \paragraph{In summary:}
@@ -287,7 +287,7 @@ The value iteration algorithm iterates over the value functions, with asymptotic
 \begin{enumerate}
 \item Policy evaluation: compute ${\Value^{{\policy _k}}}$.\\
      %\coderemark{}
-     (For example, use the explicit formula  ${\Value^{{\policy _k}}} = {(I - \discount {P^{{\policy _k}}})^{ - 1}}{r^{{\policy
+     (For example, use the explicit formula  ${\Value^{{\policy _k}}} = {(I - \discount {\transitionkernel^{{\policy _k}}})^{ - 1}}{\reward^{{\policy
      _k}}}$.)
 \item Policy Improvement: Compute ${\policy _{k + 1}}$, a greedy policy with respect to ${\Value^{{\policy _k}}}$:
 \[{\policy _{k + 1}}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value^{{\policy _k}}}(\state')} } \right\},\quad \forall \state \in \States.\]
@@ -309,8 +309,10 @@ The following statements hold:
 \end{enumerate}
 \end{theorem}
 
+\begin{remark}
 An additional solution method for DP planning relies on a Linear
 Programming formulation of the problem.
+\end{remark}
 %A Linear Program (LP) is
 %simply an optimization problem with linear objective function and linear constraints.
 % We will provide additional details later in this Chapter, in Section~\ref{chapter-discount:section:LP}.
@@ -389,14 +391,14 @@ times)\\& = & \frac{\beta^n(1-\beta^m)}{1-\beta}\|v_1-v_0\|
 \end{eqnarray*}
 Since the coefficient decreases as $n$ increases, for any $ \epsilon
 > 0$ there exists   $N
-> 0$  such that for all $ n,m \geq N$, we have $\|\vec{v}_{n+m}-\vec{v}_n\| <
+> 0$  such that for all $ n,m \geq N$, we have $\|v_{n+m}-v_n\| <
 \epsilon$. This implies that the sequence is a Cauchy sequence, and
 hence the sequence $v_n$ has a limit. Let us call this limit
 ${v^*}$. Next we show that ${v^*}$ is a fixed point of the operator
 $T$.
 
 \bigskip
-\noindent{\bf $v^*$ is a fixed point}\\
+\noindent{\bf The limit $v^*$ is a fixed point}\\
 We need to show that $T(v^*)=v^*$, or equivalently
 $\|T(v^*)-v^*\|=0$.
 \begin{eqnarray*}
@@ -408,9 +410,9 @@ triangle\ inequality)\\
 \|\underbrace{v_{n}-v^*}_{\rightarrow 0}\|
 \end{eqnarray*}
 Since $v^*$ is the limit of $v_n$, i.e.,
-$\lim_{n\rightarrow\infty}\|\vec{v}_n-\vec{v^*}\| = 0 $ hence
+$\lim_{n\rightarrow\infty}\|v_n-v^*\| = 0 $ hence
 \begin{eqnarray*}
-\|T\vec{v^*}-\vec{v^*}\| = 0.
+\|T v^*- v^*\| = 0.
 \end{eqnarray*}
 Thus, $v^*$ is a fixed point of the operator $T$.
 
@@ -443,12 +445,12 @@ unique.
 We next define the basic Dynamic Programming operators, and show that they are in fact contraction operators.
 
 For a fixed stationary policy $\policy :\States \to \Actions$,
-define the fixed policy DP operator $T^\policy:\reals^{|\States|}
+define the \textbf{Fixed Policy DP Operator} $T^\policy:\reals^{|\States|}
 \to \reals^{|\States|}$ as follows: For any $V=(V(\state))\in
 \reals^{|\States|}$,
 \[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States\]
-In our column-vector notation, this is equivalent to  $T_{}^\policy
-(V) = {r^\policy } + \discount {P^\policy }V$.
+In our column-vector notation, this is equivalent to  $T^\policy
+(V) = {\reward^\policy } + \discount {\transitionkernel^\policy }V$.
 
 Similarly, define the discounted-return \textbf{Dynamic Programming
 Operator}  $T^*:\mathbb R^{|\States|} \to \mathbb R^{|\States|}$ as
@@ -647,7 +649,7 @@ have a criteria that would depend only on the observed quantities.
 %selected policy might in fact be the optimal policy, but we have no
 %way of knowing that in advance.
 \begin{lemma}
- If $\|\Value_{n+1}-\Value_{n}\|_\infty < \epsilon \cdot \frac{1-\discount}{2\discount}$ then $\|\Value_{n+1} -
+ If $\|\Value_{n+1}-\Value_{n}\|_\infty < \varepsilon \cdot \frac{1-\discount}{2\discount}$ then $\|\Value_{n+1} -
 \Value^{*}\|_\infty < \frac{\varepsilon}{2}$ and
 $\|\Value^{\policy_{n+1}}-\Value^*\|\leq \varepsilon$, where
 $\policy_{n+1}$ is the greedy policy w.r.t. $\Value_{n+1}$.
@@ -811,7 +813,7 @@ $\policy $ is optimal.
 
 The policy iteration algorithm performs successive rounds of policy
 improvement, where each policy ${\policy _{k + 1}}$ improves the
-previous one ${\policy _k}$. Since the number of stationary policies
+previous one ${\policy _k}$. Since the number of stationary deterministic policies
 is bounded, so is the number of strict improvements, and the
 algorithm must terminate with an optimal policy after a finite
 number of iterations.
