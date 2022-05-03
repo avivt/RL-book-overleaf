@@ -830,14 +830,18 @@ Assume that for every state $\state \in \States$  we have
 Then
 \begin{align*}
 \left|\widehat{V}_{n+1}(\state)-V_{n+1}(\state)\right|& =
-\left|\widehat{\reward}(\state,\action)+\discount
-\frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
+\left|\max_a\left\{\widehat{\reward}(\state,\action)+\discount
+\frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i)\}\right\} - \max_a\left\{
+\reward(\state,\action)+\discount E_{\state'\sim \transitionprob(\cdot
+|\state,\action)} [V_n(\state')] \right\}\right|\\
+&\leq \max_a\left|\widehat{\reward}(\state,\action)+\discount
+\frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) - 
 \reward(\state,\action)-\discount E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
-&\leq |\widehat{\reward}(\state,\action)- \reward(\state,\action)|
+&\leq \max_a \left\{|\widehat{\reward}(\state,\action)- \reward(\state,\action)|
 +\discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
 E_{\state'\sim \transitionprob(\cdot
-|\state,\action)} [V_n(\state')] \right|\\
+|\state,\action)} [V_n(\state')] \right| \right\}\\
 %
 &\leq \varepsilon' + \discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
 E_{\state'\sim \transitionprob(\cdot
