@@ -829,27 +829,28 @@ Assume that for every state $\state \in \States$  we have
 \]
 Then
 \begin{align*}
-\left|\widehat{V}_{n+1}(\state)-V_{n+1}(\state)\right|& =
+\left|\widehat{V}_{n+1}(\state)-V_{n+1}(\state)\right| =&
 \left|\max_a\left\{\widehat{\reward}(\state,\action)+\discount
-\frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i)\}\right\} - \max_a\left\{
+\frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i)\}\right\} - \max_a\left\Bigg\{
 \reward(\state,\action)+\discount E_{\state'\sim \transitionprob(\cdot
-|\state,\action)} [V_n(\state')] \right\}\right|\\
-&\leq \max_a\left|\widehat{\reward}(\state,\action)+\discount
+|\state,\action)} [V_n(\state')] \right\Bigg\}\right|\\
+\leq& \max_a\left|\widehat{\reward}(\state,\action)+\discount
 \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) - 
 \reward(\state,\action)-\discount E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
-&\leq \max_a \left\{|\widehat{\reward}(\state,\action)- \reward(\state,\action)|
+\leq& \max_a \left\{\Bigg|\widehat{\reward}(\state,\action)- \reward(\state,\action)\Bigg|
 +\discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
 E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right| \right\}\\
 %
-&\leq \varepsilon' + \discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
+\leq & \varepsilon' + \discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
 E_{\state'\sim \transitionprob(\cdot
-|\state,\action)} [\widehat{V}_n(\state')] \right| + \discount \left| E_{\state'\sim \transitionprob(\cdot
+|\state,\action)} [\widehat{V}_n(\state')] \right| \\
+&+ \discount \left| E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [\widehat{V}_n(\state')] -
 E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
- &\leq \varepsilon'+\discount\varepsilon' +\discount\lambda = (1+\discount)\varepsilon' +\discount\lambda.
+ \leq & \varepsilon'+\discount\varepsilon' +\discount\lambda = (1+\discount)\varepsilon' +\discount\lambda.
 %  \leq \lambda,
 \end{align*}
 % where the last inequality holds for $\lambda\geq
