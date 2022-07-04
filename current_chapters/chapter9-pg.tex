@@ -226,6 +226,8 @@ $\sum_{\ttime=1}^\tHorizon \reward_\ttime$ and
 $\Value^\policy(\state)=E[\sum_{\ttime=1}^\tHorizon
 \reward_\ttime|\state_1=\state]$.
 
+\textcolor{red}{This derivation holds for infinite discounted. We need to have a time dependent value function for the finite horizon case.}
+
 \begin{theorem}[Policy Gradient Theorem]
 \label{thm:policy-gradient} For any policy
 $\policy(\cdot|\cdot;\theta)$, we have
@@ -385,8 +387,7 @@ Consider the following deterministic MDP. We have states
 $\States=\{\state_0,\state_1,\state_2,\state_3\}$ and actions
 $\Actions=\{\action_0,\action_1\}$. We start at $\state_0$. Action
 $\action_0$ from any state leads to $\state_3$. Action $\action_1$
-moves from $\state_0$ to $\state_1$ and from $\state_1$ to
-$\state_2$. All the rewards are zero except the terminal reward at
+moves from $\state_0$ to $\state_1$, from $\state_1$ to $\state_2$ and from $\state_2$ to $\state_3$. All the rewards are zero except the terminal reward at
 $\state_2$ which is $1$. The horizon is $\tHorizon=2$. This implies
 that the optimal policy performs in each state $\action_1$ and has a
 return of $1$.
@@ -452,7 +453,7 @@ policy $\policy$ which visits each state $\state$ an expected
  $\mu(\state)$ times, and let $\policy$ select
 actions. We substitute for $Q^\policy$ and unbiased random variable
 with the same value. The only thing that we need to explicitly
-compute in the gradient $\nabla \policy(\action|\state;\theta)$
+compute is the gradient $\nabla \policy(\action|\state;\theta)$
 which depends on our parametrization. In the next section we couple
 the policy gradient theorem with Monte-Carlo updates to derive the
 REINFORCE algorithm.
@@ -608,7 +609,7 @@ $E^\policy[Q(\action_\ttime|\state_\ttime;\weight)
 \item A-function with actor-critic uses
 $E^\policy[A(\action_\ttime|\state_\ttime;\weight)
 \nabla\log\policy(\action|\state;\theta) ]$, where
-$A(\action|\state;\weight)=Q(\state,\action;\weight)-V(\state;\weight)$.
+$A(\action|\state;\weight)=Q(\state,\action;\weight)-V(\state;\weight)$. The A-function is also called the \emph{Advantage function}.
 \item TD with actor-critic uses
 $E^\policy[\Gamma\nabla\log\policy(\action|\state;\theta) ]$, where
 $\Gamma$ is the TD error.

@@ -110,7 +110,7 @@ To overcome the ambiguity of the reward function we can set an
 objective that will force a unique outcome. One solution is a {\em
 max margin}, specifically,
 \[
-\max_{s\in S} \left\{ Q^*(s,a^*)-\max_{a\neq a^*} Q^*(s,a) \right\}
+\max_R \min_{s\in S} \left\{ Q^*(s,a^*)-\max_{a\neq a^*} Q^*(s,a) \right\}
 \]
 The resulting linear program is,\\
 \begin{align*}

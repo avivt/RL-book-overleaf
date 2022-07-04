@@ -1,5 +1,5 @@
 
-The lecture today is about Partially Observable MDP (POMDP). The
+This chapter is about Partially Observable MDP (POMDP). The
 main difference is that we will not observe the current state but
 only a signal that depends on it.
 
@@ -9,8 +9,8 @@ Assume we have four states, in linear order: $1,2,3,4$. We have an
 action UP that with probability $0.90$ moves from $i$ to $i-1$ and
 with probability $0.1$ moves to $i+1$. Similarly, we have an action
 DOWN that with probability $0.90$ moves from $i$ to $i+1$ and with
-probability $0.1$ moves to $i-1$. (In state $i=1$ if we need to move
-to $i-1$ we stay in $i=1$ and in state $i=4$ if we need to move to
+probability $0.1$ moves to $i-1$. (In state $i=1$ if we move
+to $i-1$ we stay in $i=1$ and in state $i=4$ if we move to
 $i+1$ we stays in state $i=4$.)
 
 One of the states, state $2$ has a reward, while the other states do
@@ -20,7 +20,7 @@ only observation we see is the reward.
 Initially, we know we are in a random state without a reward. This
 implies that the distribution of where we are is $(1/3,0,1/3,1/3)$.
 Assume we did an action UP and did not observe a reward. We now can
-compute the posterior of our probability distribution.
+compute the posterior of our state probability distribution.
 
 First, we compute the state probability distribution, assuming any
 current state.
@@ -113,6 +113,8 @@ The second identity is Bayes rule. The third identity is adding a
 conditioning over $s$. The last identity is translating the
 probabilities to the POMDP parameters.
 
+This implies that $b'=M^{a,o} b / \Pr[o|a,b]$, where $M^{a,o}[s',s]=Ob(o|s',a)p(s'|s,a)$.
+
 \paragraph{From POMDP to infinite MDP}\ \\
 Consider the following MDP. The set of states are $B$ all the
 possible belief states. (Note that $B$ is infinite!) The set of
@@ -180,7 +182,7 @@ to compute $V^*_2(b|a_1)$, by simply averaging over the
 observations. $V^*_2(b|a_1)=\sum_o V^*_2(b|a_1,o)\Pr[o|b,a_1]$. We
 can compute $\Pr[o|b,a]=\sum_{s,s'} b(s)p(s'|s,a)Ob(o|s',a)$.
 
-Given that we can compute $V_2^*(b|a)$ for any action $a\in A$, we
+Given that we can compute $V_2^*(b|a)$ for every action $a\in A$, we
 can deduce $V_2^*(b)=\max_a V_2^*(b|a)$.
 
 We can now compute for a longer horizon, say $H=3$, using dynamic
@@ -188,7 +190,7 @@ programming. We want to compute $V^*_3(b)$. We first compute the
 function $V_2^*(\cdot)$. For each action $a_i$ and observation $o_j$
 we compute $V^*_3(b|a_i,o_j)$. This is done by first computing
 $r(b,a_i)$ and $b'=T(b,a_i,o_j)$. Then we compute $V^*_3(b|a_i,o_j)
-= r(b,a_i)+V^*_2(b')$.
+= r(b,a_i)+V^*_2(b')$, as before.
 
 \paragraph{Optimal value function}\ \\
 For the finite horizon the optimal value function $V^*_H(b)$ is
@@ -231,10 +233,10 @@ finite horizon of length $H$.
 We can run a value iteration in the POMDP (actually, on the belief
 states. We can write the update as follows:
 \begin{align*}
-V^{a,o}_{t}(b)=&\frac{r(b,a)}{|O|}+\gamma\Pr[o|b,a]V_t(T(b,a,o))\\
-V_{t}^a(b)=&\sum_o V^{a,o}_{t}(b)\\
-V_{t+1}^*(b)=&\max_a V_{t}^a(b)\\
-V_{t+1}^*(b) =& \max_a [r(b,a)+\gamma\sum_o V_t^*(T(b,a,o)
+V^{a,o}_{t+1}(b)=&\frac{r(b,a)}{|O|}+\Pr[o|b,a]V_t(T(b,a,o))\\
+V_{t+1}^a(b)=&\sum_o V^{a,o}_{t+1}(b)\\
+V_{t+1}^*(b)=&\max_a V_{t+1}^a(b)\\
+V_{t+1}^*(b) =& \max_a [r(b,a)+\sum_o \Pr[o|b,a]V_t^*(T(b,a,o))]
 \end{align*}
 %\begin{align*}
 %V_{t+1}^*(b) =& \max_a [r(b,a)+\gamma\sum_o V_t^*(T(b,a,o)\\
@@ -248,33 +250,39 @@ $\Theta_t$ such that
 \[
 V_t(b)=\max_{\theta\in\Theta_t}\theta^\top b
 \]
-For $V_t^{a,o}$ we have that $b'=T(b,a,o)$ is linear in $b$, i.e.,
-there is a matrix $M$ such that $b'=Mb$. (Note that $M$ depends on
-$a$ and $o$.) The value of $V_t^{a,o}$ is
+%For $V_t^{a,o}$ 
+We have that $b'=T(b,a,o)$ is linear in $b$, i.e.,
+there is a matrix $\widehat{M}^{a,o}=M^{a,o}/\Pr[o|b,a]$ such that $b'=\widehat{M}^{a,o} b$. 
+%(Note that $M$ depends on $a$ and $o$.) 
+The value of $V_{t+1}^{a,o}$ is
 \[
-V_t^{a,o}(b')=\max_{\theta\in\Theta_t} \theta^\top b'=
-\max_{\theta\in\Theta_t} \theta^\top M b
+V_{t+1}^{a,o}(b)=b^\top\frac{r(\cdot,a)}{|O|}  +\Pr[o|b,a]\max_{\theta\in\Theta_t} \theta^\top b'=b^\top\frac{r(\cdot,a)}{|O|}  +\Pr[o|b,a]
+\max_{\theta\in\Theta_t} b^\top (\widehat{M}^{a,o})^\top \theta
 \]
-This implies that we can define $\Theta_t^{a,o}=\{\theta^\top
-M:\theta \in \Theta_t\}$.
-
-For $V^a_t$ we have that
+This implies that we can define $\Theta_{t+1}^{a,o}=\{\frac{r(\cdot,a)}{|O|}+
+(\widehat{M}^{a,o})^\top\theta:\theta \in \Theta_t\}$, and have
 \[
-V_t^a(b)=\sum_o V_t^{a,o}(b)=\sum_o \max_{\theta\in\Theta_t^{a,o}}
-\theta^\top b=\max_{\theta\in\Theta_t^{a}}\sum_o  \theta^\top b
+V_{t+1}^{a,o}(b)= \max_{\theta\in\Theta_{t+1}^{a,o}}
+\theta^\top b
+\]
+
+For $V^a_{t+1}$ we have that
+\[
+V_{t+1}^a(b)=\sum_o V_{t+1}^{a,o}(b)=\sum_o \max_{\theta\in\Theta_{t+1}^{a,o}}
+\theta^\top b=\max_{\theta\in\Theta_{t+1}^{a}}\sum_o  \theta^\top b
 \]
 where
 \[
-\Theta^a_t=\{\sum_o
+\Theta^a_{t+1}=\{\sum_o
 \theta^{a,o}|\theta^{a,o}\in\Theta^{a,o}_t\}
 \]
 
 For $V_{t+1}^*$ we have
 \[
-V^*_{t+1}(b)=\max_a V_t^a(b)=\max_{\theta\in\Theta_{t+1}}
+V^*_{t+1}(b)=\max_a V_{t+1}^a(b)=\max_{\theta\in\Theta_{t+1}}
 \theta^\top b
 \]
-where $\theta_{t+1}=\cup_a \Theta^a_t$.
+where $\Theta_{t+1}=\cup_a \Theta^a_{t+1}$.
 %
 
 The complexity of value iteration depends on $\Theta_t$. For each

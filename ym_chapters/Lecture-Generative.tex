@@ -217,7 +217,7 @@ local maximum of the expected return.
 For the complexity analysis, note that we do not need to compute the
 entire trajectory tree in advance, we can do it in a lazy way. We
 add a path for each gradient we compute. This implies that for each
-gradient estimation we have $O(H|A|)$ call to the generative model.
+gradient estimation we have $O(H|A|)$ calls to the generative model.
 
 \section{Near Optimal Policy}
 
@@ -349,22 +349,22 @@ bounds.
 \noindent
 %{\tt EstimateQ(0,s,a):  return 0} \\
 %\smallskip
-{\tt EstimateQ(n,s,a)}:\\
+$\mbox{\tt EstimateQ}(n,s,a)$:\\
 %\smallskip
 IF $n=0$ THEN return $0$\\
 ELSE\\
 Sample $m$ times action $a$ in state $s$ (using the generative
 model).\\
 Let $s'_{a,i}$ be the next next state in the $i$-th sample.\\
-Return $(1/m)\sum_{i=1}^m$ {\tt EstimateV(n-1,s,a)}\\
+Return $(1/m)\sum_{i=1}^m r(s,a)+ \gamma \mbox{\tt EstimateV}(n-1,s'_{a,i},a)$\\
 
 \medskip
 \noindent
-{\tt EstimateV(n,s):} return $\max_a$ {\tt EstimateQ(n,s,a)}.\\
+{\tt EstimateV(n,s):} return $\max_a \mbox{\tt EstimateQ}(n,s,a)$$.\\
 
 \medskip
 \noindent
-{\tt main(s)}: return {\tt EstimateV(n,s)}\\
+{\tt main(s)}: return $\mbox{\tt EstimateV}(H,s_0)$\\
 \bigskip
 %For each $a\in A$ compute $q_a=${\tt EstimateQ(H,s,a)$
 
