@@ -10,89 +10,75 @@
 %which is a model-free algorithm to learn the value function from
 %episodes.
 
-In this section we will look on temporal differences methods, which
-work in an online fashion. We will start with $TD(0)$ which uses
+In this section, we will look at temporal differences methods, which
+work in an online fashion. We will start with $TD(0)$, which uses
 only the most recent observations for the updates, and we will
 continue with methods that allow for a longer look-ahead, and then
 consider $TD(\lambda)$ which averages multiple look-ahead
 estimations.
 
-In general, temporal differences (TD) methods, learn directly from
-experience, and therefore are model-free methods. Unlike Monte-Carlo
-algorithms, they will use incomplete episodes for the updates, and
-they are not restricted to episodic MDPs. The TD methods update
-their estimates given the current observation and in that direction,
-similar in spirit to $Q$-learning and SARSA.
+In general, temporal differences (TD) methods learn directly from
+experience and therefore are model-free methods. Unlike Monte-Carlo
+algorithms, they are not restricted to episodic MDPs, thus,
+will use incomplete episodes for the updates.
+The TD methods are similar in spirit to $Q$-learning and SARSA since
+they update their estimates given the current observation.
 
 \subsection{TD(0)}
+Fix a stationary and deterministic policy, $\policy\in \Pi_{SD}$. 
+The goal is to learn the value function $\Value^\policy(\state)$ for every
+$s\in S$ (the same goal as Monte-Carlo learning). The TD algorithms
+maintain an estimate $\widehat{\Value}(\state)$ of the value function
+$\policy$, $\Value^\policy(\state)$, and use it for the updates. 
+This implies that, unlike Monte-Carlo, there will be an interaction between the estimates of
+different states at different times.
 
-Fix a policy $\policy\in \Pi_{SD}$, stationary and deterministic. The goal
-is to learn the value function $\Value^\policy(\state)$ for every
-$s\in S$. (The same goal as Monte-Carlo learning.) The TD algorithms
-will maintain an estimate of the value function of the policy
-$\policy$, i.e., maintain an estimate $\widehat{V}_\ttime(\state)$
-for $\Value^\policy(\state)$. The TD algorithms will use their
-estimates $\widehat{V}$ for the updates. This implies that unlike
-Monte-Carlo, there will be an interaction between the estimates of
-different states and at different times.
-
-As a starting point, we can recall the {\em value iteration}
-algorithm.
+From the Bellman equation 
+we have the following relation between the value of the current state $\state_{\ttime}$
+and the value of the next state $\state_{\ttime+1}$
+\[\Value(\state_{\ttime})=
+\E^\policy[\reward(\state_{\ttime},\action_{\ttime})+\discount\Value(\state_{\ttime+1})]\]
+Given an observed sample $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$, 
+and an estimated value function $\widehat{\Value}$ 
+a reasonable estimation for the value of the current state $\state_{\ttime}$ 
+based on the next state $\state_{\ttime+1}$(bootstrapping) is
 \[
-V_{\ttime+1}(\state)=E^\policy[\reward(\state,\policy(\state))+\discount
-V_\ttime(\state')]
+\widehat{\Value}(\state_{\ttime}) \approx \reward_{\ttime}+\discount\widehat{\Value}(\state_{\ttime+1})
 \]
-We have shown that value iteration converges, namely $V_\ttime
-\rightarrow_{\ttime\rightarrow\infty} \Value^\policy$.
-
-Assume we sample
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$.
-%Assume that $\policy\in SD$, namely a stationary deterministic policy.
-Let $\widehat{V}_\ttime$ our estimation at time $\ttime$,
-and we sample
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$.
-Then,
+The idea in TD(0), is to iteratively update our estimated value function $\widehat{\Value}(\state)$
+using the next state observed. The algorithm performs the following update
 \[
-E^\policy[\widehat{V}_\ttime(\state_\ttime)]=
-E^\policy[\reward_\ttime+\discount
-\widehat{V}_\ttime(\state_{\ttime+1})]=E^\policy[\reward(\state,\action)+\discount
-\widehat{V}_\ttime(\state')|\state=\state_\ttime,a=\policy(\state)]
+\widehat{\Value}(\state_\ttime)\leftarrow\widehat{\Value}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)
+\big[\reward_\ttime+\discount
+\widehat{\Value}(\state_{\ttime+1})-\widehat{\Value}(\state_\ttime)\big]
 \]
-%where $E^\policy [\widehat{V}_\ttime]=V_\ttime$.
-
-The $TD(0)$ will do an update in this direction, namely,
-$[\reward_\ttime+\discount \widehat{V}_\ttime(\state_{\ttime+1})]$.
+where $\alpha_\ttime(\state_\ttime,\action_\ttime)$ is the step size,
+which will be discussed later in this chapter.
 
 \paragraph{$TD(0)$ Algorithm}
-
 \begin{itemize}
-\item \emph{Initialize:} $\widehat{V}(\state)$ arbitrarily.
-
+\item \emph{Initialize:} $\widehat{\Value}(\state)$ arbitrarily.
 \item At time $\ttime=0,1,\dots$:
-
-
 -- Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime,
 \state_{\ttime+1})$.
-
 -- Update:
 %$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$:
 \[
-\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)
+\widehat{\Value}_{\ttime+1}(\state_\ttime)=\widehat{\Value}_{\ttime} (\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)
 \big[\reward_\ttime+\discount
-\widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)\big]
+\widehat{\Value}_{\ttime}(\state_{\ttime+1})-\widehat{\Value}_{\ttime}(\state_\ttime)\big]
 \]
 where $\alpha_\ttime(\state,\action)$ is the step size for
 $(\state,\action)$ at time $\ttime$.
 \end{itemize}
-
 We define the {\em temporal difference} to be
 \[
 \Delta_\ttime =\reward_\ttime+\discount
-\widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)
+\widehat{\Value}_{\ttime}(\state_{\ttime+1})-\widehat{\Value}_{\ttime}(\state_\ttime)
 \]
-The $TD(0)$ update becomes:
+And the $TD(0)$ update becomes:
 \[
-\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)\Delta_\ttime
+\widehat{\Value}_{\ttime+1}(\state_\ttime)=\widehat{\Value}_{\ttime}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)\Delta_\ttime
 \]
 
 
@@ -109,19 +95,18 @@ states. For $V(B)$ both $TD(0)$ and $MC$ will give $6/8=0.75$. The
 interesting question would be: what is the estimate for $A$? MC will
 average only the trajectories that include $A$ and will get $0$
 (only one trajectory which gives $0$ reward). The $TD(0)$ will
-consider the value from $B$ as well, and will give an estimate of
+consider the value from $B$ as well and will give an estimate of
 $0.75$. (Assume that the $TD(0)$ continuously updates using the same
 episodes until it converges.)
 
 We would like to better understand the above example. For the above
-example the empirical MDP will have a transition from $A$ to $B$,
+example, the empirical MDP will have a transition from $A$ to $B$,
 with probability $1$ and reward $0$, from $B$ we will have a
 transition to $C$ with probability $0.25$ and reward $0$ and a
 transition to $D$ with probability $0.75$ and reward $1$. (See,
 Figure~\ref{fig:L7-ML}.) The value of $A$ in the empirical model is
-$0.75$. In this case the empirical model agrees with the $TD(0)$
+$0.75$. In this case, the empirical model agrees with the $TD(0)$
 estimate, we show that this holds in general.
-
 
 \begin{figure}
   % Requires \usepackage{graphicx}
@@ -131,62 +116,62 @@ estimate, we show that this holds in general.
   \end{centering}
 \end{figure}
 
-
-\paragraph{Maximum Likelihood model}\footnote{YM: repeat} Recall that the empirical model, which is also the
-maximum likelihood model, of a sample be define as follows. Let
+\paragraph{Maximum Likelihood model}\footnote{YM: repeat} 
+Recall that the empirical model of a sample, 
+which is also the maximum likelihood model, is defined as follows. Let
 $n(\state,\action)$ be the number of times $(\state,\action)$
 appears in the sample. Given a sample
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$
 for $1\leq t\leq T$, we define the empirical model as follows. The
 rewards $\widehat{\reward}(\state,\action)$ are the average rewards
 of $(\state,\action)$, i.e.,
-$\widehat{\reward}(\state,\action)=\frac{1}{n(\state,\action)}\sum_{\ttime:\state_\ttime=\state,\action_\ttime=\action}\reward_\ttime$
+\[\widehat{\reward}(\state,\action)=\frac{1}{n(\state,\action)}\sum_{\ttime:\state_\ttime=\state,\action_\ttime=\action}\reward_\ttime\]
 and
-$\widehat{\transitionprob}(\state'|\state,\action)=\frac{n(\state,\action,\state')}{n(\state,\action)}$,
+\[\widehat{\transitionprob}(\state'|\state,\action)=\frac{n(\state,\action,\state')}{n(\state,\action)}\]
 where $n(\state,\action,\state')$ is the number of samples that have
 $\state_{\ttime+1}=\state'$ when $\state_\ttime=\state$ and
 $\action_\ttime =\action$.
 
-The following theorem states that the value of the policy $\policy$ on the
-empirical model is identical to that of $TD(0)$ (running on the
+The following theorem states that the value of the policy $\policy$ on 
+the empirical model is identical to that of $TD(0)$ (running on the
 sample until convergence, namely, continuously sampling uniformly
 $t\in[1,T]$ and using $(\state_\ttime,
 \action_r,\reward_\ttime,\state_{\ttime+1})$ for the $TD(0)$
 update).
 
 \begin{theorem}
-Let $\Value^\policy_{TD}$ be the estimated value function of
+Let $\Value^\policy_{TD(0)}$ be the estimated value function of
 $\policy$ when we run $TD(0)$ until convergence. Let
 $\Value^\policy_{EM}$ be the value function of $\policy$ on the
-empirical model. Then, $\Value^\policy_{TD}=\Value^\policy_{EM}$.
+empirical model. Then, \[\Value^\policy_{TD(0)}=\Value^\policy_{EM}\]
 \end{theorem}
 
 \begin{proof}[Proof sketch]
 The update of $TD(0)$ is
-$\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)\Delta_\ttime$,
+\[\widehat{\Value}_{\ttime+1}(\state_\ttime)=\widehat{\Value}_{\ttime}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)\Delta_\ttime\]
 where $\Delta_\ttime=\reward_\ttime+\discount
-\widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)$. At
+\widehat{\Value}_{\ttime}(\state_{\ttime+1})-\widehat{\Value}_{\ttime}(\state_\ttime)$. At
 convergence we have $E[\Delta_\ttime]=0$ and hence,
 \[
-\widehat{V}(\state)=\frac{1}{n(\state,\action)}\sum_{\state_{\ttime+1}:\state_\ttime=\state,\action_\ttime=\action}
+\widehat{\Value}_{\ttime+1}(\state)=\frac{1}{n(\state,\action)}\sum_{\state_{\ttime+1}:\state_\ttime=\state,\action_\ttime=\action}
 \reward_\ttime+\discount
-\widehat{V}(\state_{\ttime+1})=\widehat{\reward}(\state,\action)+\discount
+\widehat{\Value}_{\ttime}(\state_{\ttime+1})=\widehat{\reward}(\state,\action)+\discount
 E_{\state'\sim
-\widehat{\transitionprob}(\cdot|\state,\action)}[\widehat{V}(\state')]
+\widehat{\transitionprob}(\cdot|\state,\action)}[\widehat{\Value}_{\ttime}(\state')]
 \]
 where $\action=\policy(\state)$.
 \end{proof}
 
-It is worth to compare the above theorem to the case of Monte Carlo
-(Theorem~\ref{thm:MC-ML}). Here we are using the entire sample, and
-we have the same ML model for any state $\state$. In the Monte-Carlo
-case we used a reduced sample, which depends on the state $\state$
-and therefore we have a different ML model for each state, based on
+It is worth comparing the above theorem to the case of Monte Carlo
+(Theorem~\ref{thm:MC-ML}). Here we use the entire sample and
+have the same ML model for any state $\state$. In the Monte-Carlo
+case, we used a reduced sample, which depends on the state $\state$
+and therefore, we have a different ML model for each state based on
 its reduced sample.
 
 \paragraph{Convergence:} The proof of the convergence of $TD(0)$ is very
 similar to that of $Q$-learning. We will show that $TD(0)$ is an
-instance of the stochastic approximation algorithm, as presented in
+instance of the stochastic approximation algorithm, as presented
 previously in Section~\ref{sec:stochastic-approximation}, and the
 convergence proof will follow from this.
 %We will first state it.
@@ -195,7 +180,7 @@ convergence proof will follow from this.
 \label{thm:TD0-conrg} If the step size has the properties that for
 every $(\state,\action)$ we have $\sum_\ttime
 \alpha_\ttime(\state,\action)=\infty $ and $\sum_\ttime
-\alpha_\ttime^2(\state,\action)=O(1)$, then $\widehat{V}$ converges
+\alpha_\ttime^2(\state,\action)=O(1)$, then $\widehat{\Value}$ converges
 to $\Value^\policy$, with probability $1$.
 \end{theorem}
 
@@ -220,7 +205,7 @@ operator
 \end{align*}
 %Therefore $H$ is $\discount$-contracting.
 
-We now would like to re-write the $TD(0)$ update to be a stochastic
+We now want to rewrite the $TD(0)$ update to be a stochastic
 approximation iterative algorithm. The $TD(0)$ update is,
 \[
 V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\ttime
@@ -246,8 +231,8 @@ Returning to $TD(0)$, we can write
 V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\ttime
 [(HV_\ttime)(\state_\ttime)+\omega_\ttime(\state_\ttime)]
 \]
-The requirement of the step size appears in the statement of the
-theorem (and so holds). The noise $\omega_\ttime$ has both
+The requirement of the step size appears in the theorem statement (and so holds). 
+The noise $\omega_\ttime$ has both
 $E[\omega_\ttime]=0$ and $|\omega_\ttime|\leq V_{max}$. The
 operator $H$ is $\discount$-contracting with a fix-point $\Value^\policy$.
 Therefore, using Theorem~\ref{thm:stoch-approx}, we established
@@ -273,7 +258,7 @@ like to estimate (assuming our estimates converge).
 
 We can see the difference between $TD(0)$ and $MC$ in the Markov
 Chain in Figure~\ref{fig:L7-TD-MC}. To get an approximation of state
-$\state_2$, i.e., $|\widehat{V}(\state_2)-\frac{1}{2}|\approx
+$\state_2$, i.e., $|\widehat{\Value}(\state_2)-\frac{1}{2}|\approx
 \varepsilon$. The Monte-Carlo will require $O(1/(\beta
 \varepsilon^2))$ episodes (out of which only $O(1/\varepsilon^2)$
 start at $\state_2$) and the $TD(0)$ will require only
@@ -289,31 +274,48 @@ $\state_1$.
   \end{centering}
 \end{figure}
 
-
 \subsection{TD: Multiple look-ahead}
 
-The $TD(0)$ uses only the current reward and state. Given
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ it
-updates $\Delta_\ttime=R^{(1)}_\ttime(\state_\ttime) -
-\widehat{V}(\state_\ttime)$ where $R^{(1)}_\ttime(\state_\ttime)=
-\reward_\ttime +\discount \widehat{V}(\state_{\ttime+1})$. We can
-also consider a two step look-ahead as follows. Given
+We have seen that $TD(0)$ updates the estimated value of state $\state_{\ttime}$ 
+using a one-step lookahead, i.e., given
+$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ 
+it updates 
+\[\Delta_\ttime=R^{(1)}_\ttime(\state_\ttime) -
+\widehat{\Value}_{\ttime}(\state_\ttime)\] 
+where $R^{(1)}_\ttime(\state_\ttime)=
+\reward_\ttime +\discount \widehat{\Value}_{\ttime}(\state_{\ttime+1})$.
+
+\noindent We can also consider a two-step look-ahead as follows, given
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1},\action_{\ttime+1},\reward_{\ttime+1},\state_{\ttime+2})$
-we can update using
-$\Delta^{(2)}_\ttime=R^{(2)}_\ttime(\state_\ttime) -
-\widehat{V}(\state_\ttime)$ where $R^{(2)}_\ttime(\state_\ttime)=
+we update using
+\[\Delta^{(2)}_\ttime=R^{(2)}_\ttime(\state_\ttime) -
+\widehat{\Value}_{\ttime}(\state_\ttime)\] 
+where $R^{(2)}_\ttime(\state_\ttime)=
 \reward_\ttime+\discount \reward_{\ttime+1} +\discount^2
-\widehat{V}(\state_{\ttime+2})$. Using the same logic, we have that
-this is a temporal difference that uses a two time steps.
+\widehat{\Value}_{\ttime}(\state_{\ttime+2})$. 
 
-We can generalize this to any $n$-step look-ahead and define
-$R^{(n)}_\ttime(\state_\ttime)= \sum_{i=0}^{n-1} \discount^i
-\reward_{\ttime+i}+\discount^n \widehat{V}(\state_{\ttime+n})$ and
-updates $\Delta^{(n)}_\ttime=R^{(n)}_\ttime(\state_\ttime) -
-\widehat{V}(\state_\ttime)$.
+\noindent Using the same logic, we can generalize this to any $n$-step look-ahead and define
+\[\widehat{\Value}_{\ttime+1}(\state_\ttime)=\widehat{\Value}_{\ttime}(\state_\ttime)+\alpha_\ttime
+\Delta^{(n)}_\ttime\] 
+where $\Delta^{(n)}_\ttime=R^{(n)}_\ttime(\state_\ttime)-\widehat{\Value}_{\ttime}(\state_\ttime)$
+and $R^{(n)}_\ttime(\state_\ttime)= \sum_{i=0}^{n-1} \discount^i
+\reward_{\ttime+i}+\discount^n \widehat{\Value}_{\ttime}(\state_{\ttime+n})$ .
 
-We can relate the $\Delta^{(n)}_\ttime$ to the $\Delta_\ttime$ as
-follows:
+We can use any parameter $n$ for the $n$-step look-ahead. If the
+episode ends before step $n$ we can pad it with rewards zero. This
+implies that for $n=\infty$ we have that $n$-step look-ahead is
+simply the Monte-Carlo estimate. However, we need to select some
+parameter $n$. 
+
+\noindent{\bf Remarks:}
+\begin{enumerate}
+    \item We can view $R^{(n)}_\ttime$ as an operator over $V$. This operator is
+$\discount^n$-contracting, namely
+\[
+\| R^{(n)}_\ttime(V_1)-R^{(n)}_\ttime(V_2)\|_\infty \leq \discount^n
+\|V_1-V_2\|_\infty
+\]
+\item There is a relation between $\Delta^{(n)}_\ttime$ and $\Delta_\ttime$ 
 \[
 \Delta^{(n)}_\ttime=\sum_{i=0}^{n-1} \discount^i \Delta_{\ttime+i}
 \]
@@ -322,61 +324,48 @@ This follows since
 \sum_{i=0}^{n-1} \discount^i \Delta_{\ttime+i}
 =&\sum_{i=0}^{n-1}
 \discount^i \reward_{\ttime+i}+ \sum_{i=0}^{n-1} \discount^{i+1}
-\widehat{V}(\state_{\ttime+i+1})- \sum_{i=0}^{n-1} \discount^{i}
-\widehat{V}(\state_{\ttime+i})\\
+\widehat{\Value}(\state_{\ttime+i+1})- \sum_{i=0}^{n-1} \discount^{i}
+\widehat{\Value}(\state_{\ttime+i})\\
 =&\sum_{i=0}^{n-1} \discount^i
 \reward_{\ttime+i}+\discount^n
-\widehat{V}(\state_{\ttime+n})-\widehat{V}(\state_\ttime)\\
-=&R^{(n)}_\ttime(\state_\ttime)-\widehat{V}(\state_\ttime)=\Delta^{(n)}_\ttime
+\widehat{\Value}(\state_{\ttime+n})-\widehat{\Value}(\state_\ttime)\\
+=&R^{(n)}_\ttime(\state_\ttime)-\widehat{\Value}(\state_\ttime)=\Delta^{(n)}_\ttime
 \end{align*}
+\end{enumerate}
 
-
-Using the $n$-step look-ahead we have
-$\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime
-\Delta^{(n)}_\ttime$ where
-$\Delta^{(n)}_\ttime=R^{(n)}_\ttime(\state_\ttime)-\widehat{V}(\state_\ttime)$.
-We can view $R^{(n)}_\ttime$ as an operator over $V$, and this operator is
-%Note that the operator $R^{(n)}_\ttime$ is
-$\discount^n$-contracting, namely
-\[
-\| R^{(n)}_\ttime(V_1)-R^{(n)}_\ttime(V_2)\|_\infty \leq \discount^n
-\|V_1-V_2\|_\infty
-\]
-
-We can use any parameter $n$ for the $n$-step look-ahead. If the
-episode ends before step $n$ we can pad it with rewards zero. This
-implies that for $n=\infty$ we have that $n$-step look-ahead is
-simply the Monte-Carlo estimate. However, we need to select some
-parameter $n$. An alternative idea is to simply average over the
-possible parameters $n$. One simple way to average is to use
-exponential averaging with a parameter $\lambda\in(0,1)$. This
-implies that the weight of each parameter $n$ is
+\subsection{TD($\lambda$)}
+An alternative idea for selecting $n$, is to simply average 
+over the possible values of $n$. One simple way to average is to use
+exponential averaging with a parameter $\lambda\in(0,1)$. 
+This implies that the weight of each parameter $n$ is
 $(1-\lambda)\lambda^{n-1}$.
+This leads us to the $TD(\lambda)$ forward view update.\\
 
-This leads us to the $TD(\lambda)$ update:
+\noindent{\bf Forward view update}\\
+For each visited state, the update is determined by looking forward in time to all future rewards and states.
 \[
-\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(1-\lambda)\sum_{n=1}^\infty
-\lambda^{n-1}\Delta^{(n)}_\ttime
+\widehat{\Value}_{\ttime+1}(\state_\ttime)=\widehat{\Value}_{\ttime}(\state_\ttime)+\alpha_\ttime\Delta^{\lambda}_\ttime
 \]
+where $\Delta^{\lambda}_\ttime= (1-\lambda)\sum_{n=1}^\infty\lambda^{n-1}\Delta^{(n)}_\ttime$
 
 \noindent{\bf Remark:} While both $\discount$ and $\lambda$ are used
-to generate exponential decaying values, their goal is very
+to generate exponential decaying values, their goals are very
 different. The discount parameter $\discount$ defines the objective
-of the MDP, the goal that we like to maximize. The exponential
+of the MDP, the goal we like to maximize. The exponential
 averaging parameter $\lambda$ is used by the learning algorithm to average over the different
-look-ahead parameters, and is selected to optimize the convergence.
+look-ahead parameters and is selected to optimize the convergence.\\
 
 %In the slides there is an example of a random walk and its
 %convergence taken from \cite{SuttonB98}.
-
-The above describes the forward view of $TD(\lambda)$, where we
-average over future rewards. If we will try to implement it in a
-strict way this will lead us to wait until the end of the episode,
-since we will need to first observe all the rewards. Fortunately,
-there is an equivalent form of the $TD(\lambda)$ which uses a {\em
+\noindent{\bf Backward view}\\
+The above is a description of the forward view, in which we average future rewards.
+If we attempt to implement it in a strict manner, 
+we will have to wait until the end of the episode 
+because we must first observe all the rewards. Fortunately,
+an equivalent form of the $TD(\lambda)$ uses a {\em
 backward view}. The backward view updates at each time step, using
-an incomplete information. At the end of the episode, the updates of
-the forward and backward updates will be the same.
+incomplete information. And at the end of the episode, 
+both forward and backward updates will be the same.
 
 The basic idea of the backward view is the following. Fix a time
 $\ttime$ and a state $\state=\state_\ttime$. We have at time
@@ -385,59 +374,66 @@ $\ttime$ a temporal difference $\Delta_\ttime= \reward_\ttime
 Consider how this $\Delta_\ttime$ affects all the previous times
 $\tau<\ttime$ where $\state_\tau=\state=\state_\ttime$. The influence is
 exactly $(\discount\lambda)^{\ttime-\tau}\Delta_\ttime$. This implies
-that for every such $\tau$ we can do the desired update, however, we
-can aggregate all those updates to a single update. Let,
+that for every such $\tau$ we can do the desired update. However, we
+can aggregate all those updates into a single update. Let,
 \[
 e_\ttime(\state)=\sum_{\tau\leq \ttime: \state_\tau=\state}
 (\discount\lambda)^{\ttime-\tau} = \sum_{\tau=1}^\ttime
 (\discount\lambda)^{\ttime-\tau}I(\state_\tau=\state)
 \]
-The above $e_\ttime(\state)$ defines the {\em eligibility trace} and
+The above $e_\ttime(\state)$ is defined as the {\em eligibility trace} and
 we can compute it online using
 \[
 e_\ttime(\state)=\discount\lambda
 e_{\ttime-1}(\state)+I(\state=\state_\ttime)
 \]
-which result in the update
+Which result in the update
 \[
-\widehat{V}_{\ttime+1}(\state)=\widehat{V}_\ttime(\state)+\alpha_\ttime
+\widehat{\Value}_{\ttime+1}(\state)=\widehat{\Value}_\ttime(\state)+\alpha_\ttime
 e_\ttime(\state)\Delta_\ttime
 \]
-Note that for $TD(0)$ we have that $\lambda=0$ and the eligibility
-trace becomes $e_\ttime(\state)=I(\state=\state_\ttime)$. This
+At any given time, these eligibility traces indicate which
+states have been visited most recently, 
+where "recently" is defined in terms of $\discount\lambda$. 
+Intuitively, these traces indicate the extent to which 
+each state $\state$ is qualified to undergo learning changes
+in the event of a reinforcing event.
+
+Note that for $\lambda=0$ the eligibility
+trace becomes $e_\ttime(\state)=I(\state=\state_\ttime)$, and we obtain $TD(0)$. This
 implies that we update only $\state_\ttime$ and
-$\widehat{V}_{\ttime+1}(\state_\ttime)=\widehat{V}_\ttime(\state_\ttime)+\alpha_\ttime
+$\widehat{\Value}_{\ttime+1}(\state_\ttime)=\widehat{\Value}_\ttime(\state_\ttime)+\alpha_\ttime
 \Delta_\ttime$.
 
-\paragraph{$TD(\lambda)$ algorithm}\ \\
+\paragraph{Backward view algorithm}\ \\
 
- -- Initialization: Set $\widehat{V}(\state)=0$ (or any other value), and
+ -- Initialization: Set $\widehat{\Value}(\state)=0$ (or any other value), and
  $e_0(\state)=0$.
 
  -- Update: observe $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ and set
 \begin{align*}
-\Delta_\ttime &= \reward_\ttime +\discount \widehat{V}_\ttime(\state_{\ttime+1})-\widehat{V}(\state_\ttime)\\
+\Delta_\ttime &= \reward_\ttime +\discount \widehat{\Value}_\ttime(\state_{\ttime+1})-\widehat{\Value}_{\ttime}(\state_\ttime)\\
 e_\ttime(\state) &= \discount\lambda e_{\ttime-1}(\state)+I(\state=\state_\ttime)\\
-\widehat{V}_{\ttime+1}(\state) &=
-\widehat{V}_\ttime(\state)+\alpha_\ttime e_\ttime
+\widehat{\Value}_{\ttime+1}(\state) &=
+\widehat{\Value}_\ttime(\state)+\alpha_\ttime e_\ttime
 (\state)\Delta_\ttime
 \end{align*}
 
  To summarize, the
 benefit of $TD(\lambda)$ is that it interpolates between $TD(0)$ and
-Monte-carlo updates, and many times achieves superior performance to
+Monte-Carlo updates and many times achieve superior performance to
 both.
 %
-Similar to $TD(0)$, also  $TD(\lambda)$ can be written as a
+Similar to $TD(0)$. Also,  $TD(\lambda)$ can be written as a
 stochastic approximation iterative algorithm, and one can derive its convergence.\footnote{YM: Do we want to add it? Maybe HW?}
 %
-In the next section we show the equivalence of the forward and
+In the next section, we show the equivalence of the forward and
 backward $TD(\lambda)$ updates.
 %
 
 \subsection{The equivalence of the forward and backward view}
 
-We would like to show that indeed the forward and backward view result in the same overall update.\footnote{YM: should we move to the Harm van Seijen, Richard S. Sutton: True Online TD(lambda). ICML 2014: 692-700}
+We would like to show that the forward and backward views result in the same overall update.\footnote{YM: should we move to the Harm van Seijen, Richard S. Sutton: True Online TD(lambda). ICML 2014: 692-700}
 
 Consider the following intuition. Assume that state $\state$ occurs in time $\tau_1$. This occurrence will contribute to the forward view $\sum_{\ttime=0}^\infty \lambda^\ttime\discount^\ttime\Delta_{\tau_1+\ttime} $.
 The same contribution applies to any time $\tau_j$ where state $\state$ occurs. The sum of those contributions would be $\sum_{j=1}^M \lambda^\ttime\discount^\ttime\Delta_{\tau_j+\ttime} $, where $M$ is the number of occurrences of state $\state$. Now we compute the contribution of any update $\Delta_i$. The updates of $\Delta_i$ will  contribute to any update of state $\state$ which occurs at time $\tau_j\leq i$. The total update of $\Delta_i$ would be $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}\Delta_i $. Note that $e_i(\state)$ st time $i$ equals to $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}$, which implies that the update equals $e_i(\state)\Delta_i$.So the sum of the updates should be equivalent. Figure~\ref{fig-TD-lambda-forward-backward} has an illustrative example.
@@ -513,8 +509,8 @@ and in the last identity we note that $\sum_{i=0}^\infty
 For the backward view for state $\state$ we have
 \begin{align}
 \sum_{\ttime=0}^{\infty } \Delta V^B_\ttime (\state)&=\sum_{\ttime=0}^{\infty} \alpha
-\Delta_\ttime(\state) e_{\ttime}(\state)\\
-&=\sum_{\ttime=0}^{\infty} \alpha
+\Delta_\ttime(\state) e_{\ttime}(\state)\nonumber\\
+&= \sum_{\ttime=0}^{\infty} \alpha
 \Delta_\ttime(\state) \sum_{k=0}^\ttime (\discount\lambda)^{\ttime-k} I(\state=\state_\ttime)\nonumber\\
 &= \sum_{k=0}^\infty \sum_{\ttime=k}^\infty \alpha
 (\discount\lambda)^{\ttime-k}\Delta_\ttime(\state)I(\state=\state_\ttime)
@@ -522,7 +518,7 @@ For the backward view for state $\state$ we have
 \end{align}
 
 Note that if we interchange $k$ and $\ttime$ in Eq. (\ref{eq:TD-F})
-and in Eq. (\ref{eq:TD-B}), then we have the identical expressions.
+and in Eq. (\ref{eq:TD-B}), then we have identical expressions.
 \end{proof}
 
 \subsection{$SARSA(\lambda)$}
@@ -531,36 +527,40 @@ We can use the idea of eligibility traces also in other algorithms,
 such as SARSA. Recall that given
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1},\action_{\ttime+1})$
 the update of SARSA is
-\[
-\reward_\ttime+\discount
-Q_\ttime(\state_{\ttime+1},\action_{\ttime+1})-Q_\ttime(\state_\ttime,\action_\ttime)
-\]
-Similarly, we can define an $n$-step look-ahead
-$q^{(n)}_\ttime=\sum_{i=0}^{n-1}\discount^i \reward_{\ttime+i}
-+\discount^n Q_\ttime(\state_{\ttime+n},\action_{\ttime+n})$ and set
-$Q_{\ttime+1}(\state_\ttime,\action_\ttime)=Q_\ttime(\state_\ttime,\action_\ttime)+\alpha_\ttime
-(q^{(n)}_\ttime-Q_\ttime(\state_\ttime,\action_\ttime))$.
+\[Q_{\ttime+1}(\state_\ttime,\action_\ttime) = Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime) \Gamma_{\ttime} \]
+where $\Gamma_{\ttime} = \reward_\ttime +
+\discount  Q_\ttime (\state_{\ttime+1}, a_{\ttime+1}) -Q_\ttime
+(\state_\ttime,\action_\ttime)$.
 
-We can now define $SARSA(\lambda)$ using exponential averaging with
+\noindent{}Similarly, we can define an $n$-step look-ahead, and set
+\[\Gamma_{\ttime}^{(n)} = R_\ttime^{(n)}(\state)-Q_\ttime
+(\state_\ttime,\action_\ttime)\]
+where $R_\ttime^{(n)}(\state) = \sum_{i=0}^{n-1}\discount^i \reward_{\ttime+i}
++\discount^n Q_\ttime(\state_{\ttime+n},\action_{\ttime+n})$
+
+\noindent{}We can now define $SARSA(\lambda)$ using exponential averaging with
 parameter $\lambda$. Namely, we define
-$q^\lambda_\ttime=(1-\lambda)\sum_{n=1}^\infty
-\lambda^{n-1}q^{(n)}_{\ttime}$. This makes the forward view of
+\[\Gamma_{\ttime}^{\lambda}=(1-\lambda)\sum_{n=1}^\infty
+\lambda^{n-1}\Gamma_{\ttime}^{(n)}\]
+This makes the forward view of
 $SARSA(\lambda)$ to be
-$Q_{\ttime+1}(\state_\ttime,\action_\ttime)=Q_\ttime(\state_\ttime,\action_\ttime)+\alpha_\ttime
-(q^{\lambda}_\ttime-Q_\ttime(\state_\ttime,\action_\ttime))$.
-
-
-Similar to $TD(\lambda)$, we can define a backward view using
+\[Q_{\ttime+1}(\state_\ttime,\action_\ttime) = Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)\Gamma_{\ttime}^{\lambda} \]
+Similar to $TD(\lambda)$, we can also define a backward view using
 eligibility traces:
-\begin{align*}
-e_0(\state,\action)&=0\\
-e_\ttime(\state,\action)&=\discount\lambda
+\[e_\ttime(\state,\action)&=\discount\lambda
 e_{\ttime-1}(\state,\action)+ I(\state=\state_\ttime,
-a=\action_\ttime)
-\end{align*}
-For the update we have
+a=\action_\ttime)\]
+\paragraph{Backward view algorithm}\ \\
+
+ -- Initialization: Set $\widehat{Q}_{0}(\state)=0$ (or any other value), and
+ $e_0(\state)=0$.
+
+ -- Update: observe $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ and set
 \begin{align*}
 \Delta_\ttime&= \reward_\ttime +\discount Q_\ttime(\state_{\ttime+1},\action_{\ttime+1})-Q_\ttime(\state_\ttime,\action_\ttime)\\
+e_\ttime(\state,\action)&=\discount\lambda
+e_{\ttime-1}(\state,\action)+ I(\state=\state_\ttime,
+a=\action_\ttime)\\
 Q_{\ttime+1}(\state,\action)&=Q_{\ttime}(\state,\action)+\alpha_\ttime
 e_\ttime(\state,\action)\Delta_\ttime
 \end{align*}
@@ -608,8 +608,8 @@ G^{\rho/\policy}=\prod_{\ttime=1}^T
 \]
 and we have
 \[
-\widehat{V}^\rho (\state_1) = \widehat{V}^\rho(\state_1) +\alpha(
-G^{\rho/\policy}- \widehat{V}^\rho(\state_1))
+\widehat{\Value}^\rho (\state_1) = \widehat{\Value}^\rho(\state_1) +\alpha(
+G^{\rho/\policy}- \widehat{\Value}^\rho(\state_1))
 \]
 This updates might be huge, since we are multiplying the ratios of
 many small numbers.
@@ -618,12 +618,12 @@ For the $TD(0)$ the updates will be
 \[
 \Delta^{\rho/\policy}_\ttime
 =\frac{\rho(\action_\ttime|\state_\ttime)}{\policy(\action_\ttime|\state_\ttime)}\reward_\ttime
-+\discount \widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)
++\discount \widehat{\Value}(\state_{\ttime+1})-\widehat{\Value}(\state_\ttime)
 \]
 and we have
 \[
-\widehat{V}^\rho (\state_1) = \widehat{V}^\rho(\state_1) +\alpha(
-\Delta^{\rho/\policy}_\ttime- \widehat{V}^\rho(\state_1))
+\widehat{\Value}^\rho (\state_1) = \widehat{\Value}^\rho(\state_1) +\alpha(
+\Delta^{\rho/\policy}_\ttime- \widehat{\Value}^\rho(\state_1))
 \]
 This update is much more stable, since we have only one factor
 multiplying the observed reward.

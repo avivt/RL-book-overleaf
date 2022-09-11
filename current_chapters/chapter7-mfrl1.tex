@@ -121,8 +121,11 @@ that
 \alpha^2\frac{1-(1-\alpha)^{2m}}{1-(1-\alpha)^2}\approx
 \frac{\alpha}{2-\alpha}
 \]
-Therefore, if we set $\alpha\approx \varepsilon^2/(\log (1/\delta))$
-we have an accuracy $\varepsilon$ with confidence $1-\delta$.
+Therefore, if we set $\alpha\approx\frac{\varepsilon^{2}}{\log\left(\frac{1}{\delta}\right)}$
+\[
+\Pr\left[\left|wavg\left(x\right)-\E\left[wavg\left(x\right)\right]\right|\geq\varepsilon\right]\lessapprox\delta
+\]
+thus we have an accuracy $\varepsilon$ with confidence $1-\delta$.
 
 
 \section{$Q$-Learning}
@@ -145,7 +148,8 @@ We consider the discounted return criterion:
 where $\Value^*$ is the value function of the optimal policy.
 
 Recall our definition of the $Q$-function (or {\em state-action
-value function}), specialized to the present deterministic setting:
+value function}): The expected value of first taking
+action $a$ from state $s$ and then proceed optimally $\policy^{\star}$ ,specialized to the present deterministic setting:
 $$
 Q^*(\state,\action)=\reward(\state,\action)+\discount
 \Value^*(f(\state,\action))
@@ -215,18 +219,34 @@ Q^*(\state_\ttime,\action_\ttime)| &=
 & \le \discount \max_{\action'}
 |\widehat{Q}_\ttime(\state_{\ttime}',\action') -
 Q^*(\state_{\ttime}',\action') | \\
-&\le\; \discount \Delta_\ttime
-\,.
+&\le \discount \max_{\state,\action'}|\widehat{Q}_\ttime(\state,\action')-Q^*(\state,\action') |= \discount \Delta_\ttime
 \end{align*}
 where the first inequality uses the fact that $|\max_{x_1} f_1(x_1)-\max_{x_2}f(x_2)|\leq \max_x|f_1(x)-f_2(x)|$, and the second inequality follows from the bound on $\|\widehat{Q}_\ttime-Q^*\|_\infty =\Delta_t $.
-This implies that the difference at $(\state_\ttime,\action_\ttime)$ the errors is bounded by $\discount\Delta_\ttime$, but this does not imply that $\Delta_{\ttime+1}\leq \discount\Delta_{\ttime}$, since it is the maximum over all state-action pairs.
 
-Next, we show that eventually $\Delta_{\ttime+\tau}$ would be at most $ \discount\Delta_{\ttime}$.
-Consider now some interval $[\ttime,\ttime_1]$ over which all state-action pairs $(\state,\action)$ appear at least once. Using the above relation and simple induction, it follows that $\Delta_{\ttime_1} \le \discount \Delta_{\ttime}$.
-%
-Since each state-action pair is visited infinitely often, there is
-an infinite number of such intervals, and since $\discount<1$, it
-follows that $\Delta_\ttime \to 0$, as $\ttime$ goes to infinity.
+This implies that the difference at for a specific state-action pair $(\state_{\ttime},\action_{\ttime})$
+is bounded by $\discount\Delta_{\ttime}$
+
+\[
+|\widehat{Q}_{\ttime+1}(\state_{\ttime},\action_{\ttime})-Q^{*}(\state_{\ttime},\action_{\ttime})|\le\discount\max_{\state,\action'}|\widehat{Q}_{\ttime}(\state,\action')-Q^{*}(\state,\action')|=\discount\Delta_{\ttime}
+\]
+
+but this does not imply that $\Delta_{\ttime+1}\leq\discount\Delta_{\ttime}$, since it is
+the maximum over all state-action pairs $(\state,\action)$
+\[
+\Delta_{\ttime+1}\ = \max_{\state,\action'}|\widehat{Q}_{\ttime+1}(\state,\action')-Q^{*}(\state,\action')|\nleq\discount\max_{\state,\action'}|\widehat{Q}_{\ttime}(\state,\action')-Q^{*}(\state,\action')|=\discount\Delta_{\ttime}
+\]
+
+Consider now some interval $[\ttime,\ttime+\tau]$ over which all
+state-action pairs $(\state,\action)$ appear at least once. Using
+the above relation and simple induction, it follows that 
+\[
+\Delta_{\ttime+\tau}=\max_{\state,\action'}|\widehat{Q}_{\ttime+\tau}(\state,\action')-Q^{*}(\state,\action')|\leq\discount\max_{\state,\action'}|\widehat{Q}_{\ttime}(\state,\action')-Q^{*}(\state,\action')|=\discount\Delta_{\ttime}
+\]
+
+Thus $\Delta_{\ttime+\tau}\le\discount\Delta_{\ttime}$, and since each state-action pair $\left(\state,\action\right)$ is visited
+infinitely often, there is an infinite number of such intervals, and
+since $\discount<1$, it follows that $\lim_{t\to\infty}\Delta_{\ttime}=0$
+
 \end{proof}
 
 \noindent{\emph{Remark:}} Note that the $Q$-learning algorithm does not need to receive a continuous trajectory, but can receive arbitrary quadruples
@@ -259,26 +279,18 @@ time $\ttime$. The following is the definition of the algorithm.
 \begin{align*}
  Q_{\ttime+1}(\state_\ttime,\action_\ttime) & :=
  Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)  [\reward_\ttime +
-\discount \max_{\action'} Q_\ttime (\state_{\ttime}', \action')
+\discount \max_{\action'} \left\{Q_\ttime (\state_{\ttime}', \action')\right\}
 -Q_\ttime (\state_\ttime,\action_\ttime)]
 \end{align*}
 \end{itemize}
+To gain some intuition, assume we have converged, i.e., $\mathbb{E}\left[Q_{t+1}-Q_{t}\right]=0$.
+Let $\ensuremath{\Gamma_{\ttime}=\reward_{\ttime}+\discount\max_{\action'}\left\{ Q_{\ttime}(\state_{\ttime}',\action')\right\} -Q_{\ttime}(\state_{\ttime},\action_{\ttime})}$, thus 
+\begin{align*}
+	0 & =\ensuremath{\E[\Gamma_{\ttime}]}=\E\left[\reward_{\ttime}+\discount\max_{\action'}\left\{ Q_{\ttime}(\state_{\ttime}',\action')\right\} -Q_{\ttime}(\state_{\ttime},\action_{\ttime})\right]\\
+	& =Q^{*}(\state,\action)-\E\left[Q_{\ttime}(\state_{\ttime},\action_{\ttime})\right]
+\end{align*}
+hence $Q^{*}(\state,\action)=\E\left[Q_{\ttime}(\state_{\ttime},\action_{\ttime})\right]$.
 
-
-It is worth to try and gain some intuition regarding the $Q$
-learning algorithm. Let $\Gamma_\ttime= \reward_\ttime + \discount
-\max_{\action'} Q_\ttime (\state_{\ttime}', \action')-Q_\ttime
-(\state_\ttime,\action_\ttime)$.
-%
-For simplicity assume we already converged,
-%
-%The basic intuition is that if
-$Q_\ttime=Q^*$. Then we have that $\E[\Gamma_\ttime]=0$ and (on
-average) we maintain that $Q_\ttime=Q^*$.
-%
-Clearly we do not want to assume that we converge, since this is the
-entire goal of the algorithm.
-%
 The main challenge in showing the convergence is that in the updates
 we use $Q_\ttime$ rather than $Q^*$. We also need to handle the
 stochastic nature of the updates, where there are both stochastic
@@ -286,6 +298,7 @@ rewards and stochastic next state.
 
 The next theorem states the main convergence property of
 $Q$-learning.
+
 \begin{theorem}[$Q$-learning convergence]\ \\
 \label{thm:Q-learning} Assume every state-action pair
 $(\state,\action)$ occurs infinitely often, and the step size
@@ -391,7 +404,6 @@ that as the number of phases increases $\lambda_i<
 %each phase contracts by a constant and eventually we have convergence.
 
 \subsection{$Q$-learning as a stochastic approximation}
-
 After we introduced the stochastic approximation algorithms, and
 their convergence theorem, we show that the $Q$-learning algorithm
 is a stochastic approximation algorithm, and thus converges.
@@ -408,30 +420,35 @@ We first define the operator $H$,
 \]
 The contraction of $H$ is established as follows,
 \begin{align*}
-\|Hq_1-Hq_2\|_\infty &= \discount \max_{\state,\action}
-|\sum_{\state'} p(\state'|\state,\action)
-[\max_{b_1} q_1(\state',b_1)-\max_{b_2} q_2(\state',b_2)|\\
-&\leq \discount \max_{\state,\action}\max_{b,\state'} |q_1(\state',b)-q_2(\state',b)|\\
-&\leq \discount \|q_1-q_2\|_\infty\;.
+\|Hq_{1}-Hq_{2}\|_{\infty} & =\max_{\state,\action}\left|\sum_{\state'}p(\state'|\state,\action)\left[\reward(\state,\action)+\discount\max_{b_{1}}q_{1}(\state',b_{1})-\reward(\state,\action)-\discount\max_{b_{2}}q_{2}(\state',b_{2})\right]\right|\\
+& =\discount\max_{\state,\action}\left|\sum_{\state'}p(\state'|\state,\action)\left[\max_{b_{1}}q_{1}(\state',b_{1})-\max_{b_{2}}q_{2}(\state',b_{2})\right]\right|\\
+& \leq\discount\max_{\state,\action}\sum_{\state'}p(\state'|\state,\action)\left|\max_{b_{1}}q_{1}(\state',b_{1})-\max_{b_{2}}q_{2}(\state',b_{2})\right|\\
+& \leq\discount\max_{\state,\action}\sum_{\state'}p(\state'|\state,\action)\max_{b}\left|q_{1}(\state',b)-q_{2}(\state',b)\right|\\
+& \leq\discount\max_{\state,\action}\max_{b,\state'}\left|q_{1}(\state',b)-q_{2}(\state',b)\right|\\
+& \leq\discount\|q_{1}-q_{2}\|_{\infty}
 \end{align*}
-
 
 In this section we re-write the $Q$-learning algorithm to follow the
 iterative stochastic approximation algorithms, so that we will be
 able to apply Theorem~\ref{thm:stoch-approx}.
-
-Recall that,
+Recall the Q-learning algorithm,
+\begin{align*}
+	Q_{\ttime+1}(\state_{\ttime},\action_{\ttime}) & :=Q_{\ttime}(\state_{\ttime},\action_{\ttime})+\alpha_{\ttime}(\state_{\ttime},\action_{\ttime})[\reward_{\ttime}+\discount\max_{\action'}\left\{ Q_{\ttime}(\state_{\ttime}',\action')\right\} -Q_{\ttime}(\state_{\ttime},\action_{\ttime})]
+\end{align*}
+We can re-write it is as follows
 \begin{align*}
  Q_{\ttime+1}(\state_\ttime,\action_\ttime) & :=   (1-\alpha_\ttime(\state_\ttime,\action_\ttime) ) Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)  [\reward_\ttime +
 \discount \max_{\action'} Q_\ttime (\state_{\ttime}',
-\action')-Q_\ttime (\state_\ttime,\action_\ttime) ]
+\action')]
 \end{align*}
 Let $\Phi_\ttime=\reward_\ttime + \discount \max_{\action'} Q_\ttime
-(\state_{\ttime+1}, \action')$. This implies that $\E[\Phi_\ttime]=
-(HQ_\ttime)(\state_\ttime,\action_\ttime)$. We can define the noise
-term as
-$\omega_\ttime(\state_\ttime,\action_\ttime)=\Phi_\ttime-(HQ_\ttime)(\state_\ttime,\action_\ttime)$
-and have $\E[\omega_\ttime(\state_\ttime,\action_\ttime)]=0$. In
+(\state_{\ttime}', \action')$, this implies that
+\[\E[\Phi_\ttime]=
+(HQ_\ttime)(\state_\ttime,\action_\ttime)\]
+We can define the noise term as
+$\omega_\ttime(\state_\ttime,\action_\ttime)=\Phi_\ttime-(HQ_\ttime)(\state_\ttime,\action_\ttime)$, and have
+\[\E[\omega_\ttime(\state_\ttime,\action_\ttime)]=0\]
+In
 addition $|\omega_\ttime(\state_\ttime,\action_\ttime)|\leq \Vmax=
 \frac{R_{max}}{1-\discount}$.
 
@@ -553,51 +570,24 @@ for $t\geq \frac{1}{1-\discount}\log^{1/(1-\theta)} (1/\varepsilon)$
 we have $Q_\ttime \leq \varepsilon$. This is a poly-logarithmic
 dependency on $\varepsilon$, which is much better. Also, note that
 $\theta$ is under our control, and we can set for example
-$\theta=2/3$. Note that unlike $\theta$, the setting of the discount
+$\theta=2/3$. Note that, unlike $\theta$, the setting of the discount
 factor $\discount$ has a huge influence on the objective function
 and the effective horizon.
 
 \subsection{SARSA: on-policy $Q$-learning}
 
-The Q-learning algorithm that we presented is an off-policy
-algorithm. This implies that it has no control over the action
-selection. The benefit is that it does not face the exploration
-exploitation trade-off and its only goal is to approximate the
-optimal $Q$ function.
+The Q-learning algorithm that we presented is an off-policy algorithm. This implies that it has no control over the action selection. The benefit is that it does not face the exploration-exploitation trade-off, and its only goal is to approximate the optimal $Q$ function.
 
-In this section we would like to extend the $Q$-learning algorithm
-to an on-policy setting. This will first of all involve selecting
-the actions by the algorithm. Given that the actions are set by the
-algorithm, we can consider the return of the algorithm. We would
-like the return of the algorithm to converge to the optimal return.
+In this section, we wish to extend the $Q$-learning algorithm to an on-policy setting, which will first involve the algorithm selecting its own actions. Given that the algorithm determines the actions, we can consider the algorithm's return. We want the algorithm's return to converge on the optimal return.
 
+The specific algorithm that we present is called SARSA. The name comes from the fact that the feedback we observe $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1},\action_{\ttime+1})$, ignoring the subscripts, we have SARSA. Note that since it is an on-policy algorithm, the actions are actually under the algorithm's control, and we would need to specify how to select them.
 
-%We would like to have an on-policy variant of $Q$-learning, which
-The specific algorithm that we present is called SARSA. The name
-comes from the fact that the feedback we observe
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1},\action_{\ttime+1})$,
-ignoring the subscripts we have SARSA. Note that since it is an
-on-policy algorithm, the actions are actually under the control of
-the algorithm, and we would need to specify how to select them.
+When designing the algorithm, we must consider two contradicting objectives in selecting the actions. The first is the need to explore and perform each action infinitely often. This implies that we need, for each state $\state$ and action $\action$, to have that $\sum_\ttime \policy_\ttime(\action|\state)=\infty$. Then by the Borel-Cantelli lemma, we have with probability $1$ an infinite number of times that we select action $\action$ in state $\state$ (actually, we need independence of the events, or at least a Martingale property, which holds in our case). On the other hand, we would like our estimates to converge, as done in $Q$-learning, and the return  to be near optimal. For this, we need the action selection to converge to being greedy with respect to the $Q$ function.
 
-When designing the algorithm we need to think of two contradicting
-objectives in selecting the actions. The first is the need to
-explore, perform each action infinitely often. This implies that we
-need, for each state $\state$ and action $\action$, to have that $\sum_\ttime
-\policy_\ttime(\action|\state)=\infty$. Then by the Borel-Cantelli
-lemma we have with probability $1$ an infinite number of times that
-we select action $\action$ in state $\state$ (actually, we need
-independence of the events, or at least a Martingale property, which
-holds in our case). On the other hand we would like not only our
-estimates to converge, as done in $Q$-learning, but also the return
-to be near optimal. For this we need the action selection to
-converge to being greedy with respect to the $Q$ function.
-
-\paragraph{The SARSA algorithm}\ \\
-
+\paragraph{The SARSA algorithm}
 
 \begin{itemize}
-\item {\em Initialize:} Set $ Q_0(\state,\action)=0$, for all $\state$, $\action$.
+\item {\em Initialize:} Set $ Q_0(\state,\action)=0$, for all ($\state$,$\action$).
 
 \item At time $\ttime=0,1,\dots$:
 
@@ -621,39 +611,19 @@ selected action $\action_{\ttime+1}$ (which is performed at time
 $\ttime+1$).
 
 \paragraph{Selecting the action:}
-As we discussed before, one of the main tasks of an on-policy
-algorithm is to select the actions. It would be natural to select
-the action is state $\state_\ttime$ as a function of our current
-approximation $Q_\ttime$ of the optimal $Q$ function.
+As we discussed before, one of the main tasks of an on-policy algorithm is to select the actions. 
+It would be natural to select the action in state $\state_\ttime$ as a function of our current approximation $Q_\ttime$ of the optimal $Q$ function.
 
-Given a state $\state$ and a $Q$ function $Q$, we first define the
+Given a state $\state$ and a $Q$-function $Q$, we first define the
 greedy action in state $\state$ according to $Q$ as
 \[
 \bar{\action}=\arg\max_\action Q(\state,\action)
 \]
-The first idea might be to simply select the greedy action
-$\bar{\action}$, however this might be devastating. The main issue
-is that we might be avoiding exploration. Some actions might look better
-due to errors, and we will continue to execute them and not gain any
-information about alternative actions.
+The first idea might be to simply select the greedy action  $\bar{\action}$. However, this might be devastating. Some actions might look better due to errors, and we will continue to execute them and not gain any information about alternative actions, thus avoiding exploration.
 
+For a concrete example, assume we initialize $Q_0 = 0$. Consider an MDP with a single state and two actions $\action_1$ and $\action_2$. The reward of action $\action_1$ and $\action_2$ are Bernoulli random variables with parameters $1/3$ and $3/4$, respectively. If we execute action $\action_1$ first and get a reward of $1$, then we have $Q_1(\state,\action_1)>0$ and $Q_1(\state,\action_2)=0$. If we select the greedy action, we will \emph{always} select action $\action_1$. We will both be sub-optimal in the return and never explore $\action_2$, which will result that we will not converge to $Q^*$. For this reason, we would not select the greedy action deterministically.
 
-For a concrete example, assume we initialize $Q_0$ to be $0$.
-Consider an MDP with a single state and two actions $\action_1$ and
-$\action_2$. The reward of action $\action_1$ and $\action_2$ are a
-Bernoulli random variables with parameters $1/3$ and $3/4$,
-respectively. If we execute action $\action_1$ first and get a
-reward of $1$, then we have $Q_1(\state,\action_1)>0$ and
-$Q_1(\state,\action_2)=0$. If we select the greedy action, we will
-\emph{always} select action $\action_1$. We will both be sub-optimal
-in the return and never explore $\action_2$ which will result that
-we will not converge to $Q^*$. For this reason we would not select
-deterministically the greedy action.
-
-
-In the following we will present two simple ways to select the
-action by $\policy(\state;Q)$ stochastically. Both ways will give
-all actions a non-zero probability, and thus guarantee exploration.
+In the following, we will present two simple ways to select the action by $\policy(\state;Q)$ stochastically. Both ways will give all actions a non-zero probability and thus guarantee exploration.
 %\[
 %\bar{\action}=\arg\max Q(\state,\action)
 %\]
@@ -662,12 +632,13 @@ The \emph{ $\varepsilon_n$-greedy}, has as a parameter a sequence of
 $\varepsilon_n$ and selects the actions as follows. Let
 $n_\ttime(\state)$ be the number of times state $\state$ was visited
 up to time $\ttime$. At time $\ttime$ in state $\state$ policy
-$\varepsilon_n$-greedy (1) with probability $1-\varepsilon_n$ sets
-$\policy(\state;Q)=\bar{\action}$ where $n=n_\ttime(\state)$, and
-(2) with probability $\varepsilon_n/|\Actions|$, selects
-$\policy(\state;Q)=\action$, for each $\action \in \Actions$. Common
-values for $\varepsilon_n$ are linear, $\varepsilon_\ttime=1/n$, or
-polynomial, $\varepsilon_\ttime=1/n^\theta$ for $\theta\in(0.5,1)$.
+$\varepsilon_n$-greedy 
+\begin{enumerate}
+    \item with probability $1-\varepsilon_n$ sets $\policy(\state;Q)=\bar{\action}$ where $n=n_\ttime(\state)$
+    \item with probability $\frac{\varepsilon_n}{|\Actions|}$, selects $\policy(\state;Q)=\action$, for each $\action \in \Actions$.
+\end{enumerate}
+Common values for $\varepsilon_n$ are linear, $\varepsilon_\ttime=\frac{1}{n}$, or
+polynomial, $\varepsilon_\ttime\frac={1}{n^\theta}$ for $\theta\in(0.5,1)$.
 
 The {\em soft-max}, has as a parameter a sequence of
 $\beta_\ttime\geq 0$ and selects $\policy(\state;Q)=\action$, for
@@ -685,18 +656,18 @@ the basic properties of the $Q$-learning, we just need to guarantee
 that we explore each action infinitely often. (This would follow
 since any $\varepsilon$-greedy policy is aperiodic and irreducible,
 the steady state of the resulting Markov has a non-zero probability
-at each state, so each state would be visited infinitely often.)
+at each state so that each state would be visited infinitely often.)
 Then, the result will follow immediately from the convergence of
 $Q$-learning.
 
-The convergence of the return of SARSA to that of $Q^*$ is more
+The convergence of the return $\Value$ of SARSA to $\Value^{*}$ of $Q^*$ is more
 delicate. Recall that we do not have such a claim about
 $Q$-learning, since it is an off-policy method. For the convergence
-of the return we need to make our policy `greedy enough', in the
-sense that it has enough exploration, but guarantees a high return
-through the greedy actions. The following lemma shows that if we
-have a strategy which is greedy with respect to a near optimal $Q$
-function, then the policy is near optimal.
+of the return, we need to make our policy 'greedy enough' in the
+sense that it has enough exploration but guarantees a high return
+through greedy actions. The following lemma shows that if we
+have a greedy strategy with respect to a near-optimal $Q$-function, 
+then the policy is near optimal.
 
 \begin{lemma}
 \label{lemma:Q-greedy-policy}
@@ -704,28 +675,30 @@ function, then the policy is near optimal.
 Let $Q$ such that $\| Q-Q^*\|_\infty \leq \Delta$, and $\policy$ the
 greedy policy w.r.t. $Q$, i.e., $\policy(\state)\in \arg\max_\action
 Q(\state,\action)$. Then,
-$\Value^*(\state)-\Value^\policy(\state)\leq
-\frac{2\Delta}{1-\discount}$.
+\[\Value^*(\state)-\Value^\policy(\state)\leq
+\frac{2\Delta}{1-\discount}\]
 \end{lemma}
+
 \begin{proof}
-First, we show that for any state $\state$ we have
-$\Value^*(\state)-Q^*(\state,\policy(\state))\leq 2\Delta$. Since
+First, we show that for any state $\state$, we have
+$\Value^*(\state)-Q^*(\state,\policy(\state))\leq 2\Delta$. 
+Since
 $\| Q-Q^*\|_\infty \leq \Delta$ we have
-$|Q^*(\state,\policy(\state))-Q(\state,\policy(\state))|\leq \Delta$
-and $|Q^*(\state,\action^*)-Q(\state,\action^*)|\leq \Delta$, where
-$\action^*$ is the optimal action in state $\state$. This implies that
-%
-$Q^*(\state,\action^*)-Q^*(\state,\policy(\state))\leq
-Q(\state,\action^*)-Q(\state,\policy(\state))+2\Delta$.
-%
-Since policy $\policy$ is greedy w.r.t. $Q$ we have
-$Q(\state,\policy(\state))\geq Q(\state,\action^*)$, and hence
-$\Value^*(\state)-Q^*(\state,\policy(\state))=Q^*(\state,\action^*)-Q^*(\state,\policy(\state))\leq
-2\Delta$.
-
-
+\begin{align*}
+|Q^{*}(\state,\policy(\state))-Q(\state,\policy(\state))| & \leq\Delta\\
+|Q^{*}(\state,\action^{*})-Q(\state,\action^{*})| & \leq\Delta
+\end{align*}
+where $\action^*$ is the optimal action in state $\state$. This implies that
+\[Q^*(\state,\action^*)-Q^*(\state,\policy(\state))\leq
+Q(\state,\action^*)-Q(\state,\policy(\state))+2\Delta\]
+Since policy $\policy$ is greedy w.r.t. $Q$, we have
+$Q(\state,\policy(\state)) - Q(\state,\action^*) \geq 0$, and hence
+\[Q^*(\state,\action^*)-Q^*(\state,\policy(\state))\leq
+2\Delta\]
+Recalling that $Q^*(\state,\action^*) = \Value^*(\state)$, we have
+\[\Value^*(\state)-Q^*(\state,\policy(\state)) \leq 2\Delta\]
 Next,
-$$\Value^*(\state)=Q^*(\state,\action^*)\leq Q^*(\state,\policy(\state))+2\Delta = \E[\reward_0]+\discount
+$$\Value^*(\state)\leq Q^*(\state,\policy(\state))+2\Delta = \E[\reward_0]+\discount
 \E[\Value^*(\state_1)]+2\Delta,$$ where
 $\reward_0=\E[R(\state,\policy(\state))]$ and $\state_1$ is the state
 reached when doing action $\policy(\state)$ in state $\state$. As we
@@ -758,21 +731,21 @@ add a perturbation of $\varepsilon$ to the action selection, then
 the effect on the expected return is at most $O(\varepsilon)$.
 
 Fix a policy $\policy$ and let $\policy_\varepsilon$ be a policy
-such that for any state $\state$ we have that
-$\|\policy(\cdot|\state)-\policy_\varepsilon(\cdot|\state)\|_1\leq\varepsilon$.
+such that for any state $\state$, we have that
+\[\|\policy(\cdot|\state)-\policy_\varepsilon(\cdot|\state)\|_1\leq\varepsilon\]
 Namely, there is a policy $\rho(\action|\state)$ such that
-$\policy_\varepsilon(\action|\state)=(1-\varepsilon)\policy(\action|\state)+\varepsilon
-\rho(\action|\state)$. Hence, at any state, with probability at
-least $1-\varepsilon$ policy $\policy_\varepsilon$ and policy
+\[\policy_\varepsilon(\action|\state)=(1-\varepsilon)\policy(\action|\state)+\varepsilon
+\rho(\action|\state)\]
+Hence, at any state, with a probability of at least $1-\varepsilon$, policy $\policy_\varepsilon$ and policy
 $\policy$ use the same action selection.
 
 \begin{lemma}
 \label{lemma:epsilon-greedy}
 %
 Fix $\policy_\varepsilon$ and policy $\policy$ such that for any
-state $\state$ we have that
+state $\state$, we have that
 $\|\policy(\cdot|\state)-\policy_\varepsilon(\cdot|\state)\|_1\leq\varepsilon$.
-Then, for any state $\state$ we have
+Then, for any state $\state$, we have
 \[
 |\Value^{\policy_\varepsilon}(\state)-\Value^\policy(\state)|\leq
 \frac{\varepsilon\discount}{(1-\discount)(1-\discount(1-\varepsilon))}\leq \frac{\varepsilon}{(1-\discount)^2}
@@ -786,18 +759,14 @@ $\ttime$. By definition
 $\Value^\policy(\state)=\E[\sum_{\ttime=0}^\infty
 \discount^\ttime\reward_\ttime]$. The probability that policy
 $\policy_\varepsilon$ never deviated from $\pi$ until time $\ttime$
-is $(1-\varepsilon)^\ttime$. Therefore we can lower bound the
-expected reward of policy $\policy_\varepsilon$ by
-$\Value^{\policy_\varepsilon}(\state)\geq \E[\sum_{\ttime=0}^\infty
-(1-\varepsilon)^\ttime\discount^\ttime\reward_\ttime]$.
-
+is $(1-\varepsilon)^\ttime$. Therefore we can lower-bound the expected reward of policy $\policy_\varepsilon$ by
+\[\Value^{\policy_\varepsilon}(\state)\geq \E[\sum_{\ttime=0}^\infty
+(1-\varepsilon)^\ttime\discount^\ttime\reward_\ttime]\]
 Consider the difference between the expected returns,
-\[
-\Value^\policy(\state)- \Value^{\policy_\varepsilon}(\state) \leq
+\[\Value^\policy(\state)- \Value^{\policy_\varepsilon}(\state) \leq
 \E[\sum_{\ttime=0}^\infty \discount^\ttime\reward_\ttime] -
 \E[\sum_{\ttime=0}^\infty
-(1-\varepsilon)^\ttime\discount^\ttime\reward_\ttime]
-\]
+(1-\varepsilon)^\ttime\discount^\ttime\reward_\ttime] \]
 Since the rewards are bounded, namely, $\reward_\ttime\in[0,1]$, the
 difference is maximized if we set all the rewards to $1$, and have
 \[
@@ -827,21 +796,9 @@ $\varepsilon_n$-greedy policy, plays a $\lambda$-optimal policy.
 \end{theorem}
 
 \begin{proof}
-Consider the sequence $\varepsilon_n$. Since it converges to zero, there exists a value $N$ such that for any $n\geq N$ we have $\varepsilon_n\leq 0.25\lambda(1-\discount)^2$.
-
-Since we are guaranteed that each state action is sampled infinitely
-often, there is a time $\tau_1$ such that each state is sampled at
-least $N$ times.
-
-Since $Q_\ttime$ converges to $Q^*$, there is a time $\tau_2$ such that for any $\ttime\geq \tau_2$ we have $\|Q_\ttime-Q^*\|_\infty \leq \Delta=0.25\lambda (1-\discount)$.
-
-Set $\tau=\max\{\tau_1,\tau_2\}$. By
-Lemma~\ref{lemma:epsilon-greedy} the difference between the
-$\varepsilon_n$-greedy policy and the greedy policy differs by at most $2\varepsilon_n/(1-\discount)^2\leq \lambda$. By Lemma
-\ref{lemma:Q-greedy-policy} the difference between the optimal and
-greedy policy is bounded by $2\Delta/(1-\discount)=\lambda/2$. This
-implies that the policies played at time $\ttime>\tau$ are
-$\lambda$-optimal.
+Consider the sequence $\varepsilon_n$. Since it converges to zero, there exists a value $N$ such that for any $n\geq N$ we have $\varepsilon_n\leq 0.25\lambda(1-\discount)^2$. Since we are guaranteed that each state action is sampled infinitely often, there is a time $\tau_1$ such that each state is sampled at least $N$ times, thus by Lemma~\ref{lemma:epsilon-greedy} the difference between the $\varepsilon_n$-greedy policy and the greedy policy differs by at most \[\left|\Value^{\pi_{\varepsilon}}-\Value^{\pi}\right|\leq\frac{2\varepsilon_{n}}{\left(1-\discount\right)^{2}}\leq\frac{2\cdot0.25\lambda\left(1-\discount\right)^{2}}{\left(1-\discountma\right)^{2}}=\frac{\lambda}{2}\] 
+And since $Q_\ttime$ converges to $Q^*$, there is a time $\tau_2$ such that for any $\ttime\geq \tau_2$ we have \[\|Q_\ttime-Q^*\|_\infty \leq \Delta\] Setting $\Delta = 0.25\lambda (1-\discount)$, by Lemma \ref{lemma:Q-greedy-policy} the difference between the optimal and greedy policy is bounded by \[\Value^{*}-V^{\policy}\leq\frac{2\Delta}{1-\discount}=\frac{2\cdot0.25\lambda\left(1-\discount\right)}{1-\discount}=\frac{\lambda}{2}\] 
+This implies that the policies played at time $\ttime>\tau$ , where $\tau=\max\{\tau_1,\tau_2\}$, are $\lambda$-optimal.
 \end{proof}
 
 
@@ -890,56 +847,64 @@ $\lambda$-optimal.
 \section{Monte-Carlo Algorithm}
 \label{sec:MC}
 
-Monte-Carlo methods learn directly from experience in a model free
-way. The idea is very simple. In order to estimate the value of a
+Monte-Carlo methods learn directly from experience in a model-free
+way. The idea is very simple. To estimate the value of a
 state under a given policy, i.e., $\Value^\policy(\state)$, we
 consider trajectories of the policy $\policy$ from state $\state$
 and average them. The method does not assume any dependency between
-the different states, and does not even assume a Markovian
-environment, which is both a plus (less assumptions) and a minus
+the different states and does not even assume a Markovian
+environment, which is both a plus (fewer assumptions) and a minus
 (longer time to learn). (A non-Markovian environment could, for
 example, have the reward in a state depend on the number of visits
 to the state in the episode.) We will concentrate on the case of an
-episodic MDP, namely, generating finite length episodes in each
+episodic MDP, namely, generating finite-length episodes in each
 trajectory. A special case of an episodic MDP is a finite horizon
 return, where all the episodes have the same length.
 
 Assume we have a fixed policy $\policy$, which for each state
 $\state$ selects action $\action$ with probability
-$\policy(\action|\state)$. Using $\policy$ we generate an episode
+$\policy(\action|\state)$. Using $\policy$, we generate an episode
 $(\state_1, \action_1, \reward_1, \ldots ,
 \state_k,\action_k,\reward_k)$. The observed return of the episode
 is $G=\sum_{i=1}^k \reward_i$. We are interested in the expected
 return of an episode conditioned on the initial state, i.e.,
 $\Value^\policy(\state)=\E[\sum_{i=1}^k \reward_i |\state_1=\state]$.
-Note that $k$ is a random variable, which is the length of the
-episode.
+Note that $k$, the episode's length, is a random variable.
+We can use Monte-Carlo to estimate the value of state $\state$ both off-line and on-line$^{*}$.
 
-Fix a state $\state$, and assume we observed returns $G^\state_1,
-\ldots , G^\state_m$, all starting at state $\state$. The
-Monte-Carlo estimate for the state $\state$ would be
-$\widehat{V}^\policy(\state)=\frac{1}{m}\sum_{i=1}^m G_i^\state$. The main
-issue that remains is how do we generate the samples $G^\state_i$
+\paragraph{Off-line}
+Fix a state $\state$, and assume we ran $m$ episodes and
+observed returns $G^\state_1, \ldots , G^\state_m$, all starting at state $\state$. 
+The Monte-Carlo estimate for the state $\state$ would be
+\[\widehat{\Value}^\policy(\state)=\frac{1}{m}\sum_{i=1}^m G_i^\state\] 
+
+\paragraph{On-line$^{*}$}
+We can also update $\widehat{\Value}^{\policy}(\state)$ incrementally after
+each episode (not entirely online$^{*}$) using the moving average.
+At the $k$'th episode, the approximate value of state $\state$ would be
+\[\widehat{\Value}^{\policy}_{k}(\state)=\widehat{\Value}^{\policy}_{k-1}(\state)
++\frac{1}{k} \left(G^{s}_{k}(\state)-\widehat{\Value}^{\policy}_{k-1}(\state)\right)\] 
+
+\subsection{Generating the samples}
+The main issue that remains is how do we generate the samples $G^\state_i$
 for a state $\state$. Clearly, if we assume we can reset the MDP to
 any state, we are done. However, such a \emph{reset assumption} is
 not realistic in many applications. For this reason, we do not want
 to assume that we can reset the MDP to any state $\state$ and start
 an episode from it.
 
-\subsection{Generating the samples}
-
 \paragraph{Initial state only}
 We use only the initial state of the episode. Namely, given an
 episode $(\state_1, \action_1, \reward_1, \ldots ,
 \state_k,\action_k,\reward_k)$ we update only
 $\widehat{\Value}^\policy(\state_1)$. This is clearly an unbiased
-estimate, but has many drawbacks. First, most likely it is not the
-case that every state can be an initial state, what do we do with
-such states. Second, it seems very wasteful, updating only a single
+estimate, but has many drawbacks. First, most likely, it is not the
+case that every state can be an initial state. What do we do with
+such states? Second, it seems very wasteful, updating only a single
 state per episode.
 
 \paragraph{First visit}
-We update every state that appears in the episode, but update it
+We update every state that appears in the episode but update it
 only once. Given an episode $(\state_1, \action_1, \reward_1, \ldots
 , \state_k,\action_k,\reward_k)$ for each state $\state$ that appears
 in the episode, we consider the first appearance of $\state$, say
@@ -958,12 +923,10 @@ appears in the episode, we update each
 $\widehat{\Value}^\policy(\state_j)$ using
 $G^{\state_j}=\sum_{i=j}^k \reward_i$. We compute the actual
 return from every state $\state_j$ until the end and use it to update
-our approximation. Note that a state can be updated multiple times
-in  a single episode using this approach. We will later show that
-this estimator is biased, due to the dependency between different
+our approximation. Note that by using this approach, a state can be updated multiple times
+in  a single episode. We will later show that
+this estimator is biased due to the dependency between different
 updates of the same state in the same episode.
-
-
 
 \begin{figure}
   % Requires \usepackage{graphicx}
@@ -976,18 +939,15 @@ updates of the same state in the same episode.
 \paragraph{First versus Every visit:}
 %
 To better understand the difference between first visit and every
-visit we consider the following simple test case. We have a two
-state MDP, actually a Markov Chain. In the initial state $\state_1$
-we have a reward of $1$ and with probability $1-p$ we stay in that
-state and with probability $p$ move to the terminating state
+visit we consider the following simple test case. We have a two-state MDP, actually a Markov Chain. In the initial state $\state_1$ we have a reward of $1$. With probability $1-p$ we stay in that
+state and, with probability $p$, move to the terminating state
 $\state_2$. See Figure~\ref{fig:2state}.
 
-The expected value is $\Value(\state_1)=1/p$, which is the expected
-length of an episode. (Note that the return of an episode is its
-length, since all the rewards are $1$.) Assume we observe a single
+Note that since all the rewards are $1$, the return of an episode is its length,
+thus the expected value is $\Value(\state_1)=\frac{1}{p}$. Assume we observe a single
 trajectory, $(\state_1,\state_1,\state_1,\state_1,\state_2)$, and
 all the rewards are $1$. What would be a reasonable estimate for the
-expected return from $\state_1$.
+expected return from $\state_1$?
 
 {\tt First visit} takes the naive approach, considers the return from
 the first occurrence of $\state_1$, which is $4$, and uses this as
@@ -997,8 +957,8 @@ $(\state_1,\state_1,\state_1,\state_1,\state_2)$ with return $4$,
 $(\state_1,\state_1,\state_1,\state_2)$ with return $3$,
 $(\state_1,\state_1,\state_2)$ with return $2$, and
 $(\state_1,\state_2)$ with return $1$. {\tt Every visit} averages
-the four and has $G=(4+3+2+1)/4=2.5$. On the face of it, the
-estimate of $4$ seems to make more sense. We will return to this
+the four and has $G=(4+3+2+1)/4=2.5$. seemingly, the
+estimate of $4$ appears to make more sense. We will return to this
 example later.
 
 \subsection{First visit}
@@ -1007,55 +967,54 @@ example later.
 Consider the First Visit Monte-Carlo updates. Assume that for state
 $\state$ we have updates $G_1^\state, \ldots , G^\state_m$. Our
 estimate would be
-$\widehat{\Value}^\policy(\state)=(1/m)\sum_{i=1}^m G^\state_i$.
+$\widehat{\Value}^\policy(\state)=\frac{1}{m}\sum_{i=1}^m G^\state_i$.
 Since the different $G^\state_i$ are independent, we can use a
-concentration bound, to claim that the error is small. Actually we
-will need two different bounds. The first will say that if we run
-$n$ episodes, then with high probability we have at least $m$
-episodes in which state $\state$ appears. The second will say that if
-we have $m$ episodes in which state $\state$ appears, then we will
-have a good approximation of the value function at $\state$. For the first part,
+concentration bound to claim that the error is small. Actually, we
+will need two different bounds
+\begin{enumerate}
+    \item If we run $n$ episodes, then with high probability, we have at least $m$ episodes in which state $\state$ appears.
+    \item If we have $m$ episodes in which state $\state$ appears, then we will have a good approximation of the value function at $\state$.
+\end{enumerate}
+For the first part,
 we clearly will need to depend on the probability of reaching state
-$\state$ in an episode. Call a state $\state$ $\alpha$-good if
-the probability that $\policy$ visits $\state$ in an episode is at
-least $\alpha$.
-%This is summarized in t
+$\state$ in an episode. 
+\begin{definition}
+    State $\state$ if called $\alpha$-good if the probability that $\policy$ visits $\state$ in an episode is at least $\alpha$.
+\end{definition}
 The following theorem relates the number of episodes to the accuracy
 is estimating the value function.
 %summarizes the performance of every visit.
 
 \begin{theorem}
-Assume that we execute $n$ episodes using policy $\policy$ and each
-episode has length at most $H$. Then, with probability $1-\delta$,
-for any $\alpha$-good state $\state$, we have
-$|\widehat{\Value}^\policy(\state)-\Value^\policy(\state)|\leq
-\lambda$, assuming $n\geq (2m/\alpha)\log(2|\States|/\delta)$ and
-$m=(H^2/\lambda^2)\log(2|\States|/\delta)$.
+Assume that we execute $n$ episodes using policy $\policy$ and each 
+episode has a length of at most $H$. Then, if $n\geq \frac{2m}{\alpha}\log(\frac{2|\States|}{\delta})$ where $m=\frac{H^2}{\lambda^2}\log(\frac{2|\States|}{\delta})$ is the number of episodes in which state $s$ appeared in. Then, for any $\alpha$-good state $\state$, we have
+\[\Pr\left(|\widehat{\Value}^\policy(\state)-\Value^\policy(\state)|\leq
+\lambda\right) = 1-\delta\]
 \end{theorem}
 
 \begin{proof}
+Assume $n\geq \frac{2m}{\alpha}\log(\frac{2|\States|}{\delta})$.
 Let $p(\state)$ be the probability that policy $\policy$ visits
 state $\state$ in an episode. Since $\state$ is $\alpha$-good, the
 expected number of episodes in which $\state$ appears is
-$p(\state)n\geq 2m\log(2|\States|/\delta)$. Using the relative
-Chernoff--Hoffding bound (Lemma~\ref{lemma:chernoff}) we have that
+\[p(\state)n\geq \alpha n \geq 2m\log(\frac{2|\States|}{\delta})\]
+Using the relative Chernoff--Hoffding bound (Lemma~\ref{lemma:chernoff}) we have that
 the probability that we have at least $m$ samples of state $\state$
-is at least $1-\delta/(2|\States|)$.
+is at least $1-\frac{\delta}{2|\States|}$.
 
 Given that we have at least $m$ samples from state $\state$ using
 the additive Chernoff--Hoffding bound (Lemma~\ref{lemma:chernoff})
-we have that with probability at least $1-\delta/(2|\States|)$ that
-$|\widehat{\Value}^\policy(\state)-\Value^\policy(\state)|\leq
-\lambda$. (Since episodes have return in the range $[0,H]$ we need
+we have that with probability at least $1-\frac{\delta}{2|\States|}$ that
+\[|\widehat{\Value}^\policy(\state)-\Value^\policy(\state)|\leq
+\lambda\]
+Note that since the episodes have returns in the range $[0,H]$ we need
 to normalize by dividing the rewards by $H$, which creates the $H^2$
-term in $m$. A more refine bound can be derived by noticing that the
+term in $m$. A more refined bound can be derived by noticing that the 
 variance of the return of an episode is bounded by $H$ and not
-$H^2$, and using an appropriate concentration bound, say Bernstein
-inequality.)
+$H^2$, and using an appropriate concentration bound (say Bernstein inequality).
 
 Finally, the theorem follows from a union bound over the bad events.
 \end{proof}
-
 
 Next, we relate the First Visit Monte-Carlo updates to the maximum
 likelihood model for the MDP. Going back to the example of
@@ -1070,38 +1029,39 @@ the sequence is, $(1-p)^3p$. We like to solve for
 \[
 p^* = \arg\max (1-p)^3 p
 \]
-Taking the derivative we have $(1-p)^3-3(1-p)^2p=0$, which give
-$p^*=1/4$.
+Taking the derivative we have $(1-p)^3-3(1-p)^2p=0$, which gives
+$p^*=\frac{1}{4}$.
 %
-For the maximum likelihood (ML) model $M$ we have $p^*=1/4$ and
-therefore $V(\state_1;M)=4$.
-
-In general the Maximum Likelihood model value does not always
-coincide with the {\tt First Visit} Monte-Carlo estimate. However we
+For the maximum likelihood (ML) model $M$, we have $p^*=\frac{1}{4}$ and
+therefore \[\Value(\state_1;M)=\left.\frac{1}{p}\right|_{p=p^{*}}=4\]
+Generally, the Maximum Likelihood model value does not always
+coincide with the {\tt First Visit} Monte-Carlo estimate. However, we
 can make the following interesting connection.
 
-Clearly, when updating state $\state$ using {\tt First Visit}, we
-ignore all the episodes that do not include $\state$, and also for
-each of the remaining episodes, that do include $\state$, we ignore the
-prefix until the first appearance of $\state$. Let us modify the
-sample by deleting those parts (episodes in which $\state$ does not
-appear, and for each episode that $\state$ appears, start it at the
-first appearance of $\state$). Call this the {\em reduced sample}.
+
+Clearly, when updating state $\state$ with First Visit, 
+we disregard the following segments
+\begin{itemize}
+    \item Episodes that do not contain $\state$.
+    \item The prefix until the first occurrence of $\state$.
+\end{itemize}
+Let's modify the sample by removing these segments,
+we will refer to this as the {\em reduced sample}.
 %(For more details, see Theorem 5 in \cite{SinghS96})
 
-The maximum likelihood model, given a set of episodes, is simply the
-observed model. (We will not show here that the observed model is
+Given a set of episodes, the maximum likelihood model is simply the
+observed model. (We will not show here that the observed model is 
 indeed the maximum likelihood model, but it is a good exercise for the reader to show it.) 
 Namely, for each state-action
 pair $(\state,\action)$ let $n(\state,\action)$ be the number of
 times it appears, let $n(\state,\action,\state')$ be the number of
 times $\state'$ is observed following executing action $\action$ in
 state $\state$. The observed transition model is
-$\widehat(\state'|\state,\action)=n(\state,\action,\state')/n(\state,\action)$.
+\[\widehat{p}(\state'|\state,\action)=\frac{n(\state,\action,\state')}{n(\state,\action)}\]
 Assume that in the $i$-th execution of action $\action$ in state
-$\state$ we observe a reward $\reward_i$ then the observed reward is
-$\widehat{\reward}(\state,\action)=(1/n(\state,\action))\sum_{i=1}^{n(\state,\action)}
-\reward_i$.
+$\state$ we observe a reward $\reward_i$, then the observed reward is
+\[\widehat{\reward}(\state,\action)=\frac{1}{n(\state,\action)}\sum_{i=1}^{n(\state,\action)}
+\reward_i\]
 
 \begin{theorem}
 \label{thm:MC-ML}
@@ -1114,19 +1074,30 @@ $\widehat{\Value}^\policy(\state_0)$.
 
 \begin{proof}
 Assume that we have $N$ episodes in the reduced sample and the sum
-of the rewards in the $i$-th episode is $G_i$. The First Visit Monte
-Carlo estimate would be
-$\widehat{\Value}^\policy(\state_0)=(1/N)\sum_{i=1}^N G_i$.
-
-Consider the maximum likelihood model. Since we have a fixed
-deterministic policy, we can ignore actions, and define
+of the rewards in the $i$-th episode is $G_i$. The First Visit Monte-Carlo
+estimate would be
+\[\widehat{\Value}^\policy(\state_0)=\frac{1}{N}\sum_{i=1}^N G_i\]
+Consider the maximum likelihood (ML) model. Since we have a fixed
+deterministic policy, we can ignore actions and define
 $n(\state)=n(\state,\policy(\state))$ and
 $\widehat{\reward}(\state,\policy(\state))=\widehat{\reward}(\state)$.
-We set the initial state $\state_0$ to be the state we are updating.
-
-We want to compute the expected number of visits $\mu(\state)$ to
-each state $\state$ in the ML model $M$. We will show that
-$\mu(\state)=n(\state)/N$. This implies that the expected reward for
+Next we compute the expected number of visits $\mu(\state)$ to
+each state $\state$ in the ML model, $M$.
+Recall that for $v\neq \state_0$:
+\[
+\mu(v)=\sum_u \widehat{p}(v|u)\mu(u)
+\]
+Recall that \[\widehat{p}(v|u)=\frac{n(u,v)}{n(u)}\] 
+where $n(v)=\sum_u n(u,v)$ for $v\neq \state_0$ and
+$n(\state_0)=N+\sum_u n(u,\state_0)$.
+Thus, for the initial state $\state_{0}$, we have
+\[
+\mu(\state_0)=1+ \sum_u \widehat{p}(\state_0|u)\mu(u)
+\]
+One can verify the identities by
+plugging in these values.
+We set the initial state $\state_0$ to be the state we are updating,
+this implies that the expected reward for
 state $\state_0$ in $M$ would be
 \[
 \Value^\policy(\state_0;M)=\sum_v \mu(v) \widehat{r}(v)=\sum_v
@@ -1136,19 +1107,7 @@ state $\state_0$ in $M$ would be
 where the last equality follows by changing the order of summation
 (from states to episodes).
 
-It remains to show that $\mu(\state)=n(\state)/N$. We have the
-following identities. For $v\neq \state_0$:
-\[
-\mu(v)=\sum_u \widehat(v|u)\mu(u)
-\]
-For the initial state we have
-\[
-\mu(\state_0)=1+ \sum_u \widehat(\state_0|u)\mu(u)
-\]
-Note that $n(v)=\sum_u n(u,v)$ for $v\neq \state_0$ and
-$n(\state_0)=N+\sum_u n(u,\state_0)$, and recall that
-$\widehat(v|u)=n(u,v)/n(u)$. One can verify the identities by
-plugging in these values.
+
 \end{proof}
 
 \subsection{Every visit}
@@ -1245,9 +1204,7 @@ estimate becomes negligible. (For more details, see Theorem 7 in
 \cite{SinghS96}.)
 
 \subsubsection*{Every visit and squared loss}
-
-Recall that the squared error is summing over all the observation
-the squared error. Assume we have $\state_{i,j}$ as the $j$-th state
+Assume we have $\state_{i,j}$ as the $j$-th state
 in the $i$-th episode, and it has return $G_{i,j}$, i.e., the sum of
 the rewards from in episode $i$ from step $j$ until the end of the
 episode. Let $\widehat{V}(\state_{i,j})$ be the estimate of {\tt
@@ -1268,10 +1225,10 @@ Our goal is to select a value $\widehat{V}^{se}(\state)$ for every
 state, which would minimize the SE. The minimization is achieved by
 minimizing the square error of each $\state$, and setting the values
 \[
-\widehat{V}^{se}(\state)=\frac{\sum_{i,j:\state=\state_{i,j}}
-G_{i,j}}{|{(i,j):\state=\state_{i,j}}|},
+\widehat{V}^{se}(\state)=\frac{1}{|{(i,j):\state=\state_{i,j}}|}\sum_{i,j:\state=\state_{i,j}}
+G_{i,j}
 \]
-which is exactly the {\tt Every Visit} Monte-carlo estimate for
+which is exactly the {\tt Every Visit} Monte-Carlo estimate for
 state $\state$.
 
 \subsection{Monte-Carlo control}
@@ -1285,88 +1242,78 @@ either {\tt Every Visit} or {\tt First Visit}.) The problem is that
 we need the policy to be ``exploring'', otherwise we will not have
 enough information about the actions the policy does not perform.
 
-For the control, we can maintain an estimates of the $Q^\policy$
+For the control, we can maintain an estimate of the $Q^\policy$
 function, where the current policy is $\policy$. After we have a
-good estimate of $Q^\policy$ we can switch to a policy which is
-greedy with respect to $Q^\policy$. Namely, each time we reach a
-state $\state$, we select a ``near-greedy'' action, for example, use
+good estimate of $Q^\policy$ we can switch to a greedy policy with respect to $Q^\policy$. 
+Namely, each time we reach a state $\state$, 
+we select a ``near-greedy'' action. For example, use
 $\varepsilon$-greedy.
 
 We will show that updating from one $\varepsilon$-greedy policy to
-another $\varepsilon$-greedy policy, using policy improvement, does
-increase the value of the policy. This will guarantee that we will not cycle, and eventually converge.
+another $\varepsilon$-greedy policy, using policy improvement, increases the policy's value. 
+This will guarantee that we will not cycle and eventually converge.
 
-Recall that an $\varepsilon$-greedy policy, can be define in the
+Recall that an $\varepsilon$-greedy policy can be defined in the
 following way. For every state $\state$ there is an action
 $\bar{\action}_\state$, which is the preferred action. The policy
-does the following: (1) with probability $1-\varepsilon$ selects action $\bar{\action}_\state$. (2) with probability $\varepsilon$, selects
-each action $\action \in \Actions$, with probability
-$\varepsilon/|\Actions|$.
+does the following:
+\begin{itemize}
+    \item with probability $1-\varepsilon$ selects action $\bar{\action}_\state$.
+    \item with probability $\varepsilon$, selects each action $\action \in \Actions$, with probability 
+ $\frac{\varepsilon}{|\Actions|}$.
+\end{itemize}
 
-Assume we have an $\varepsilon$-greedy policy $\policy_1$. Compute
+Assume we use an $\varepsilon$-greedy policy $\policy_1$ to compute
 $Q^{\policy_1}$ and define $\policy_2$ to be $\varepsilon$-greedy
 with respect to $Q^{\policy_1}$.
 
 \begin{theorem}
 For any $\varepsilon$-greedy policy $\policy_1$, the
 $\varepsilon$-greedy improvement policy $\policy_2$ has
-$\Value^{\policy_2}\geq \Value^{\policy_1}$.
+\[\Value^{\policy_2}\geq \Value^{\policy_1}\]
 \end{theorem}
 
 \begin{proof}
 Let $\bar{\action}_\state=\arg\max_\action
-Q^{\policy_1}(\state,\action)$ be the greedy action w.r.t.
-$Q^{\policy_1}$. We now lower bound the value of $Q^{\policy_2}$.
+Q^{\policy_1}(\state,\action)$ be the greedy action w.r.t. $Q^{\policy_1}$.
+
 \begin{align*}
-E_{\action\sim\policy_2(\cdot|\state)}[Q^{\policy_1}(\state,\action)] &= \sum_{\action \in \Actions} \policy_2(\action|\state) Q^{\policy_1}(\state,\action)\\
+T^{\policy_2}(\Value^{\policy_1})(\state) &= E_{\action\sim\policy_2(\cdot|\state)}[Q^{\policy_1}(\state,\action)] = \sum_{\action \in \Actions} \policy_2(\action|\state) Q^{\policy_1}(\state,\action)\\
 &= \frac{\varepsilon}{|\Actions|}\sum_{\action \in \Actions}
 Q^{\policy_1}(\state,\action)+(1-\varepsilon)Q^{\policy_1}(\state,\bar{\action}_\state)\\
 &\geq \frac{\varepsilon}{|\Actions|}\sum_{\action \in \Actions}
 Q^{\policy_1}(\state,\action)+(1-\varepsilon)\sum_{\action \in
 \Actions}
-\frac{\policy_1(\action|\state)-\varepsilon/|\Actions|}{1-\varepsilon}Q^{\policy_1}(\state,\action)\\
-&=\sum_{\action \in \Actions} \policy_1(\action|\state)Q^{\policy_1}(\state,\action)=\Value^{\policy_1}(\state)\\
+\frac{\policy_1(\action|\state)-\frac{\varepsilon}{|\Actions|}}{1-\varepsilon}Q^{\policy_1}(\state,\action)\\
+&=\sum_{\action \in \Actions} \policy_1(\action|\state)Q^{\policy_1}(\state,\action)=\Value^{\policy_1}(\state)
 \end{align*}
-The inequality follows, since we are essentially concentrating of
+where the inequality follows since we are essentially concentrating on
 the action that $\policy_1(\cdot|\state)$ selects with probability
 $1-\varepsilon$, and clearly $\bar{\action}_\state$, by definition,
-guarantees a higher value.
-
-It remains to show, similar to the basic policy improvement, that we have
-$$
-\Value^{\policy_2} (\state)\geq
-\max_\action Q^{\policy_1}(\state,\action)\geq
-E_{\action\sim\policy_2(\cdot|\state)}[Q^{\policy_1}(\state,\action)]
-\geq \Value^{\policy_1}(\state).
-$$
-
-Basically, we need to re-write the Bellman optimality operator to
-apply to $\varepsilon$-greedy policies as follows:
+guarantees a higher value. Thus we have
+\[T^{\policy_2}(\Value^{\policy_1}) \geq \Value^{\policy_1}\]
+Next, we will re-write the Bellman optimality operator to
+apply to $\varepsilon$-greedy policies
+\begin{align*}
+(T_{\varepsilon}^{*}V)(\state) & =\max_{\action}\{ \left(1-\varepsilon\right)\left[\reward(\state,\action)+\discount E_{\state'\sim p(\cdot|\state,\action)}\left[\Value(\state')\right]\right]\\
+ & +\varepsilon(\sum_{\action''}\frac{\varepsilon}{|\Actions|}(\reward(\state,\action'')+\discount E_{\state''\sim p(\cdot|s,\action'')}\left[\Value(\state'')\right]))\} 
+\end{align*}
+Since $T^*_\varepsilon(V)$ is monotone in $V$, for $\Value^{\policy_1}$
 \[
-(T^*_\varepsilon V)(\state) = \max_\action
-[(1-\varepsilon)(\reward(\state,\action)+\discount E_{\state'\sim
-p(\cdot |\state,\action)}[V(\state')])+ \varepsilon
-(\sum_{\action''}\frac{\varepsilon}{|\Actions|}(\reward(\state,\action'')
-+\discount E_{\state''\sim p(\cdot |s,\action'')}[V(\state'')]))]
+T^*_\varepsilon(\Value^{\policy_1}) \geq T^{\policy_1}(\Value^{\policy_1})
 \]
-Clearly $T^*_\varepsilon(V)$ is monotone in $V$, and for
-$\Value^{\policy_1}$ we have
-$T^*_\varepsilon(\Value^{\policy_1})=T^{\policy_2}(\Value^{\policy_1})$.
-Since $ T^{\policy_2}(\Value^{\policy_1}) =
-E_{\action\sim\policy_2(\cdot|\state)}[Q^{\policy_1}(\state,\action)]$,
-this implies that,
+Noting that $T^*_\varepsilon(\Value^{\policy_1})=T^{\policy_2}(\Value^{\policy_1})$, 
+and $T^{\policy_1}(\Value^{\policy_1})=\Value^{\policy_1}$ we have
 \[
-T^{\policy_2}(\Value^{\policy_1})=T^*_\varepsilon(\Value^\policy_1)
-\geq T^{\policy_1}(\Value^{\policy_1}) = \Value^{\policy_1}
+T^{\policy_2}(\Value^{\policy_1}) \geq \Value^{\policy_1}
 \]
-We can continue to apply $T^{\policy_2}$ and due to the monotonicity
+Now, due to it's monotonicity, we can continue to apply $T^{\policy_2}$ and 
 have
 \[
-(T^{\policy_2})^k (\Value^{\policy_1}) \geq (T^{\policy_2})^{k-1}
-(\Value^{\policy_1}) \geq \cdots \geq \Value^{\policy_1}
+\Value^{\policy_2} \geq \lim_{k\rightarrow \infty}(T^{\policy_2})^k
+(\Value^{\policy_1}) \geq \cdots \geq (T^{\policy_2}) (\Value^{\policy_1}) \geq \Value^{\policy_1}
 \]
-Since $\lim_{k\rightarrow \infty}(T^{\policy_2})^k
-(\Value^{\policy_1}) = \Value^{\policy_2}$ we are done.
+where the first inequality follows from the convergence of value iteration.
 \end{proof}
 
 \subsection{Monte-Carlo: pros and cons}
