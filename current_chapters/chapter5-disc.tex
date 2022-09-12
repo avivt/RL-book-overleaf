@@ -96,8 +96,8 @@ since both the model and the policy are stationary. Now,
 \begin{align*}
 \Value_{}^\policy (\state) &= \reward(\state,\policy (\state)) + {\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_0} = \state)\\
 &= \reward(\state,\policy (\state)) + {\E^\policy }\left[\left.{\E^\policy }\left(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_0} = \state, \state_1=\state'\right)\right|{\state_0} = s\right]\\
- &= \reward(\state,\policy (\state)) + \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_1} = \state')\\
- &= \reward(\state,\policy (\state)) + \discount \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^{t - 1}}\reward({\state_\ttime},{\action_\ttime})} |{\state_1} = \state')\\
+ &= \reward(\state,\policy (\state)) + \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\E^\policy }\left(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_1} = \state'\right)\\
+ &= \reward(\state,\policy (\state)) + \discount \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\E^\policy }\left(\sum\limits_{\ttime = 1}^\infty  {{\discount ^{t - 1}}\reward({\state_\ttime},{\action_\ttime})} |{\state_1} = \state'\right)\\
  &= \reward(\state,\policy (\state)) + \discount \sum\limits_{\state' \in \States}^{} {\transitionprob(\state'|\state,\,} \policy (\state)){\Value^\policy }(\state').
 \end{align*}
 The first equality is by the definition of the value function. The
@@ -118,7 +118,27 @@ ${\reward^\policy }(\state) = \reward(\state,\policy (\state))$, and the
 transition matrix ${\transitionkernel^\policy }$ with components ${\transitionkernel^\policy
 }(\state'|\state) = \transitionprob(\state'|\state,\policy (\state))$. Finally,
 let ${\Value^\policy }$ denote a column vector with components
-${\Value^\policy }(\state)$. Then \eqref{eq:FP_Bellman} is
+${\Value^\policy }(\state)$. 
+\[
+\begin{bmatrix}\Value^{\policy}\left(\state_{0}\right)\\
+\Value^{\policy}\left(\state_{1}\right)\\
+\vdots\\
+\Value^{\policy}\left(\state_{N}\right)
+\end{bmatrix}=\begin{bmatrix}r^{\policy}\left(\state_{0}\right)\\
+r^{\policy}\left(\state_{1}\right)\\
+\vdots\\
+r^{\policy}\left(\state_{N}\right)
+\end{bmatrix}+\gamma\begin{bmatrix}P^{\policy}\left(\state_{0}|\state_{0}\right) & P^{\policy}\left(\state_{1}|\state_{0}\right) & \cdots & P^{\policy}\left(\state_{N}|\state_{0}\right)\\
+P^{\policy}\left(\state_{0}|\state_{1}\right) & P^{\policy}\left(\state_{1}|\state_{1}\right) & \cdots & P^{\policy}\left(\state_{N}|\state_{1}\right)\\
+\vdots & \vdots & \ddots & \vdots\\
+P^{\policy}\left(\state_{0}|\state_{N}\right) & P^{\policy}\left(\state_{1}|\state_{N}\right) & \cdots & P^{\policy}\left(\state_{N}|\state_{N}\right)
+\end{bmatrix}\begin{bmatrix}\Value^{\policy}\left(\state_{0}\right)\\
+\Value^{\policy}\left(\state_{1}\right)\\
+\vdots\\
+\Value^{\policy}\left(\state_{N}\right)
+\end{bmatrix}
+\]
+Then \eqref{eq:FP_Bellman} is
 equivalent to the linear equation set
 \begin{equation}\label{eq:PF_Bellman_vector}
 {\Value^\policy } = {\reward^\policy } + \discount {\transitionkernel^\policy
@@ -160,7 +180,7 @@ computing $\Value_{}^\policy$.
 
 \begin{algorithm_}\textbf{Fixed-policy value iteration}
 \begin{enumerate}
-  \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
+  \item Let ${\Value_0} = {\left[{\Value_0}(\state)\right]_{\state \in \States}}$ be arbitrary.
   \item For $n = 0,1,2, \ldots $, set
 \[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\forall \state \in \States\]
 \tab{or, equivalently,}
@@ -177,11 +197,12 @@ We have ${\Value_n} \to \Value_{}^\policy$ component-wise, that is,
 \begin{proof}
 Note first that,
 \begin{align*}
-{\Value_1}{\kern 1pt} (\state) &= \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_0^{}{\kern 1pt} (\state')} \;\\
- &= {\E^\policy }(\reward({\state_0},{\action_0}) + \discount {\Value_0}({\state_1})|{\state_0} = \state).
+\Value_{1}\left(s\right) & =\E^{\policy}\left(r\left(\state_{0},a_{0}\right)+\discount \Value_{0}\left(\state_{1}\right)|\state_{0}=s\right)\\
+\Value_{2}\left(s\right) & =\E^{\policy}\left(r\left(\state_{0},a_{0}\right)+\discount r\left(\state_{1},a_{1}\right)+\discount^{2}\Value_{0}\left(\state_{2}\right)|\state_{0}=s\right)\\
+ & \vdots\\
+\Value_{n}\left(s\right) & =\E^{\policy}\left(\sum_{\ttime=0}^{n-1}\discount^{t}r\left(\state_{t},a_{t}\right)+\discount^{n}\Value_{0}\left(\state_{n}\right)|\state_{0}=s\right)
 \end{align*}
-Continuing similarly, we obtain that
-\[{\Value_n}{\kern 1pt} (\state) = {\E^\policy }(\sum\limits_{\ttime = 0}^{n - 1} {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})}  + {\discount ^n}{\Value_0}({s_n})|{\state_0} = \state).\]
+where $\state_{i+1}$ is the next state from performing action $\policy\left(\state_{i}\right)$.
 Note that ${\Value_n}{\kern 1pt} (\state)$ is the $n$-stage
 discounted return, with terminal reward ${\reward_n}({\state_n}) =
 {\Value_0}({\state_n})$. Comparing with the definition of
@@ -200,7 +221,8 @@ which converges to 0 since $\discount  < 1$.
   \item Using vector notation, it may be seen that
           \[{\Value_n}{\kern 1pt}  = {\reward^\policy } + \discount{\transitionkernel^\policy }{\reward^\policy } +  \ldots  + {(\discount{\transitionkernel^\policy })^{n - 1}}{\reward^\policy } + {(\discount{\transitionkernel^\policy })^n}{\Value_0} = \sum\limits_{\ttime = 0}^{n - 1} {{{(\discount{\transitionkernel^\policy })}^\ttime}{\reward^\policy }}  + {(\discount{\transitionkernel^\policy })^n}{\Value_0}.\]
 Similarly,    ${\Value^\policy } = \sum\limits_{\ttime = 0}^\infty
-{{{(\discount{\transitionkernel^\policy })}^\ttime}{\reward^\policy }}$.
+{{{(\discount{\transitionkernel^\policy })}^\ttime}{\reward^\policy }} = {(I - \discount {\transitionkernel^\policy })^{ -
+1}}{\reward^\policy }$.
 \end{itemize}
 
 \paragraph{In summary:}
@@ -222,9 +244,8 @@ on the context, we consider ${\Value^*}$ either as a function
 $\Value^* : \States \to \mathbb R$, or as a column vector
 ${\Value^*} = {[\Value(\state)]_{\state \in \States}}$.
 
-The following optimality equation provides an explicit
-characterization of the value function, and shows that an optimal
-stationary policy can easily be computed if the value function is
+The following optimality equation explicitly characterizes the value function
+and shows that an optimal stationary policy can easily be computed if the value function is
 known. (See the proof in Section~\ref{sec:Bellman-Opt}.)
 
 \begin{theorem}[\textbf{Bellman's Optimality Equation}]\label{thm:inf_Bellman} The following statements hold:
@@ -252,7 +273,7 @@ iteration (Section~\ref{sec:PI}).
 
 \begin{algorithm_}\textbf{Value Iteration (VI)}\label{alg:VI}
 \begin{enumerate}
-  \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
+  \item Let ${\Value_0} = {\Value^*} = {[\Value(\state)]_{\state \in \States}}$ be arbitrary.
   \item For $n = 0,1,2, \ldots $, set
 \[{\Value_{n + 1}}(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value_n}(\state')} } \right\},    \quad \forall \state \in \States\]
 \end{enumerate}
@@ -269,16 +290,16 @@ $O({\discount ^n})$.
 Using our previous results on value iteration for the finite-horizon
 problem, namely the proof of Proposition~\ref{prop:FP_VI}, it
 follows that
-\[{\Value_n}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{n - 1} {{\discount ^\ttime}{R_t} + } {\discount ^n}{\Value_0}({\state_n})).\]
+\[{\Value_n}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^{n - 1} {{\discount ^\ttime}{R_t} + } {\discount ^n}{\Value_0}({\state_n})\right).\]
 Comparing to the optimal value function
-\[{\Value^*}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}{R_t}} ),\]
-it may be seen that that
-                                \[|{\Value_n}(\state) - \Value_{}^*(\state)| \le {\discount ^n}(\frac{{\Rmax}}{{1 - \discount }} + ||{\Value_0}|{|_\infty }).\]
+\[{\Value^*}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}{R_t}} \right),\]
+it may be seen that
+\[|{\Value_n}(\state) - \Value_{}^*(\state)| \le {\discount ^n}\left(\frac{{\Rmax}}{{1 - \discount }} + ||{\Value_0}|{|_\infty }\right).\]
 As $\discount  < 1$, this implies that ${\Value_n}$ converges to
 $\Value_\discount ^*$  exponentially fast.
 \end{proof}
 
-The value iteration algorithm iterates over the value functions, with asymptotic convergence. The policy iteration algorithm iterates over stationary policies, with each new policy better than the previous one. This algorithm converges to the optimal policy in a finite number of steps.
+The value iteration algorithm iterates over the value functions with asymptotic convergence. The policy iteration algorithm iterates over stationary policies, with each new policy better than the previous one. This algorithm converges to the optimal policy in a finite number of steps.
 
 \begin{algorithm_}\textbf{Policy Iteration (PI)}\label{alg:PI}
 \begin{enumerate}
@@ -321,7 +342,7 @@ Programming formulation of the problem.
 
 The basic proof methods of the DP results mentioned above rely on
 the concept of a \emph{contraction operator}. We provide here the
-relevant mathematical background, and illustrate the contraction
+relevant mathematical background and illustrate the contraction
 properties of some basic Dynamic Programming operators.
 
 \subsection{The contraction property}
@@ -353,8 +374,8 @@ also denote ${T^n}(v) = T({T^{n - 1}}(v))$ for  $n \ge 2$. For
 example, ${T^2}(v) = T(T(v))$.
 
 \begin{definition} The operator $T$ is called a contraction operator if there exists $\beta  \in (0,1)$ (the contraction coefficient) such that
-                            \[||T({v_1}) - T({v_2})|| \le \beta ||{v_1} - {v_2}||,\]
-                            for all $v_1,v_2 \in \mathbb R^d$
+\[||T({v_1}) - T({v_2})|| \le \beta ||{v_1} - {v_2}||,\]
+for all $v_1,v_2 \in \mathbb R^d$
 \end{definition}
 
 \subsection{The Banach Fixed Point Theorem}
@@ -365,9 +386,9 @@ The following celebrated result applies to contraction operators. While we quote
  Let $T:\mathbb R^d \to \mathbb R^d$  be a
 contraction operator. Then
 \begin{enumerate}
-  \item The equation $T(v) = v$ has a unique solution  $\Value^*\in \mathbb R^d$.
-  \item For any $v_0 \in \mathbb R^d$,  ${\lim _{n \to \infty }}{T^n}({v_0}) = {\Value^*}$.
-          In fact,  $||{T^n}({v_0}) - {\Value^*}|| \le O({\beta ^n})$, where $\beta $ is the contraction coefficient.
+  \item The equation $T(v) = v$ has a unique solution  $v^*\in \mathbb R^d$.
+  \item For any $v_0 \in \mathbb R^d$,  ${\lim _{n \to \infty }}{T^n}({v_0}) = {v^*}$.
+          In fact,  $||{T^n}({v_0}) - {v^*}|| \le O({\beta ^n})$, where $\beta $ is the contraction coefficient.
 \end{enumerate}
 \end{theorem}
 
@@ -392,8 +413,8 @@ times)\\& = & \frac{\beta^n(1-\beta^m)}{1-\beta}\|v_1-v_0\|
 Since the coefficient decreases as $n$ increases, for any $ \epsilon
 > 0$ there exists   $N
 > 0$  such that for all $ n,m \geq N$, we have $\|v_{n+m}-v_n\| <
-\epsilon$. This implies that the sequence is a Cauchy sequence, and
-hence the sequence $v_n$ has a limit. Let us call this limit
+\epsilon$. This implies that the sequence is a Cauchy sequence;
+hence, the sequence $v_n$ has a limit. Let us call this limit
 ${v^*}$. Next we show that ${v^*}$ is a fixed point of the operator
 $T$.
 
@@ -446,22 +467,22 @@ We next define the basic Dynamic Programming operators, and show that they are i
 
 For a fixed stationary policy $\policy :\States \to \Actions$,
 define the \textbf{Fixed Policy DP Operator} $T^\policy:\reals^{|\States|}
-\to \reals^{|\States|}$ as follows: For any $V=(V(\state))\in
+\to \reals^{|\States|}$ as follows: For any $\Value=\left[\Value(\state)\right]\in
 \reals^{|\States|}$,
-\[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States\]
+\[(T_{}^\policy (\Value))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value(\state')} ,\quad\forall \state \in \States\]
 In our column-vector notation, this is equivalent to  $T^\policy
-(V) = {\reward^\policy } + \discount {\transitionkernel^\policy }V$.
+(\Value) = {\reward^\policy } + \discount {\transitionkernel^\policy }\Value$.
 
 Similarly, define the discounted-return \textbf{Dynamic Programming
 Operator}  $T^*:\mathbb R^{|\States|} \to \mathbb R^{|\States|}$ as
-follows: For any $V=(V(\state))\in R^{|\States|}$,
-\[(T_{}^*(V))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)V(\state')} } \right\},\quad \forall \state \in \States\]
+follows: For any $\Value=\left[\Value(\state)\right]\in R^{|\States|}$,
+\[(T_{}^*(\Value))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},\quad \forall \state \in \States\]
 
 We note that $T_{}^\policy $ is a linear operator, while $T_{}^*$ is
 generally non-linear due to the maximum operation.
 
-Let $||V|{|_\infty } \buildrel \Delta \over = {\max _{\state \in
-\States}}|V(\state)|$ denote the max-norm of $V$.  Recall that $0 <
+Let $||\Value|{|_\infty } \buildrel \Delta \over = {\max _{\state \in
+\States}}|\Value(\state)|$ denote the max-norm of $\Value$.  Recall that $0 <
 \discount < 1$.
 
 \begin{theorem}[\textbf{Contraction property}]
@@ -479,56 +500,62 @@ The following statements hold:
 \begin{enumerate}
   \item Fix ${\Value_1},{\Value_2}$. For every state $\state$,
 \begin{align*}
-\left| (T^\policy (\Value_1))(\state) - (T^\policy (\Value_2))(\state) \right| &= \left| {\discount \sum_{\state'\in \States} {\transitionprob(\state'|\state,\policy(\state))[\Value_1(\state') - \Value_2(\state')]} } \right|\\
- &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy(\state))\left| \Value_1(\state') - \Value_2(\state') \right| \\
- &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\policy (\state)) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
+\left|(T^{\policy}(\Value_{1}))(\state)-(T^{\policy}(\Value_{2}))(\state)\right| & =\left|{\discount\sum_{\state'\in\States}{\transitionprob(\state'|\state,\policy(\state))[\Value_{1}(\state')-\Value_{2}(\state')]}}\right|\\
+ & \le\discount\sum_{\state'\in\States}\transitionprob(\state'|\state,\policy(\state))\left|\Value_{1}(\state')-\Value_{2}(\state')\right|\\
+ & \le\discount\sum_{\state'\in\States}\transitionprob(\state'|\state,\policy(\state))\max_{\state''}\left\{ \left|\Value_{1}(\state'')-\Value_{2}(\state'')\right|\right\} \\
+ & =\discount\sum_{\state'\in\States}\transitionprob(\state'|\state,\policy(\state))\left\Vert \Value_{1}-\Value_{2}\right\Vert _{\infty}\\
+ & =\discount\left\Vert \Value_{1}-\Value_{2}\right\Vert _{\infty}\sum_{\state'\in\States}\transitionprob(\state'|\state,\policy(\state))=\discount\left\Vert {{\Value_{1}}-{\Value_{2}}}\right\Vert _{\infty}
 \end{align*}
-Since this holds for every $\state \in \States$ the required
-inequality follows.
+Since this holds for every $\state \in \States$, it follows that
+\[\left\Vert (T^{\policy}(\Value_{1}))-(T^{\policy}(\Value_{2}))\right\Vert _{\infty} \leq \discount\left\Vert {{\Value_{1}}-{\Value_{2}}}\right\Vert _{\infty}\]
   \item
 The proof here is more intricate due to the maximum operation. As
-before, we need to show that  $|T_{}^*({\Value_1})(\state) -
+before, we will first to show that  $|T_{}^*({\Value_1})(\state) -
 T_{}^*({\Value_2})(\state)|\;\, \le \;\,\discount {\left\|
-{{\Value_1} - {\Value_2}} \right\|_\infty }$. Fixing the state
-$\state$, we consider separately the positive and negative parts of
-the absolute value:
-
+{{\Value_1} - {\Value_2}} \right\|_\infty }$. 
+Let $\bar \action_1$ and $\bar \action_1$ denote actions that attains the maximum in
+$T_{}^*({\Value_1})(\state)$ and $T_{}^*({\Value_2})(\state)$ respectfully, namely
+\begin{align*}
+\bar{\action}_{1} & \in\mathop{\arg\max}\limits _{\action\in\Actions}\left\{ {\reward(\state,\action)+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\action){\Value_{1}}(\state')}}\right\} \\
+\bar{\action}_{2} & \in\mathop{\arg\max}\limits _{\action\in\Actions}\left\{ {\reward(\state,\action)+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\action){\Value_{2}}(\state')}}\right\} 
+\end{align*}
+which implies that
+\begin{align*}
+T^{*}({\Value_{1}})(\state) & \geq\reward(\state,\bar{\action}_{2})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{2}){\Value_{1}}(\state')}\\
+T^{*}({\Value_{2}})(\state) & \geq\reward(\state,\bar{\action}_{1})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1}){\Value_{2}}(\state')}
+\end{align*}
+Fixing the state $\state$, we separately consider the positive and negative parts of the absolute value:\\
 (a) Showing $T_{}^*({\Value_1})(\state) - T_{}^*({\Value_2})(\state)
 \le \discount {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$:
-Let $\bar \action$ denote an action that attains the maximum in
-$T_{}^*({\Value_1})(\state)$, namely
-\[
-\bar \action \in \mathop {\arg \max }\limits_{\action \in \Actions}
-\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state'
-\in \States} {\transitionprob(\state'|\state,\action){\Value_1}(\state')} }
-\right\}.
-\]
- Then
-\[T_{}^*({\Value_1})(\state) = \reward(\state,\bar \action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\bar \action){\Value_1}(\state')} \]
-\[T_{}^*({\Value_2})(\state) \ge \reward(\state,\bar \action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\bar \action)\Value_2(\state')} \]
-Since the same action $\bar \action$ appears in both expressions, we
-can now continue to show the inequality (a) similarly to 1. Namely,
 \begin{align*}
- (T^* (\Value_1))(\state) - (T^* (\Value_2))(\state)  &= \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\bar \action)\left( \Value_1(\state') - \Value_2(\state') \right) \\
- &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\bar \action) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
+T^{*}({\Value_{1}})(\state)-T^{*}({\Value_{2}})(\state) & =\reward(\state,\bar{\action}_{1})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1}){\Value_{1}}(\state')}\\
+ & -\reward(\state,\bar{\action}_{2})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{2}){\Value_{2}}(\state')}\\
+ & \leq\reward(\state,\bar{\action}_{1})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1}){\Value_{1}}(\state')}\\
+ & -\reward(\state,\bar{\action}_{1})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1}){\Value_{2}}(\state')}\\
+ & =\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1})\left[{\Value_{1}}(\state')-{\Value_{2}}(\state')\right]}\\
+ & \leq\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1})\max_{\state''}\left[{\Value_{1}}(\state'')-{\Value_{2}}(\state'')\right]}\\
+ & =\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1})\left\Vert {\Value_{1}}-{\Value_{2}}\right\Vert _{\infty}}\\
+ & =\discount\left\Vert {\Value_{1}}-{\Value_{2}}\right\Vert _{\infty}\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1})}\\
+ & =\discount\left\Vert {\Value_{1}}-{\Value_{2}}\right\Vert _{\infty}
 \end{align*}
-
+where the first inequality is due to replacing $\bar{\action}_{2}$ with $\bar{\action}_{1}$.\\
 (b) Showing $T_{}^*({\Value_2})(\state) - T_{}^*({\Value_1})(\state)
-\le \discount {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$.
-By (a) we have
-$$
-T_{}^*({\Value_2})(\state) - T_{}^*({\Value_1})(\state) \le
-\discount {\left\| {{\Value_2} - {\Value_1}} \right\|_\infty }=
-\discount {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }.
-$$
-%Follows symmetrically to (a).
-
+\le \discount {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$:
+\begin{align*}
+T^{*}({\Value_{2}})(\state)-T^{*}({\Value_{1}})(\state) & =\reward(\state,\bar{\action}_{2})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{2}){\Value_{2}}(\state')}\\
+ & -\reward(\state,\bar{\action}_{1})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{1}){\Value_{1}}(\state')}\\
+ & \leq\reward(\state,\bar{\action}_{2})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{2}){\Value_{2}}(\state')}\\
+ & -\reward(\state,\bar{\action}_{2})+\discount\sum\nolimits _{\state'\in\States}{\transitionprob(\state'|\state,\bar{\action}_{2}){\Value_{1}}(\state')}\\
+ & \dots\\
+ & =\discount\left\Vert {\Value_{2}}-{\Value_{1}}\right\Vert _{\infty}=\discount\left\Vert {\Value_{1}}-{\Value_{2}}\right\Vert _{\infty}
+\end{align*}
+where the first inequality is due to replacing $\bar{\action}_{1}$ with $\bar{\action}_{2}$.\\
 The inequalities (a) and (b) together imply that
 $|T_{}^*({\Value_1})(\state) - T_{}^*({\Value_2})(\state)|\;\, \le
 \;\,\discount {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$.
-Since this holds for any state $\state$, it follows that
-$||T_{}^*({\Value_1}) - T_{}^*({\Value_2})|{|_\infty } \le \discount
-{\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$.
+And since this holds for any state $\state$, it follows that
+\[||T_{}^*({\Value_1}) - T_{}^*({\Value_2})|{|_\infty } \le \discount
+{\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }\]
 \end{enumerate}
 \end{proof}
 
@@ -562,7 +589,7 @@ property of Theorem \ref{thm:_VI}.
 %, which is proved in the next section.
 
 \begin{proof}[\textbf{Proof of Theorem \ref{thm:inf_Bellman}:}]
-We prove each part.
+We prove each part separately
 %%[[YM Need to add]]
 %For $T^\policy$, fix any $\Value_1,\Value_2 \in {\mathbb R}^d$. Consider the
 %following:
@@ -594,21 +621,23 @@ We prove each part.
 %\end{align*}
 \begin{enumerate}
 \item
-As $T_{}^*$ is a contraction operator, existence and uniqueness of
-the solution to $V = T_{}^*(V)$ follows from the Banach fixed point
-theorem (Theorem \ref{chapter-discount:thm:Banach}). Let $\widehat{V}$
-denote that solution. It also follows by that theorem  (Theorem
-\ref{chapter-discount:thm:Banach}) that ${(T_{}^*)^n}({\Value_0})
-\to \widehat{V}$ for any ${\Value_0}$. By Theorem \ref{thm:_VI} we have
-that ${(T_{}^*)^n}({\Value_0}) \to \Value_{}^*$, hence $\widehat{V} =
-\Value_{}^*$,  so that $\Value_{}^*$ is indeed the unique solution
-of  $V = T_{}^*(V)$.
-%
-  \item By definition of  ${\policy ^*}$ we have
-\[T_{}^{\policy^*}(\Value_{}^*) = T_{}^*(\Value_{}^*) = \Value_{}^*,\]
-where the last equality follows from part 1. Thus the optimal value
-function satisfied the equation $T_{}^{\policy^*}(\Value_{}^*) =
-\Value_{}^*$. But we already know (from Prop. \ref{prop:FP_VI}) that
+We note that the VI algorithm can be written in terms of $T^*$ as follows
+\[\Value_{n+1} = T^{*}(\Value_{n}) = (T^{*})^{n}(\Value_{0})\]
+Taking the limit of both sides, we have
+\[\lim_{n\to\infty}\Value_{n+1} = \lim_{n\to\infty}(T^{*})^{n}(\Value_{0})\]
+On the LHS, from \ref{thm:_VI} we have $\lim_{n\to\infty}\Value_{n+1} = \Value^{*}$, implying that
+\[\lim_{n\to\infty}(T^{*})^{n}(\Value_{0})= \Value^{*}\]
+And since $T^*$ is a contraction operator (Theorem \ref{thm:DP_op}),
+we can use Banach fixed point theorem (\ref{chapter-discount:thm:Banach}) 
+to conclude that $v^{*} = \Value^{*}$ is a unique solution of $T^*(v) = v$.
+\item 
+By definition of  ${\policy^*}$, for any $\Value$ 
+we have $T^{\policy^*}(\Value) = T^*(\Value)$.
+Choosing $\Value=\Value^{*}$
+\[T^{\policy^*}(\Value^{*}) = T^*(\Value^{*})\]
+from part 1 we have that $T^*(\Value^*) = \Value^*$, thus
+\[T^{\policy^*}(\Value^*) = \Value^*\]
+From Prop. \ref{prop:FP_VI}, we know that
 $\Value_{}^{\policy^*}$ is the unique solution of that equation,
 hence $\Value_{}^{\policy^*} = \Value_{}^*$. This implies that
 ${\policy ^*}$ achieves the optimal value (for any initial state),
@@ -649,49 +678,53 @@ have a criteria that would depend only on the observed quantities.
 %selected policy might in fact be the optimal policy, but we have no
 %way of knowing that in advance.
 \begin{lemma}
- If $\|\Value_{n+1}-\Value_{n}\|_\infty < \varepsilon \cdot \frac{1-\discount}{2\discount}$ then $\|\Value_{n+1} -
-\Value^{*}\|_\infty < \frac{\varepsilon}{2}$ and
-$\|\Value^{\policy_{n+1}}-\Value^*\|\leq \varepsilon$, where
-$\policy_{n+1}$ is the greedy policy w.r.t. $\Value_{n+1}$.
+Let $\policy_{n+1}$ be the greedy policy w.r.t. $\Value_{n+1}$. If $\|\Value_{n+1}-\Value_{n}\|_\infty < \varepsilon \cdot \frac{1-\discount}{2\discount}$ then
+\begin{enumerate}
+    \item $\|\Value_{n+1} - \Value^{*}\|_\infty < \frac{\varepsilon}{2}$
+    \item The policy $\policy_{n+1}$ $\varepsilon$-optimal, i.e., $\|\Value^{\policy_{n+1}}-\Value^*\|_\infty\leq \varepsilon$
+\end{enumerate}
 \end{lemma}
 \begin{proof}
-Assume that $\|\Value_{n+1}-\Value_{n}\| < \varepsilon \cdot
-\frac{1-\discount}{2\discount}$, and we show that
-$\|\Value^{\policy_{n+1}} - \Value^{*}\| < \varepsilon$, which would
-make the policy $\policy_{n+1}$ $\varepsilon$-optimal. We bound the
-difference between $\Value^{\policy_{n+1}}$ and $\Value^*$. (All the
-norms are max-norm.) We consider the following:
-\begin{eqnarray}
-\|\Value^{\policy_{n+1}} - \Value^{*}\| \leq
-\|\Value^{\policy_{n+1}} - \Value_{n+1}\| + \|\Value_{n+1} -
-\Value^{*}\| \label{L6:epopeq}
-\end{eqnarray}
+Assume that $\|\Value_{n+1}-\Value_{n}\|_\infty < \varepsilon \cdot
+\frac{1-\discount}{2\discount}$. Consider the following:
+\begin{align}
+\|\Value^{\policy_{n+1}}-\Value^{*}\|_\infty & =\|\Value^{\policy_{n+1}} - \Value_{n+1} + \Value_{n+1} -\Value^{*}\|_\infty \nonumber\\
+ & \leq\|\Value^{\policy_{n+1}}-\Value_{n+1}\|_\infty+\|\Value_{n+1}-\Value^{*}\|_\infty\label{L6:epopeq}
+\end{align}
 We now bound each part of the sum separately:
 \begin{eqnarray*}
-\|\Value^{\policy_{n+1}} - \Value_{n+1}\| & = &
-\|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) - \Value_{n+1}\| \ \ \ \
-\ (because\ \Value^{\policy_{n+1}}\ is\ the\ fixed\ point\
-of\ T^{\policy_{n+1}})\\
+\|\Value^{\policy_{n+1}} - \Value_{n+1}\|_\infty & = &
+\|\Value^{\policy_{n+1}} - T^*(\Value_{n})\|_\infty\\ & = &
+\|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) - T^*(\Value_{n})\|_\infty\\
+& = & \|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) -
+T^*(\Value_{n+1}) + T^*(\Value_{n+1}) - T^*(\Value_{n})\|_\infty\\
 & \leq & \|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) -
-T^*(\Value_{n+1})\| + \|T^*(\Value_{n+1}) - \Value_{n+1}\|
+T^*(\Value_{n+1})\|_\infty + \|T^*(\Value_{n+1}) - T^*(\Value_{n})\|_\infty\\
+& \leq & \|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) -
+T^{\policy_{n+1}}(\Value_{n+1})\|_\infty + \|T^*(\Value_{n+1}) - T^*(\Value_{n})\|_\infty\\
+& \leq & \discount\|\Value^{\policy_{n+1}} - \Value_{n+1}\|_\infty +
+\discount\|\Value_{n+1} - \Value_{n}\|_\infty
 \end{eqnarray*}
-Since $\policy_{n+1}$ is maximal over the actions using
-$\Value_{n+1}$, it implies that $T^{\policy_{n+1}}(\Value_{n+1}) =
-T^*(\Value_{n+1})$ and we conclude that:
-\begin{eqnarray*}
-\|\Value^{\policy_{n+1}} - \Value_{n+1}\| & \leq &
-\|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) -
-T^{\policy_{n+1}}(\Value_{n+1})\| + \|T^*(\Value_{n+1}) - T^*(\Value_{n})\| \ \ \\
-& \leq & \discount\|\Value^{\policy_{n+1}} - \Value_{n+1}\| +
-\discount\|\Value_{n+1} - \Value_{n}\|
-\end{eqnarray*}
-Rearranging, this implies that,
+The first equality is one step of the VI.
+The second equality is because $\Value^{\policy_{n+1}}$ 
+is the fixed point of $T^{\policy_{n+1}}$. The second inequality
+follows since $\policy_{n+1}$ is greedy w.r.t $\Value_{n+1}$,
+which implies that $T^{\policy_{n+1}}(\Value_{n+1}) =
+T^*(\Value_{n+1})$. Rearranging, we have
 \begin{eqnarray*} \|\Value^{\policy_{n+1}} -
-\Value_{n+1}\| \leq \frac{\discount}{1-\discount}\|\Value_{n+1} -
-\Value_{n}\|< \frac{\discount}{1-\discount} \cdot \epsilon \cdot
+\Value_{n+1}\|_\infty \leq \frac{\discount}{1-\discount}\|\Value_{n+1} -
+\Value_{n}\|_\infty < \frac{\discount}{1-\discount} \cdot \epsilon \cdot
 \frac{1-\discount}{2\discount} =\frac{\epsilon}{2}
 \end{eqnarray*}
-For the second part of the sum we derive similarly that:
+For the second part of the sum, we derive similarly that:
+\begin{eqnarray*}
+\|\Value_{n+1}-\Value^{*}\|_{\infty} & = & \|\Value_{n+1}-T^{*}\left(\Value_{n+1}\right)+T^{*}\left(\Value_{n+1}\right)-\Value^{*}\|_{\infty}\\
+ & \leq & \|\Value_{n+1}-T^{*}\left(\Value_{n+1}\right)\|_{\infty}+\|T^{*}\left(\Value_{n+1}\right)-\Value^{*}\|_{\infty}\\
+ & \leq & \|T^{*}\left(\Value_{n}\right)-T^{*}\left(\Value_{n+1}\right)\|_{\infty}+\|T^{*}\left(\Value_{n+1}\right)-T^{*}\left(\Value^{*}\right)\|_{\infty}\\
+ & \leq & \discount\|\Value_{n}-\Value_{n+1}\|_{\infty}+\discount\|\Value_{n+1}-\Value^{*}\|_{\infty}\\
+ & = & \discount\|\Value_{n+1}-\Value_{n}\|_{\infty}+\discount\|\Value_{n+1}-\Value^{*}\|_{\infty}
+\end{eqnarray*}
+ Rearranging, we have
 \begin{eqnarray*}
 \|\Value_{n+1} - \Value^{*}\| \leq
 \frac{\discount}{1-\discount}\|\Value_{n+1} - \Value_{n}\|<
@@ -760,30 +793,33 @@ ${\Value^\policy }$, namely
 Let $\policy$ be a stationary policy and $\bar{\policy}$ be a
 $\policy$- improving policy.
 %
-We have ${\Value^{\bar \policy }} \ge {\Value^\policy }$
-(component-wise), and ${\Value^{\bar \policy }} = {\Value^\policy }$
-if and only if $\policy $ is an optimal policy.
+We have
+\begin{enumerate}
+    \item ${\Value^{\bar \policy }} \ge {\Value^\policy }$ (component-wise)
+    \item ${\Value^{\bar \policy }} = {\Value^\policy }$ if and only if $\policy$ is an optimal policy
+\end{enumerate}
 \end{lemma}
 
-\begin{proof} Observe first that
+\begin{proof} Observe first that for any policy $\policy, $ $T_{}^\policy $ 
+is a monotone operator. Let ${\Value_1}(\state) \le {\Value_2}(\state)$ (component-wise), we have
+\[T^\policy (\Value_1) - T^\policy (\Value_2)\ =
+\discount\sum_{\state'\in\States}\transitionprob(\state'|\state,\policy(\state))(\Value_1(\state')-\Value_2(\state')) \le 0\]
+Thus $T^\policy (\Value_1) \le T^\policy (\Value_2)$. Next, we examine the following
 \[{\Value^\policy } = T_{}^\policy ({\Value^\policy }) \le T_{}^*({\Value^\policy }) = T_{}^{\bar \policy }({\Value^\policy })\]
-The first equality follows since ${\Value^\policy }$ is the value
-function for the policy $\policy $, the inequality follows because
-of the maximization in the definition of  $T_{}^*$, and the last
-equality by definition of the improving policy $\bar \policy $.
-
-It is easily seen that $T_{}^\policy $ is a monotone operator (for
-any policy $\policy $), namely ${\Value_1} \le {\Value_2}$ implies
-$T_{}^\policy (\Value_1) \le T_{}^\policy (\Value_2)$. Applying
-$T^{\bar \policy }$ repeatedly to both sides of the above inequality
-${\Value^\policy } \le T_{}^{\bar \policy }(\Value^\policy)$
-therefore gives
+The first equality follows since ${\Value^\policy}$ is the
+fixed point of $T^{\policy}$, the inequality follows because
+of the maximization in the definition of  $T^*$, and the last
+equality by definition of the improving policy $\bar \policy $. Hence
+\[{\Value^\policy } \le T_{}^{\bar \policy }({\Value^\policy })\]
+Using monotonicity, we apply $T^{\bar \policy }$
+repeatedly to both sides of the above inequality
 \begin{equation}\label{eq:PI_monotonicity_proof}
   {\Value^\policy } \le T_{}^{\bar \policy }({\Value^\policy }) \le {(T_{}^{\bar \policy })^2}({\Value^\policy }) \le  \cdots  \le \mathop {\lim }\limits_{n \to \infty } {(T_{}^{\bar \policy })^n}({\Value^\policy }) = {\Value^{\bar \policy }},  
 \end{equation}
-where the last equality follows by Theorem~\ref{thm:_VI}.
+where the last equality follows by Theorem~\ref{thm:_VI}. Hence
+\[{\Value^\policy } \le {\Value^{\bar \policy }}\]
 %value iteration.
-This establishes the first claim.
+Which establishes the first claim.
 %The equality claim is left as an \textbf{exercise}g.
 %YM: add it?
 
@@ -792,23 +828,23 @@ We now show that $\policy$ is optimal if and only if ${\Value^{\bar
 \policy }} \ge {\Value^\policy }$. If ${\Value^{\bar \policy }} >
 {\Value^\policy }$ then clearly $\policy$ is not optimal. Assume
 that ${\Value^{\bar \policy }} = {\Value^\policy }$. We have the
-following identities:
+following identities
 \[
 \Value^{ \policy }= \Value^{\bar \policy } = T^{\bar \policy}(\Value^{\bar \policy })=T^{\bar \policy }(\Value^{\policy})
 %=T^*(\Value^{\bar  \policy })
 =T^*(\Value^{ \policy }),
 \]
-where the first equality is by our assumption. The second equality
+Where the first equality is by our assumption. The second equality
 follows since $\Value^{\bar \policy } $ is the fixed point of its
 operator $T^{\bar \policy }$. The third follows since we assume that
 ${\Value^{\bar \policy }} = {\Value^\policy }$. The last equality
-follows since $T^{\bar \policy }$ and $T^{* }$ are identical on
-${\Value^\policy }$.
-
-We have established that: $\Value^{ \policy } =T^*(\Value^{ \policy
-})$, and hence $\Value^{ \policy }$ and $\policy$ is a fixed point
-of $T^*$ and therefore, by Theorem~\ref{thm:inf_Bellman}, policy
-$\policy $ is optimal.
+follows since the policy $\bar{\policy}$ is greedy with respect to ${\Value^\policy}$.
+We have established that
+\[\Value^{ \policy } =T^*(\Value^{ \policy
+})\]
+hence $\Value^{ \policy }$ is a fixed point of $T^*$, 
+thus from uniqueness $\Value^{ \policy } = \Value^{*}$, 
+implying that $\policy$ achieves the optimal value and is, therefore, an optimal policy
 \end{proof}
 
 The policy iteration algorithm performs successive rounds of policy
@@ -837,65 +873,70 @@ iterations of Policy Iteration) is independent of $\discount$.
 
 \section{A Comparison between VI and PI Algorithms}
 
-In this section we will compare the convergence rate of the VI and
-PI algorithms. We show that, assuming that the two algorithms begin
+In this section, we will compare the convergence rate of the VI and
+PI algorithms. We show that assuming both algorithms begin
 with the same approximated value, the PI algorithm converges in less
 iterations.
 \begin{theorem}
-\label{L6:PIVI-ComparisonTh} Let $\{VI_{n}\}$ be the sequence of
-values created by the VI algorithm (where $VI_{n+1}=T^*(VI_{n})$)
-and let $\{PI_{n}\}$ be the sequence of values created by PI
-algorithm, i.e., $PI_n=\Value^{\policy_n}$. If $VI_{0}=PI_{0}$, then
-for all $ n$ we have $ VI_{n}\leq PI_{n}\leq \Value^*$.
+\label{L6:PIVI-ComparisonTh} Let $\left\{ \Value_{n}^{VI}\right\} $ and $\left\{ \Value_{n}^{PI}\right\} $
+be the sequences created by the VI and PI algorithms respectfully.
+i.e. $\Value_{n+1}^{VI}=T^{*}\left(\Value_{n}^{VI}\right)$ and $\Value_{n}^{PI}=\Value^{\pi_{n}}$.
+If $\Value_{0}^{VI}=\Value_{0}^{PI}$ then for all $n$ we have 
+\[
+\Value_{n}^{VI}\leq\Value_{n}^{PI}\leq\Value^{*}
+\]
 \end{theorem}
 
-\begin{proof} The proof is by induction on $n$.
-
-\noindent{\em Induction Basis:} By construction  $VI_0=PI_0$.
-%
-Since $PI_0=\Value^{\policy_0}$, it is clearly bounded by
-$\Value^*$.
-
-\noindent{\em Induction Step:} Assume that $VI_n\leq PI_n$. For
-$VI_{n+1}$ we have,
-\begin{eqnarray*}
-VI_{n+1} = T^*(VI_{n}) = T^{\policy'}(VI_{n}),
-\end{eqnarray*}
-where  $\policy'$ is the greedy policy w.r.t. $VI_n$, i.e.,
-$$
-\policy'(\state) \in \arg\max_{a\in A}\{\reward(\state,\action) +
-\discount \sum_{\state'\in \States}
-\transitionprob(\state'|\state,\action)VI_{n}(\state')\} \quad\;\forall\state\in\States.
-$$
-Since $VI_n \leq PI_n$, and $T^{\policy'}$ is monotonic it follows
-that:
-\begin{eqnarray*}
-T^{\policy'}(VI_{n}) & \leq &T^{\policy'}(PI_{n})
-\end{eqnarray*}
-Since $T^*$ is upper bounding any $T^\policy$:
-\begin{eqnarray*}
-T^{\policy'}(PI_{n}) & \leq & T^*(PI_{n})
-% = T^{\policy_n}(PI_{n})
-\end{eqnarray*}
-The policy determined by PI algorithm in iteration $n+1$ is
-$\policy_{n+1}$ and we have:
-\begin{eqnarray*}
-T^*(PI_{n})=T^{\policy_{n+1}}(PI_{n})
-\end{eqnarray*}
-From the definition of $\policy_{n+1}$ (cf. Eq.~\ref{eq:PI_monotonicity_proof}), we have
-\begin{eqnarray*}
-T^{\policy_{n+1}}(PI_{n}) &\leq& \Value^{\policy_{n+1}}=PI_{n+1}
-\end{eqnarray*}
-%From the definition of $PI_{n+1}$ we have:
-%\begin{eqnarray*}
-%T^{\policy_{n}}(\Value^{pi_{n}}) &=& PI_{n+1}
-%\end{eqnarray*}
-Therefore, $VI_{n+1} \leq PI_{n+1}$. Since
-$PI_{n+1}=\Value^{\policy_{n+1}}$, it implies that $PI_{n+1}\leq
-\Value^*$.
-%In Theorem
-%\ref{L6:MonotonicityClaim} it was proven that $v_{n+1} \leq
-%v^*_\lambda$ and therefore $u_{n+1} \leq v_{n+1} \leq v^*_\lambda$.
+\begin{proof} The proof is by induction on $n$.\\
+{\em Induction Basis:\} By
+construction $\Value_{0}^{VI}=\Value_{0}^{PI}$. Since $\Value_{0}^{PI}=\Value^{\policy_{0}}$
+and $\Value^{\policy_{0}}\leq\Value^{*}$, we have
+\[
+\Value_{0}^{VI}=\Value_{0}^{PI}\leq\Value^{*}
+\]
+{\em Induction Step:\} Assume
+that $\Value_{n}^{VI}\leq\Value_{n}^{PI}$. For $\Value_{n+1}^{VI}$
+we have,
+\begin{align*}
+\Value_{n+1}^{VI} & =T^{*}\left(\Value_{n}^{VI}\right)=T^{\bar{\policy}_{n}}\left(\Value_{n}^{VI}\right)
+\end{align*}
+where $\bar{\policy}_{n}$ is the greedy policy w.r.t. $\Value_{n}^{VI}$,
+i.e., $\forall\state\in\States$
+\[
+\bar{\policy}_{n}(\state)\in\arg\max_{a\in A}\left\{ \reward(\state,\action)+\discount\sum_{\state'\in\States}\transitionprob(\state'|\state,\action)VI_{n}(\state')\right\} 
+\]
+Since $\Value_{n}^{VI}\leq\Value_{n}^{PI}$, and $T^{\bar{\policy}_{n}}$
+is monotonic, it follows that
+\begin{align*}
+T^{\bar{\policy}_{n}}\left(\Value_{n}^{VI}\right) & \leq T^{\bar{\policy}_{n}}\left(\Value_{n}^{PI}\right)
+\end{align*}
+ Since $T^{*}$ is upper bounding any $T^{\policy}$
+\begin{align*}
+T^{\bar{\policy}_{n}}\left(\Value_{n}^{PI}\right) & \leq T^{*}\left(\Value_{n}^{PI}\right)
+\end{align*}
+In iteration $n+1$ of the PI algorithm, the greedy policy w.r.t $\Value_{n}^{PI}=\Value^{\pi_{n}}$
+is $\bar{\policy}_{n+1}$, thus we have
+\begin{align*}
+T^{*}\left(\Value_{n}^{PI}\right) & =T^{\bar{\policy}_{n+1}}\left(\Value_{n}^{PI}\right)
+\end{align*}
+From the definition of $\bar{\policy}_{n+1}$ (cf. Eq.~\ref{eq:PI_monotonicity_proof}),
+we have 
+\begin{align*}
+T^{\bar{\policy}_{n+1}}\left(\Value_{n}^{PI}\right) & \leq\Value^{\bar{\policy}_{n+1}}=\Value_{n+1}^{PI}
+\end{align*}
+ Therefore, 
+\begin{align*}
+\Value_{n+1}^{VI} & \leq\Value_{n+1}^{PI}
+\end{align*}
+And since $\Value^{\bar{\policy}_{n+1}}\leq\Value^{*}$, it implies
+that 
+\begin{align*}
+\Value_{n+1}^{PI} & =\Value^{\bar{\policy}_{n+1}}\leq\Value^{*}
+\end{align*}
+Resulting in
+\[
+\Value_{n+1}^{VI}\leq\Value_{n+1}^{PI}\leq\Value^{*}
+\]
 \end{proof}
 
 
