@@ -1,0 +1,46 @@
+\section{Lookahead Policies}
+
+We will discuss several variants of lookahead policies. We focus on systems with a discrete, and `small enough' action space, but a large, possibly infinite state space.
+
+The main idea in lookahead policies is that when we are at some state $s$, we will only search `around' the state $s$ for the next action $\pi(s)$. After we play the action, we observe the next state, and repeat the search.
+Thus, we do not need to consider the whole state space in advance, but only consider regions in state space which we actually visit.
+In the control literature, this idea is often called Model Predictive Control (MPC).
+
+\subsection{Deterministic Systems: Tree Search}
+The simplest example of a lookahead policy is tree search in a deterministic system.
+
+Given $s$, and a (deterministic) simulator of the system, we can simulate the next state for every possible action, building a tree of possible trajectories of the system, starting from $s$, and continuing to some depth $k$. 
+We then choose an action by:
+$$\pi(s) = \underset{\pi' \in \Pi}{\operatorname{argmax}}\  \left[\left.\sum_{t=0}^{k} \gamma^t r(s_{t},{\pi'}(s_{t})) \right| s_0 = s\right],$$
+Which can be solved using dynamic programming.
+
+In this approach, the computation in each step requires $O(|A|^{k})$ calls to the simulator for building the tree, and $O(k|A|^{k})$ computations for searching the tree. Note that \emph{there is no dependence on $|S|$}. The depth $k$ should be chosen `deep enough' to results in meaningful actions. For example, in a discounted setting, recall that the $k$-horizon value function satisfies 
+$\|V^k(s)-V^*(s)\|_\infty \leq \gamma^k\left( \frac{R_{max}}{1-\gamma}\right),$ which can be used to set $k$.
+
+\subsection{Stochastic Systems: Sparse Sampling}
+When the system is stochastic, we cannot simply build a tree of possible future trajectories. If we sample next states from our simulator, we can build a \emph{sampled} version of a search tree. Here, for each state $s$ and action $a$ in the tree, we will sample $C$ next states $s'_1,\dots,s'_C$. Then, the backup at $s,a$ will be $Q(s,a) = \frac{1}{C}\sum_{i=1}^C r(s,a) + \gamma \max_{a'} Q(s'_i,a')$.
+That is, we replaced the expectation in the Bellman update with an empirical average. Since the average concentrates around the mean (e.g., by Hoeffding inequality), it is expected that the empirical averages will closely represent their expectations.
+
+The following result is shown in \cite{kearns2002sparse}. The constants $k$ and $C$ can be set such that with a per-state running time of $(\frac{|A|}{\epsilon (1-\gamma)})^{O\left(\frac{1}{1-\gamma}\log \frac{1}{\epsilon (1-\gamma)}\right)}$, the obtained policy is $\epsilon-$optimal, i.e., $\|V^k(s)-V^*(s)\|_\infty \leq \epsilon$. Note again that there is no dependence on $|S|$.
+
+\subsection{Monte Carlo Tree Search}
+While the sparse sampling above does not depend on $|S|$, the exponential dependence on the horizon and number of actions makes it impractical for many cases. The insight in Monte-Carlo Tree Search (MCTS) is that investing the same simulation efforts for all possible future actions is wasteful, and we should instead focus our search efforts on the \emph{most promising} future outcomes.
+
+The first idea in MCTS is to replace the stage-wise tree building approach with a rollout-based approach, as shown in Figure \ref{fig:mcts}. Here, we roll out complete trajectories of depth $k$, and build the tree progressively from these rollouts. The method \textbf{Evaluate(state)} is used to evaluate the last state in the rollout. This could be the reward of the state, or an estimated value function (as in the chess example above). Another approach, which has become common in games such as Go and Chess, is to simulate a game starting from state $s$ with a predetermined policy, until termination, and evaluate the state by the empirical return along the simulation trajectory.
+The method \textbf{UpdateValue} is used to build the tree. It maintains both the sum of returns from a state action pair $Q_{sum}(s,a)$ (summing over all trajectories that visited this state), and the number of visits to the state and state-action pair, $N_s$ and $N_{sa}$. The value of a state-action pair is the average $\frac{Q_{sum}(s,a)}{N_{sa}}$. To understand why this approach could be beneficial, consider a state that is visited multiple times. Thus, after several visits, we have some information about which actions are more promising, and could use that to bias the rollout policy to focus on promising trajectories. We need to make sure, however, that we also \emph{explore} often enough, so that we do not miss important actions by incorrect $Q$ estimates in the beginning.
+The key to an efficient MCTS algorithm, therefore, is in the \textbf{selectAction} method, which should balance exploration and exploitation.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/uct.png}
+    \caption{Generic Monte-Carlo Planning Algorithm (from\cite{kocsis2006bandit})}
+    \label{fig:mcts}
+\end{figure}
+
+The UCT algorithm of Kocsis and Szepesv´ari~\cite{kocsis2006bandit} selects actions that maximize $Q(s,a) + UCT(s,a)$, where the \emph{upper confidence bound} is given by: 
+$$
+UCT(s,a) = C \sqrt{\frac{\log N_s}{N_{sa}}},
+$$
+where $C$ is some constant. Intuitively, $UCT$ prefers actions that are either promising (high $Q$) or under-explored (low $N_{sa}$). Later in the course we will show that this specific formulation is actually optimal in some sense.
+
+In many practical problems, UCT has been shown to be much more efficient than tree-building methods. MCTS based on UCT is also the most prominent method for solving games with high branching factors such as Go. 
