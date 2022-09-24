@@ -452,7 +452,7 @@ unique.
 %\[||{\Value_1} - {\Value_2}|| = ||T({\Value_1}) - T({\Value_2})|| \le \beta ||{\Value_1} - {\Value_2}||,\]
 %which implies that $||{\Value_1} - {\Value_2}|| = 0$, hence ${\Value_1} = {\Value_2}$.
 %
-%Existence (outline):  (i) show that ${\Value_n} \buildrel \Delta \over = {T^n}({\Value_0})$ (with ${\Value_0}$ arbitrary) is a Cauchy sequence. (ii) Since any Cauchy sequence in $\mathbb R^d$ converges, this implies that ${\Value_n}$ converges to some $\Value^*\in \mathbb R^d$. (iii) Now show that ${\Value^*}$ satisfies the equation $T(v) = v$.
+monoto%Existence (outline):  (i) show that ${\Value_n} \buildrel \Delta \over = {T^n}({\Value_0})$ (with ${\Value_0}$ arbitrary) is a Cauchy sequence. (ii) Since any Cauchy sequence in $\mathbb R^d$ converges, this implies that ${\Value_n}$ converges to some $\Value^*\in \mathbb R^d$. (iii) Now show that ${\Value^*}$ satisfies the equation $T(v) = v$.
 %  \item We have just shown that, for any ${\Value_0}$, ${\Value_n} \buildrel \Delta \over = {T^n}({\Value_0})$ converges to a solution of $T(v) = v$, and that solution was shown before to be unique.  Furthermore, we have
 %\begin{align*}
 %||{\Value_n} - {\Value^*}||\; &= \;||T({\Value_{n - 1}}) - T({\Value^*})||\\
@@ -802,7 +802,7 @@ We have
 
 \begin{proof} Observe first that for any policy $\policy, $ $T_{}^\policy $ 
 is a monotone operator. Let ${\Value_1}(\state) \le {\Value_2}(\state)$ (component-wise), we have
-\[T^\policy (\Value_1) - T^\policy (\Value_2)\ =
+\[T^\policy (\Value_1)(\state) - T^\policy (\Value_2)(\state)\ =
 \discount\sum_{\state'\in\States}\transitionprob(\state'|\state,\policy(\state))(\Value_1(\state')-\Value_2(\state')) \le 0\]
 Thus $T^\policy (\Value_1) \le T^\policy (\Value_2)$. Next, we examine the following
 \[{\Value^\policy } = T_{}^\policy ({\Value^\policy }) \le T_{}^*({\Value^\policy }) = T_{}^{\bar \policy }({\Value^\policy })\]
