@@ -39,10 +39,10 @@ case, which can always be ``truncated" at $\tHorizon$ if needed.
 \Pr({\state_{\ttime + 1}} =
 \state'|{\state_\ttime},{\action_\ttime}, \ldots
 ,{\state_{0,}}{\action_0}) =\Pr({\state_{\ttime + 1}} =
-\state'|{\state_\ttime},{\action_\ttime})
+\state'|{\state_\ttime},{\action_\ttime}).
 \]
 \item   The set of probability distributions
-                                \[\transitionkernel = \{ {\transitionprob_\ttime}( \cdot |\state,\action)\;\;:\;\;\state \in {\States_\ttime},\action \in {\Actions_\ttime}(\state),\ttime \in {\T}\} \]
+                                \[\transitionkernel = \{ {\transitionprob_\ttime}( \cdot |\state,\action)\;\;:\;\;\state \in {\States_\ttime},\action \in {\Actions_\ttime}(\state),\ttime \in {\T}\}, \]
 is called the \emph{transition law} or \emph{transition kernel} of the controlled Markov process.
 \end{itemize}
 
@@ -420,8 +420,8 @@ reward sequence is unbounded). This makes the problem ``well behaved",
 and relatively easy to analyze. The discounted return is discussed
 in Chapter \ref{chapter:disc}.
 
-\paragraph{Average return:}  Here we are interested to maximize the long-term average return. The most common definition of the long-term average return is
-\[\Value_{av}^\policy (\state) = \mathop {\lim \inf }\limits_{\tHorizon \to \infty } {\E^{\policy ,s}}(\frac{1}{\tHorizon}\sum\limits_{\ttime = 0}^{\tHorizon -1} {\reward({\state_\ttime},{\action_\ttime})} )\]
+\paragraph{Average return:}  Here we are interested to maximize the long-term average return. The most common definition of the long-term average return is,
+\[\Value_{av}^\policy (\state) = \mathop {\lim \inf }\limits_{\tHorizon \to \infty } {\E^{\policy ,s}}(\frac{1}{\tHorizon}\sum\limits_{\ttime = 0}^{\tHorizon -1} {\reward({\state_\ttime},{\action_\ttime})}. )\]
 The theory of average-return planning problems is more involved, and
 relies to a larger extent on the theory of Markov chains (see
 Chapter~\ref{chapter:MC}). 
@@ -567,14 +567,16 @@ $V_\tHorizon^\policy (\state) = {\reward_\tHorizon}(\state)$.
 Observe that:
 \begin{align*}
 V_k^\policy (\state) &= {\E^\policy }\left( {{R_k} + \sum\nolimits_{\ttime = k + 1}^\tHorizon {{R_\ttime}|} \;{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
- &= {\E^\policy }\left( {{\E^\policy }\left( {{R_k} + \sum\nolimits_{\ttime = k + 1}^\tHorizon {{R_\ttime}} |\;{\state_k} = \state,{\action_k} = {\policy _k}(\state),{\state_{k + 1}}} \right)|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
+ &= {\E^\policy }\left({R_k} + {{\E^\policy }\left( { \sum\nolimits_{\ttime = k + 1}^\tHorizon {{R_\ttime}} |\;
+ %{\state_k} = \state,{\action_k} = {\policy _k}(\state),
+ {\state_{k + 1}}} \right)|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
  &= {\E^\policy }\left( {\reward_k({\state_k},{\action_k}) + V_{k + 1}^\policy ({\state_{k + 1}})|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
  &= {\reward_k}(s,{\policy _k}(\state)) + \sum\nolimits_{\state' \in {\States_{k + 1}}} {{\transitionprob_k}(\state'|s,{\policy _k}(\state))} \;V_{k + 1}^\policy (\state')
 \end{align*}
 The first identity is simply writing the value function explicitly,
 starting at state $\state$ at time $k$ and using action
-$\action=\policy_k(\state)$.  We split the sum to $R_k$, immediate
-reward, and the sum of other rewards.
+$\action=\policy_k(\state)$.  We split the sum to $R_k$, the immediate
+reward, and the sum of other latter rewards.
 %, which will be convenient later.
 The second identity uses the law of total probability, we are
 conditioning on state $\state_{k+1}$, and taking the expectation
@@ -911,5 +913,5 @@ would be discussed in Chapter~\ref{chapter:learning-model-free}.
   \item Computation of the value function in this way is known as the \emph{finite-horizon value iteration} algorithm.
   \item The value function is computed for all states at each stage.
   \item An optimal policy is easily derived from the optimal value.
-  \item The optimization in each stage is performed in the action space.  The total number of minimization operations needed is $\tHorizon \times |\States|$  - each over $|\Actions|$ choices. This replaces ``brute force" optimization in policy space, with tremendous computational savings as the number of Markov policies is $|\Actions{|^{\tHorizon\times |\States|}}$.
+  \item The optimization in each stage is performed in the action space.  The total number of minimization operations needed is $\tHorizon  |\States|$  - each over $|\Actions|$ choices. This replaces ``brute force" optimization in policy space, with tremendous computational savings as the number of Markov policies is $|\Actions{|^{\tHorizon |\States|}}$.
 \end{itemize}

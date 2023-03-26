@@ -1,19 +1,19 @@
-\section{What is RL?}
+\section{What is Reinforcement Learning?}
 
 Concisely defined, Reinforcement Learning, abbreviated as RL, is the discipline of learning and acting in 
 environments where sequential decisions are made. That is, the decision made at a given time 
 will be followed by other decisions and therefore the decision maker has to consider the implications 
-of her decision.
+of her decision on subsequent decisions. 
 
 In the early days of the field, there was an analogy drawn between human learning and computer 
 learning. While the two are certainly tightly connected, this is merely an analogy that serves to motivate and inspire. Other terms that 
 have been used are approximate dynamic programming (ADP), neuro-dynamic programming (NDP), which to us
-mean the same thing, but focus on a specific collection of techniques that came to be known as ``RL''.
+mean the same thing, but focus on a specific collection of techniques that came to grow to the discipline known as ``RL''.
 
  \medskip
 \noindent{\it Origins of reinforcement learning}
 %
-Reinforcement learning spans a large number of disciplines.
+Reinforcement learning has roots in quite a few disciplines.
 Naturally, by our own indoctrination, we are going to look through the lens of Computer Science
 and Machine Learning. From an engineering perspective, optimal control is 
 the ``mother'' of RL, and many of the concepts that are used in RL naturally come from optimal control. 
@@ -28,8 +28,8 @@ a detailed history of RL as a field.
 
 \section{Motivation for RL}
 
-In the recent years there is a renewed interest in RL. The new interest is grounded in  emerging applications
-of RL, and also in much progress in the field of deep learning that
+In recent years there is a renewed interest in RL. The new interest is grounded in  emerging applications
+of RL, and also progress of deep learning that
 has been impressively applied for solving challenging RL tasks. 
 But for us, the interest comes from the {\em promise} of RL and its
 potential to be an effective tool for control and behavior in dynamic environments.
@@ -42,16 +42,15 @@ the ingredients which latter contributed to RL,
 as well as search heuristics for large domains.
 Gerald
 Tesauro in 1992 developed the TD-gammon \cite{Tesauro95}, which used a two layer
-neural-network to achieve a high performance agent for playing a backgammon computer
-game. The network was trained from scratch, by playing against itself in simulation, and using a temporal differences learning rule. One of the amazing features
+neural-network to achieve a high performance agent for playing the game of backgammon. The network was trained from scratch, by playing against itself in simulation, and using a temporal differences learning rule. One of the amazing features
 of TD-gammon was that even in the {\em first} move, it played a
 different game move than the typical opening that backgammon grandmasters use. Indeed, this move was later adopted in the backgammon community \cite{Tesauro02}.
-Recently, DeepMind have developed AlphaGo -- a deep neural-network based agent
+More recently, DeepMind have developed AlphaGo -- a deep neural-network based agent
 for playing Go, which was able to beat the best Go players in the world, solving a long-standing challenge for artificial intelligence \cite{silver2016mastering}. 
 
 To complete the picture of computer board games, we should mention
 Deep Blue, from 1996, which was able to beat the world champion then,
-Kasparov \cite{DeepBlue}. This program mainly built on heuristic search, and new hardware was developed to support it. Recently, DeepMind's
+Kasparov \cite{DeepBlue}. This program mainly built on heuristic search and new hardware was developed to support it. Recently, DeepMind's
 AlphaZero matched the best chess
 programs (which are already much better than any human players), using a reinforcement learning approach \cite{silver2017mastering}.
 
@@ -66,29 +65,36 @@ information about the goal of the game).
 Looking to the future, the real promise of RL
 is learning in interactive settings. Probably one the most important
 applications is robotics, where reaching a human level performance
-would have far outreaching consequences.
+would have far outreaching consequences. 
+\SM{Mention RLHF and such?}
 
 \section{The Need for This Book}
 
-There are already several books on RL. However, while teaching RL in class, we felt that there is a gap between advanced textbooks that focus on one aspect or another of the art, and more general books that opt for readability rather than rigor. Coming from computer science and electrical engineering backgrounds, we like to teach RL in a rigorous, self-contained manner. This book serves this purpose, and is based on our lecture notes for an advanced undergraduate course that we have taught for over seven years at Tel Aviv University and at Technion.
+There are already several books on RL. However, while teaching RL in class, we felt that there is a gap between advanced textbooks that focus on one aspect or another of the art, and more general books that opt for readability rather than rigor. Coming from computer science and electrical engineering backgrounds, we like to teach RL in a rigorous, self-contained manner. This book serves this purpose, and is based on our lecture notes for an advanced undergraduate course that we have taught for over ten years at Tel Aviv University and at Technion.
 
-\section{Mathematical Model}
+\SM{We provide at the end of every chapter a list of exercises to help students practice the material. These exercised were developed by us and our teaching assistants over the years.}
+
+\section{Mathematical Models}
 %
 The main mathematical model we will use is the Markov Decision Process
 (MDP). The model tries to capture uncertainty in the dynamics of the
 environment, the actions and our knowledge. The main focus would be
-on decision making, namely, selecting actions. The evaluation would
+on sequential decision making, namely, selecting actions. The evaluation would
 consider the long term effect of the actions, trading-off immediate
 rewards with long-term gains.
 
 In contrast to Machine Learning, the reinforcement learning model
-would have a {\em state}, and the algorithm will influence the state
+ has a notion of a {\em state}, and the algorithm influences the state
 through its actions.
 % distribution (as well as the immediate observed rewards).
 The algorithm would be faced with an inherent tradeoff between
 exploitation (getting the most reward given the current information)
 and exploration (gathering more information about the environment).
 
+\SM{Need a figure here with the classical feedback system}
+\SM{Discuss classical agent-centric view of RL/AI?, i.e., the separation between an agent and the environment }
+
+There are other models that are useful, such a partially observed MDPs (POMDPs) where the exact state is not fully known, and bandits where the current decision has no effect on subsequent decision. In accordance with most of the literature with the exception of Chapter \ref{chapter-MAB} the book concerns the MDP model.
 
 
 \section{Book Organization}
@@ -101,6 +107,20 @@ then, in Chapter \ref{chapter:MDP-FH} we introduce the finite horizon MDP model 
 % and episodic settings, respectively.
 
 \paragraph{Learning:} The learning theme covers decision making when the MDP model is \textit{not known in advance}. Chapter \ref{chapter-model-based} introduces the \textit{model-based} approach, where the agent explicitly learns an MDP model from its experience and uses it for planning decisions. Chapter \ref{chapter:learning-model-free} covers an alternative \textit{model-free} approach, where decisions are learned without explicitly building a model. Chapters \ref{chapter:function-approximation} and \ref{chapter:policy-gradient} address learning of approximately optimal solutions in \textit{large} problems, that is, problems where the underlying MDP model is intractable to solve. Chapter \ref{chapter:function-approximation} approaches this topic using approximation of the value function, while Chapter \ref{chapter:policy-gradient} considers policy approximations. In Chapter \ref{chapter:MAB} we consider the special case of Multi-Arm Bandits, which can be viewed as a MDP with a single state and unknown rewards. 
+
+\section{Bibliography notes}
+
+Markov decision processes have a long history. The first works that directly addressed Markov Decision Processes and Reinforcement Learning are due to \cite{Bellman:DynamicProgramming} and \cite{Howard1960}. The book by Bellman \cite{Bellman:DynamicProgramming}, based on a sequence of works by him, introduced the notion of \emph{dynamic programming}, the \emph{principle of optimality} and defined discrete time MDPs. The book of Howard \cite{Howard1960}, building on his PhD thesis, introduced the policy iteration algorithm as well as a clear algorithmic definition of value iteration. A precursor work by Shapely \cite{Shapley53} introduced a discounted MDP model for stochastic games.
+
+There is a variety of books addressing Markov Decision Processes and Reinforcement Learning. Puterman's book \cite{puterman2014markov} gives an extensive exposition of mathematical properties of MDPs, including planning algorithms. Bertsekas and Tsitsiklis \cite{BertsekasTsitsiklis96} give a stochastic processes approach for reinforcement learning. Bertsekas \cite{Bertsekas05} give a detailed exposition of stochastic shortest paths.
+
+Sutton and Barto \cite{SuttonB98} give a general exposition to modern reinforcement learning, which is more focused on implementation issues less focused on mathematical issues. Szepesvari's monograph \cite{Szepesvari} gives an outline of basic reinforcement learning algorithms.
+
+\SM{
+Things we want added here:
+%\item{}
+}
+
 % To complete the picture, Chapter \ref{chapter:tree-based-search} considers online planning using tree-search methods.
 % \section{Markov Decision Process (MDP)}
 

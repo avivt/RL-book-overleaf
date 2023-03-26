@@ -1,7 +1,7 @@
 
 
 In this chapter we introduce the dynamic system viewpoint of the
-optimal planning problem. We restrict the discussion here to
+optimal planning problem, where given a complete model we characterize and compute the optimal policy. We restrict the discussion here to
 deterministic (rather than stochastic) systems. We consider two
 basic settings: (1) the finite-horizon decision problem and its
 recursive solution via finite-horizon Dynamic Programming, and (2) the
@@ -9,7 +9,7 @@ average cost and its related minimum average weight cycle.
 
 \section{Discrete Dynamic Systems}
 We consider a discrete-time dynamic system, of the form:
-\[{\state_{\ttime + 1}} = {f_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}),\quad \ttime = 0,1,2, \ldots ,\tHorizon - 1\]
+\[{\state_{\ttime + 1}} = {f_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}),\quad \ttime = 0,1,2, \ldots ,\tHorizon - 1, \]
 where
 \begin{itemize}
   \item $\ttime$ is the time index.
@@ -197,14 +197,14 @@ _\ttime}({\history_\ttime}) \in {\Actions_\ttime}$.  We denote the
 set of general policies by ${\Pi _H}$.
 %
 \item
-A \textbf{Markov} control policy $\policy $ is allowed to depend on
-the current state and time only: ${\action_\ttime} = {\policy
+A \textbf{Markov} control policy $\policy $ is allowed to depend only on
+the current state and time: ${\action_\ttime} = {\policy
 _\ttime}({\state_\ttime})$.   We denote the set of Markov policies
 by ${\Pi _M}$.
 %
 \item
 For stationary models, we may define \textbf{stationary} control
-policies that depend on the current state alone. A stationary policy
+policies that depend only on the current state. A stationary policy
 is defined by a single mapping $\policy :\States \to \Actions$, so
 that ${\action_\ttime} = \policy ({\state_\ttime})$ for all $\ttime
 \in \T$. We denote the set of stationary policies by ${\Pi _S}$.
@@ -330,7 +330,7 @@ For any policy $\policy\in \Pi_{HS}$, there is a policy
 $\policy'\in\Pi_{MS}$, such that for every state $\state$ and action
 $\action$ we have,
 $\rho^{\policy}(\state,\action)=\rho^{\policy'}(\state,\action)$.
-This will imply that,
+This implies that,
 \[
 \E[\Cost^\policy(\state_0)]=\E[\Cost^{\policy'}(\state_0)]
 \]
@@ -339,7 +339,7 @@ This will imply that,
 \begin{proof}
 Given the policy  $\policy\in \Pi_{HS}$, we define
 $\policy'\in\Pi_{MS}$ as follows. For every state $\state\in
-\States_\ttime$ we define
+\States_\ttime$ we define,
 \[
 \policy'_\ttime(\action|\state)=\Pr_{\history_{\ttime-1}}
 [\action_\ttime=\action|\state_\ttime=\state]=\frac{\rho^\policy_\ttime(\state,\action)}{\sum_{\action'\in
@@ -357,7 +357,7 @@ For the base of the induction, by definition we have that $\rho_0^{\policy}(\sta
 [\state_{t+1}=\state|\action_\ttime=\action',\state_\ttime=\state']\rho_\ttime^{\policy'}(\state',\action')=\sum_{\action',\state'} \Pr
 [\state_{t+1}=\state|\action_\ttime=\action',\state_\ttime=\state']\rho_\ttime^{\policy}(\state',\action')=\rho_{\ttime+1}^{\policy}(\state)$.
 
-Finally, we obtain that $\rho_\ttime^{\policy'}(\state,\action) = \rho_\ttime^{\policy}(\state,\action)$, and therefore
+Finally, we obtain that $\rho_\ttime^{\policy'}(\state,\action) = \rho_\ttime^{\policy}(\state,\action)$ for all $\ttime,\state,\action$, and therefore
 $\E[\Cost^\policy(\state_0)]=\E[\Cost^{\policy'}(\state_0)]$.
 \end{proof}
 
@@ -412,7 +412,7 @@ $\state_\ttime\in \States_\ttime$ as follows:
 \Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action)).
 \end{equation}
 Recall that since we have a Deterministic Decision Process
-$f_\ttime(\state_\ttime,\action_\ttime)\in \States_{\ttime+1}$ is
+$f_\ttime(\state_\ttime,\action)\in \States_{\ttime+1}$ is
 the next state if we take action $\action$ in $\state_\ttime$.
 %(Remark: For a stochastic $f_\ttime$ we would simply take the expectation.)
 
@@ -430,7 +430,7 @@ policy $\policy$. We have,
 \E^\policy_{\action_\ttime}[\cost_{\ttime}(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
 \geq & \E^\policy_{\state_\ttime} \min_{\action_\ttime\in
 \Actions_\ttime}[\cost_{\ttime}(\state_\ttime,\action_\ttime)+\Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action_\ttime))]\\
-= & \E^{\policy'}_{\state_\ttime} [\Cost_\ttime (\state_\ttime)]
+= & \E^{\policy'}_{\state_\ttime} [\Cost_\ttime (\state_\ttime)],
 \end{align*}
 which completes the inductive proof.
 %
@@ -452,10 +452,13 @@ which completes the inductive proof.
 \begin{remark}
 The above proof extends very naturally for the case of a stochastic
 MDP, which implies that $f_\ttime$ is stochastic. The modification
-of the proof would simply take the expectation over $f_\ttime$ in
-Eq. \ref{eq:sec2-MS-MD}.
+of the proof would simply take an expectation over $f_\ttime$ in
+Eq. (\ref{eq:sec2-MS-MD}).
 \end{remark}
 
+\begin{remark}
+ We remark that for the case of deterministic decision processes on can derive a simpler proof, which unfortunately does not extend to stochastic case, or other linear return functions. The observation is that any $\policy\in \Pi_{HS}$ induces a distribution over paths. Therefore there is a path $p$ such that $\E[\Cost^\policy(\state_0)]\geq \Cost(p)$ and for any path $p$ there is a deterministic Markov policy (due to the ability to depend on the time-step).
+ \end{remark}
 
 
 \subsection{Optimal Control Policies}
@@ -511,9 +514,9 @@ be ${m^\tHorizon}$. The number of different policies is
 ${m^{n\tHorizon}}$. For example, for a fairly small problem with
 $\tHorizon = n = m = 10$, we obtain ${10^{10}}$ paths for each
 initial state (and ${10^{11}}$ overall), and ${10^{100}}$ control
-policies. Clearly it is not computationally feasible to enumerate
+policies. Clearly, it is not computationally feasible to enumerate
 them all.
-
+%
 Fortunately, Dynamic Programming offers a drastic reduction of the
 computational complexity for this problem, as presented in the next Section.
 
@@ -611,13 +614,13 @@ We show that the computed policy $\policy^*$ is optimal and its
 return from time $\ttime$ is $\Value_{\ttime}$. We will establish
 the following inductive claim:
 
-\smallskip
+\bigskip
 \noindent{\em For any time $\ttime$ and any state $\state$, the path
 from $\state$ defined by $\policy^*$ is the maximum return path of
 length $\tHorizon-\ttime$. The value of $\Value_\ttime (\state)$ is
 the maximum return from $\state$.}
 
-\smallskip
+\bigskip
 The proof is by a backward induction. For the basis of the induction
 we have: $\ttime=\tHorizon$, and the inductive claim follows from
 the initialization.
@@ -864,7 +867,9 @@ in speech recognition and bioinformatics, among other areas.
 
 
 
-\section{Shortest Path on a Graph}
+\section{Shortest Path on a Graph
+%\footnote{Students familiar with shortest path algorithms in graph can skip this section.}
+}
 The problem of finding the shortest path over a graph is one of the most fundamental problems in graph theory and computer science. We shall briefly consider here three major algorithms for this problem that are closely related to dynamic programming, namely: The Bellman-Ford algorithm, Dijkstra's algorithm, and A$^*$.
 An extensive presentation of the topic can be found in almost any book on algorithms, such as \cite{cormen2009introduction,KleinbergTardos06,DasguptaPapadimitriouVazirani08}.
 
@@ -943,7 +948,7 @@ To understand the algorithm, we observe that after round $i$, $d[\nodev]$ holds 
 \paragraph{Remarks:}
 \begin{enumerate}
   \item The running time of the algorithm is $O(|\nodes|\, \cdot \,|\edges|)$. This is because in each round $i$ of the algorithm, each edge $\edge$ is involved in exactly one update of $d[\nodev]$ for some $\nodev$.
-  \item If $\{ d[\nodev]\}$ does not change at all at some round, then the algorithm may be stopped there.
+  \item If $\{ d[\nodev]:\nodev \in \nodes\}$ does not change at all at some round, then the algorithm may be stopped there.
 %   \item In the version shown above, $\tilde d[\nodev]$ is used to 'freeze' $d[\nodev]$ for an entire round. The standard form of the algorithm actually uses $d[\nodev]$ directly on the right-hand side.
   \item We have assumed above that no negative-weight cycles exist. In fact the algorithm can be used to check for existence of such cycles: A negative-weight cycle exists if and only if  $d[\nodev]$ changes during an additional step ($i = |\nodes|$) of the algorithm.
   \item The basic scheme above can also be implemented in an asynchronous manner, where each node performs a local update of $d[\nodev]$ at its own time. Further, the algorithm can be started from any initial conditions, although convergence can be slower. This makes the algorithm useful for distributed environments such as internet routing.
@@ -995,7 +1000,7 @@ In the following, we prove that Dijkstra's is \textit{complete}, i.e., that is f
 Assume that $\cost(\nodev,\nodeu)\geq 0$ for all $\nodeu,\nodev\in\vertexset$. Then Dijkstra's algorithm terminates with $d[\nodev] = d^*[\nodev]$ for all $\nodev\in\vertexset$.
 \end{theorem}
 \begin{proof}
-We first prove by induction that $d[\nodev] \geq d^*[\nodev]$ throughout the execution of the algorithm. This obviously holds at initialization. Now, assume $d[\nodev] \geq d^*[\nodev] \quad \forall \nodev\in\nodes$ before a relaxation step of edge $\nodex,\nodey$. If $d[\nodex]$ changes after the relaxation we have $d[\nodex] = \cost(\nodex,\nodey) + d[\nodey] \geq \cost(\nodex,\nodey) + d^*[\nodey] \geq d^*[\nodex]$, where the last inequality is Bellman's equation.
+We first prove by induction that $d[\nodev] \geq d^*[\nodev]$ throughout the execution of the algorithm. This obviously holds at initialization. Now, assume $d[\nodev] \geq d^*[\nodev] \quad \forall \nodev\in\nodes$ before a relaxation step of edge $(\nodex,\nodey)\in\edges$. If $d[\nodex]$ changes after the relaxation we have $d[\nodex] = \cost(\nodex,\nodey) + d[\nodey] \geq \cost(\nodex,\nodey) + d^*[\nodey] \geq d^*[\nodex]$, where the last inequality is Bellman's equation.
 
 We will next prove by induction that throughout the execution of the algorithm, for each $\nodev \in \vertexset$ we have $d[\nodev] = d^*[\nodev]$.
 The first vertex added to $\vertexset$ is $\nodev_d$, for which the statement holds. Now, assume by contradiction that $\nodeu$ is the first node that is going to be added to $\vertexset$ for which $d[\nodeu] \neq d^*[\nodeu]$. We must have that $\nodeu$ is connected to $\nodev_d$, otherwise $d[\nodeu] = d^*[\nodeu] = \infty$. Let $p$ denote the shortest path from $\nodeu$ to $\nodev_d$. Since $p$ connects a node in $\nodes\backslash \vertexset$ to a node in $\vertexset$, it must cross the boundary of $\vertexset$. We can thus write it as $p = \nodeu \to \nodex \to \nodey \to \nodev_d$, where $\nodex \in \nodes\backslash \vertexset$, $y \in \vertexset$, and the path $\nodey \to \nodev_d$ is inside $\vertexset$.
@@ -1137,18 +1142,17 @@ assume that there is a policy $\policy'$ that has an average cost
 $\mu^*-\varepsilon$. Consider a sufficiently long run of length
 $\tHorizon$ of $\policy'$, and fix any realization $\theta$ of it.
 We will show that the cumulative cost $\Cost(\theta)\geq
-(\tHorizon-n)\mu^*$, which implies that $\E[\Cost^\policy_{avg}]\geq
-\mu^* -n\mu^*/\tHorizon$.
+(\tHorizon-|\States|)\mu^*$, which implies that $\E[\Cost^\policy_{avg}]\geq
+\mu^* -|\States|\mu^*/\tHorizon$.
 
-Given $\theta$, consider the first simple cycle $\omega$ in
-$\theta$. The average cost of $\omega$ is $\mu(\omega)\geq\mu^*$.
-Delete $\omega$ from $\theta$, reducing the number of edges by
-$|\omega|$ and the cumulative cost by $\mu(\omega)|\omega|$. We
-continue the process until there is no remaining cycles, which
-implies that we have at most $|\nodes|=n$ nodes remaining. Therefore, the
-costs of $\omega$ was at least $(\tHorizon-n)\mu^*$. This implies
-that the average cost of $\theta$ is at least $\E[\Cost_{avg}^{\policy^{,}}]=\mu^*-\epsilon\geq
-(1-\frac{n}{\tHorizon})\mu^*$. For $\epsilon>\mu^* n/\tHorizon$ we
+Given $\theta$, consider the first simple cycle $\omega_1$ in
+$\theta$. The average cost of $\omega$ is $\mu(\omega)\geq\mu^*$ and its length is $|\omega_1|$.
+Delete $\omega_1$ from $\theta$, reducing the number of edges by
+$|\omega_1|$ and the cumulative cost by $\mu(\omega_1)|\omega_1|$. We
+continue the process until there is no remaining cycles, deleting cycles $\omega_1, \ldots , \omega_k$. At the end, since there are no cycles, we have at most $|\States|$ nodes remaining, hence $\sum_{i=1}^k |\omega_i|\geq \tHorizon-|\States|$. The cost of $\theta$ is at least $\sum_{i=1}^k |\omega_i|\mu(\omega_i)\geq(\tHorizon-|\States|)\mu^*$.
+%Therefore, the costs of $\omega$ was at least $(\tHorizon-n)\mu^*$. 
+This implies that the average cost of $\theta$ is at least $\E[\Cost_{avg}^{\policy^{,}}]=\mu^*-\epsilon\geq
+(1-\frac{|\States}{\tHorizon})\mu^*$. For $\epsilon>\mu^* n/\tHorizon$ we
 have a contradiction.
 \end{proof}
 
@@ -1180,7 +1184,7 @@ number $M$ to all the weights).
 
 We start with $\mu^*=0$. This implies that we have in $\graph(\nodes,\edges)$ a
 cycle of weight zero, but no negative cycle. For the theorem it is
-sufficient to show that
+sufficient to show that,
 \[
 \min_{v\in S} \max_{0\leq k \leq n-1} \{d_n(v)-d_{k}(v)\}=0.
 \]
@@ -1229,9 +1233,9 @@ negative cycles. We now consider the formula,
 =&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
 \{\frac{d_n(v)-d_{k}(v)}{n-k}-\Delta\}\\
 =&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
-\{\frac{d_n(v)-d_{k}(v)}{n-k}\}-\Delta
+\{\frac{d_n(v)-d_{k}(v)}{n-k}\}-\Delta.
 \end{align*}
-Therefore we have
+Therefore we have,
 \[
 \mu^*=\Delta=\min_{v\in \nodes} \max_{0\leq k\leq n-1}
 \{\frac{d_n(v)-d_{k}(v)}{n-k}\}   
@@ -1253,7 +1257,9 @@ $O(|\nodes|\cdot |\edges|)$.
 
 
 
-\section{Continuous Optimal Control}
+\section{Continuous Optimal Control
+%\footnote{This sub-section may be skipped.}
+}
 In this section we consider optimal control of continuous, deterministic, and fully observed systems in discrete time. 
 In particular, consider the following problem:
 \begin{equation}\label{eq:opt_control}
@@ -1286,7 +1292,7 @@ We now restrict our attention to linear-quadratic problems of the form:
         & \cost_\tHorizon = \state_\ttime^\top Q_\tHorizon \state_\ttime.
     \end{split}
 \end{equation}
-where $\state_0$ is given, $Q_\ttime=Q_\ttime^\top \geq 0$ is a non-negative definite state-cost matrix, and $R_\ttime = R_\ttime^\top > 0 $ is a positive definite control-cost matrix.
+where $\state_0$ is given, $Q_\ttime=Q_\ttime^\top \geq 0$ is a symmetric non-negative definite state-cost matrix, and $R_\ttime = R_\ttime^\top > 0 $ is a symmetric positive definite control-cost matrix.
 
 We will solve Problem \ref{eq:lqr} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttime$, that is, 
 $$\Value_\ttime(\state) = \min_{\action_\ttime,\dots,\action_\tHorizon} \sum_{\ttime'=\ttime}^T \cost_{\ttime'}(\state_{\ttime'}, \action_{\ttime'}) \quad \textrm{s.t.} \quad \state_\ttime = \state.$$
@@ -1367,7 +1373,7 @@ $\action_\ttime^* = K_\ttime \state + \kappa_\ttime, $ for some matrices $K_\tti
 
 \subsection{Iterative LQR}
 
-We now return to the original non-linear problem \ref{eq:opt_control}. If we linearize the dynamics and quadratize the cost -- we can plug in the LQR solution we obtained above. Namely, given some reference trajectory $\hat{\state_0},\hat{\action_0},\dots,\hat{\state_\ttime}, \hat{\action_\tHorizon}$, we apply a Taylor approximation:
+We now return to the original non-linear problem (\ref{eq:opt_control}). If we linearize the dynamics and quadratize the cost -- we can plug in the LQR solution we obtained above. Namely, given some reference trajectory $\hat{\state_0},\hat{\action_0},\dots,\hat{\state_\ttime}, \hat{\action_\tHorizon}$, we apply a Taylor approximation:
 \begin{equation}\label{eq:Taylor_approx}
 \begin{split}
     {f_\ttime}({\state_\ttime},{\action_\ttime}) &\approx {f_\ttime}({\hat{\state}_\ttime},{\hat{\action}_\ttime}) + \nabla_{\state_\ttime, \action_\ttime}f_\ttime({\hat{\state}_\ttime},{\hat{\action}_\ttime}) [\state_\ttime - \hat{\state}_\ttime, \action_\ttime - \hat{\action}_\ttime] \\
@@ -1386,7 +1392,7 @@ The iterative LQR algorithm works by applying this approximation iteratively:
     \item Run a forward simulation of the controls in the nonlinear system to obtain a state trajectory $\hat{\state_0},\dots,\hat{\state_\ttime}$.
     \item Linearize the dynamics and quadratize the cost (Eq. \ref{eq:Taylor_approx}), and solve using LQR.
     \item By running a forward simulation of the control $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \alpha \kappa_\ttime + \hat{\action}_\ttime$ on the non-linear system, perform a line search for the optimal $\alpha$ according to the non-linear cost.
-    \item For the found $\alpha$, run a forward simulation to obtain a new trajectory  $\hat{\state_0},\hat{\action_0},\dots,\hat{\state_\tHorizon},\hat{\action_\tHorizon}$. Go to step 3.
+    \item For the found $\alpha$, run a forward simulation to obtain a new trajectory  $\hat{\state}_0,\hat{\action}_0,\dots,\hat{\state}_{\tHorizon},\hat{\action}_{\tHorizon}$. Go to step 3.
 \end{enumerate}
 
 In practice, the iLQR algorithm is typically much more stable and efficient than the gradient descent approach.
@@ -1407,3 +1413,13 @@ In practice, the iLQR algorithm is typically much more stable and efficient than
 % \input{exercises/DP_all_pairs_sp}
 
 %\end{document}
+
+
+\section{Bibliography notes}
+
+\SM{Include:
+\begin{itemize}
+\item Dijlstra
+\item Viterbi
+\item LQR/LQG (continuous optimal control) - but which reference?
+\end{itemize}}

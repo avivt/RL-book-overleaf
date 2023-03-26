@@ -833,9 +833,15 @@ Then
 \begin{align*}
 \left|\widehat{V}_{n+1}(\state)-V_{n+1}(\state)\right| =&
 \left|\max_a\left\{\widehat{\reward}(\state,\action)+\discount
-\frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i)\}\right\} - \max_a\left\Bigg\{
+\frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i)\}\right\} 
+- \max_a 
+%left
+\Bigg\{
 \reward(\state,\action)+\discount E_{\state'\sim \transitionprob(\cdot
-|\state,\action)} [V_n(\state')] \right\Bigg\}\right|\\
+|\state,\action)} [V_n(\state')] 
+%\right
+\Bigg\}
+\right|\\
 \leq& \max_a\left|\widehat{\reward}(\state,\action)+\discount
 \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) - 
 \reward(\state,\action)-\discount E_{\state'\sim \transitionprob(\cdot
@@ -853,7 +859,7 @@ E_{\state'\sim \transitionprob(\cdot
 E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
  \leq & \varepsilon'+\discount\varepsilon' +\discount\lambda = (1+\discount)\varepsilon' +\discount\lambda.
-%  \leq \lambda,
+ \leq \lambda,
 \end{align*}
 % where the last inequality holds for $\lambda\geq
 % \frac{\varepsilon(1+\discount)}{1-\discount}$.

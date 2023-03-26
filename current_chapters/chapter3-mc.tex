@@ -256,21 +256,21 @@ probability $1$ and $\E[T_i]=\infty$. This implies that all the
 states are null recurrent.
 
 To compute $\E[T_i]$ consider what happens after one and two steps. Let
-$Z_{i,i-1}$ be the time to move from $i$ to $i-1$. Note that  we
-have \[
+$Z_{i,j}$ be the time to move from $i$ to $j$. Note that we have,
+\[
 \E[T_i]=1+0.5\E[Z_{i+1,i}]+0.5\E[Z_{i-1,i}]=1+\E[Z_{1,0}],
 \]
 since, due to symmetry, $\E[Z_{i,i+1}]=\E[Z_{i+1,i}]=\E[Z_{1,0}]$.
 
 After two steps we are either back to $i$, or at state $i+2$ or state $i-2$.
-For $\E[T_i]$ we have that
+For $\E[T_i]$ we have that,
 \begin{align*}
 \E[T_i]=&
 2+\frac{1}{4}\E[Z_{i+2,i}]+\frac{1}{4}\E[Z_{i-2,i}] \\
 =&2+\frac{1}{4} (\E[Z_{i+2,i+1}]+\E[Z_{i+1,i}])+\frac{1}{4}( \E[Z_{i-2,i-1}]+\E[Z_{i-1,i}])\\
- =&2+E[Z_{1,0}]\\
+ =&2+E[Z_{1,0}],
 \end{align*}
-where the first identity uses the fact that $Z_{i+2,i}=Z_{i+2,i+1}+Z_{i+1,i}$, since in order tp reach from state $i+2$ to state $i$ we need to first reach from state $i+2$ state $i+1$, and then from state $i+1$ to state $i$.
+where the first identity uses the fact that $Z_{i+2,i}=Z_{i+2,i+1}+Z_{i+1,i}$, since in order to reach from state $i+2$ to state $i$ we need to first reach from state $i+2$ state $i+1$, and then from state $i+1$ to state $i$.
 
 This implies that we have
 \[
@@ -308,7 +308,7 @@ return to $0$. Namely, $p_{i,i+1}=1/2$, $p_{i,0}=1/2$, and $p_{i,j}
 
 From any state we return to $0$ with probability $1/2$, therefore
 $\E[T_0]=2$ (The return time is $1$ with probability $1/2$, $2$ with probability $(1/2)^2$, $k$ with probability $(1/2)^k$, and computing the expectation gives $\sum_{k=1}^\infty k/2^k = 2$). We will show that for state $i$ we have
-$\E[T_i]\leq2+2\cdot 2^{i-1}$. We will decompose $T_i$ to two parts. The
+$\E[T_i]\leq2+2\cdot 2^{i}$. We will decompose $T_i$ to two parts. The
 first is the return to $0$, this part has expectation $2$. The
 second is to reach state $i$ from state $0$. Consider an epoch as
 the time between two visits to $0$. The probability that an epoch
@@ -371,7 +371,7 @@ This implies that for any weight vector $w>0$ we have $|x^\top w| <
 |x|^\top w$, where $|x|$ is point-wise absolute value. Therefore,
 \[
 \sum_j |x_j|= \sum_j |\sum_i x_i P_{i,j}| < \sum_j \sum_i |x_i|
-P_{i,j}=  \sum_i |x_i| \sum_j P_{i,j}= \sum_j |x_j|
+P_{i,j}=  \sum_i |x_i| \sum_j P_{i,j}= \sum_j |x_j|,
 \]
 where the first identity follows since $x$ is an eigenvector. The
 second since $P$ is strictly positive.The third is a change of order
@@ -416,16 +416,15 @@ $x=y$, and hence $\mu$ is unique.
 We define the average fraction that a state $j\in X$ occurs, given
 that we start with an initial state distribution $x_0$,  as follows:
 \[
-\pi^{(m)}_j=\frac{1}{m}\sum_{t=1}^m \I (X_t=j)
+\pi^{(m)}_j=\frac{1}{m}\sum_{t=1}^m \I (X_t=j).
 \]
 
 \begin{theorem}
 Let $({X_\ttime})$ be an irreducible and  a-periodic Markov chain
 over a finite state space $X$ with transition matrix $P$. Let $\mu$
-be the stationary distribution of $P$. Then, for any $j\in X$ we
-have
+be the stationary distribution of $P$. Then, for any $j\in X$ we have,
 \[
-\mu_j=\lim_{m\rightarrow\infty} \E[\pi^{(m)}_j] =\frac{1}{\E[T_j]}
+\mu_j=\lim_{m\rightarrow\infty} \E[\pi^{(m)}_j] =\frac{1}{\E[T_j]}.
 \]
 \end{theorem}
 
@@ -579,7 +578,7 @@ $p$. Then
  Denote $\lambda  = p(1 - q)$, $\eta  = (1 - p)q$, and $\rho  = \lambda /\eta $.   The detailed balance equations for this case are:
 \[
 \mu_i p_{i,i+1}={\mu _i}\lambda  = {\mu _{i + 1}}\eta=\mu_{i+1}p_{i+1,i} ,\quad \quad \forall i \ge 0\]
-These equations have a solution with $\sum {_i{\mu _i} = 1}$ if and
+These equations have a solution with $\sum_{i}\mu _i = 1$ if and
 only if $\rho  < 1$. The solution is ${\mu _i} = {\mu _0}{\rho ^i}$,
 with ${\mu _0} = 1 - \rho $. This is therefore the stationary
 distribution of this queue.
@@ -590,7 +589,8 @@ distribution of this queue.
 \paragraph{Mixing time:} %Add definition and motivation
 The mixing time measures how fast the Markov chain converges to the steady state distribution. We first define the Total Variation distance between distributions $D_1$ and $D_2$ as:
 \[
-\|D_1-D_2\|_{TV}=\frac{1}{2}\sum_{x\in X} | D_1 (x) - D_2(x) |
+\|D_1-D_2\|_{TV}=\max_{B\subseteq X} \{ D_1(B)-D_2(B) \}
+=\frac{1}{2}\sum_{x\in X} | D_1 (x) - D_2(x) |
 \]
 The mixing time $\tau$ is defined as the time to reach a total variation of at most $1/4$:
 \[
