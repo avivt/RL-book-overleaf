@@ -382,7 +382,7 @@ Now, for small $\varepsilon$, we understand that the values $\Value^{\policy}(\s
 
 However, note that for $\varepsilon \neq 0$, the bootstrapping solution will also be biased: taking $N\to \infty$ we see that $\widehat{\Value}_{3/4}$ will converge to $\varepsilon/2$, and therefore $\widehat{\Value}^{\policy}(\state_1)$ and $\widehat{\Value}^{\policy}(\state_2)$ will converge to $1+\varepsilon/2$ and $2+\varepsilon/2$, respectively.
 
-Thus, we see that bootstrapping, when combined with function approximation, allowed us to reduce variance by exploiting the similarity between values of different states, but at the cost of a possible bias in the expected solution. As it turns out, this phenomenon is not limited to the example above, but can be shown to hold more generally~\cite{kearns2000bias}. \textcolor{red}{I don't know of a general result about bias/variance that is simple enough to state in the book. Any ideas?}
+Thus, we see that bootstrapping, when combined with function approximation, allowed us to reduce variance by exploiting the similarity between values of different states, but at the cost of a possible bias in the expected solution. As it turns out, this phenomenon is not limited to the example above, but can be shown to hold more generally~\cite{kearns2000bias}. \AT{I don't know of a general result about bias/variance that is simple enough to state in the book. Any ideas?}
 
 In the following, we shall develop a rigorous formulation of bootstrapping with function approximation, and use it to suggest several approximation algorithms. We will also bound the bias incurred by this approach.
 

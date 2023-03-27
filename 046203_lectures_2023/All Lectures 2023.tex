@@ -1,0 +1,87 @@
+\documentclass[12pt]{book}
+\usepackage{graphicx,ae}
+\usepackage{color}
+\usepackage{amsmath}
+\usepackage{amssymb}
+% \usepackage{hyperref}
+\usepackage{fullpage}
+\usepackage{natbib}
+\usepackage{framed}
+
+\newcommand{\ymignore}[1]{}
+\usepackage{hyperref}
+
+
+\input{defs}
+% supress comments
+\renewcommand{\SM}[1]{}
+\renewcommand{\AT}[1]{}
+
+\title{Reinforcement Learning: Foundations}
+\date{February 2023
+\\
+  \textcolor{red}{This book is still work in progress. In particular, references to literature are not complete. We would be grateful for comments, suggestions, omissions, and errors of any kind, at \url{rlfoundationsbook@gmail.com}. }
+
+}
+\author{Shie Mannor, Yishay Mansour and Aviv Tamar}
+
+
+\begin{document}
+\maketitle
+
+\tableofcontents
+
+\chapter{Dynamic Programming}
+\label{chapter:dp}
+\input{current_chapters/appendix-dp}
+
+\chapter{Deterministic Decision Processes}
+\label{chapter:DDP}
+\input{current_chapters/chapter2-ddp}
+
+\chapter{Markov Chains}
+\label{chapter:MC}
+\input{current_chapters/chapter3-mc}
+
+\chapter{Markov Decision Processes and Finite Horizon Dynamic Programming}
+\label{chapter:MDP-FH}
+\input{current_chapters/chapter4-mdp-fh}
+
+\chapter{Discounted Markov Decision Processes}
+\label{chapter:disc}
+\input{current_chapters/chapter5-disc}
+
+% \chapter{Reinforcement Learning: Model Based}\label{chapter-model-based}
+% \input{current_chapters/chapter6-mbrl}
+
+\chapter{Reinforcement Learning: Model Free}
+\label{chapter:learning-model-free}
+\input{current_chapters/chapter7-mfrl1}
+\newpage
+\input{current_chapters/chapter7-mfrl2}
+
+\chapter{Stochastic Approximation}
+\label{chapter:stochastic_approx}
+\input{future_chapters/Lecture9-SA}
+
+\chapter{Approximate Dynamic Programming}
+\label{chapter:approx-dp}
+\input{future_chapters/Lecture-ApproximateDP_Aviv}
+
+% \chapter{Large State Spaces: Value Function Approximation}
+% \label{chapter:function-approximation}
+% \input{current_chapters/chapter8-fa}
+
+\chapter{Policy Gradient Methods}
+\label{chapter:policy-gradient}
+\input{current_chapters/chapter9-pg}
+
+\chapter{Multi-Arm bandits}
+\label{chapter:MAB}
+\input{current_chapters/chapter10-mab}
+
+
+
+\bibliographystyle{plain}
+\bibliography{bib-lecture}
+\end{document}
