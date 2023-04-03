@@ -10,12 +10,17 @@
 
 \newcommand{\ymignore}[1]{}
 \usepackage{hyperref}
-
+\usepackage{environ}
 
 \input{defs}
 % supress comments
 \renewcommand{\SM}[1]{}
 \renewcommand{\AT}[1]{}
+% don't show advanced material
+% \NewEnviron{advanced}{}{}
+% show advanced material with left bar
+\newenvironment{advanced}{\begin{leftbar}}{\end{leftbar}}
+
 
 \title{Reinforcement Learning: Foundations}
 \date{February 2023
@@ -56,13 +61,10 @@
 
 \chapter{Reinforcement Learning: Model Free}
 \label{chapter:learning-model-free}
-\input{current_chapters/chapter7-mfrl1}
-\newpage
-\input{current_chapters/chapter7-mfrl2}
-
-\chapter{Stochastic Approximation}
-\label{chapter:stochastic_approx}
-\input{future_chapters/Lecture9-SA}
+\input{future_chapters/Lecture-ModelFree_Aviv}
+% \input{current_chapters/chapter7-mfrl1}
+% \newpage
+% \input{current_chapters/chapter7-mfrl2}
 
 \chapter{Approximate Dynamic Programming}
 \label{chapter:approx-dp}
