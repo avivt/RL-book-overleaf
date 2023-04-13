@@ -590,7 +590,9 @@ $$\FtrMtx^T \Xi (\FtrMtx \weights^* - (R^\policy+\gamma P^\policy \FtrMtx \weigh
 Equivalently we can write
 $$A \weights^* = b,$$
 where
-$$A = \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx, \ \ b = \FtrMtx^T\Xi R^\policy.$$
+\begin{equation}\label{eq:A_b_TD}
+A = \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx, \ \ b = \FtrMtx^T\Xi R^\policy.
+\end{equation}
 
 \paragraph{Solution approaches:}
 \begin{enumerate}
@@ -637,16 +639,30 @@ To realize this algorithm, we use the same samples as above, and only replace th
 \end{remark}
 
 \item \textbf{Stochastic Approximation -- TD(0):} Consider the function-approximation variant of the TD(0) algorithm (cf. Section \ref{sec:TD})
-\begin{equation*}
-    \weights_{n+1} = \weights_n + \alpha_n \underbrace{( \reward(\state_n,\policy(\state_n)) +\gamma {\ftrs}(\state_{n+1})^\top \weights_n - {\ftrs}(\state_{n})^\top \weights_n)}_{\textrm{temporal difference}} \ftrs(\state_{n}),
-\end{equation*}
-where the temporal difference term is the approximation (w.r.t. the weights at time $n$) of $\reward(\state_n,\policy(s_n)) +\gamma \Value(\state_{n+1}) - \Value(s_n)$.
+\begin{equation}\label{eq:TD_func_approx}
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \underbrace{( \reward(\state_\ttime,\policy(\state_\ttime)) +\discount {\ftrs}(\state_{\ttime+1})^\top \weights_\ttime - {\ftrs}(\state_{\ttime})^\top \weights_\ttime)}_{\textrm{temporal difference}} \ftrs(\state_{\ttime}),
+\end{equation}
+where the temporal difference term is the approximation (w.r.t. the weights at time $\ttime$) of $\reward(\state_\ttime,\policy(s_\ttime)) +\discount \Value(\state_{\ttime+1}) - \Value(s_\ttime)$.
 \\
 This algorithm can be written as a stochastic approximation:
 \begin{equation*}
-    \weights_{n+1} = \weights_n + \alpha_n ( b -  A \weights_n + m_n ),
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime ( b -  A \weights_\ttime + \omega_\ttime ),
 \end{equation*}
-where $m_n$ is a noise term, and the corresponding ODE is $\dot{\weights} = b -  A \weights_n$, with a unique stable fixed point at $\weights^* = A^{-1}b$. 
+where $\omega_\ttime$ is a noise term, and the corresponding ODE is $\dot{\weights} = b -  A \weights_\ttime$, with a unique stable fixed point at $\weights^* = A^{-1}b$. 
+
+We next prove convergence of TD(0). For simplicity, we will consider a somewhat synthetic version of TD(0) where at each iteration $\ttime$, the state $\state_\ttime$ is drawn i.i.d. from the stationary distribution $\xi(\state)$, and the next state $\state_{\ttime+1}$ in the update rule is drawn from $P^\policy(\state'|\state = \state_\ttime)$, respectively. This will allow us to claim that the noise term satisfies $\E[\omega_\ttime|h_{\ttime-1}]=0$. 
+
+\begin{remark}
+A similar convergence result holds for the standard TD(0) of Eq.~\ref{eq:TD_func_approx}, using a more sophisticated proof technique that accounts for noise that is correlated (depends on the state). The main idea is to show that since the Markov chain mixes quickly, the \textit{average} noise is still close to zero with high probability~\cite{TsitsiklisVR97}.
+\end{remark}
+
+\begin{theorem}
+    Consider the following iterative algorithm:
+    \begin{equation*}\label{eq:TD_func_approx_iid}
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime ( \reward(\state_\ttime,\policy(\state_\ttime)) +\discount {\ftrs}(\state_{\ttime}')^\top \weights_\ttime - {\ftrs}(\state_{\ttime})^\top \weights_\ttime) \ftrs(\state_{\ttime}),
+\end{equation*}
+where $\state_\ttime\sim \xi(\state)$ i.i.d., and $\state_{\ttime}' \sim P^\policy(\state'|\state = \state_\ttime)$ independently of the history up to time $t$.
+\end{theorem}
 
 \end{enumerate}
 % \begin{remark}
