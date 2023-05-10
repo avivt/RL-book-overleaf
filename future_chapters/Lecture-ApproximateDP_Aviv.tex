@@ -578,7 +578,7 @@ where the first equality is by the Pythagorean theorem, and the remainder follow
 % would converge to $\Project_\xi \Value^\policy$ as $N\to \infty$. However, such an algorithm would suffer a high variance, since the discounted return in the whole trajectory often has a high variance. The PBE approach typically has lower variance, since it only considers 1-step transitions instead of complete trajectories. However, it may have a \emph{bias}, as seen by the error bound in Proposition \ref{prop:PBE_contraction}. We thus have a bias-variance tradeoff between the direct and indirect approaches to policy evaluation.
 % \end{remark}
 
-\subsection{Solution Techniques for the Projected Bellman Equation}
+\subsection{Solution Techniques for the Projected Bellman Equation}\label{ssec:TD_solution_techniques}
 We now move to solving the projected Bellman equation. Taking inspiration from the algorithms for linear least squares described above, we will seek sampling-based approximations to the solution of the PBE.
 
 Using the explicit formulation of the projection $\Project_\xi$, we see that the PBE solution is some $\widehat{\Value} = \FtrMtx \weights^*$ where $\weights^*$ solves
@@ -596,21 +596,51 @@ A = \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx, \ \ b = \FtrMtx^T\Xi R^\policy.
 
 \paragraph{Solution approaches:}
 \begin{enumerate}
-\item \textbf{Matrix inversion (LSTD)}: $$\weights^* = A^{-1}b$$
-In order to evaluate $A,b$, calculate a simulation-based approximation $\widehat{A}_k,\hat{b}_k \rightarrow A,b$ by the law of large numbers, and then use $\widehat{\weights}_k = \widehat{A}_k^{-1} \widehat{b}_k$. This approach is termed the Least Squares Temporal Difference algorithm (LSTD). Note that the simulation must use the policy $\policy$, such that (after some mixing time) the states are samples from the stationary distribution $\xi$.\\
-Recall that
-$$b = \FtrMtx^T \Xi R^\policy = \sum_{s=1}^{|\States|} \xi(s)  {\ftrs}(s) R^\policy(s).$$
-So the following estimate converges to $b$:
+\item \textbf{Matrix inversion (LSTD)}: 
+We have that $$\weights^* = A^{-1}b.$$
+In order to evaluate $A,b$, we can use simulation.
+\begin{proposition}\label{prop:TD_expectations}
+    We have that 
+    \begin{equation*}
+        \mathbb{E}_{\state\sim\xi}\left[ {\ftrs}(\state) r(\state,\policy(\state)) \right] = b,
+    \end{equation*}
+    and
+    \begin{equation*}
+        \mathbb{E}_{\state\sim\xi, \state'\sim P^\policy(\cdot|\state)}\left[ {\ftrs}(\state)( {\ftrs}^T(\state)-\gamma {\ftrs}^T(\state')) \right] = A.
+    \end{equation*}
+\end{proposition}
+\begin{proof}
+    We have
+    \begin{equation*}
+        \mathbb{E}_{\state\sim\xi}\left[ {\ftrs}(\state) r(\state,\policy(\state)) \right] = \sum_{\state}  {\ftrs}(\state) \xi(\state) r(\state,\policy(\state)) = \FtrMtx^T\Xi R^\policy = b.
+    \end{equation*}
+    Also,
+    \begin{equation*}
+    \begin{split}
+        &\mathbb{E}_{\state\sim\xi, \state'\sim P^\policy(\cdot|\state)}\left[ {\ftrs}(\state)( {\ftrs}^T(\state)-\gamma {\ftrs}^T(\state')) \right] \\
+        &= \sum_{\state,\state'} \xi(\state)P^\policy(\state'|\state){\ftrs}(\state)( {\ftrs}^T(\state)-\gamma {\ftrs}^T(\state')) \\
+        &= \sum_{\state} {\ftrs}(\state) \xi(\state){\ftrs}^T(\state) - \gamma\sum_{\state}{\ftrs}(\state)\xi(\state)\sum_{\state'}P^\policy(\state'|\state){\ftrs}^T(\state')\\
+        &= \FtrMtx^T \Xi \FtrMtx -\gamma \FtrMtx^T\Xi P^\policy \FtrMtx = A.
+    \end{split}
+    \end{equation*}
+\end{proof}
+We now propose the following estimates to $A$ and $b$. Simulate a sequence of $N$ state-action pairs $\state_1,\action_1,\state_2,\action_2,\dots,\state_N,\action_N,\state_{N+1}$ using the policy $\policy$, i.e., $\action_i \sim \policy(\cdot|\state_i)$, and starting from an arbitrary $\state_0$. The Least Squares Temporal Difference algorithm (LSTD) estimates are given by
 \begin{align*}
-\widehat{b}_N &= \frac{1}{N} \sum_{t=1}^N  {\ftrs}(\state_\ttime) r(\state_\ttime,\policy(\state_\ttime)) = \\
-&= \frac{1}{N}\sum_{t=1}^N\sum_{s=1}^{|\States|} {\bf1}(\state_\ttime=s) {\ftrs}(s) R^\policy(s) =\\
-&= \sum_{s=1}^{|\States|} {\ftrs}(s) R^\policy(s) \frac{1}{N}\sum_{t=1}^N {\bf1}(\state_\ttime=s) \underset{N\rightarrow \infty}{\longrightarrow} b .
-\end{align*}
-Similarly,
+\widehat{b}_N &= \frac{1}{N} \sum_{t=1}^N  {\ftrs}(\state_\ttime) r(\state_\ttime,\policy(\state_\ttime)) \end{align*}
+and 
 \begin{align*}
-\widehat{A}_N &= \frac{1}{N} \sum_{t=1}^N  {\ftrs}(\state_\ttime)(I-\gamma P^\policy) {\ftrs}^T(\state_\ttime) \approx \\
-&\frac{1}{N} \sum_{t=1}^N {\ftrs}(\state_\ttime)( {\ftrs}^T(\state_\ttime)-\gamma {\ftrs}^T(s_{t+1}))  \underset{N\rightarrow \infty}{\longrightarrow} A .
+\widehat{A}_N &=
+\frac{1}{N} \sum_{t=1}^N {\ftrs}(\state_\ttime)( {\ftrs}^T(\state_\ttime)-\gamma {\ftrs}^T(\state_{\ttime+1})).
 \end{align*}
+
+From the ergodicity property of Markov chains (Theorem \ref{thm:finite_Markov_chains}), we have the following result.
+\begin{proposition}
+We have that 
+\begin{equation*}
+    \lim_{N\to \infty} \widehat{b}_N = b, \quad \lim_{N\to \infty} \widehat{A}_N = A
+\end{equation*}
+with probability 1.
+\end{proposition}
 
 \item \textbf{Projected Value Iteration:}
 Consider the iterative solution,
@@ -652,17 +682,63 @@ where $\omega_\ttime$ is a noise term, and the corresponding ODE is $\dot{\weigh
 
 We next prove convergence of TD(0). For simplicity, we will consider a somewhat synthetic version of TD(0) where at each iteration $\ttime$, the state $\state_\ttime$ is drawn i.i.d. from the stationary distribution $\xi(\state)$, and the next state $\state_{\ttime+1}$ in the update rule is drawn from $P^\policy(\state'|\state = \state_\ttime)$, respectively. This will allow us to claim that the noise term satisfies $\E[\omega_\ttime|h_{\ttime-1}]=0$. 
 
-\begin{remark}
-A similar convergence result holds for the standard TD(0) of Eq.~\ref{eq:TD_func_approx}, using a more sophisticated proof technique that accounts for noise that is correlated (depends on the state). The main idea is to show that since the Markov chain mixes quickly, the \textit{average} noise is still close to zero with high probability~\cite{TsitsiklisVR97}.
-\end{remark}
 
 \begin{theorem}
     Consider the following iterative algorithm:
     \begin{equation*}\label{eq:TD_func_approx_iid}
     \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime ( \reward(\state_\ttime,\policy(\state_\ttime)) +\discount {\ftrs}(\state_{\ttime}')^\top \weights_\ttime - {\ftrs}(\state_{\ttime})^\top \weights_\ttime) \ftrs(\state_{\ttime}),
 \end{equation*}
-where $\state_\ttime\sim \xi(\state)$ i.i.d., and $\state_{\ttime}' \sim P^\policy(\state'|\state = \state_\ttime)$ independently of the history up to time $t$.
+where $\state_\ttime\sim \xi(\state)$ i.i.d., and $\state_{\ttime}' \sim P^\policy(\state'|\state = \state_\ttime)$ independently of the history up to time $t$. Assume that $\FtrMtx$ is full rank. Let the step sizes satisfy $\sum_\ttime
+\alpha_\ttime
+=\infty $, and 
+$\sum_\ttime \alpha_\ttime^2=O(1)$. Then $\weights_\ttime$
+converges with probability $1$ to $\weights^*= A^{-1}b$.
 \end{theorem}
+\begin{proof}
+    We write Eq.~\eqref{eq:TD_func_approx_iid} as 
+    \begin{equation*}
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime ( b -  A \weights_\ttime + \omega_\ttime ),
+\end{equation*}
+where the noise $\omega_\ttime = \reward(\state_\ttime,\policy(\state_\ttime))\ftrs(\state_{\ttime}) - b +  (\discount{\ftrs}(\state_{\ttime}')^\top - {\ftrs}(\state_{\ttime})^\top) \weights_\ttime \ftrs(\state_{\ttime}) + A \weights_\ttime$ satisfies: 
+\begin{equation*}
+\E[\omega_\ttime|h_{\ttime-1}]= \E[\omega_\ttime|\weights_\ttime]= 0,
+\end{equation*}
+where the first equality is since the states are drawn i.i.d., and the second is from Proposition \ref{prop:TD_expectations}.
+We would like to use Theorem \ref{thm:stoch-approx-ODE-linear} to show convergence. From Proposition \ref{prop:PBE_contraction} we already know that $\weights^*$ corresponds to the unique fixed point of the linear dynamical system $\safunc(\weights) = -A\weights + b$.
+We proceed to show that $\weights^*$ is
+globally asymptotically stable, by showing that the eigenvalues of $A$ have a positive real part. Let $z \in \mathbb{R}^{|\States|}$. We have that
+\begin{equation*}
+\begin{split}
+    z^T \Xi P^\policy z &= z^T \Xi^{1/2} \Xi^{1/2} P^\policy z \\
+    &\leq \| \Xi^{1/2} z \| \| \Xi^{1/2} P^\policy z \| \\
+    &=\| z \|_{\xi} \| P^\policy z \|_{\xi} \\
+    &\leq \| z \|_{\xi}\| z \|_{\xi} = z^T \Xi z.
+\end{split}
+\end{equation*}
+where the first inequality is by Cauchy-Schwarz, and the second is by Lemma \ref{lem:P_non_expansion}.
+
+We claim that the matrix $\Xi(I-\gamma P^\policy)$ is positive definite. To see this, observe that for any $z \in \mathbb{R}^{|\States|}\neq 0$ we have
+\begin{equation}\label{eq:TD_convergnece_proof_eq1}
+    z^T\Xi(I-\gamma P^\policy)z = z^T \Xi z - \gamma z^T \Xi P^\policy z \geq z^T \Xi z - \gamma z^T \Xi z = (1-\gamma) \|z\|_{\xi} > 0.
+\end{equation}
+We now claim that $A= \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx$ is positive definite. Assume by negation that for some $\theta \in \mathbb{R}^\nftrs$, $\theta\neq 0$ we have $\theta^T\FtrMtx^T\Xi(I-\gamma P^\policy)\FtrMtx\theta \leq 0$. If $\FtrMtx$ is full rank, then $z = \FtrMtx\theta \in \mathbb{R}^{|\States|} \neq 0$, contradicting Eq.~\eqref{eq:TD_convergnece_proof_eq1}. The claim that the eigen-values of $A$ have a positive real part is not immediate from the positive definiteness established above since $A$ is not necessarily symmetric. To show this, let $\lambda \in \mathbb{C} = \alpha + \beta i$ be an eigenvalue of $A$, and let $v \in \mathbb{C}^\nftrs = x + iy$, where $x,y\in \mathbb{R}^\nftrs$, be its associated right eigenvector. We have that $(A-\lambda)v = 0$, therefore
+$$
+((A - \alpha) -\beta i)(x + iy) = 0,
+$$
+therefore $(A-\alpha)x + \beta y = 0$ and $(A-\alpha)y - \beta x = 0$. Multiplying these two equations by $x^T$ and $y^T$, respectively, and summing we obtain
+$$
+x^T(A-\alpha)x + y^T(A-\alpha)y = - x^T\beta y + y^T\beta x = \beta(y^Tx - x^Ty) = 0.
+$$
+Therefore,
+$$
+\alpha = \frac{x^TAx + y^TAy}{x^Tx + y^Ty} > 0.
+$$
+\end{proof}
+
+\begin{remark}
+A similar convergence result holds for the standard TD(0) of Eq.~\ref{eq:TD_func_approx}, using a more sophisticated proof technique that accounts for noise that is correlated (depends on the state). The main idea is to show that since the Markov chain mixes quickly, the \textit{average} noise is still close to zero with high probability~\cite{TsitsiklisVR97}.
+\end{remark}
+
 
 \end{enumerate}
 % \begin{remark}
@@ -914,7 +990,7 @@ they are running an SGD algorithm. For linear functions with convex
 loss they will converge to the global optimum and for non-linear
 functions (for example, neural networks) they will converge to a
 local optima. The convergence to the TD appear in Chapter
-\ref{sec:FA-Advanced}. The divergence of TD with linear functions in
-an off-policy setting appear in Chapter \ref{sec:TD-FA}. The TD
+\ref{ssec:TD_solution_techniques}. The divergence of TD with linear functions in
+an off-policy setting appear in Chapter \ref{sec:off_policy_FA}. The TD
 divergence in the non-linear online setting appears in
 \cite{TsitsiklisVR97}.

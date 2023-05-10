@@ -1,3 +1,6 @@
+
+
+
 @article{KearnsS02,
   author    = {Michael J. Kearns and
                Satinder P. Singh},
@@ -255,7 +258,7 @@ url="https://doi.org/10.1007/978-3-642-27645-3_6"
                Koray Kavukcuoglu and
                Thore Graepel and
                Demis Hassabis},
-  title     = {Mastering the game of Go with deep neural networks and tree search},
+  title     = {Mastering the game of {Go} with deep neural networks and tree search},
   journal   = {Nature},
   volume    = {529},
   number    = {7587},
@@ -363,21 +366,6 @@ url="https://doi.org/10.1007/978-3-642-27645-3_6"
   url       = {http://mitpress.mit.edu/books/introduction-algorithms}
 }
 
-@inproceedings{DannB15,
-  author    = {Christoph Dann and
-               Emma Brunskill},
-  editor    = {Corinna Cortes and
-               Neil D. Lawrence and
-               Daniel D. Lee and
-               Masashi Sugiyama and
-               Roman Garnett},
-  title     = {Sample Complexity of Episodic Fixed-Horizon Reinforcement Learning},
-  booktitle = {Advances in Neural Information Processing Systems 28: Annual Conference
-               on Neural Information Processing Systems 2015, December 7-12, 2015,
-               Montreal, Quebec, Canada},
-  pages     = {2818--2826},
-  year      = {2015}
-}
 
 
 @article{kearns2002sparse,
@@ -412,7 +400,7 @@ url="https://doi.org/10.1007/978-3-642-27645-3_6"
 @article{silver2016mastering,
   title={Mastering the game of Go with deep neural networks and tree search},
   author={Silver, David and Huang, Aja and Maddison, Chris J and Guez, Arthur and Sifre, Laurent and Van Den Driessche, George and Schrittwieser, Julian and Antonoglou, Ioannis and Panneershelvam, Veda and Lanctot, Marc and others},
-  journal={nature},
+  journal={Nature},
   volume={529},
   number={7587},
   pages={484--489},
@@ -423,7 +411,7 @@ url="https://doi.org/10.1007/978-3-642-27645-3_6"
 @article{silver2017mastering,
   title={Mastering the game of go without human knowledge},
   author={Silver, David and Schrittwieser, Julian and Simonyan, Karen and Antonoglou, Ioannis and Huang, Aja and Guez, Arthur and Hubert, Thomas and Baker, Lucas and Lai, Matthew and Bolton, Adrian and others},
-  journal={nature},
+  journal={Nature},
   volume={550},
   number={7676},
   pages={354--359},
@@ -549,6 +537,16 @@ abstract = {Deep Blue is the chess machine that defeated then-reigning World Che
   year = 1957
 }
 
+@article{Bellman54,
+author  = {Richard Bellman},
+title   = {The theory of dynamic programming},
+journal = {Bull. Amer. Math. Soc.}, 
+volume  =   {60},
+number  =   {6},
+pages   =   {503–515},
+year    =   {1954},
+note    =   {Defines value iteration?}
+}
 
 @article{Shapley53,
   author    = {L. S. Shapley},
@@ -587,4 +585,477 @@ abstract = {Deep Blue is the chess machine that defeated then-reigning World Che
   series    = {Synthesis Lectures on Artificial Intelligence and Machine Learning},
   publisher = {Morgan {\&} Claypool Publishers},
   year      = {2010},
+}
+
+
+@comment{Papers for policy and value iteration discounted, chapter 5 discounted}
+
+@inproceedings{LittmanDK95,
+  author       = {Michael L. Littman and
+                  Thomas L. Dean and
+                  Leslie Pack Kaelbling},
+  title        = {On the Complexity of Solving Markov Decision Problems},
+  booktitle    = {Conference on Uncertainty in Artificial Intelligence (UAI)},
+  pages        = {394--402},
+  publisher    = {Morgan Kaufmann},
+  year         = {1995}
+}
+
+@article{MelekopoglouC94,
+  author       = {Mary Melekopoglou and
+                  Anne Condon},
+  title        = {On the Complexity of the Policy Improvement Algorithm for Markov Decision
+                  Processes},
+  journal      = {{INFORMS} J. Comput.},
+  volume       = {6},
+  number       = {2},
+  pages        = {188--192},
+  year         = {1994}
+}
+
+@inproceedings{MansourS99,
+  author       = {Yishay Mansour and
+                  Satinder Singh},
+  title        = {On the Complexity of Policy Iteration},
+  booktitle    = {Conference on Uncertainty
+                  in Artificial Intelligence (UAI) },
+  pages        = {401--408},
+  year         = {1999}
+}
+
+@inproceedings{Fearnley10,
+  author       = {John Fearnley},
+  title        = {Exponential Lower Bounds for Policy Iteration},
+  booktitle    = {Automata, Languages and Programming
+                  (ICALP) },
+  volume       = {6199},
+  pages        = {551--562},
+  year         = {2010}
+}
+
+@inproceedings{HollandersDJ12,
+  author       = {Romain Hollanders and
+                  Jean{-}Charles Delvenne and
+                  Rapha{\"{e}}l M. Jungers},
+  title        = {The complexity of Policy Iteration is exponential for discounted Markov
+                  Decision Processes},
+  booktitle    = {Proceedings of the 51th {IEEE} Conference on Decision and Control (CDC)},
+  pages        = {5997--6002},
+  year         = {2012}
+}
+
+@article{Ye11,
+  author       = {Yinyu Ye},
+  title        = {The Simplex and Policy-Iteration Methods Are Strongly Polynomial for the Markov Decision Problem with a Fixed Discount Rate},
+  journal      = {Math. Oper. Res.},
+  volume       = {36},
+  number       = {4},
+  pages        = {593--603},
+  year         = {2011}
+}
+
+@article{HansenMZ13,
+  author       = {Thomas Dueholm Hansen and
+                  Peter Bro Miltersen and
+                  Uri Zwick},
+  title        = {Strategy Iteration Is Strongly Polynomial for 2-Player Turn-Based
+                  Stochastic Games with a Constant Discount Factor},
+  journal      = {J. {ACM}},
+  volume       = {60},
+  number       = {1},
+  pages        = {1:1--1:16},
+  year         = {2013}
+}
+
+@article{MadaniTZ10,
+  author       = {Omid Madani and Mikkel Thorup and Uri Zwick},
+  title        = {Discounted deterministic Markov decision processes and discounted all-pairs shortest paths},
+  journal      = {{ACM} Trans. Algorithms},
+  volume       = {6},
+  number       = {2},
+  pages        = {33:1--33:25},
+  year         = {2010}
+}
+
+@inproceedings{PostY13,
+  author       = {Ian Post and Yinyu Ye},
+  title        = {The simplex method is strongly polynomial for deterministic Markov decision processes},
+  booktitle    = {Symposium on Discrete Algorithms (SODA) },
+  pages        = {1465--1473},
+  publisher    = {{SIAM}},
+  year         = {2013}
+}
+
+@article{blackwell1965discounted,
+  title={Discounted dynamic programming},
+  author={Blackwell, David},
+  journal={The Annals of Mathematical Statistics},
+  volume={36},
+  number={1},
+  pages={226--235},
+  year={1965},
+  publisher={JSTOR}
+}
+
+
+@article{d1963probabilistic,
+  title={A probabilistic production and inventory problem},
+  author={d'Epenoux, Francois},
+  journal={Management Science},
+  volume={10},
+  number={1},
+  pages={98--108},
+  year={1963},
+  publisher={INFORMS}
+}
+
+@article{manne1960linear, 
+title={Linear programming and sequential decisions}, 
+author={Manne, Alan S}, 
+journal={Management Science}, 
+volume={6}, number={3}, 
+pages={259--267}, year={1960}, 
+publisher={INFORMS}
+}
+
+@comment{Generative model}
+
+@article{AzarMK13,
+  author       = {Mohammad Gheshlaghi Azar and
+                  R{\'{e}}mi Munos and
+                  Hilbert J. Kappen},
+  title        = {Minimax {PAC} bounds on the sample complexity of reinforcement learning
+                  with a generative model},
+  journal      = {Mach. Learn.},
+  volume       = {91},
+  number       = {3},
+  pages        = {325--349},
+  year         = {2013}
+}
+
+@inproceedings{DannB15,
+  author       = {Christoph Dann and
+                  Emma Brunskill},
+  title        = {Sample Complexity of Episodic Fixed-Horizon Reinforcement Learning},
+  booktitle    = {Neural Information Processing Systems (NeurIPS)},
+  year         = {2015}
+}
+
+@inproceedings{DannLB17,
+  author       = {Christoph Dann and
+                  Tor Lattimore and
+                  Emma Brunskill},
+  title        = {Unifying {PAC} and Regret: Uniform {PAC} Bounds for Episodic Reinforcement   Learning},
+  booktitle    = {Neural Information Processing Systems (NeurIPS)},
+  year         = {2017}
+}
+
+@inproceedings{AgarwalKY20,
+  author       = {Alekh Agarwal and
+                  Sham M. Kakade and
+                  Lin F. Yang},
+  editor       = {Jacob D. Abernethy and
+                  Shivani Agarwal},
+  title        = {Model-Based Reinforcement Learning with a Generative Model is Minimax
+                  Optimal},
+  booktitle    = {Conference on Learning Theory, {COLT} },
+  year         = {2020}
+}
+
+@phdthesis{Kakade2003,
+  author  = "Sham Kakade",
+  title   = "On the sample complexity of reinforcement learning",
+  school  = "University College London",
+  year    = "2003"
+}
+
+@article{StrehlL08,
+  author       = {Alexander L. Strehl and
+                  Michael L. Littman},
+  title        = {An analysis of model-based Interval Estimation for Markov Decision
+                  Processes},
+  journal      = {J. Comput. Syst. Sci.},
+  volume       = {74},
+  number       = {8},
+  pages        = {1309--1331},
+  year         = {2008}
+}
+
+@inproceedings{Fiechter94,
+  author       = {Claude{-}Nicolas Fiechter},
+  title        = {Efficient Reinforcement Learning},
+  booktitle    = {Computational
+                  Learning Theory (COLT) },
+  year         = {1994}
+}
+
+@inproceedings{KaufmannMDJLV21,
+  author       = {Emilie Kaufmann and
+                  Pierre M{\'{e}}nard and
+                  Omar Darwiche Domingues and
+                  Anders Jonsson and
+                  Edouard Leurent and
+                  Michal Valko},
+  title        = {Adaptive Reward-Free Exploration},
+  booktitle    = {Algorithmic Learning Theory (ALT)},
+  year         = {2021}
+}
+
+@inproceedings{JinKSY20,
+  author       = {Chi Jin and
+                  Akshay Krishnamurthy and
+                  Max Simchowitz and
+                  Tiancheng Yu},
+  title        = {Reward-Free Exploration for Reinforcement Learning},
+  booktitle    = { International Conference on Machine Learning (ICML)},
+  year         = {2020}
+}
+
+@inproceedings{MenardDJKLV21,
+  author       = {Pierre M{\'{e}}nard and
+                  Omar Darwiche Domingues and
+                  Anders Jonsson and
+                  Emilie Kaufmann and
+                  Edouard Leurent and
+                  Michal Valko},
+  title        = {Fast active learning for pure exploration in reinforcement learning},
+  booktitle    = { International Conference on Machine Learning (ICML)},
+  year         = {2021}
+}
+
+@inproceedings{SzitaS10,
+  author       = {Istvan Szita and
+                  Csaba Szepesv{\'{a}}ri},
+  title        = {Model-based reinforcement learning with nearly tight exploration complexity
+                  bounds},
+  booktitle    = { International Conference on Machine Learning (ICML)},
+  year         = {2010}
+}
+
+@inproceedings{SzitaL09,
+  author       = {Istvan Szita and
+                  Andr{\'{a}}s L{\"{o}}rincz},
+  editor       = {Andrea Pohoreckyj Danyluk and
+                  L{\'{e}}on Bottou and
+                  Michael L. Littman},
+  title        = {Optimistic initialization and greediness lead to polynomial time learning
+                  in factored MDPs},
+  booktitle    = { International Conference on Machine Learning (ICML)},
+  year         = {2009}
+}
+
+@article{LattimoreH14a,
+  author       = {Tor Lattimore and
+                  Marcus Hutter},
+  title        = {Near-optimal {PAC} bounds for discounted MDPs},
+  journal      = {Theor. Comput. Sci.},
+  volume       = {558},
+  pages        = {125--143},
+  year         = {2014}
+}
+
+@comment{Model free}
+
+@article{Sutton88,
+  author       = {Richard S. Sutton},
+  title        = {Learning to Predict by the Methods of Temporal Differences},
+  journal      = {Mach. Learn.},
+  volume       = {3},
+  pages        = {9--44},
+  year         = {1988},
+ comment        ={Tabular TD(0)}
+}
+
+@article{WatkinsD92,
+  author       = {Christopher J. C. H. Watkins and
+                  Peter Dayan},
+  title        = {Q-Learning},
+  journal      = {Mach. Learn.},
+  volume       = {8},
+  pages        = {279--292},
+  year         = {1992},
+  url          = {https://doi.org/10.1007/BF00992698},
+  doi          = {10.1007/BF00992698},
+  timestamp    = {Fri, 27 Mar 2020 08:37:06 +0100},
+  biburl       = {https://dblp.org/rec/journals/ml/WatkinsD92.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Dayan92,
+  author       = {Peter Dayan},
+  title        = {The Convergence of TD(lambda) for General lambda},
+  journal      = {Mach. Learn.},
+  volume       = {8},
+  pages        = {341--362},
+  year         = {1992},
+  url          = {https://doi.org/10.1007/BF00992701},
+  doi          = {10.1007/BF00992701},
+  timestamp    = {Fri, 27 Mar 2020 08:37:06 +0100},
+  biburl       = {https://dblp.org/rec/journals/ml/Dayan92.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{JaakkolaJS94,
+  author       = {Tommi S. Jaakkola and
+                  Michael I. Jordan and
+                  Satinder P. Singh},
+  title        = {On the Convergence of Stochastic Iterative Dynamic Programming Algorithms},
+  journal      = {Neural Comput.},
+  volume       = {6},
+  number       = {6},
+  pages        = {1185--1201},
+  year         = {1994},
+  url          = {https://doi.org/10.1162/neco.1994.6.6.1185},
+  doi          = {10.1162/neco.1994.6.6.1185},
+  timestamp    = {Tue, 01 Sep 2020 13:12:06 +0200},
+  biburl       = {https://dblp.org/rec/journals/neco/JaakkolaJS94.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{Tsitsiklis94,
+  author       = {John N. Tsitsiklis},
+  title        = {Asynchronous Stochastic Approximation and {Q}-Learning},
+  journal      = {Mach. Learn.},
+  volume       = {16},
+  number       = {3},
+  pages        = {185--202},
+  year         = {1994},
+  url          = {https://doi.org/10.1007/BF00993306},
+  doi          = {10.1007/BF00993306},
+  timestamp    = {Mon, 02 Mar 2020 16:29:52 +0100},
+  biburl       = {https://dblp.org/rec/journals/ml/Tsitsiklis94.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@comment{Rummery, G. A., Niranjan, M. (1994). On-line Q-learning using connectionist systems. Technical
+Report CUED/F-INFENG/TR 166. Engineering Department, Cambridge University.}
+
+
+@article{SinghJLS00,
+  author       = {Satinder Singh and
+                  Tommi S. Jaakkola and
+                  Michael L. Littman and
+                  Csaba Szepesv{\'{a}}ri},
+  title        = {Convergence Results for Single-Step On-Policy Reinforcement-Learning
+                  Algorithms},
+  journal      = {Mach. Learn.},
+  volume       = {38},
+  number       = {3},
+  pages        = {287--308},
+  year         = {2000},
+  url          = {https://doi.org/10.1023/A:1007678930559},
+  doi          = {10.1023/A:1007678930559},
+  timestamp    = {Tue, 19 Apr 2022 16:03:27 +0200},
+  biburl       = {https://dblp.org/rec/journals/ml/SinghJLS00.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@comment{Watkins, C. J. C. H. (1989). Learning from Delayed Rewards. PhD thesis, University of
+Cambridge. Introduced Q-learning}
+
+
+
+@article{MetropolisU49,
+  author       = {N. Metropolis and S. Ulam},
+  title        = {The Monte Carlo method},
+  journal      = {Journal of the American Statistical Association},
+  volume       = {44},
+  pages        = {335-341},
+  year         = {1949}
+}
+
+@inproceedings{BartoD93,
+  author       = {Andrew G. Barto and
+                  Michael O. Duff},
+  editor       = {Jack D. Cowan and
+                  Gerald Tesauro and
+                  Joshua Alspector},
+  title        = {Monte Carlo Matrix Inversion and Reinforcement Learning},
+  booktitle    = {Advances in Neural Information Processing Systems 6, [7th {NIPS} Conference,
+                  Denver, Colorado, USA, 1993]},
+  pages        = {687--694},
+  publisher    = {Morgan Kaufmann},
+  year         = {1993},
+  url          = {http://papers.nips.cc/paper/865-monte-carlo-matrix-inversion-and-reinforcement-learning},
+  timestamp    = {Mon, 16 May 2022 15:41:51 +0200},
+  biburl       = {https://dblp.org/rec/conf/nips/BartoD93.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@article{DayanS94,
+  author       = {Peter Dayan and
+                  Terrence J. Sejnowski},
+  title        = {TD(lambda) Converges with Probability 1},
+  journal      = {Mach. Learn.},
+  volume       = {14},
+  number       = {1},
+  pages        = {295--301},
+  year         = {1994},
+  url          = {https://doi.org/10.1023/A:1022657612745},
+  doi          = {10.1023/A:1022657612745},
+  timestamp    = {Mon, 02 Mar 2020 16:29:57 +0100},
+  biburl       = {https://dblp.org/rec/journals/ml/DayanS94.bib},
+  bibsource    = {dblp computer science bibliography, https://dblp.org}
+}
+
+@ARTICLE{Ljung77,
+  author={Ljung, L.},
+  journal={IEEE Transactions on Automatic Control}, 
+  title={Analysis of recursive stochastic algorithms}, 
+  year={1977},
+  volume={22},
+  number={4},
+  pages={551-575},
+  doi={10.1109/TAC.1977.1101561}
+  }
+  
+  @book{LjungS83,
+  author = {Ljung, L. and S\"oderstr\"om, T.},
+  biburl = {https://www.bibsonomy.org/bibtex/28fe58e8d3cf165e98e58f4d9764f4804/aude.hofleitner},
+  groups = {public},
+  interhash = {399d9664ecf2316aa8d3e735a34755d7},
+  intrahash = {8fe58e8d3cf165e98e58f4d9764f4804},
+  keywords = {},
+  publisher = {{MIT} press Cambridge, {MA}},
+  title = {Theory and practice of recursive identification},
+  year = 1983
+}
+
+ @book{Kushner84,
+  author = {H. J. Kushner},
+  publisher = {{MIT} press Cambridge, {MA}},
+  title = {Approximation and Weak Convergence Methods for Random Processes},
+  year = 1984
+}
+
+@book{KushnerC78,
+       author = "Kushner, H.J. and D.S. Clark",
+        title = "Stochastic Approximation Methods for Constrained and Unconstrained Systems",
+    publisher = "Springer-Verlag",
+      address = "New York",
+         year =  1978,
+  }
+  
+  @article{RobbinsS51,
+author = {Herbert Robbins and Sutton Monro},
+title = {{A Stochastic Approximation Method}},
+volume = {22},
+journal = {The Annals of Mathematical Statistics},
+number = {3},
+publisher = {Institute of Mathematical Statistics},
+pages = {400 -- 407},
+year = {1951},
+doi = {10.1214/aoms/1177729586},
+URL = {https://doi.org/10.1214/aoms/1177729586}
+}
+
+  @article{Blum54,
+author = {Julius R. Blum},
+title = {Multivariable stochastic approximation methods},
+volume = {25},
+journal = {The Annals of Mathematical Statistics},
+number = {4},
+publisher = {Institute of Mathematical Statistics},
+pages = {737 -- 744},
+year = {1954}
 }

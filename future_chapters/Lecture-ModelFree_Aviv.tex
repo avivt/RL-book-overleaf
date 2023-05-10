@@ -34,6 +34,9 @@ Deterministic Decision Process (DDP)} model, namely:
 & \state_{\ttime+1}=f(\state_\ttime,\action_\ttime) \\
 & \reward_\ttime=\reward(\state_\ttime,\action_\ttime)
 \end{align*}
+
+
+
 We consider the discounted return criterion:
 \begin{align*}
 \Value^{\policy}(\state) &=\sum_{\ttime=0}^\infty \discount^\ttime
@@ -105,7 +108,7 @@ Let
 \max_{\state,\action}
 |\widehat{\QValue}_\ttime(\state,\action)-\QValue^*(\state,\action) | \,.
 \]
-The first step is to show that after an update at time $\ttime$ the difference at the updated state-action $(\state_\ttime,\action_\ttime)$ between $\widehat{\QValue}_\ttime$ and $\QValue^*$ can be bounded by $\discount \Delta_\ttime$. This does not imply that $\Delta_{\ttime}$ would shrink, since it is the maximum over all state-action pair. Later we show that eventually, after we update all state-action pairs at least once, then we are guaranteed to have the difference shrink by a factor of at least $\discount$. 
+The first step is to show that after an update at time $\ttime$ the difference at the updated state-action $(\state_\ttime,\action_\ttime)$ between $\widehat{\QValue}_\ttime$ and $\QValue^*$ can be bounded by $\discount \Delta_\ttime$. This does not imply that $\Delta_{\ttime}$ would shrink, since it is the maximum over all state-action pair. Later we show that eventually, after we update each state-action pairs at least once, then we are guaranteed to have the difference shrink by a factor of at least $\discount$. 
 
 First, at every stage $\ttime$:
 \begin{align*}
@@ -125,7 +128,7 @@ where the first inequality uses the fact that $|\max_{x_1} f_1(x_1)-\max_{x_2}f(
 This implies that the difference at $(\state_\ttime,\action_\ttime)$ the errors is bounded by $\discount\Delta_\ttime$, but this does not imply that $\Delta_{\ttime+1}\leq \discount\Delta_{\ttime}$, since it is the maximum over all state-action pairs.
 
 Next, we show that eventually $\Delta_{\ttime+\tau}$ would be at most $ \discount\Delta_{\ttime}$.
-Consider now some interval $[\ttime,\ttime_1]$ over which all state-action pairs $(\state,\action)$ appear at least once. Using the above relation and simple induction, it follows that $\Delta_{\ttime_1} \le \discount \Delta_{\ttime}$.
+Consider now some interval $[\ttime,\ttime_1]$ over which each state-action pairs $(\state,\action)$ appear at least once. Using the above relation and simple induction, it follows that $\Delta_{\ttime_1} \le \discount \Delta_{\ttime}$.
 %
 Since each state-action pair is visited infinitely often, there is
 an infinite number of such intervals, and since $\discount<1$, it
@@ -142,6 +145,10 @@ We could have also relaxed the update to use a step-size $\alpha\in (0,1)$ as fo
 \reward_\ttime+\discount \max_{\action'}
 \widehat{\QValue}_\ttime(\state_{\ttime+1},\action')\right)$. The proof follows similarly, only with a bound $| \widehat{\QValue}_{\ttime+1}(\state_\ttime,\action_\ttime)-
 \QValue^*(\state_\ttime,\action_\ttime)| \leq \left( 1 - \alpha(1 - \discount)\right) \Delta_\ttime$, and it is clear that $\left( 1 - \alpha(1 - \discount)\right)<1$ when $\discount<1$. For the deterministic case, there is no reason to choose $\alpha<1$. However, we shall see that taking smaller update steps will be important in the non-deterministic setting.
+\end{remark}
+
+\begin{remark}
+We note that in the model based setting, if we have a single sample for each state-action pair $(\state,\action)$, then we can completely reconstruct the DDP. The challenge in the model free setting is that we are not reconstructing the model, but rather running a direct approximation of the value function. The DDP model is used here mainly to give intuition to the challenges that we will later encounter in the MDP model.
 \end{remark}
 
 \remove{
@@ -355,9 +362,9 @@ $(\state_1,\state_1,\state_2)$ with return $2$, and
 $(\state_1,\state_2)$ with return $1$. {\tt Every visit} averages
 the four and has $G=(4+3+2+1)/4=2.5$. On the face of it, the
 estimate of $4$ seems to make more sense. 
+We will return to this example later.
 \begin{advanced}
-We will return to this
-example later.
+
 
 \subsection{First visit}
 %Maximum likelihood MDP model}
@@ -396,12 +403,12 @@ Let $p(\state)$ be the probability that policy $\policy$ visits
 state $\state$ in an episode. Since $\state$ is $\alpha$-good, the
 expected number of episodes in which $\state$ appears is
 $p(\state)n\geq 2m\log(2|\States|/\delta)$. Using the relative
-Chernoff--Hoffding bound (Lemma~\ref{lemma:chernoff}) we have that
+Chernoff--Hoeffding bound (Lemma~\ref{lemma:chernoff}) we have that
 the probability that we have at least $m$ samples of state $\state$
 is at least $1-\delta/(2|\States|)$.
 
 Given that we have at least $m$ samples from state $\state$ using
-the additive Chernoff--Hoffding bound (Lemma~\ref{lemma:chernoff})
+the additive Chernoff--Hoeffding bound (Lemma~\ref{lemma:chernoff})
 we have that with probability at least $1-\delta/(2|\States|)$ that
 $|\widehat{\Value}^\policy(\state)-\Value^\policy(\state)|\leq
 \lambda$. (Since episodes have return in the range $[0,H]$ we need
@@ -447,7 +454,8 @@ appear, and for each episode that $\state$ appears, start it at the
 first appearance of $\state$). Call this the {\em reduced sample}.
 %(For more details, see Theorem 5 in \cite{SinghS96})
 
-The maximum likelihood model, given a set of episodes, is simply the
+
+\paragraph{Maximum Likelihood model} The maximum likelihood model, given a set of episodes, is simply the
 observed model. (We will not show here that the observed model is
 indeed the maximum likelihood model, but it is a good exercise for the reader to show it.) 
 Namely, for each state-action
@@ -455,11 +463,16 @@ pair $(\state,\action)$ let $n(\state,\action)$ be the number of
 times it appears, let $n(\state,\action,\state')$ be the number of
 times $\state'$ is observed following executing action $\action$ in
 state $\state$. The observed transition model is
-$\widehat(\state'|\state,\action)=n(\state,\action,\state')/n(\state,\action)$.
+$\widehat{\transitionprob}(\state'|\state,\action)=n(\state,\action,\state')/n(\state,\action)$.
 Assume that in the $i$-th execution of action $\action$ in state
 $\state$ we observe a reward $\reward_i$ then the observed reward is
 $\widehat{\reward}(\state,\action)=(1/n(\state,\action))\sum_{i=1}^{n(\state,\action)}
 \reward_i$.
+
+\begin{definition}
+\label{model:ML}
+The \emph{Maximum Likelihood model} $M$ has rewards $\widehat{\reward}(\state,\action)$ and transition probabilities $\widehat{\transitionprob}(\state'|\state,\action)$.
+\end{definition}
 
 \begin{theorem}
 \label{thm:MC-ML}
@@ -586,7 +599,7 @@ Figure~\ref{fig:2state-general}.
 \begin{figure}
   % Requires \usepackage{graphicx}
   \begin{centering}
-  \includegraphics[width=0.5\textwidth]{figures/2state-general.png}\\
+\includegraphics[width=0.5\textwidth]{figures/2state-general.png}\\
   \caption{The situated agent}\label{fig:2state-general}
   \end{centering}
 \end{figure}
@@ -781,15 +794,22 @@ X_{\ttime+1}(\state) =
 %where $H$ is a (possibly non-linear) operator.
 This can be seen as a special case of the general stochastic approximation form in Eq.~\ref{eq:stochastic_approx}, where $\safunc(X) = H(X) - X$.
 
+We call a sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is \emph{well formed} if For every $(\state,\action)$ we have (1) $\sum_\ttime
+\alpha_\ttime(\state,\action)
+I(\state_\ttime=\state,\action_\ttime=\action)=\infty $, and (2)
+$\sum_\ttime \alpha_\ttime^2(\state,\action)
+I(\state_\ttime=\state,\action_\ttime=\action)=O(1)$.
+
 We will mainly look at {\em $(B,\discount)$ well behaved} iterative
 algorithms, where $B>0$ and $\discount\in(0,1)$, which have the
 following properties:
 \begin{enumerate}
-\item Step size: For every $(\state,\action)$ we have (1) $\sum_\ttime
-\alpha_\ttime(\state,\action)
-I(\state_\ttime=\state,\action_\ttime=\action)=\infty $, and (2)
-$\sum_\ttime \alpha_\ttime^2(\state,\action)
-I(\state_\ttime=\state,\action_\ttime=\action)=O(1)$,
+\item Step size: sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is \emph{well formed}.
+%For every $(\state,\action)$ we have (1) $\sum_\ttime
+%\alpha_\ttime(\state,\action)
+%I(\state_\ttime=\state,\action_\ttime=\action)=\infty $, and (2)
+%$\sum_\ttime \alpha_\ttime^2(\state,\action)
+%I(\state_\ttime=\state,\action_\ttime=\action)=O(1)$,
 \item Noise: $\E[\omega_\ttime(\state)|h_{\ttime-1}]=0$ and $|\omega_\ttime(\state)|\leq B$, where
 $h_{\ttime-1}$ is the history up to time $\ttime$.
 \item Pseudo-contraction: There exists $X^*$ such that for any $X$ we have $\|HX-X^*\|_\infty
@@ -915,13 +935,10 @@ for any $\theta_0$ we have that $\lim_{t \to \infty} \theta(t) = X^*$.
 \end{definition}
 
 We will mainly look at {\em $(A,B)$ well behaved} iterative
-algorithms, where $B>0$ and $\discount\in(0,1)$, which have the
+algorithms, where $B>0$, which have the
 following properties:
 \begin{enumerate}
-\item Step size: we have (1) $\sum_\ttime
-\alpha_\ttime
-=\infty $, and (2)
-$\sum_\ttime \alpha_\ttime^2=O(1)$,
+\item Step size: the sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is \emph{well formed} ,
 \item Noise: $\E[\omega_\ttime(\state)|h_{\ttime-1}]=0$ and $|\omega_\ttime(\state)|\leq A + B\| X_\ttime\|^2$, for some norm $\| \cdot \|$ on $\mathbb{R}^d$, where
 $h_{\ttime-1}$ is the history up to time $\ttime$,
 \item $\safunc$ is Lipschitz continuous,
@@ -965,8 +982,10 @@ boundedness, and hence convergence. One technique is to consider the function $\
 iterative algorithm that satisfies the first $4$ conditions of an $(A,B)$ well behaved algorithm, and $\safunc$ is linear in $\theta$. Then $X_\ttime$
 converges with probability $1$ to $X^*$.
 \end{theorem}
+\end{remark}
+\begin{remark}
 Another technique to guarantee boundedness
-is to use the projected iterates:
+is to use \textit{projected} iterates:
 $$
 X_{\ttime+1} = \text{\it Proj}_\Gamma [X_\ttime+\alpha_\ttime((\safunc(X_\ttime)+\omega_\ttime) ]
 $$
@@ -975,6 +994,8 @@ A simple example is when $\Gamma$ is a box, so that the components of $X$ are si
 If $\Gamma$ is a bounded set then the estimated sequence $\{X_\ttime\}$ is guaranteed
 to be bounded. However, in this case the corresponding ODE must account for the projection, and is $\dot \theta(t) = \safunc(\theta(t)) + \zeta$, where $\zeta$ is zero in the interior of $\Gamma$, and on the boundary of $\Gamma$, $\zeta$ is the infinitesimal change to $\theta$ required to keep it in $\Gamma$. In this case, to show convergence using Theorem \ref{thm:stoch-approx-ODE}, we must verify that $X^*$ is still a globally asymptotically stable equilibrium, that is, we must verify that the projection did not add a spurious stable point on the boundary of $\Gamma$. A thorough treatment of this idea is presented in \cite{kushner2003stochastic}.
 \end{remark}
+
+
 
 \section{Temporal Difference algorithms}
 \label{sec:TD}
@@ -1108,23 +1129,23 @@ estimate, we show that this holds in general.
 \end{figure}
 
 
-\paragraph{Maximum Likelihood model}\footnote{YM: repeat} Recall that the empirical model, which is also the
-maximum likelihood model, of a sample be define as follows. Let
-$n(\state,\action)$ be the number of times $(\state,\action)$
-appears in the sample. Given a sample
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$
-for $1\leq t\leq T$, we define the empirical model as follows. The
-rewards $\widehat{\reward}(\state,\action)$ are the average rewards
-of $(\state,\action)$, i.e.,
-$\widehat{\reward}(\state,\action)=\frac{1}{n(\state,\action)}\sum_{\ttime:\state_\ttime=\state,\action_\ttime=\action}\reward_\ttime$
-and
-$\widehat{\transitionprob}(\state'|\state,\action)=\frac{n(\state,\action,\state')}{n(\state,\action)}$,
-where $n(\state,\action,\state')$ is the number of samples that have
-$\state_{\ttime+1}=\state'$ when $\state_\ttime=\state$ and
-$\action_\ttime =\action$.
+% \paragraph{Maximum Likelihood model}\footnote{YM: repeat} Recall that the empirical model, which is also the
+% maximum likelihood model, of a sample be define as follows. Let
+% $n(\state,\action)$ be the number of times $(\state,\action)$
+% appears in the sample. Given a sample
+% $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$
+% for $1\leq t\leq T$, we define the empirical model as follows. The
+% rewards $\widehat{\reward}(\state,\action)$ are the average rewards
+% of $(\state,\action)$, i.e.,
+% $\widehat{\reward}(\state,\action)=\frac{1}{n(\state,\action)}\sum_{\ttime:\state_\ttime=\state,\action_\ttime=\action}\reward_\ttime$
+% and
+% $\widehat{\transitionprob}(\state'|\state,\action)=\frac{n(\state,\action,\state')}{n(\state,\action)}$,
+% where $n(\state,\action,\state')$ is the number of samples that have
+% $\state_{\ttime+1}=\state'$ when $\state_\ttime=\state$ and
+% $\action_\ttime =\action$.
 
-The following theorem states that the value of the policy $\policy$ on the
-empirical model is identical to that of $TD(0)$ (running on the
+The following theorem states that the value of the policy $\policy$ on the maximum likelihood model (Definition~\ref{model:ML}), which is the
+empirical model, is identical to that of $TD(0)$ (running on the
 sample until convergence, namely, continuously sampling uniformly
 $t\in[1,T]$ and using $(\state_\ttime,
 \action_r,\reward_\ttime,\state_{\ttime+1})$ for the $TD(0)$
@@ -1160,18 +1181,21 @@ case we used a reduced sample, which depends on the state $\state$
 and therefore we have a different ML model for each state, based on
 its reduced sample.
 
-\paragraph{Convergence:} The proof of the convergence of $TD(0)$ is very
-similar to that of $Q$-learning. We will show that $TD(0)$ is an
+\paragraph{Convergence:} 
+%The proof of the convergence of $TD(0)$ is very similar to that of $Q$-learning. 
+We will show that $TD(0)$ is an
 instance of the stochastic approximation algorithm, as presented in
 previously in Section~\ref{sec:stochastic-approximation}, and the
 convergence proof will follow from this.
 %We will first state it.
 
 \begin{theorem}[Convergence $TD(0)$]
-\label{thm:TD0-conrg} If the step size has the properties that for
-every $(\state,\action)$ we have $\sum_\ttime
-\alpha_\ttime(\state,\action)=\infty $ and $\sum_\ttime
-\alpha_\ttime^2(\state,\action)=O(1)$, then $\widehat{V}$ converges
+\label{thm:TD0-conrg} 
+% If the step size has the properties that for
+% every $(\state,\action)$ we have $\sum_\ttime
+% \alpha_\ttime(\state,\action)=\infty $ and $\sum_\ttime
+% \alpha_\ttime^2(\state,\action)=O(1)$, 
+If the sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is well formed then $\widehat{V}$ converges
 to $\Value^\policy$, with probability $1$.
 \end{theorem}
 
@@ -1184,16 +1208,16 @@ We first define a linear operator $H$ for the policy $\policy$,
 (Hv)(\state)=\reward(\state,\policy(\state))+\discount\sum_{\state'}\transitionprob(\state'|\state,\policy(\state))v(\state')
 \]
 Note that $H$ is the operator $T^\policy$ we define in
-Section~\ref{ss:DP_op}.
+Section~\ref{ss:DP_op}. Theorem~\ref{thm:DP_op} shows that the operator $H$ is a $\discount$-contracting.
 
-As we saw before, the operator $H$ is a $\discount$-contracting, namely,
-operator
-\begin{align*}
-\|Hv_1-Hv_2\|_\infty &= \discount \max_{s} |
-\sum_{\state'}\transitionprob(\state'|\state,\policy(\state))(v_1(\state')-v_2(\state'))|\\
-&\leq \discount\max_{\state'} |v_1(\state')-v_2(\state')|\\
-&\leq \discount \|v_1-v_2\|_\infty
-\end{align*}
+% As we saw before, the operator $H$ is a $\discount$-contracting, namely,
+% operator
+% \begin{align*}
+% \|Hv_1-Hv_2\|_\infty &= \discount \max_{s} |
+% \sum_{\state'}\transitionprob(\state'|\state,\policy(\state))(v_1(\state')-v_2(\state'))|\\
+% &\leq \discount\max_{\state'} |v_1(\state')-v_2(\state')|\\
+% &\leq \discount \|v_1-v_2\|_\infty
+% \end{align*}
 %Therefore $H$ is $\discount$-contracting.
 
 We now would like to re-write the $TD(0)$ update to be a stochastic
@@ -1222,31 +1246,31 @@ Returning to $TD(0)$, we can write
 V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\ttime
 [(HV_\ttime)(\state_\ttime)+\omega_\ttime(\state_\ttime)]
 \]
-The requirement of the step size appears in the statement of the
-theorem (and so holds). The noise $\omega_\ttime$ has both
+The requirement of the step sizes follows since they are well formed. The noise $\omega_\ttime$ has both
 $E[\omega_\ttime]=0$ and $|\omega_\ttime|\leq V_{max}$. The
 operator $H$ is $\discount$-contracting with a fix-point $\Value^\policy$.
 Therefore, using Theorem~\ref{thm:stoch-approx}, we established
 Theorem~\ref{thm:TD0-conrg}.
 
-\paragraph{Comparing various algorithms:}\footnote{YM: needed? I think it is from Sutton}
-When we compare $TD(0)$, to $MC$ and both to  Dynamic Programming
-(DP) we can view it as different ways of computing the value
-function.
-\begin{itemize}
-\item[MC] We have $\Value^\policy(\state)=E[R_\ttime|\state_\ttime=\state]$. In MC we observe the
-return, $R_\ttime$, of episodes, and their mean is what we like to
-estimate.
-\item [$TD(0)$]  We have $\Value^\policy(\state)=E[\reward_\ttime+\discount \Value^\policy(\state_{\ttime+1})|\state_\ttime=\state]$. In $TD(0)$ we observe samples of
-$\reward_\ttime$, we use our estimate for
-$\Value^\policy(\state_{\ttime+1})$ and the expectation is what we
-like to estimate (assuming our estimates converge).
-\item
-[DP]
- We have $\Value^\policy(\state)=\sum_{\action}\policy(\action|\state)[\reward(\state,\action)+\discount \sum_{\state'}\transitionprob(\state'|\state,\action)\Value^\policy(\state')]$. In DP we
- have the entire model, and use it to compute expectations.
-\end{itemize}
-
+\paragraph{Comparing $TD(0)$ and $MC$ algorithms:}
+\\footnote{YM: needed to check if the example is from Sutton}
+% When we compare $TD(0)$, to $MC$ and both to  Dynamic Programming
+% (DP) we can view it as different ways of computing the value
+% function.
+% \begin{itemize}
+% \item[MC] We have $\Value^\policy(\state)=E[R_\ttime|\state_\ttime=\state]$. In MC we observe the
+% return, $R_\ttime$, of episodes, and their mean is what we like to
+% estimate.
+% \item [$TD(0)$]  We have $\Value^\policy(\state)=E[\reward_\ttime+\discount \Value^\policy(\state_{\ttime+1})|\state_\ttime=\state]$. In $TD(0)$ we observe samples of
+% $\reward_\ttime$, we use our estimate for
+% $\Value^\policy(\state_{\ttime+1})$ and the expectation is what we
+% like to estimate (assuming our estimates converge).
+% \item
+% [DP]
+%  We have $\Value^\policy(\state)=\sum_{\action}\policy(\action|\state)[\reward(\state,\action)+\discount \sum_{\state'}\transitionprob(\state'|\state,\action)\Value^\policy(\state')]$. In DP we
+%  have the entire model, and use it to compute expectations.
+% \end{itemize}
+%
 We can see the difference between $TD(0)$ and $MC$ in the Markov
 Chain in Figure~\ref{fig:L7-TD-MC}. To get an approximation of state
 $\state_2$, i.e., $|\widehat{V}(\state_2)-\frac{1}{2}|\approx
@@ -1321,12 +1345,7 @@ The next theorem states the main convergence property of
 $\QValue$-learning.
 \begin{theorem}[$\QValue$-learning convergence]\ \\
 \label{thm:Q-learning} Assume every state-action pair
-$(\state,\action)$ occurs infinitely often, and the step size
-$\alpha_\ttime(\state,\action)$ has the properties: (1) $\sum_\ttime
-\alpha_\ttime(\state,\action)
-I(\state_\ttime=\state,\action_\ttime=\action)=\infty $, and (2)
-$\sum_\ttime
-\alpha_\ttime^2(\state,\action) I(\state_\ttime=\state,\action_\ttime=\action)=O(1)$,\\
+$(\state,\action)$ occurs infinitely often, and the sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is \emph{well formed}.
 Then, $Q_\ttime$ converges with probability $1$ to $\QValue^*$
 \end{theorem}
 
@@ -1642,14 +1661,71 @@ each action appears infinitely often).
 
 \begin{advanced}
 \paragraph{SARSA convergence:}
-Convergence of the $Q_\ttime$ to $\QValue^*$ would follow immediately from
-the basic properties of the $\QValue$-learning, we just need to guarantee
-that we explore each action infinitely often. (This would follow
-since any $\varepsilon$-greedy policy is aperiodic and irreducible,
-the steady state of the resulting Markov has a non-zero probability
-at each state, so each state would be visited infinitely often.)
-Then, the result will follow immediately from the convergence of
-$\QValue$-learning.
+% Convergence of the $Q_\ttime$ to $\QValue^*$ would follow immediately from
+% the basic properties of the $\QValue$-learning, we just need to guarantee
+% that we explore each action infinitely often. (This would follow
+% since any $\varepsilon$-greedy policy is aperiodic and irreducible,
+% the steady state of the resulting Markov has a non-zero probability
+% at each state, so each state would be visited infinitely often.)
+% Then, the result will follow immediately from the convergence of
+% $\QValue$-learning.
+
+We will show the convergence of $Q_\ttime$ to $\QValue^*$ under the $\varepsilon$-greedy policies. First, we will define an appropriate operator
+\begin{align*}
+  (T^{*,\epsilon}q)(\state,\action) =& \reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} q(\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}q(\state',\action')\right] 
+  %\\
+  %&+\epsilon[\frac{1}{|\Actions|}\sum_{b\in\Actions}[\reward(\state,b)+\discount E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} q(\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}q(\state',\action')]]  
+\end{align*}
+We claim that $T^{*,\epsilon}$ is a $\discount$-contracting operator. This follows since,
+\begin{align*}
+    (T^{*,\epsilon}q_1 -  T^{*,\epsilon}q_1)(\state,\action) =& 
+    \discount(1-\epsilon) E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[\max_{\action'\in\Actions}q_1(\state',\action')-\max_{\action''\in\Actions}q_2(\state',\action'')\right] \\
+    &+\discount\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[q_1(\state',b')-q_2(\state',b')\right]\\ 
+%    &+\discount(1-\epsilon)\epsilon \frac{1}{|\Actions|}\sum_{b\in\Actions} E_{\state'\sim\transitionprob(\cdot|\state,b)}[\max_{\action'\in\Actions}q_1(\state',\action')-\max_{\action''\in\Actions}q_2(\state',\action'')]\\
+ %   & + \discount\epsilon^2  E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} q(\state',b') \\
+%        \leq & \discount(1-\epsilon)\|q_1-q_2\|_\infty +\discount\epsilon \|q_1-q_2\|_\infty   = 
+    \leq & \discount\|q_1-q_2\|_\infty
+\end{align*}
+Therefore, $T^{*,\epsilon}$ will converge to a fix-point $Q^{*,\epsilon}$. Now we want to relate the fix-point of $Q^{*,\epsilon}$ to the optimal $Q^*$, which is a fixed point of $T^*$.
+For $Q^{*,\epsilon}$, since it is the fix point of $T^{*,\epsilon}$, we have
+\begin{align*}
+  Q^{*,\epsilon}(\state,\action) =&
+   \reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon} (\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}Q^{*,\epsilon} (\state',\action')\right] 
+ % &+\epsilon[\frac{1}{|\Actions|}\sum_{b\in\Actions}[\reward(\state,b)+\discount E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon}(\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')]]  
+ % 
+%  (1-\epsilon)[\reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')] \\
+%  &+\epsilon[\frac{1}{|\Actions|}\sum_{b\in\Actions}[\reward(\state,b)+\discount E_{\state'\sim\transitionprob(\cdot|\state,b)}[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')]]   
+\end{align*}
+For $Q^{*}$, since it is the fix point of $T^{*}$, we have
+\[
+  Q^{*}(\state,\action) = \reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*}(\state',\action')]
+\]
+Let $\Delta^\epsilon=\|Q^{*,\epsilon}-Q^*\||_\infty$. We have
+\begin{align*}
+    Q^{*,\epsilon}(\state,\action) -Q^{*}(\state,\action) =& %\epsilon(\frac{1}{|\Actions|}\sum_{b\in\Actions}\reward(\state,b)-\reward(\state,\action))\\
+    (1-\epsilon)\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')-\max_{\action''}Q^{*}(\state',\action'')\right] \\
+    & +\epsilon\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{1}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon} (\state',b') - \max_{\action''}Q^{*}(\state',\action'')\right]\\
+%    &+  \epsilon(1-\epsilon)\discount   ( E_{\state'\sim\transitionprob(\cdot|\state,b)}[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')] - E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*}(\state',\action')])
+%    \\   &+
+%    \epsilon^2\discount (E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon}(\state',b') ]-E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*}(\state',\action')])
+ %   \\
+ %   
+%  &+\epsilon\discount[\frac{1}{|\Actions|}\sum_{b\in\Actions} E_{\state'\sim\transitionprob(\cdot|\state,b)}[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')]-E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action''}Q^{*}(\state',\action'')]  \\
+  \leq & 
+   \discount(1-\epsilon) \Delta^\epsilon+\epsilon\discount \Vmax
+\end{align*}
+Let $(\state,\action)$ be the state-action that determines $\Delta^\epsilon$. Then we have
+\[
+\Delta^\epsilon \leq   \discount \Delta^\epsilon+\epsilon\discount \Vmax
+\]
+which implies that 
+\[
+\Delta^\epsilon \leq \epsilon \frac{\discount\Vmax}{1-\discount}
+\]
+\begin{theorem}
+Using $\varepsilon$-greedy the SARSA algorithm converges to     $Q^{*,\epsilon}$ and $\|Q^{*,\epsilon} -Q^{*}\|_\infty\leq \epsilon \frac{\discount\Vmax}{1-\discount}$.
+\end{theorem}
+
 
 The convergence of the return of SARSA to that of $\QValue^*$ is more
 delicate. Recall that we do not have such a claim about
@@ -1760,14 +1836,16 @@ Consider the difference between the expected returns,
 \E[\sum_{\ttime=0}^\infty
 (1-\varepsilon)^\ttime\discount^\ttime\reward_\ttime]
 \]
-Since the rewards are bounded, namely, $\reward_\ttime\in[0,1]$, the
-difference is maximized if we set all the rewards to $1$, and have
-\[
-\Value^\policy(\state)- \Value^{\policy_\varepsilon}(\state) \leq
-\sum_{\ttime=0}^\infty \discount^\ttime - \sum_{\ttime=0}^\infty
-(1-\varepsilon)^\ttime\discount^\ttime=
-\frac{1}{1-\discount}-\frac{1}{1-\discount(1-\varepsilon)}=\frac{\varepsilon\discount}{(1-\discount)(1-\discount(1-\varepsilon))}
-\]
+Since the rewards are bounded, namely, $\reward_\ttime\in[0,\Rmax]$, the
+difference is maximized if we set all the rewards to $\Rmax$, and have
+\begin{align*}
+\Value^\policy(\state)- \Value^{\policy_\varepsilon}(\state) &\leq
+\sum_{\ttime=0}^\infty \discount^\ttime\Rmax - \sum_{\ttime=0}^\infty
+(1-\varepsilon)^\ttime\discount^\ttime\Rmax\\
+&=
+\frac{\Rmax}{1-\discount}-\frac{\Rmax}{1-\discount(1-\varepsilon)}\\
+&=\frac{\varepsilon\discount\Rmax}{(1-\discount)(1-\discount(1-\varepsilon))}
+\end{align*}
 % Since $\Vmax=\frac{1}{1-\discount}$ and $\discount< 1$, for
 % $\varepsilon\leq 1/2$ we have
 % \[
@@ -1778,7 +1856,7 @@ difference is maximized if we set all the rewards to $1$, and have
 
 We can now combine the results and claim that SARSA with
 $\varepsilon$-greedy converges to the optimal policy. We will need
-that $\varepsilon_n$-greedy uses a sequence of $\varepsilon_n$ such
+that $\varepsilon_n$-greedy uses a sequence of $\varepsilon_n>0$ such
 that $\varepsilon_n$ converges to zero as $n$ increases. Call such a
 policy \emph{monotone $\varepsilon_n$-greedy policy}.
 
@@ -1850,3 +1928,48 @@ $\lambda$-optimal.
 % variance of the estimates and hopefully converges faster.
 
 \end{advanced}
+
+
+\section{Bibliography Remarks}
+
+The Monte-Carlo approach dates back to the 1940's \cite{MetropolisU49}. Monte Carlo methods were introduced to reinforcement learning in \cite{BartoD93}.
+The comparison of the {\tt First Visit} and {\tt Every Visit} of Monte-Carlo algorithms is
+based on \cite{SinghS96}.
+
+The Temporal differences method was introduced in \cite{Sutton88}, where $TD(0)$ is introduced. The $TD(\lambda)$ was analysed in \cite{Dayan92,DayanS94}.
+
+Q-learning was introduced and first analyzed in \cite{WatkinsD92}.
+%The $Q$-learning outline of the asymptotic convergence and 
+The step size analysis of Q-learning and non-asymptotic convergence rates were derived in \cite{Even-DarM03}.
+
+The asymptotic convergence of Q-learning and Temporal differences was given in \cite{JaakkolaJS94,Tsitsiklis94}.
+
+The SARSA algorithm was introduced in \cite{SinghS96}, and its convergence proved in \cite{SinghJLS00}. 
+The expected SARSA was presented in \cite{SeijenHWW09}.
+
+
+The examples of Figure \ref{fig:L7-ML}
+are from Chapter 6 of \cite{SuttonB98}.
+
+The stochastic approximation method was introduced by Robbins and  Monro \cite{RobbinsS51} and developed by Blum \cite{Blum54}. For an extensive survey of this literature ????
+
+
+The ODE method was pioneered by Ljung \cite{Ljung77,LjungS83} and further developed by Kushner \cite{KushnerC78,Kushner84} For an extensive survey of this literature ????
+
+[[YM: is this correct?!]
+
+\paragraph{OLD}
+
+
+
+
+
+
+Part of the outline borrows from David Silver class notes and the
+the book of Sutton and Barto \cite{SuttonB98}.
+
+
+The presentation of the TD algorithms follows the book of Sutton and
+Barto \cite{SuttonB98}. [[Need to check!!!]]
+
+

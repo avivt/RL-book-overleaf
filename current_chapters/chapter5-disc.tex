@@ -311,7 +311,7 @@ The following statements hold:
 
 \begin{remark}
 An additional solution method for DP planning relies on a Linear
-Programming formulation of the problem.
+Programming formulation of the problem. See chapter~\ref{chapter-LP}.
 \end{remark}
 %A Linear Program (LP) is
 %simply an optimization problem with linear objective function and linear constraints.
@@ -354,7 +354,7 @@ example, ${T^2}(v) = T(T(v))$.
 
 \begin{definition} The operator $T$ is called a contraction operator if there exists $\beta  \in (0,1)$ (the contraction coefficient) such that
                             \[||T({v_1}) - T({v_2})|| \le \beta ||{v_1} - {v_2}||,\]
-                            for all $v_1,v_2 \in \mathbb R^d$
+                            for all $v_1,v_2 \in \mathbb R^d$. Similarly, such operator $T$ is called a $\beta$-contraction operator.
 \end{definition}
 
 \subsection{The Banach Fixed Point Theorem}
@@ -379,7 +379,7 @@ point of $T$.
 
 \bigskip
 \noindent{\bf Existence of a limit $v^*$ of the sequence $v_n$}\\
-We show that the sequence of $v_n$ is a cauchy sequence. We consider
+We show that the sequence of $v_n$ is a Cauchy sequence. We consider
 two elements $v_n$ and $v_{m+n}$ and bound the distance between them.
 \begin{eqnarray*}
 \|v_{n+m}-v_n\| & = & \|\sum_{k=0}^{m-1}v_{n+k+1}-v_{n+k}\|\\
@@ -417,7 +417,7 @@ $\lim_{n\rightarrow\infty}\|v_n-v^*\| = 0 $ hence
 Thus, $v^*$ is a fixed point of the operator $T$.
 
 \bigskip
-\noindent{\bf Uniqueness of $\vec{v^*}$}\\
+\noindent{\bf Uniqueness of $v^*$}\\
 Assume that $T(v_1) = v_1$, and $T(v_2) = v_2$, and $v_1 \neq v_2$.
 Then
 \begin{eqnarray*}
@@ -448,7 +448,7 @@ For a fixed stationary policy $\policy :\States \to \Actions$,
 define the \textbf{Fixed Policy DP Operator} $T^\policy:\reals^{|\States|}
 \to \reals^{|\States|}$ as follows: For any $V=(V(\state))\in
 \reals^{|\States|}$,
-\[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States\]
+\[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States .\]
 In our column-vector notation, this is equivalent to  $T^\policy
 (V) = {\reward^\policy } + \discount {\transitionkernel^\policy }V$.
 
@@ -608,7 +608,7 @@ of  $V = T_{}^*(V)$.
 \[T_{}^{\policy^*}(\Value_{}^*) = T_{}^*(\Value_{}^*) = \Value_{}^*,\]
 where the last equality follows from part 1. Thus the optimal value
 function satisfied the equation $T_{}^{\policy^*}(\Value_{}^*) =
-\Value_{}^*$. But we already know (from Prop. \ref{prop:FP_VI}) that
+\Value_{}^*$. But we already know (from Proposition~\ref{prop:FP_VI}) that
 $\Value_{}^{\policy^*}$ is the unique solution of that equation,
 hence $\Value_{}^{\policy^*} = \Value_{}^*$. This implies that
 ${\policy ^*}$ achieves the optimal value (for any initial state),
@@ -656,7 +656,7 @@ $\policy_{n+1}$ is the greedy policy w.r.t. $\Value_{n+1}$.
 \end{lemma}
 \begin{proof}
 Assume that $\|\Value_{n+1}-\Value_{n}\| < \varepsilon \cdot
-\frac{1-\discount}{2\discount}$, and we show that
+\frac{1-\discount}{2\discount}$, we show that
 $\|\Value^{\policy_{n+1}} - \Value^{*}\| < \varepsilon$, which would
 make the policy $\policy_{n+1}$ $\varepsilon$-optimal. We bound the
 difference between $\Value^{\policy_{n+1}}$ and $\Value^*$. (All the
@@ -744,10 +744,10 @@ of  $\Value_{}^*$.
 \section{Policy Iteration (PI)}
 \label{sec:PI}
 
-The policy iteration algorithm, introduced by Howard (1960),
+The policy iteration algorithm, introduced by Howard \cite{Howard1960},
 computes an optimal policy ${\policy ^*}$ in a finite number of
 steps. This number is typically small (on the same order as
-$|\States|$).
+$|\States|$). There is a significant body of work to bound the number of iterations as a function of the number of states and actions, for more, see the bibliography remarks in Chapter~\ref{disc:bib}.
 
 The basic principle behind Policy Iteration is Policy Improvement.
 Let $\policy$ be a stationary policy, and let $\Value_{}^\policy $
@@ -1115,3 +1115,23 @@ $PI_{n+1}=\Value^{\policy_{n+1}}$, it implies that $PI_{n+1}\leq
 % \input{exercises/MDPs_modified_PI}
 % \input{exercises/MDPs_nonlinear_objective}
 % \input{exercises/MDPs_Purchasing_with_a_Deadline}
+
+\section{Bibliography notes}
+\label{disc:bib}
+
+The value iteration method dates back to to Bellman \cite{Bellman:DynamicProgramming}.
+The computational complexity analysis of value iteration first explicitly appeared in \cite{LittmanDK95}.
+%
+The work of Blackwell \cite{blackwell1965discounted} introduces the contracting operators and the fixed point for the analysis of MDPs.
+
+The policy iteration originated in the work of Howard \cite{Howard1960}.
+There has been significant interest in bounding the number of iteration of policy iterations, with a dependency only on the number of states and actions. A simple upper bound is the number of policies, $|\Actions|^{|\States|}$, since each policy is selelcted at most once.
+The work of \cite{MelekopoglouC94} shows a lower bound of $\Omega(2^{|\States|/2})$ for a special class of policy iteration, where only a single state of all improving states is updated and two actions.
+The work of \cite{MansourS99} shows that if the policy iteration updates with all the improving states (as it is define here) then the number of iterations is at most $O(|\Actions|^{|\States|}/|\States|)$.
+The work of \cite{Fearnley10} shows a $n$-state and $\Theta(n)$ action MDP for which the policy iteration requires $\Omega(2^{n/7})$ iterations for the average cost return, and \cite{HollandersDJ12} for the discounted return. Surprisingly, for a constant discount factor, the bound on the number of iterations is polynomial \cite{Ye11,HansenMZ13}.
+
+
+
+
+%The work of \cite{d1963probabilistic} was the first to formalize a Linear Programming for the discounted return, and \cite{manne1960linear} for the average cost.
+%There are works that use a linear programming approach to derive strongly polynomial algorithms. Specifically, for deterministic MDPs we have polynomial time algorithms which are based on linear programming \cite{MadaniTZ10,PostY13}.

@@ -294,7 +294,7 @@ Note that this Markov chain has a period of $2$. This follows since any trajecto
 \end{example}
 
 The next example is a simple modification of the random walk, where each time we either return to the origin or continue to the next integer with equal probability. 
-This Markov chain will have all (non-negative) integers as possitive recurrent states.
+This Markov chain will have all (non-negative) integers as positive recurrent states.
 
 \begin{example}
 {\bf Random walk with jumps.}
@@ -419,7 +419,7 @@ that we start with an initial state distribution $x_0$,  as follows:
 \pi^{(m)}_j=\frac{1}{m}\sum_{t=1}^m \I (X_t=j).
 \]
 
-\begin{theorem}
+\begin{theorem}\label{thm:MC_expected_return_time}
 Let $({X_\ttime})$ be an irreducible and  a-periodic Markov chain
 over a finite state space $X$ with transition matrix $P$. Let $\mu$
 be the stationary distribution of $P$. Then, for any $j\in X$ we have,
@@ -467,14 +467,17 @@ converges to $\E[T_i]$. Therefore,
 
 We have established the following general theorem.
 
-\begin{theorem}[\textbf{Recurrence of finite Markov chains}]
+\begin{theorem}[\textbf{Recurrence of finite Markov chains}]\label{thm:finite_Markov_chains}
 Let $({X_\ttime})$ be an irreducible,  a-periodic Markov chain over
 a finite state space $X$.  Then the following properties hold:
 \begin{enumerate}
 \item All states are \textbf{positive recurrent}
 \item There exists a \textbf{unique stationary distribution}
-${\mu^*}$, where $\mu^*(i)=1/\E[T_i]$.
-\item \textbf{Convergence} to the stationary distribution: ${\lim _{t \to \infty }}p_{i,j}^{(t)} = {\mu_j}\quad (\forall j)$
+${\mu}$, where $\mu(i)=1/\E[T_i]$.
+\item \textbf{Convergence} to the stationary distribution: 
+${\lim _{t \to \infty }}\Pr
+[X_t=j] = {\mu_j}\quad (\forall j)$
+% ${\lim _{t \to \infty }}p_{i,j}^{(t)} = {\mu_j}\quad (\forall j)$
 \item \textbf{Ergodicity}: For any finite $f$: ${\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} {f({X_s}) = \sum\nolimits_i {\mu_i f(i) \buildrel \Delta \over = } } \,\pi  \cdot f.$
 \end{enumerate}
 \end{theorem}
@@ -494,6 +497,39 @@ ${\mu^*}$, where $\mu^*(i)=1/\E[T_i]$.
 %
 %Item (4):
 %\end{proof}
+
+\begin{proof}
+From Theorem \ref{Thm:MC-stationary}, we have that $\mu >0$, and from Theorem \ref{thm:MC_expected_return_time} we have that $\E[T_i] = 1/\mu_i < \infty$. This establishes (1) and (2).
+
+For any initial distribution $x_0$ we have that
+\[
+\Pr
+[X_t=j]= x_0^\top P^t e_j,
+\]
+where $e_j$ denotes a vector of zeros, with $1$ only in the $j$'s element. Let $v_1, \ldots , v_n$ be the eigenvectors of $P$ with eigenvalues
+$\lambda_1 \geq  \ldots \geq  \lambda_n$. By
+Theorem~\ref{Thm:MC-stationary} we have that $v_1=\mu$, the stationary
+distribution and $\lambda_1=1>\lambda_i$ for $i\geq 2$. Rewrite
+$x_0=\sum_i \alpha_i v_i$. We have that
+\[
+\Pr
+[X_t=j]= \sum_i \alpha_i \lambda_i^t v_i^\top e_j,
+\]
+and therefore ${\lim _{t \to \infty }}\Pr
+[X_t=j] = \lambda_1 \mu^\top e_j 
+ = \lambda_1 {\mu_j}$.
+Since $P^t$ is a stochastic matrix,
+$x_0^\top P^t$ is a distribution, and therefore $\lambda_1 = 1$. This establishes (3). 
+
+Finally, we establish (4) following the proof of Theorem \ref{thm:MC_expected_return_time}:
+\begin{equation}
+    \begin{split}
+{\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} f({X_s}) &= {\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} \sum\nolimits_{i}\I (X_s=i)f({X_i})\\
+&=\sum\nolimits_{i}f({X_i}){\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} \I (X_s=i)\\
+&= \sum\nolimits_i {\mu_i f(i)}.
+    \end{split}
+\end{equation}
+\end{proof}
 
 For countable Markov chains, there are other possibilities.
 
