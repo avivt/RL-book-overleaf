@@ -630,10 +630,13 @@ Note that Theorem \ref{thm:finite_horizon_DP} specifies an optimal control polic
 \begin{proof}
 \textbf{Part (i):}
 
+% Based on Proposition \ref{prop:sufficient}, we only need to consider Markov policies.
 We use induction to show that the stated backward recursion indeed
 yields the optimal value function $V_\ttime^*$. The idea is simple,
-but some care is needed with the notation since we consider general
+but some care is needed with the notation 
+since we consider general
 policies, and not just Markov policies.
+
 
 For the base of the induction we start with $\ttime=\tHorizon$. The
 equality $V_\tHorizon^{}(\state) = {\reward_\tHorizon}(\state)$
