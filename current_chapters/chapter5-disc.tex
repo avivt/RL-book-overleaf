@@ -509,13 +509,13 @@ $T_{}^*({\Value_1})(\state)$, namely
 Since the same action $\bar \action$ appears in both expressions, we
 can now continue to show the inequality (a) similarly to 1. Namely,
 \begin{align*}
- (T^* (\Value_1))(\state) - (T^* (\Value_2))(\state)  &= \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\bar \action)\left( \Value_1(\state') - \Value_2(\state') \right) \\
+ (T^* (\Value_1))(\state) - (T^* (\Value_2))(\state)  &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\bar \action)\left( \Value_1(\state') - \Value_2(\state') \right) \\
  &\le \discount \sum_{\state'\in \States} \transitionprob(\state'|\state,\bar \action) \left\|\Value_1 - \Value_2 \right\|_\infty  = \discount \left\| {{\Value_1} - {\Value_2}} \right\|_\infty \;.
 \end{align*}
 
 (b) Showing $T_{}^*({\Value_2})(\state) - T_{}^*({\Value_1})(\state)
 \le \discount {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$.
-By (a) we have
+Similarly to the proof of (a) we have
 $$
 T_{}^*({\Value_2})(\state) - T_{}^*({\Value_1})(\state) \le
 \discount {\left\| {{\Value_2} - {\Value_1}} \right\|_\infty }=
@@ -693,8 +693,13 @@ Rearranging, this implies that,
 \end{eqnarray*}
 For the second part of the sum we derive similarly that:
 \begin{eqnarray*}
-\|\Value_{n+1} - \Value^{*}\| \leq
-\frac{\discount}{1-\discount}\|\Value_{n+1} - \Value_{n}\|<
+\|\Value_{n+1} - \Value^{*}\| &\leq &\|\Value_{n+1} - T^*(\Value_{n+1})\| + \| T^*(\Value_{n+1}) - \Value^{*}\| \\
+&=& \|T^*(\Value_{n}) - T^*(\Value_{n+1})\| + \| T^*(\Value_{n+1}) - T^*(\Value^{*})\| \\
+&\le& \discount\|\Value_{n} - \Value_{n+1}\| + \discount\| \Value_{n+1} - \Value^{*}\|, 
+\end{eqnarray*}
+and therefore
+\begin{eqnarray*}
+\|\Value_{n+1} - \Value^{*}\| \leq \frac{\discount}{1-\discount}\|\Value_{n+1} - \Value_{n}\|<
 \frac{\discount}{1-\discount} \cdot \epsilon \cdot
 \frac{1-\discount}{2\discount} =\frac{\epsilon}{2}
 \end{eqnarray*}

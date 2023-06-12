@@ -86,7 +86,7 @@ $\widehat{\QValue}_{\ttime+1}(\state_\ttime,\action_\ttime) :=
 The update in $\QValue$-learning is an example of a technique that is often termed ``bootstrapping''\footnote{Related to the saying ``to pull oneself up by one's bootstraps''.}, where we use our current, and possibly inaccurate value estimate $\widehat{\QValue}_\ttime$, to improve the accuracy of the same value function. The intuition for why this makes sense comes from the discount factor: since in the update $\reward_\ttime+\discount \max_{\action'}
 \widehat{\QValue}_\ttime(\state_{\ttime+1},\action')$ the first term is accurate (the reward is not estimated), and the second term is multiplied by the discount factor, we expect that if $\discount<1$ our updated value would suffer less from the inaccuracy. 
 
-The $\QValue$-learning algorithm is an off-policy algorithm, namely, it does specify how to choose the actions
+The $\QValue$-learning algorithm is an off-policy algorithm, namely, it does not specify how to choose the actions
 $\action_\ttime$, and this can be done using various exploration methods.
 To guarantee convergence of $\QValue$-learning, we will need to have some assumption about the
 sequence of actions selected, as is the case in the theorem below. We shall later discuss exploration methods that satisfy this assumption.
@@ -125,7 +125,7 @@ First, at every stage $\ttime$:
 \,.
 \end{align*}
 where the first inequality uses the fact that $|\max_{x_1} f_1(x_1)-\max_{x_2}f(x_2)|\leq \max_x|f_1(x)-f_2(x)|$, and the second inequality follows from the bound on $\|\widehat{\QValue}_\ttime-\QValue^*\|_\infty =\Delta_t $.
-This implies that the difference at $(\state_\ttime,\action_\ttime)$ the errors is bounded by $\discount\Delta_\ttime$, but this does not imply that $\Delta_{\ttime+1}\leq \discount\Delta_{\ttime}$, since it is the maximum over all state-action pairs.
+This implies that the difference at $(\state_\ttime,\action_\ttime)$ is bounded by $\discount\Delta_\ttime$, but this does not imply that $\Delta_{\ttime+1}\leq \discount\Delta_{\ttime}$, since it is the maximum over all state-action pairs.
 
 Next, we show that eventually $\Delta_{\ttime+\tau}$ would be at most $ \discount\Delta_{\ttime}$.
 Consider now some interval $[\ttime,\ttime_1]$ over which each state-action pairs $(\state,\action)$ appear at least once. Using the above relation and simple induction, it follows that $\Delta_{\ttime_1} \le \discount \Delta_{\ttime}$.
@@ -260,7 +260,7 @@ consider trajectories of the policy $\policy$ from state $\state$
 and average them. The method does not assume any dependency between
 the different states, and does not even assume a Markovian
 environment, which is both a plus (less assumptions) and a minus
-(longer time to learn). (A non-Markovian environment could, for
+(longer time to learn -- a non-Markovian environment could, for
 example, have the reward in a state depend on the number of visits
 to the state in the episode.) We will concentrate on the case of an
 episodic MDP, namely, generating finite length episodes in each
@@ -1253,7 +1253,7 @@ Therefore, using Theorem~\ref{thm:stoch-approx}, we established
 Theorem~\ref{thm:TD0-conrg}.
 
 \paragraph{Comparing $TD(0)$ and $MC$ algorithms:}
-\\footnote{YM: needed to check if the example is from Sutton}
+\footnote{YM: needed to check if the example is from Sutton}
 % When we compare $TD(0)$, to $MC$ and both to  Dynamic Programming
 % (DP) we can view it as different ways of computing the value
 % function.
@@ -1352,7 +1352,7 @@ Then, $Q_\ttime$ converges with probability $1$ to $\QValue^*$
 Note that the statement of the theorem has two requirements. The
 first is that every state-action pair occurs infinitely often.
 This is clearly required for convergence (per state-action). Since
-$\QValue$-learning is an off-policy, it has no influence on the sequence
+$\QValue$-learning is an off-policy algorithm, it has no influence on the sequence
 of state-action it observes, and therefore we have to make this
 assumption. The second requirement is two properties regarding the
 learning rates $\alpha$. The first states that the learning rates
