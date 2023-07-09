@@ -598,10 +598,10 @@ Figure~\ref{fig:2state-general}.
 
 \begin{figure}
   % Requires \usepackage{graphicx}
-  \begin{centering}
-\includegraphics[width=0.5\textwidth]{figures/2state-general.png}\\
+  % \begin{centering}
+\includegraphics[width=0.5\textwidth]{figures/2state-general.png}
   \caption{The situated agent}\label{fig:2state-general}
-  \end{centering}
+  % \end{centering}
 \end{figure}
 
 
@@ -1007,7 +1007,7 @@ to be bounded. However, in this case the corresponding ODE must account for the 
 %which is a model-free algorithm to learn the value function from
 %episodes.
 
-In this section we will look on temporal differences methods, which
+In this section we will look at temporal differences methods, which
 work in an online fashion. We will start with $TD(0)$ which uses
 only the most recent observations for the updates, and we will
 continue with methods that allow for a longer look-ahead, and then
@@ -1237,7 +1237,7 @@ Therefore, we can define the noise term $\omega_\ttime$ as follows,
 \omega_\ttime(\state_\ttime)=[\reward_\ttime+\discount
 V_\ttime(\state_{\ttime+1})]-(HV_\ttime)(\state_\ttime)\;,
 \]
-and have $E[\omega_\ttime]=0$. We can bound $|\omega_\ttime|\leq
+and have $E[\omega_\ttime|h_{\ttime-1}]=0$. We can bound $|\omega_\ttime|\leq
 V_{max}=\frac{R_{max}}{1-\discount}$, since the value function is
 bounded by $V_{max}$.
 
@@ -1247,7 +1247,7 @@ V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\tti
 [(HV_\ttime)(\state_\ttime)+\omega_\ttime(\state_\ttime)]
 \]
 The requirement of the step sizes follows since they are well formed. The noise $\omega_\ttime$ has both
-$E[\omega_\ttime]=0$ and $|\omega_\ttime|\leq V_{max}$. The
+$E[\omega_\ttime|h_{\ttime-1}]=0$ and $|\omega_\ttime|\leq V_{max}$. The
 operator $H$ is $\discount$-contracting with a fix-point $\Value^\policy$.
 Therefore, using Theorem~\ref{thm:stoch-approx}, we established
 Theorem~\ref{thm:TD0-conrg}.
@@ -1360,12 +1360,13 @@ are large enough that we can (potentially) reach a value. The
 second states that the learning rates are sufficiently small (sum of
 squares finite) so that we will be able to converge locally.
 
-We will show the convergence proof by introducing a general technique
-of stochastic approximation. (We will not give the details of the
-proof of stochastic approximation, but will only outline the main
-building blocks and the methodology.) Given the stochastic
-approximation convergence theorem, we later show how to use it to
-derive the convergence of the $\QValue$-learning algorithm.
+We will show the convergence proof by the general technique
+of stochastic approximation. 
+% (We will not give the details of the
+% proof of stochastic approximation, but will only outline the main
+% building blocks and the methodology.) Given the stochastic
+% approximation convergence theorem, we later show how to use it to
+% derive the convergence of the $\QValue$-learning algorithm.
 
 
 
@@ -1411,7 +1412,7 @@ Let $\Phi_\ttime=\reward_\ttime + \discount \max_{\action'} Q_\ttime
 (HQ_\ttime)(\state_\ttime,\action_\ttime)$. We can define the noise
 term as
 $\omega_\ttime(\state_\ttime,\action_\ttime)=\Phi_\ttime-(HQ_\ttime)(\state_\ttime,\action_\ttime)$
-and have $\E[\omega_\ttime(\state_\ttime,\action_\ttime)]=0$. In
+and have $\E[\omega_\ttime(\state_\ttime,\action_\ttime)|h_{\ttime-1}]=0$. In
 addition $|\omega_\ttime(\state_\ttime,\action_\ttime)|\leq \Vmax=
 \frac{R_{max}}{1-\discount}$.
 
