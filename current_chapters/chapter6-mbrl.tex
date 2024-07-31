@@ -838,26 +838,26 @@ Then
 - \max_a 
 %left
 \Bigg\{
-\reward(\state,\action)+\discount E_{\state'\sim \transitionprob(\cdot
+\reward(\state,\action)+\discount \E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] 
 %\right
 \Bigg\}
 \right|\\
 \leq& \max_a\left|\widehat{\reward}(\state,\action)+\discount
 \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) - 
-\reward(\state,\action)-\discount E_{\state'\sim \transitionprob(\cdot
+\reward(\state,\action)-\discount \E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
 \leq& \max_a \left\{\Bigg|\widehat{\reward}(\state,\action)- \reward(\state,\action)\Bigg|
 +\discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
-E_{\state'\sim \transitionprob(\cdot
+\E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right| \right\}\\
 %
 \leq & \varepsilon' + \discount \left| \frac{1}{m}\sum_{i=1}^m \widehat{V}_n(\state'_i) -
-E_{\state'\sim \transitionprob(\cdot
+\E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [\widehat{V}_n(\state')] \right| \\
-&+ \discount \left| E_{\state'\sim \transitionprob(\cdot
+&+ \discount \left| \E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [\widehat{V}_n(\state')] -
-E_{\state'\sim \transitionprob(\cdot
+\E_{\state'\sim \transitionprob(\cdot
 |\state,\action)} [V_n(\state')] \right|\\
  \leq & \varepsilon'+\discount\varepsilon' +\discount\lambda = (1+\discount)\varepsilon' +\discount\lambda.
  \leq \lambda,
@@ -867,7 +867,7 @@ E_{\state'\sim \transitionprob(\cdot
 
 Since $\widehat{V}_0(\state) = V_0(\state)$, the recurrence above gives:
 \[
-\left|\widehat{V}_n(\state) - V_n(\state)\right|\leq (1+\discount)\varepsilon'\sum_{i=0}^{n-1}\discount^i \leq \frac{(1+\discount)\varepsilon'}{1-\discount} \leq \frac{\varepsilon'}{1-\discount}.
+\left|\widehat{V}_n(\state) - V_n(\state)\right|\leq (1+\discount)\varepsilon'\sum_{i=0}^{n-1}\discount^i \leq \frac{(1+\discount)\varepsilon'}{1-\discount} \leq \frac{2\varepsilon'}{1-\discount}.
 \]
 
 Therefore, if we sample $m=O(\frac{V^2_{max}}{(1-\discount)^2\varepsilon'^2}\log \frac{N
@@ -1291,6 +1291,7 @@ following: $\widehat{\transitionprob}(\state,\action)=\state$ and
 $\widehat{\reward}(\state,\action)=\Rmax$.
 
 \begin{theorem}
+\label{thm:MBRL:EEE}
 Let $m\geq
 \frac{|\States|+\log(\tHorizon|\States|\;|\Actions|/\delta)}{\alpha^2}$
 and $\alpha=\frac{\varepsilon/4}{\Rmax \tHorizon^2}$.

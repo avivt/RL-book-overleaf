@@ -1,0 +1,305 @@
+\documentclass[11pt]{article}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+\usepackage{inconsolata}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[normalem]{ulem}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\graphicspath{ {figs/} }
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor,soul,lipsum}
+\newcommand{\myul}[2][black]{\setulcolor{#1}\ul{#2}\setulcolor{black}}
+\usepackage{enumitem}
+\usepackage[bottom]{footmisc}
+
+\usepackage[utf8]{inputenc} % this is needed for umlauts
+\usepackage[ngerman]{babel} % this is needed for umlauts
+\usepackage[T1]{fontenc}    % this is needed for correct output of umlauts in pdf
+\usepackage{amssymb,amsmath,amsfonts} % nice math rendering
+\usepackage{braket} % needed for \Set
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\DeclareCaptionFormat{myformat}{#3}
+%\captionsetup[algorithm]{format=myformat}
+
+
+\makeatletter
+\DeclareUrlCommand\ULurl@@{%
+  \def\UrlFont{\ttfamily\color{blue}}%
+  \def\UrlLeft{\uline\bgroup}%
+  \def\UrlRight{\egroup}}
+\def\ULurl@#1{\hyper@linkurl{\ULurl@@{#1}}{#1}}
+\DeclareRobustCommand*\ULurl{\hyper@normalise\ULurl@}
+\makeatother
+
+
+\makeatletter
+\renewcommand\thesection{}
+\renewcommand\thesubsection{}
+\makeatother
+
+\textwidth=6in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+\topmargin=-0.1in
+\footskip=0.8in
+\parindent=0.0cm
+\parskip=0.3cm
+\textheight=8.00in
+\setcounter{tocdepth} {3}
+\setcounter{secnumdepth} {2}
+\sloppy
+
+\begin{document}
+
+\setlength{\oddsidemargin}{.25in}
+\setlength{\evensidemargin}{.25in}
+\setlength{\textwidth}{6in}
+\setlength{\topmargin}{-0.4in}
+\setlength{\textheight}{8.5in}
+
+\newcommand{\handout}[5]{
+   \renewcommand{\thepage}{#1-\arabic{page}}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{
+    \hbox to 5.78in { {\bf Reinforcement Learning} \hfill #2 }
+       \vspace{4mm}
+       \hbox to 5.78in { {\Large \hfill #5  \hfill} }
+       \vspace{2mm}
+       \hbox to 5.78in { {\it #3 \hfill #4} }
+      }
+   }
+   \end{center}
+   \vspace*{4mm}
+}
+\newcommand{\exercise}[4]{\handout{#1}{#2}{Lecturer:#3}{TA: #4}{Exercise #1}}
+\newenvironment{remark}{\noindent{\bf Remark}\hspace*{1em}}{\bigskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\exercise{3}{March 28, 2022}{Yishay Mansour}{Asaf Cassel}
+
+\lstdefinestyle{myLuastyle}
+{
+  language         = {[5.2]Lua},
+  showstringspaces = false,
+  upquote          = true,
+  basicstyle=\ttfamily,
+  keywordstyle=\color{blue}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{green}\ttfamily,
+  morecomment=[l][\color{magenta}]{\#}
+}
+
+\lstset{style=myLuastyle}
+
+
+
+Due date: April 11, 2022
+
+
+\section{Theory}
+
+\subsection{Question 1}
+
+Let $M$ be an MDP with an optimal Q-function, $Q^{*}_M(s, a)$ and an optimal policy $\pi^{*}$. Let $M'$ be an MDP such that $Q^{*}_{M'}(s, a) = Q^{*}_M(s, a) + f(s)$. 
+Is $\pi^{*}$ also an optimal policy for $M'$?
+
+% = R(s, a, s') + \phi(s) − \gamma \phi(s')
+\subsection{Question 2}
+Let $M=\langle S,A,\mathcal{P},r,\gamma \rangle, M'=\langle S,A,\mathcal{P},r',\gamma \rangle$ be two MDPs with the same states and action spaces, transition matrix and discount factor and the only difference between them is the reward function, $r(s,a,s')$ and $r'(s,a,s')$, respectively. For each clause, state whether the optimal policies in $M$ and $M'$ are identical. Hint: Start with Bellman equation for $Q^{*}_M(s, a)$ and relate it to $Q^{*}_{M'}(s, a)$.
+\begin{enumerate}[label=(\alph*)]
+\item Suppose that $r'$ is an affine transformation of $r$:
+$$r'(s, a, s')=c\cdot r(s, a, s') +b \text{, for }c>0,b\ne 0.$$
+Are the optimal policies for $M$ and $M'$ identical?\\
+
+\item Let  $\Phi:S\rightarrow \mathbb{R}$ be some (unknown) function. Suppose that $$r'(s, a, s') = r(s, a, s') + \Phi(s)-\gamma \Phi(s').$$ 
+Are the optimal policies for $M$ and $M'$ identical?\\
+
+\end{enumerate}
+
+
+
+\subsection{Question 3}
+Consider a DDP (Deterministic Decision Process) that is modeled by a directed graph, where
+the states are the vertices, and each action is associate with an edge with unknown reward function $r$ and $R_{max}=1$.
+
+Consider the following algorithm to recover the DDP. (We assume that the DDP is strongly connected.)
+The algorithm works in iterations. 
+We partition the states-action pairs to {\em known} and {\it unknown}.
+In iteration $t$ we assign fictitious rewards $r'_t$. We assign reward $1$ to each unknown state-action pair, i.e,  $r'_t(s,a)=1$ if $(s,a)$ is unknown. We assign reward $0$ to each known state-action pair, i.e,  $r'_t(s,a)=0$ if $(s,a)$ is known. For unknown state-action pairs we define $f(s,a)=s$, i.e., we stay in state $s$ for each state-action unknown pair. 
+In iteration $t$, we compute an optimal policy $\pi_t$ based on $r'_t$ and run it until it discovers a new state-action pair. Once there are no any remaining unknown state-action pairs, we output the DDP we discovered.
+
+\begin{enumerate}[label=(\alph*)]
+%\item 
+%Change the Rmax algorithm so that it would finish the exploration before starting to exploit. Hint: Unlike in Rmax for DDP, there should be \textbf{two} reward value updates for each state-action $(s,a)$ pair but last one. \\
+%Remark: Even if there is a cycle in the graph that is induced by the model such that there is a known reward of $R_{max}=1$ for each edge in the cycle, the algorithm must first complete the exploration of all the unknown states and only then start exploiting.
+\item
+Show that every iteration terminates. (Recall that the true DDP is strongly connected.)
+\item What is the maximal time complexity of each iteration?
+\item How many iterations does the algorithm performs? (until all the DDP is known, both transitions and rewards.) 
+%\item 
+%Describe an optimal algorithm for calculating $\hat{\pi}_t^*$.
+\item Let $T_{exploitation}$ be the time when the DDP is fully known. Derive an upper bound for $T_{exploitation}$ as a function of $|S|$ and $|A|$.
+\end{enumerate}
+
+\subsection{Question 4}
+Consider an undiscounted Markov Reward Process with states $S_A$, $S_B$, and $terminate$. The transition matrix and reward function are unknown, but you have observed $12$ sample episodes:
+
+\begin{enumerate}
+\item $S_A,0\rightarrow S_B,1\rightarrow terminate$
+\item $S_A,2\rightarrow terminate$
+\item $S_A,0\rightarrow S_B,0\rightarrow S_A,2\rightarrow terminate$
+\item $S_A,0\rightarrow S_B,0\rightarrow S_A,0\rightarrow S_B,1\rightarrow terminate$
+\item $S_B,0\rightarrow S_A,2\rightarrow terminate$
+\item $S_B,0\rightarrow S_A,0\rightarrow   S_B,1 \rightarrow terminate$
+\item $S_B,0\rightarrow S_A,2\rightarrow terminate$
+\item $S_A,0\rightarrow S_B,1\rightarrow terminate$
+\item $S_B,1\rightarrow terminate$
+\item $S_B,1\rightarrow terminate$
+\item $S_B,1\rightarrow terminate$
+\item $S_B,0\rightarrow S_A,0\rightarrow   S_B,0 \rightarrow S_A,2\rightarrow terminate$
+\end{enumerate}
+
+In the above episodes, sample state transitions and sample rewards are shown at each step, e.g. $S_A,2 \rightarrow S_B$ indicates a transition from state $S_A$ to state $S_B$, with a reward of $+2$.
+
+\begin{enumerate}[label=(\alph*)]
+\item Estimate the empirical model that generated these episodes.
+\item Using first-visit Monte-Carlo evaluation, estimate the value function $V(S_A)$, $V(S_B)$.
+\end{enumerate}
+
+
+\subsection{Question 5}
+Recall the definition of temporal difference error (TD error):
+\[
+\Delta_t =r_t+\gamma V(S_{t+1})-V(S_t)
+\]
+\begin{enumerate}[label=(\alph*)]
+\item  What is $E[\Delta_t|S_t = s]$ if $\Delta_t$ uses the true value function $V^\pi$? Explain what is the meaning of the result.
+\item What is $E[\Delta_t|S_t = s,A_t=a]$ if $\Delta_t$ uses the true value function $V^\pi$? Notice that the chosen action $A_t=a$ is not necessarily the action that would have been chosen by $\pi$,  (off-policy setting) nor optimal. Explain what is the meaning of the result.
+% \item State all the possible causes for a positive TD error.
+\end{enumerate}
+
+% Consider a chess board ($8\times 8$ grid) with a single knight making random moves, starting from $(b,1)$. At every time step, the knight is equally likely to make any one of the legal moves.\\
+% A legal move is to a square that is two squares away horizontally and one square vertically, or two squares vertically and one square horizontally, assuming the such square exists on the board. In the example you can see all the legal moves from the starting point, but notice that there can be up to $8$ legal moves.
+% \begin{enumerate}
+% \item What is the probability that the knight would return to the starting point after two time steps?
+% \item Is the corresponding Markov chain irreducible and/or periodic? (Recall that it is starting at $(b,1)$.)
+% \item What is the mean recurrence time to a corner? (Hint: given that the knight is taking a really long walk on the board, what fraction of it's time will it spend on each square? It might help to think of the problem as an undirected graph with $n=64$ states and $m=336$ edges describing possible knight moves.)
+% \end{enumerate}
+% \begin{figure}[h!]
+% \centering
+% \includegraphics[width=0.3\linewidth]{chess.png}
+% \end{figure}
+
+% \newpage
+
+% \section{Programming}
+
+% \subsection{Question 1: Off-Policy Model-Based \protect\footnote{This exercise is based on HW \#4 of Standford CS 229 course}}
+% In this problem, you will apply reinforcement learning to automatically design a policy for a difficult control task, without ever using any explicit knowledge of the dynamics of the underlying system.
+
+% \begin{figure}[h!]
+% \centering
+% \includegraphics[width=0.3\linewidth]{cartpole.png}
+% \end{figure}
+
+% The problem we will consider is the pole-balancing problem, also known as cart-pole. A thin pole is connected via a free hinge to a cart, which can move laterally on a smooth table surface. The controller is said to have failed if either the angle of the pole deviates by more than a certain amount from the vertical position (i.e., if the pole falls over), or if the cart’s position goes out of bounds (i.e., if it falls off the end of the table). Our objective is to develop a controller to balance the pole with these constraints, by appropriately having the cart accelerate left and right.
+
+% Attached is a simple Python simulator(cart\_pole.py) for this problem. The simulation proceeds in discrete time cycles (steps). The state of the cart and pole at any time is completely
+% characterized by 4 parameters: the cart position $x$, the cart velocity $\dot x$, the angle of the pole $\theta$ measured as its deviation from the vertical position, and the angular velocity of the
+% pole $\dot \theta$. Since it'd be simpler to consider reinforcement learning in a discrete state space, we
+% have approximated the state space by a discretization that maps a state vector $(x, \dot x, \theta, \dot \theta)$ into a number from 1 to \text{\ttfamily NUM STATES}. Your learning algorithm will need to deal only with this discretized representation of the states.
+
+% At every time step, the controller must choose one of two actions - push (accelerate) the cart right, or push the cart left. (To keep the problem simple, there is no do-nothing action.) These are represented as actions 0 and 1 respectively in the code. When the action choice
+% is made, the simulator updates the state parameters according to the underlying dynamics, and provides a new discretized state.
+
+% We will assume that the reward $R(s)$ is a function of the current state only. When the pole angle goes beyond a certain limit or when the cart goes too far out, a negative reward is given, and the system is reinitialized randomly. At all other times, the reward is zero. Your program must learn to balance the pole using only the state transitions and rewards
+% \textbf{observed}.
+
+% The files for this problem are cart\_pole.py and control.py. Most of the the code has already been written for you, and you need to make changes only to control.py in the places specified. The files also contain the function \texttt{show\_cart} to visualize the system state and code to plot a learning curve at the end. Read the comments at the top of the file for more details on the working of the simulation
+
+% \begin{enumerate}
+% \item To solve the inverted pendulum problem, you will estimate a model (i.e., transition
+% probabilities and rewards) for the underlying MDP, solve Bellman’s equations for this
+% estimated MDP to obtain a value function, and act greedily with respect to this value
+% function.
+
+% Briefly, you will maintain a current model of the MDP and a current estimate of the
+% value function. Initially, each state has estimated reward zero, and the estimated transition probabilities are uniform (equally likely to end up in any other state).
+
+% During the simulation, you must choose actions at each time step according to some current policy. As the program goes along taking actions, it will gather observations on transitions and rewards, which it can use to get a better estimate of the MDP model. Since it is inefficient to update the whole estimated MDP after every observation, we will store the state transitions and reward observations each time, and update the model and value function/policy only periodically. Thus, you must maintain counts of the total number of times the transition from state $s_i$ to state $s_j$ using action a has been observed (similarly for the rewards). Note that the rewards at any state are deterministic, but the state transitions are not because of the discretization of the state space (several different but close configurations may map onto the same discretized state).
+
+% Each time a failure occurs (such as if the pole falls over), you should re-estimate the transition probabilities and rewards as the average of the observed values (if any). Your program must then use value iteration to solve Bellman’s equations on the estimated MDP, to get the value function and new optimal policy for the new model. For value iteration, use a convergence criterion that checks if the maximum absolute change in the value function on an iteration exceeds some specified tolerance.
+
+% Finally, assume that the whole learning procedure has converged once several consecutive attempts (defined by the parameter \texttt{NO LEARNING THRESHOLD}) to solve Bellman's equation all converge in the first iteration. Intuitively, this indicates that the estimated model has stopped changing significantly. The code outline for this problem is already in control.py, and you need to write code fragments only at the places specified in the file. There are several details (convergence criteria etc.) that are also explained inside the code. Use
+% a discount factor of $\gamma = 0.995$.
+
+% Implement the reinforcement learning algorithm as specified, and run it. How many trials (how many times did the pole fall over or the cart fall off) did it take before the algorithm converged?
+
+% \item Plot a learning curve showing the number of time-steps for which the pole was balanced on each trial. Python starter code already includes the code to
+% plot. Submit the plot.
+% \end{enumerate}
+
+% \newpage 
+% % \subsection{Question 1: Rmax}
+% % We consider a 4x3. The agent always starts at state 1, and finds an optimal path to the goal state (12). State 8 is a trap. The agent is equipped with four movement actions. If the agent falls into 8 (and receive reward -10) or 12 (and receive reward +10), the episode terminates. The environment dynamics is deterministic, except state 6. If taking actions in state 6, the agent moves
+% % to the intended direction with probability of 0.8, and to two perpendicular directions with each 0.1. The movement reward is -1.0.
+
+% % \begin{figure}[h!]
+% % \label{fig:one}
+% % \centering
+% % \includegraphics[width=0.3\linewidth]{rmax.png}
+% % \end{figure}
+% % The sample code given with: 1) 4 × 3 maze simulator, 2) the RMAX’s code structure.
+
+
+% % \begin{enumerate}
+% % \item Fill in the code of the Value Iteration algorithm to solve for an optimal policy of the approximate MDP model.
+% % \item Implement the RMAX algorithm: Use m = 20. Report the average performance (total reward of each episode) w.r.t number of episodes (averaging over 10 runs)
+% % \end{enumerate}
+% % \newpage
+
+% \subsection{Question 2: Q-Learning}
+
+% Recall FrozenLake environment from previous HW \#2. It  consists of a $4 \times 4$ grid of blocks, each one either being the start block, the goal block, a safe frozen block, or a dangerous hole. The objective is to have an agent learn to navigate from the start to the goal without moving onto a hole. At any given time the agent can choose to move either up, down, left, or right. 
+
+% The catch is that there is a wind which occasionally blows the agent onto a space they didn’t choose. As such, perfect performance every time is impossible, but learning to avoid the holes and reach the goal are certainly still doable. The reward at every step is 0, except for entering the goal, which provides a reward of 1. Thus, we will need an algorithm that learns long-term expected rewards - Q-Learning.
+
+% You may have heard about DeepQ-Networks(DQN) which can play Atari Games (\url{https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf}). These are really just larger and more complex implementations of the Q-Learning algorithm you will implement here.
+% \begin{enumerate}
+% \item Implement tabular Q-Learning i.e. learn a table of values for every state (row) and action (column) possible in the environment. Implement the missing code parts in the attached \texttt{tabular\_Q.py} (marked by \texttt{\#TODO} comments). Report the ``percent of successful episodes'' and the final Q table.
+
+% \item Tables are great, but they don't really scale. While it is easy to have a $16 \times 4$ table for a simple grid world, the number of possible states in any real-world environment is nearly infinitely larger. We instead need some way to take a description of our state, and produce Q-values for actions without a table: that is where neural networks come in. The neural network will learn to map states which are represented by vector to Q-values.
+
+% Implement a one-layer network which takes the state encoded in a one-hot vector (1x16), and produces a vector of 4 Q-values, one for each action. Use the attached \texttt{network\_Q.py} and fill in the missing code segments (marked by \texttt{\#TODO} comments). 
+% Note that in this case the method of updating is different. Instead of directly updating our table, with a network we will be using backpropagation and a loss function. The following depicts a single update:
+% \begin{enumerate}
+% \item $Q = f(s)$ and $a = argmax(Q)$, where $Q \in \mathbb{R}^4$
+% \item Play action $a$ from state $s$: move to step $s' = P(s,a)$ with reward $r = R(s,a)$.
+% \item $Q' = f(s')$
+% \item $
+% Q_{target}[i] = 
+% \begin{cases}
+%        Q[i]			  &\quad\text{if}_i \ne a\\
+%        r + \gamma * max(Q') &\quad\text{else}       \\
+% \end{cases}$
+% \item Update network $f$ with regard to the loss $|| Q_{target} - Q||^2$
+% \end{enumerate}
+
+% Report the ``percent of successful episodes''. Is it better than the tabular method?
+% \end{enumerate}
+
+% Submit your modified code, the requested outputs and plots. 
+
+\end{document}

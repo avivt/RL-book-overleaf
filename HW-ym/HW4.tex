@@ -1,0 +1,211 @@
+\documentclass[11pt]{article}
+\usepackage{amssymb}
+
+\usepackage[T1]{fontenc}
+\usepackage{inconsolata}
+\usepackage{textcomp}
+\usepackage{listings}
+\usepackage{color}
+\usepackage[normalem]{ulem}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\graphicspath{ {figs/} }
+\usepackage[hidelinks]{hyperref}
+\usepackage{xcolor,soul,lipsum}
+\newcommand{\myul}[2][black]{\setulcolor{#1}\ul{#2}\setulcolor{black}}
+\usepackage{enumitem}
+\usepackage[bottom]{footmisc}
+
+\usepackage[utf8]{inputenc} % this is needed for umlauts
+\usepackage[ngerman]{babel} % this is needed for umlauts
+\usepackage[T1]{fontenc}    % this is needed for correct output of umlauts in pdf
+\usepackage{amssymb,amsmath,amsfonts} % nice math rendering
+\usepackage{braket} % needed for \Set
+\usepackage{caption}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+\DeclareCaptionFormat{myformat}{#3}
+%\captionsetup[algorithm]{format=myformat}
+
+
+\makeatletter
+\DeclareUrlCommand\ULurl@@{%
+  \def\UrlFont{\ttfamily\color{blue}}%
+  \def\UrlLeft{\uline\bgroup}%
+  \def\UrlRight{\egroup}}
+\def\ULurl@#1{\hyper@linkurl{\ULurl@@{#1}}{#1}}
+\DeclareRobustCommand*\ULurl{\hyper@normalise\ULurl@}
+\makeatother
+\makeatletter
+\renewcommand\thesection{}
+\renewcommand\thesubsection{}
+\makeatother
+
+\textwidth=6in
+\oddsidemargin=0.25in
+\evensidemargin=0.25in
+\topmargin=-0.1in
+\footskip=0.8in
+\parindent=0.0cm
+\parskip=0.3cm
+\textheight=8.00in
+\setcounter{tocdepth} {3}
+\setcounter{secnumdepth} {2}
+\sloppy
+
+\begin{document}
+
+\setlength{\oddsidemargin}{.25in}
+\setlength{\evensidemargin}{.25in}
+\setlength{\textwidth}{6in}
+\setlength{\topmargin}{-0.4in}
+\setlength{\textheight}{8.5in}
+
+\newcommand{\handout}[5]{
+   \renewcommand{\thepage}{#1-\arabic{page}}
+   \noindent
+   \begin{center}
+   \framebox{
+      \vbox{
+    \hbox to 5.78in { {\bf Reinforcement Learning} \hfill #2 }
+       \vspace{4mm}
+       \hbox to 5.78in { {\Large \hfill #5  \hfill} }
+       \vspace{2mm}
+       \hbox to 5.78in { {\it #3 \hfill #4} }
+      }
+   }
+   \end{center}
+   \vspace*{4mm}
+}
+\newcommand{\exercise}[4]{\handout{#1}{#2}{Lecturer:#3}{TA: #4}{Exercise #1}}
+\newenvironment{remark}{\noindent{\bf Remark}\hspace*{1em}}{\bigskip}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\exercise{4}{May 22, 2022}{Yishay Mansour}{Asaf Cassel}
+
+\lstdefinestyle{myLuastyle}
+{
+  language         = {[5.2]Lua},
+  showstringspaces = false,
+  upquote          = true,
+  basicstyle=\ttfamily,
+  keywordstyle=\color{blue}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  commentstyle=\color{green}\ttfamily,
+  morecomment=[l][\color{magenta}]{\#}
+}
+
+\lstset{style=myLuastyle}
+
+
+Due date: June 6, 2022
+
+\section{Theory}
+
+\subsection{Question 1: Bandits with side information.}
+Consider a stochastic 2-armed bandit where each arm's $i$'s reward sequence is generated independently from a Bernoulli distribution with parameter $\mu_i$ ($i\in \{1,2\}$). There are also two known constants, $0<\mu_A<\mu_B<1$, where $\mu_1,\mu_2\in\{\mu_a,\mu_b\}$ and $\mu_1\ne \mu_2$ (so the only uncertainty is which arm has $\mu_b$ as expected reward and therefore optimal). Let $\Delta:=\mu_b-\mu_a$.
+The goal is to have low regret, $R_T:=T\mu_b-E[\sum_{t=1}^T\mu_{I_t}]$, where $I_t\in\{1,2\}$ is the chosen arm in round $t$.\\
+As you've seen in class, the UCB algorithm
+achieves a regret bound of $O(\log T/\Delta)$. But this completely ignores the
+(potentially huge) side information about the arms’ rewards which is known beforehand. The problem
+asks you to analyze a bandit algorithm whose regret does not scale with T!
+
+Consider the following algorithm. 
+\begin{enumerate}
+\item Play each arm once (same as UCB algorithm- $I_1\leftarrow 1, I_2\leftarrow 2$).
+\item For $t\geq 3$:\\
+if there exists an arm whose current empirical mean so far exceeds $\frac{\mu_a + \mu_b}{2}$,\\
+- play the arm with the highest empirical mean.\\
+else,\\
+- play both arms one after another, i.e., $I_t\leftarrow 1$ and $I_{t+1}\leftarrow 2$.
+\end{enumerate}
+
+Let $\hat{\mu}_{i,T_i(t)}$ be the current empirical mean of arm $i$ at time $t$, where $T_i(t)$ is the number of times arm $i$ has been played up to time $t$ i.e., $\hat{\mu}_{i,T_i(t)}=\frac{1}{T_i(t)}\sum_{\tau\in \{I_\tau=i,\;\tau\leq t\}} X_{\tau}$.\\
+Without loss of generality, let arm $1$ be the optimal arm.\\
+We can split the times when arm $2$ is played according to the value of its current empirical mean into two sets:\\
+(i) times when $\hat{\mu}_{2,T_2(t)}\geq\frac{\mu_a + \mu_b}{2}$.\\
+(ii) times when  $\hat{\mu}_{2,T_2(t)}\leq \frac{\mu_a + \mu_b}{2}$.\\
+Together with $t=2$, we can split the times that arm $2$ is played into two sets:
+\[
+\{I_{t}=2,t\geq3\}=\{t\geq3, I_t=2,\hat{\mu}_{2,T_2(t)}>\frac{\mu_a + \mu_b}{2}\}\bigcup
+\{t\geq3, I_t=2,\hat{\mu}_{2,T_2(t)}\leq\frac{\mu_a + \mu_b}{2}\}
+\]
+(a) Bound (from above) the sum of probabilities of playing arm $2$ at times when event (i) occurs, using Hoeffding’s inequality*.\\
+Hints: recall that (1) $\sum_{j=1}^T f(j)\leq \sum_{j=1}^\infty f(j)$ for any $f$ such that $\forall_j f(j)\geq 0 $ and (2) that $e^x\geq 1+x$.\\
+(b) Bound (from above) the sum of probabilities of playing arm $2$ at all times when event (ii) occurs by using the definition of the algorithm and relating event (ii) to an event involving the empirical mean of arm $1$. Obtain a bound by applying Hoeffding as before.\\
+(c) Put together the conclusions of the previous parts and derive a regret bound that depends only on $\Delta$ (independent of $T$).\\
+*\textbf{Hoeffding’s inequality}: For i.i.d random variables $X_i$ bounded in $[0, 1]$ with $\mu := E[X_i]$,
+then $\Pr[\sum_{i=1}^nX_i\geq n(\mu+\epsilon)]\leq\exp{(-2n\epsilon^2)}$ and $\Pr[\sum_{i=1}^nX_i\leq n(\mu-\epsilon)]\leq\exp{(-2n\epsilon^2)}$.
+
+\subsection{Question 2: Policy Gradient with the exponential distribution}
+The probability density function of the exponential distribution is defined for any $x\geq 0$:
+\[
+f(x)=\lambda \cdot e^{-\lambda x}
+\]
+Where $\lambda$ is called the rate parameter.
+We use the  exponential distribution to sample actions $a\geq 0$ as follows:
+\begin{itemize}
+\item Each state $s$ is encoded by a vector $\phi(s)$.
+\item A policy $\pi$ is characterized by a vector $\theta\in R^d$
+\item At each state $s$, we sample an action from an exponential distribution with  parameter $\lambda= \exp(\theta^\intercal \phi(s))$.
+\end{itemize}
+(a) What is the probability of sampling an action $a\in[0,1]$? the answer should be a function of $\theta$ and $\phi(s)$.\\
+(b) Calculate $\nabla_\theta \log(\pi(a|s;\theta))$. \\
+(c) What is the REINFORCE update of the exponential distribution?
+
+
+
+% \newpage
+% \section{Programming Assignment}
+
+% In this assignment you need to write a program that will learn to play the
+% card game 21. You can implement your own code for the game or use an exisiting one (e.g., \url{https://gist.github.com/mjhea0/5680216})
+
+% \noindent{\bf Game description:}
+% There is a deck of cards, total 52 cards.
+% There are two players, the {\em house} and the
+% {\em gambler}.
+% The winner in the game is the player with the most number of points,
+% which are less than (or equal to) 21.
+
+% When counting the points, each number card ($2$ to $10$)
+% has a value which is his number. Each face card ($J$, $Q$ or $K$)
+% is 10 points. The value of an ace $A$ is $11$ points (simplifying the
+% rule of the real game where $A$ can be either $1$ or $11$.)
+
+% Each player starts the game with two cards. The gambler's cards are visible to everyone, and the house has one card facing up (which the gambler sees) and one facing down (which they do not see).
+% %
+% The gambler looks at all its cards (and the house open card)
+% and needs to decide whether
+% to ask for another card ({\tt hit}) or end ({\tt stand}).
+
+% We fix the strategy of the house as follows.
+% If the sum of the cards is 15 or less, the house performs {\tt hit},
+% and if the sum is 16 or more it performs {\tt stand}.
+
+% We model the game as an MDP whose states are labeled by the sum
+% of the cards of the gambler.\\
+
+% \noindent{\bf Task 1:}
+% Implement TD(0) and use it to compute the probability that the
+% gambler wins, given that his policy is:
+% If the sum is 18 or more then {\tt stand} else {\tt hit}.\\
+
+% \noindent{\bf Task 2:}
+% Implement SARSA, and compute an 
+% optimal policy against the house policy we consider.
+% (Give as an output of the optimal action in each state, and the
+% probability of winning from that state.)\\
+
+% % \noindent{\bf Task 3:}
+% % Try to improve the results by modifying the structure of the MDP.
+% % (The strategy of the house remains unchanged.)\\
+
+% Report your results in the PDF file.
+
+
+\end{document}

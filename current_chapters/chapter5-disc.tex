@@ -549,7 +549,7 @@ The following statements hold:
 \quad \forall \state \in \States.
 \end{equation}
   \item Any stationary policy ${\policy ^*}$ that satisfies
-\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},
+\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value^{\policy^*}(\state')} } \right\},
 \quad \forall \state \in \States\]
      is an optimal policy (for any initial state ${\state_0} \in \States$).
 \end{enumerate}
