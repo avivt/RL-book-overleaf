@@ -793,37 +793,59 @@ eliminate half of the actions. This elimination allows us to sample
 each action more times in the next phase which makes eliminating the
 optimal action less likely.
 
+% \begin{algorithm_}
+% \textbf{Input}: $\epsilon,\delta>0$
+
+% \textbf{Output}: $\bar{a}\in A$
+
+% \textbf{Init}: $S_{1}=A$, $\epsilon_{1}=\frac{\epsilon}{4}$,
+% $\delta_{1}=\frac{\delta}{2}$, $l=1$
+
+% \textbf{Repeat}:
+
+% ~~~~~~$\forall_{i}\in S_{l}$, sample action $i$ for $m(\epsilon_l,\delta_l)=\frac{1}{\left(\frac{\epsilon_{l}}{2}\right)^{2}}\log\left(\frac{3}{\delta_{l}}\right)$
+% times
+
+% ~~~~~~$\hat{\mu}_{i}\leftarrow \text{average reawrd of action $i$ (only of samples during the \ensuremath{l^{th}}phase)}$
+
+% ~~~~~~$\text{median}_{l}\leftarrow median\left\{ \hat{\mu}_{i}:i\in S_{l}\right\} $
+
+% ~~~~~~$S_{l+1}\leftarrow\left\{ i\in S_{l}:\hat{\mu}_{i}\ge\text{median}_{l}\right\} $
+
+% ~~~~~~$\epsilon_{l+1}\leftarrow\frac{3}{4}\epsilon_{l}$
+
+% ~~~~~~$\delta_{l+1}\leftarrow\frac{\delta_{l}}{2}$
+
+% ~~~~~~$l\leftarrow l+1$
+
+% \textbf{Until} $\left|S_{l}\right|=1$
+
+% \textbf{Output} $\hat{a}$ where $S_l=\{\hat{a}\}$
+
+
+% \caption{Best Arm Identification}
+% \end{algorithm_}
+
+
 \begin{algorithm}
-\textbf{Input}: $\epsilon,\delta>0$
-
-\textbf{Output}: $\bar{a}\in A$
-
-\textbf{Init}: $S_{1}=A$, $\epsilon_{1}=\frac{\epsilon}{4}$,
-$\delta_{1}=\frac{\delta}{2}$, $l=1$
-
-\textbf{Repeat}:
-
-~~~~~~$\forall_{i}\in S_{l}$, sample action $i$ for $m(\epsilon_l,\delta_l)=\frac{1}{\left(\frac{\epsilon_{l}}{2}\right)^{2}}\log\left(\frac{3}{\delta_{l}}\right)$
-times
-
-~~~~~~$\hat{\mu}_{i}\leftarrow \text{average reawrd of action $i$ (only of samples during the \ensuremath{l^{th}}phase)}$
-
-~~~~~~$\text{median}_{l}\leftarrow median\left\{ \hat{\mu}_{i}:i\in S_{l}\right\} $
-
-~~~~~~$S_{l+1}\leftarrow\left\{ i\in S_{l}:\hat{\mu}_{i}\ge\text{median}_{l}\right\} $
-
-~~~~~~$\epsilon_{l+1}\leftarrow\frac{3}{4}\epsilon_{l}$
-
-~~~~~~$\delta_{l+1}\leftarrow\frac{\delta_{l}}{2}$
-
-~~~~~~$l\leftarrow l+1$
-
-\textbf{Until} $\left|S_{l}\right|=1$
-
-\textbf{Output} $\hat{a}$ where $S_l=\{\hat{a}\}$
-
-
 \caption{Best Arm Identification}
+\begin{algorithmic}[1]
+\State \textbf{Input}: $\epsilon, \delta > 0$
+\State \textbf{Output}: $\bar{a} \in A$
+\State \textbf{Init}: $S_{1} = A$, $\epsilon_{1} = \frac{\epsilon}{4}$, $\delta_{1} = \frac{\delta}{2}$, $l = 1$
+\Repeat
+    \ForAll{$i \in S_{l}$}
+        \State Sample action $i$ for $m(\epsilon_l, \delta_l) = \frac{1}{\left(\frac{\epsilon_{l}}{2}\right)^2} \log \left(\frac{3}{\delta_{l}}\right)$ times
+        \State $\hat{\mu}_{i} \leftarrow \text{average reward of action } i \text{ (only of samples during the } l^{\text{th}} \text{ phase)}$
+    \EndFor
+    \State $\text{median}_{l} \leftarrow \text{median} \{ \hat{\mu}_{i} : i \in S_{l} \}$
+    \State $S_{l+1} \leftarrow \{ i \in S_{l} : \hat{\mu}_{i} \geq \text{median}_{l} \}$
+    \State $\epsilon_{l+1} \leftarrow \frac{3}{4} \epsilon_{l}$
+    \State $\delta_{l+1} \leftarrow \frac{\delta_{l}}{2}$
+    \State $l \leftarrow l + 1$
+\Until{$|S_{l}| = 1$}
+\State \textbf{Output} $\hat{a}$ where $S_l = \{\hat{a}\}$
+\end{algorithmic}
 \end{algorithm}
 
 \paragraph{Complexity:}

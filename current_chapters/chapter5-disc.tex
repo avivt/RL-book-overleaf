@@ -60,11 +60,13 @@ numeric value of the optimal return $\Value_\discount ^*(\state)$.
 As we shall see, for this problem there always exists an optimal
 policy which is a  (deterministic) stationary policy.
 
-\textbf{Note:} As usual, the discounted performance criterion can be defined in terms of cost:
+\begin{remark}
+    As usual, the discounted performance criterion can be defined in terms of cost:
 \[\Cost_\discount ^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\cost({\state_\ttime},{\action_\ttime})} )\;,\]
 where $\cost(\state,\action)$ is the running cost function. Our goal
 is then to minimize the discounted cost $\Cost_\discount ^\policy
 (\state)$.
+\end{remark}
 
 
 \section{The Fixed-Policy Value Function}\label{s:FP_VF}
@@ -81,11 +83,10 @@ For $\policy\in\Pi_{SD}$, the value function $\Value_{}^\policy $
 satisfies the following set of $|\States|$ linear equations:
 \begin{equation}\label{eq:FP_Bellman}
 {\Value^\policy }{\kern 1pt} (\state) = \reward(\state,\policy
-(\state)) + \discount \sum\nolimits_{\state' \in \States}
-{\transitionprob(\state'|\state,\policy (\state)){\Value^\policy }(\state')}
-\;,\quad \;\state \in \States.
+(\state)) + \discount \sum_{\state' \in \States} \transitionprob(\state' | \state, \policy(\state)) \Value^{\policy} (\state'), \qquad \forall \state \in \States.
 \end{equation}
 \end{lemma}
+
 
 \begin{proof} We first note that
 \begin{align*}
@@ -158,15 +159,33 @@ computationally expensive. In that case, the following value
 iteration algorithm provides an alternative, iterative method for
 computing $\Value_{}^\policy$.
 
-\begin{algorithm_}\textbf{Fixed-policy value iteration}
-\begin{enumerate}
-  \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
-  \item For $n = 0,1,2, \ldots $, set
-\[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\forall \state \in \States\]
-\tab{or, equivalently,}
-\[{\Value_{n + 1}} = {\reward^\policy } + \discount {\transitionkernel^\policy }{\Value_n}.\]
-\end{enumerate}
-\end{algorithm_}
+% \begin{algorithm_}\textbf{Fixed-policy value iteration}
+% \begin{enumerate}
+%   \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
+%   \item For $n = 0,1,2, \ldots $, set
+% \[\Value_{n + 1}^{}{\kern 1pt} (\state) = \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_n^{}{\kern 1pt} (\state')} \;,\quad \;\forall \state \in \States\]
+% \tab{or, equivalently,}
+% \[{\Value_{n + 1}} = {\reward^\policy } + \discount {\transitionkernel^\policy }{\Value_n}.\]
+% \end{enumerate}
+% \end{algorithm_}
+
+\begin{algorithm}
+\caption{Fixed-policy Value Iteration}
+\label{alg:fixed_policy_VI}
+\begin{algorithmic}[1]
+\State \textbf{Initialization:} Set $\Value_0 = (\Value_0(\state))_{\state \in \States}$ arbitrarily.
+\State \textbf{For} {$n = 0, 1, 2, \ldots$}
+    \State \quad Set $\Value_{n + 1}(\state) = \reward(\state, \policy(\state)) + \discount \sum_{\state' \in \States} \transitionprob(\state'|\state, \policy(\state)) \Value_n(\state') \quad \forall \state \in \States$
+    % \State Or, equivalently,
+    % \State $\Value_{n + 1} = \reward^\policy + \discount \transitionkernel^\policy \Value_n$.
+\end{algorithmic}
+\end{algorithm}
+
+Note that Line 3 in Algorithm \ref{alg:fixed_policy_VI} can equivalently be written in matrix form as:
+\begin{equation*}
+    \Value_{n + 1} = \reward^\policy + \discount \transitionkernel^\policy \Value_n.
+\end{equation*}
+
 %Then \[{\Value_n} \to \Value_{}^\policy \]component-wise, that is,
 %\[{\lim _{n \to \infty }}{\Value_n}(\state) = \Value_{}^\policy (\state),\quad \;\state \in \States\]
 
@@ -250,13 +269,25 @@ regarding value iteration (Section~\ref{sec:VI}) and policy
 iteration (Section~\ref{sec:PI}).
 
 
-\begin{algorithm_}\textbf{Value Iteration (VI)}\label{alg:VI}
-\begin{enumerate}
-  \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
-  \item For $n = 0,1,2, \ldots $, set
-\[{\Value_{n + 1}}(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value_n}(\state')} } \right\},    \quad \forall \state \in \States\]
-\end{enumerate}
-\end{algorithm_}
+% \begin{algorithm_}\textbf{Value Iteration (VI)}\label{alg:VI}
+% \begin{enumerate}
+%   \item Let ${\Value_0} = {({\Value_0}(\state))_{\state \in \States}}$ be arbitrary.
+%   \item For $n = 0,1,2, \ldots $, set
+% \[{\Value_{n + 1}}(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value_n}(\state')} } \right\},    \quad \forall \state \in \States\]
+% \end{enumerate}
+% \end{algorithm_}
+
+\begin{algorithm}
+\caption{Value Iteration (VI)}
+\label{alg:VI}
+\begin{algorithmic}[1]
+\State \textbf{Initialization:} Set $\Value_0 = (\Value_0(\state))_{\state \in \States}$ arbitrarily.
+\State \textbf{For} {$n = 0, 1, 2, \ldots$}
+    \State \quad Set $\Value_{n + 1}(\state) = \max_{\action \in \Actions} \left\{ \reward(\state,\action) + \discount \sum_{\state' \in \States} \transitionprob(\state'|\state,\action)\Value_n(\state') \right\}, \quad \forall \state \in \States$
+\end{algorithmic}
+\end{algorithm}
+
+
 
 \begin{theorem}[\textbf{Convergence of value iteration}]\label{thm:_VI}
 We have ${\lim _{n \to \infty }}{\Value_n} = \Value_{}^*$
@@ -280,25 +311,40 @@ $\Value_\discount ^*$  exponentially fast.
 
 The value iteration algorithm iterates over the value functions, with asymptotic convergence. The policy iteration algorithm iterates over stationary policies, with each new policy better than the previous one. This algorithm converges to the optimal policy in a finite number of steps.
 
-\begin{algorithm_}\textbf{Policy Iteration (PI)}\label{alg:PI}
-\begin{enumerate}
-\item Initialization: choose some stationary policy ${\policy _0}$.
-\item For $k = 0,1, \ldots $:
-\begin{enumerate}
-\item Policy evaluation: compute ${\Value^{{\policy _k}}}$.\\
-     %\coderemark{}
-     (For example, use the explicit formula  ${\Value^{{\policy _k}}} = {(I - \discount {\transitionkernel^{{\policy _k}}})^{ - 1}}{\reward^{{\policy
-     _k}}}$.)
-\item Policy Improvement: Compute ${\policy _{k + 1}}$, a greedy policy with respect to ${\Value^{{\policy _k}}}$:
-\[{\policy _{k + 1}}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value^{{\policy _k}}}(\state')} } \right\},\quad \forall \state \in \States.\]
-\item Stop if $\policy _{k + 1} = \policy _k$
-%${\Value^{{\policy _{k + 1}}}} = {\Value^{{\policy _k}}}$
-(or if ${\Value^{{\policy _k}}}$ satisfied the optimality equation), else
-continue.
-%\footnote{YM: note that we compute the value of $k+1$ only in the next iteration }
-\end{enumerate}
-\end{enumerate}
-\end{algorithm_}
+% \begin{algorithm_}\textbf{Policy Iteration (PI)}\label{alg:PI}
+% \begin{enumerate}
+% \item Initialization: choose some stationary policy ${\policy _0}$.
+% \item For $k = 0,1, \ldots $:
+% \begin{enumerate}
+% \item Policy evaluation: compute ${\Value^{{\policy _k}}}$.\\
+%      %\coderemark{}
+%      (For example, use the explicit formula  ${\Value^{{\policy _k}}} = {(I - \discount {\transitionkernel^{{\policy _k}}})^{ - 1}}{\reward^{{\policy
+%      _k}}}$.)
+% \item Policy Improvement: Compute ${\policy _{k + 1}}$, a greedy policy with respect to ${\Value^{{\policy _k}}}$:
+% \[{\policy _{k + 1}}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value^{{\policy _k}}}(\state')} } \right\},\quad \forall \state \in \States.\]
+% \item Stop if $\policy _{k + 1} = \policy _k$
+% %${\Value^{{\policy _{k + 1}}}} = {\Value^{{\policy _k}}}$
+% (or if ${\Value^{{\policy _k}}}$ satisfied the optimality equation), else
+% continue.
+% %\footnote{YM: note that we compute the value of $k+1$ only in the next iteration }
+% \end{enumerate}
+% \end{enumerate}
+% \end{algorithm_}
+
+\begin{algorithm}
+\caption{Policy Iteration (PI)}
+\label{alg:PI}
+\begin{algorithmic}[1]
+\State \textbf{Initialization:} choose some stationary policy $\policy_0$.
+\State \textbf{For} {$k = 0, 1, 2,\ldots$}
+    \State \quad \textbf{Policy Evaluation:} Compute $\Value^{\policy_k}$.
+    \State \quad \quad (For example, use the explicit formula $\Value^{\policy_k} = (I - \discount \transitionkernel^{\policy_k})^{-1}\reward^{\policy_k}$)
+    \State \quad \textbf{Policy Improvement:} Compute $\policy_{k+1}$, a greedy policy with respect to $\Value^{\policy_k}$:
+    \State \quad $\policy_{k+1}(\state) \in \arg \max_{\action \in \Actions} \left\{ \reward(\state,\action) + \discount \sum_{\state' \in \States} \transitionprob(\state'|\state,\action)\Value^{\policy_k}(\state') \right\}, \forall \state \in \States.$
+    \State \quad \textbf{If} $\policy_{k+1} = \policy_k$ (or if $\Value^{\policy_k}$ satisfies the optimality equation)
+    \State \quad \quad \textbf{Stop}
+\end{algorithmic}
+\end{algorithm}
 
 \begin{theorem}[\textbf{Convergence of policy iteration}]\label{thm:_PI}
 The following statements hold:
@@ -444,18 +490,22 @@ unique.
 \subsection{The Dynamic Programming Operators}\label{ss:DP_op}
 We next define the basic Dynamic Programming operators, and show that they are in fact contraction operators.
 
-For a fixed stationary policy $\policy :\States \to \Actions$,
+\begin{definition}
+    For a fixed stationary policy $\policy :\States \to \Actions$,
 define the \textbf{Fixed Policy DP Operator} $T^\policy:\reals^{|\States|}
 \to \reals^{|\States|}$ as follows: For any $V=(V(\state))\in
 \reals^{|\States|}$,
 \[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States .\]
+\end{definition}
 In our column-vector notation, this is equivalent to  $T^\policy
 (V) = {\reward^\policy } + \discount {\transitionkernel^\policy }V$.
 
-Similarly, define the discounted-return \textbf{Dynamic Programming
+\begin{definition}
+    Define the discounted-return \textbf{Dynamic Programming
 Operator}  $T^*:\mathbb R^{|\States|} \to \mathbb R^{|\States|}$ as
 follows: For any $V=(V(\state))\in R^{|\States|}$,
 \[(T_{}^*(V))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)V(\state')} } \right\},\quad \forall \state \in \States\]
+\end{definition}
 
 We note that $T_{}^\policy $ is a linear operator, while $T_{}^*$ is
 generally non-linear due to the maximum operation.

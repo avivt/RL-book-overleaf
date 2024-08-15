@@ -382,7 +382,8 @@ Now, for small $\varepsilon$, we understand that the values $\Value^{\policy}(\s
 
 However, note that for $\varepsilon \neq 0$, the bootstrapping solution will also be biased: taking $N\to \infty$ we see that $\widehat{\Value}_{3/4}$ will converge to $\varepsilon/2$, and therefore $\widehat{\Value}^{\policy}(\state_1)$ and $\widehat{\Value}^{\policy}(\state_2)$ will converge to $1+\varepsilon/2$ and $2+\varepsilon/2$, respectively.
 
-Thus, we see that bootstrapping, when combined with function approximation, allowed us to reduce variance by exploiting the similarity between values of different states, but at the cost of a possible bias in the expected solution. As it turns out, this phenomenon is not limited to the example above, but can be shown to hold more generally~\cite{kearns2000bias}. \AT{I don't know of a general result about bias/variance that is simple enough to state in the book. Any ideas?}
+Thus, we see that bootstrapping, when combined with function approximation, allowed us to reduce variance by exploiting the similarity between values of different states, but at the cost of a possible bias in the expected solution. As it turns out, this phenomenon is not limited to the example above, but can be shown to hold more generally~\cite{kearns2000bias}. 
+% \AT{I don't know of a general result about bias/variance that is simple enough to state in the book. Any ideas?}
 
 In the following, we shall develop a rigorous formulation of bootstrapping with function approximation, and use it to suggest several approximation algorithms. We will also bound the bias incurred by this approach.
 
@@ -624,14 +625,35 @@ In order to evaluate $A,b$, we can use simulation.
     \end{split}
     \end{equation*}
 \end{proof}
-We now propose the following estimates to $A$ and $b$. Simulate a sequence of $N$ state-action pairs $\state_1,\action_1,\state_2,\action_2,\dots,\state_N,\action_N,\state_{N+1}$ using the policy $\policy$, i.e., $\action_i \sim \policy(\cdot|\state_i)$, and starting from an arbitrary $\state_0$. The Least Squares Temporal Difference algorithm (LSTD) estimates are given by
-\begin{align*}
-\widehat{b}_N &= \frac{1}{N} \sum_{t=1}^N  {\ftrs}(\state_\ttime) r(\state_\ttime,\policy(\state_\ttime)) \end{align*}
-and 
-\begin{align*}
-\widehat{A}_N &=
-\frac{1}{N} \sum_{t=1}^N {\ftrs}(\state_\ttime)( {\ftrs}^T(\state_\ttime)-\gamma {\ftrs}^T(\state_{\ttime+1})).
-\end{align*}
+We now propose the following estimates to $A$ and $b$. 
+% Simulate a sequence of $N$ state-action pairs $\state_1,\action_1,\state_2,\action_2,\dots,\state_N,\action_N,\state_{N+1}$ using the policy $\policy$, i.e., $\action_i \sim \policy(\cdot|\state_i)$, and starting from an arbitrary $\state_0$. The Least Squares Temporal Difference algorithm (LSTD) estimates are given by
+% \begin{align*}
+% \widehat{b}_N &= \frac{1}{N} \sum_{t=1}^N  {\ftrs}(\state_\ttime) r(\state_\ttime,\policy(\state_\ttime)) \end{align*}
+% and 
+% \begin{align*}
+% \widehat{A}_N &=
+% \frac{1}{N} \sum_{t=1}^N {\ftrs}(\state_\ttime)( {\ftrs}^T(\state_\ttime)-\gamma {\ftrs}^T(\state_{\ttime+1})).
+% \end{align*}
+
+\begin{algorithm}[H]
+\caption{Least Squares Temporal Difference (LSTD)}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Policy $\policy$, discount factor $\gamma$, number of steps $N$
+\State Initialize $\state_0$ arbitrarily
+\State \textbf{For} {$\ttime = 1$ to $N$}
+    \State \quad Simulate action $\action_\ttime \sim \policy(\cdot \mid \state_\ttime)$
+    \State \quad Observe new state $\state_{\ttime+1}$
+\State Compute $\widehat{b}_N$:
+\[
+\widehat{b}_N = \frac{1}{N} \sum_{\ttime=1}^N \ftrs(\state_\ttime) \reward(\state_\ttime, \policy(\state_\ttime))
+\]
+\State Compute $\widehat{A}_N$:
+\[
+\widehat{A}_N = \frac{1}{N} \sum_{\ttime=1}^N \ftrs(\state_\ttime)(\ftrs^T(\state_\ttime) - \gamma \ftrs^T(\state_{\ttime+1}))
+\]
+\State \textbf{Return} $\weights_N = \widehat{A}_N^{-1}\widehat{b}_N$
+\end{algorithmic}
+\end{algorithm}
 
 From the ergodicity property of Markov chains (Theorem \ref{thm:finite_Markov_chains}), we have the following result.
 \begin{proposition}
@@ -669,9 +691,23 @@ To realize this algorithm, we use the same samples as above, and only replace th
 \end{remark}
 
 \item \textbf{Stochastic Approximation -- TD(0):} Consider the function-approximation variant of the TD(0) algorithm (cf. Section \ref{sec:TD})
-\begin{equation}\label{eq:TD_func_approx}
-    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \underbrace{( \reward(\state_\ttime,\policy(\state_\ttime)) +\discount {\ftrs}(\state_{\ttime+1})^\top \weights_\ttime - {\ftrs}(\state_{\ttime})^\top \weights_\ttime)}_{\textrm{temporal difference}} \ftrs(\state_{\ttime}),
+% \begin{equation}\label{eq:TD_func_approx}
+%     \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \underbrace{( \reward(\state_\ttime,\policy(\state_\ttime)) +\discount {\ftrs}(\state_{\ttime+1})^\top \weights_\ttime - {\ftrs}(\state_{\ttime})^\top \weights_\ttime)}_{\textrm{temporal difference}} \ftrs(\state_{\ttime}),
+% \end{equation}
+
+\begin{algorithm}[H]
+\caption{TD(0) with Linear Function Approximation}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $\weights_0 = 0$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})$.
+    \State \quad Update:
+    \begin{equation}\label{eq:TD_func_approx}
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \underbrace{( \reward(\state_\ttime,\policy(\state_\ttime)) +\discount {\ftrs}(\state_{\ttime+1})^\top \weights_\ttime - {\ftrs}(\state_{\ttime})^\top \weights_\ttime)}_{\textrm{temporal difference}} \ftrs(\state_{\ttime}).
 \end{equation}
+\end{algorithmic}
+\end{algorithm}
+
 where the temporal difference term is the approximation (w.r.t. the weights at time $\ttime$) of $\reward(\state_\ttime,\policy(s_\ttime)) +\discount \Value(\state_{\ttime+1}) - \Value(s_\ttime)$.
 \\
 This algorithm can be written as a stochastic approximation:
@@ -755,6 +791,17 @@ and replacing the unknown $\Value^\policy(\state)$ with a Bellman-type estimator
 %\end{document}
 %~
 
+\subsection{Episodic MDPs}
+
+We can extend the learning algorithms above to the  episodic MDP setting, by removing the discount factor, and explicitly setting the value of a goal state to $0$, similarly to Section \ref{ssec:mfrl_episodic}. For example, the TD(0) algorithm would be modified to,
+\begin{equation*}\label{eq:TD_func_approx_ssp}
+    \weights_{\ttime+1} = \begin{cases}
+        \weights_\ttime + \alpha_\ttime ( \reward(\state_\ttime,\policy(\state_\ttime)) +{\ftrs}(\state_{\ttime+1})^\top \weights_\ttime - {\ftrs}(\state_{\ttime})^\top \weights_\ttime) \ftrs(\state_{\ttime}), & \state_{\ttime+1} \notin \States_G \\
+        \weights_\ttime + \alpha_\ttime ( \reward(\state_\ttime,\policy(\state_\ttime)) - {\ftrs}(\state_{\ttime})^\top \weights_\ttime) \ftrs(\state_{\ttime}), & \state_{\ttime+1} \in \States_G
+    \end{cases}.
+\end{equation*}
+Setting the value of goal states to $0$ is critical with function approximation (and is a common `bug' in episodic MDP implementations), as with function approximation, updates to the non-goal states will impact the approximation of goal state values, and  nothing in the algorithm will push to correct these errors.
+
 \section{Approximate Policy Optimization}
 
 So far we have developed various algorithms for approximating the value of a fixed policy $\policy$. Our main interest, however, is finding a \textit{good} policy. Similarly to RL without function approximation, we will consider two different approaches, based on either policy iteration or value iteration.
@@ -796,25 +843,66 @@ $$ \limsup_k \ \max_\state | \Value^{\policy_k}(\state)-\Value^*(\state)| \le \f
 We next discuss several algorithms that implement approximate policy iteration.
 
 \subsubsection{Online - SARSA}
-As we have seen earlier, it is easier to define a policy improvement step using the $Q$ function. We can easily modify the TD(0) algorithm above to learn $\widehat{Q}^\policy(\state,\action) = f(\state,\action;\weights)$:
-\begin{equation*}
-    \weights_{n+1} = \weights_n + \alpha_n \left( r(\state_n,a_n) + f(\state_{n+1},\action_{n+1};\weights_n) - f(\state_{n},\action_{n}; \weights_n) \right) \nabla_{\weights} f(\state_n,\action_n,\weights).
+As we have seen earlier, it is easier to define a policy improvement step using the $Q$ function. We can easily modify the TD(0) algorithm above to learn $\widehat{Q}^\policy(\state,\action) = f(\state,\action;\weights)$.
+% \begin{equation*}
+%     \weights_{n+1} = \weights_n + \alpha_n \left( r(\state_n,a_n) + f(\state_{n+1},\action_{n+1};\weights_n) - f(\state_{n},\action_{n}; \weights_n) \right) \nabla_{\weights} f(\state_n,\action_n,\weights).
+% \end{equation*}
+
+\begin{algorithm}[H]
+\caption{SARSA with Function Approximation}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $\weights_0 = 0$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $\state_\ttime$ 
+    \State \quad Choose action: $\action_\ttime$ 
+    \State \quad Observe $\reward_\ttime, \state_{\ttime+1}$
+    \State \quad Update:
+    \begin{equation*}
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \left( \reward(\state_\ttime,\action_\ttime) + f(\state_{\ttime+1},\action_{\ttime+1};\weights_\ttime) - f(\state_{\ttime},\action_{\ttime}; \weights_\ttime) \right) \nabla_{\weights} f(\state_\ttime,\action_\ttime,\weights)
 \end{equation*}
+\end{algorithmic}
+\end{algorithm}
+
 The actions are typically selected according to an $\xi-$greedy or softmax rule. Thus, policy evaluation is interleaved with policy improvement.
 
 \subsubsection{Batch - Least Squares Policy Iteration (LSPI)}
 One can also derive an approximate policy iteration algorithm that works on a batch of data. Consider the linear case $\widehat{Q}^\policy(\state,\action) = \weights^T \ftrs(\state,\action)$. The idea is to use LSTD(0) to iteratively fit $\widehat{Q}^{\policy_k}$, where $\policy_k$ is the greedy policy w.r.t. $\widehat{Q}^{\policy_{k-1}}$.
 
+
+\begin{algorithm}[H]
+\caption{Least Squares Policy Iteration (LSPI)}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Policy $\policy_0$
+\State Collect a set of $N$ samples $\{(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})\}$ under $\policy_0$
+\State \textbf{For} {$k = 1,2,\dots$ }
+    \State \quad Compute: 
 \begin{align*}
-\widehat{b}_n^k &= \frac{1}{n} \sum_{\ttime=1}^n  {\ftrs}(\state_\ttime, \action_\ttime) \reward(\state_\ttime,\action_\ttime) 
+\widehat{A}_N^k &= \frac{1}{N} \sum_{\ttime=1}^N {\ftrs}(\state_\ttime,\action_\ttime)( {\ftrs}^T(\state_\ttime,\action_\ttime)-\gamma {\ftrs}^T(\state_{\ttime+1},\action^*_{\ttime+1})),
 \end{align*}
+\qquad where 
+$\action^*_{\ttime+1} = \argmax_\action \widehat{Q}^{\policy_{k-1}}(\state_{\ttime+1},\action) = \argmax_\action \weights_{k-1}^T\ftrs(\state_{\ttime+1},\action)$
 \begin{align*}
-\widehat{A}_n^k &= \frac{1}{n} \sum_{t=1}^n {\ftrs}(\state_\ttime,\action_\ttime)( {\ftrs}^T(\state_\ttime,\action_\ttime)-\gamma {\ftrs}^T(\state_{t+1},\action^*_{t+1})),
+\widehat{b}_N^k &= \frac{1}{N} \sum_{\ttime=1}^N  {\ftrs}(\state_\ttime, \action_\ttime) \reward(\state_\ttime,\action_\ttime) 
 \end{align*}
+\State \quad Solve: 
 \begin{align*}
-\weights_k &= (\widehat{A}_n^k)^{-1} \widehat{b}_n^k.
+\weights_k &= (\widehat{A}_N^k)^{-1} \widehat{b}_N^k
 \end{align*}
-where $\action^*_{t+1} = \argmax_\action \widehat{Q}^{\policy_{k-1}}(\state_{t+1},\action) = \argmax_\action \weights_{k-1}^T\ftrs(\state_{t+1},\action)$.
+\end{algorithmic}
+\end{algorithm}
+
+% \begin{align*}
+% \widehat{b}_n^k &= \frac{1}{n} \sum_{\ttime=1}^n  {\ftrs}(\state_\ttime, \action_\ttime) \reward(\state_\ttime,\action_\ttime) 
+% \end{align*}
+% \begin{align*}
+% \widehat{A}_n^k &= \frac{1}{n} \sum_{t=1}^n {\ftrs}(\state_\ttime,\action_\ttime)( {\ftrs}^T(\state_\ttime,\action_\ttime)-\gamma {\ftrs}^T(\state_{t+1},\action^*_{t+1})),
+% \end{align*}
+% \begin{align*}
+% \weights_k &= (\widehat{A}_n^k)^{-1} \widehat{b}_n^k.
+% \end{align*}
+% where $\action^*_{t+1} = \argmax_\action \widehat{Q}^{\policy_{k-1}}(\state_{t+1},\action) = \argmax_\action \weights_{k-1}^T\ftrs(\state_{t+1},\action)$.
+
+It is also possible to collect data from the modified at each iteration $k$, instead of from the initial policy.
 
 \subsection{Approximate Value Iteration}
 Approximate value iteration algorithms directly approximate the optimal value function (or optimal $Q$ function). Let us first consider the linear case. The idea in approximate VI is similar to the PBE, but replacing $\operator^\policy$ with $\operator^*$. That is, we seek solutions to the following projected equation:
@@ -830,9 +918,25 @@ where $\Project$ is some projection, such as the weighted least squares projecti
 
 \subsubsection{Online - Q Learning}
 The function approximation version of online Q-learning resembles SARSA, only with an additional maximization over the next action:
-\begin{equation*}
-    \weights_{n+1} = \weights_n + \alpha_n \left( \reward(\state_n,\action_n) + \max_\action \widehat{Q}(\state_{n+1},\action;\weights_n) - \widehat{Q}(\state_{n},\action_{n}; \weights_n) \right) \nabla_{\weights} \widehat{Q}(\state_n,\action_n,\weights).
+% \begin{equation*}
+%     \weights_{n+1} = \weights_n + \alpha_n \left( \reward(\state_n,\action_n) + \discount \max_\action \widehat{Q}(\state_{n+1},\action;\weights_n) - \widehat{Q}(\state_{n},\action_{n}; \weights_n) \right) \nabla_{\weights} \widehat{Q}(\state_n,\action_n,\weights).
+% \end{equation*}
+
+\begin{algorithm}[H]
+\caption{Q-learning with Function Approximation}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $\weights_0 = 0$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $\state_\ttime$ 
+    \State \quad Choose action: $\action_\ttime$ 
+    \State \quad Observe $\reward_\ttime, \state_{\ttime+1}$
+    \State \quad Update:
+    \begin{equation*}
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \left( \reward(\state_\ttime,\action_\ttime) + \discount \max_\action \widehat{Q}(\state_{\ttime+1},\action;\weights_\ttime) - \widehat{Q}(\state_{\ttime},\action_{\ttime}; \weights_\ttime) \right) \nabla_{\weights} \widehat{Q}(\state_\ttime,\action_\ttime,\weights).
 \end{equation*}
+\end{algorithmic}
+\end{algorithm}
+
 The actions are typically selected according to an $\varepsilon-$greedy or softmax rule, to balance exploration and exploitation.
 
 \subsubsection{Batch -- Fitted Q}

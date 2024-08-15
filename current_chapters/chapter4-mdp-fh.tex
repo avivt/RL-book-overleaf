@@ -29,22 +29,23 @@ case, which can always be ``truncated" at $\tHorizon$ if needed.
 \end{itemize}
 
 \paragraph{State transition probabilities:}
-\begin{itemize}
-\item   Suppose that at time $\ttime$ we are in state ${\state_\ttime} = \state$, and choose an action ${\action_\ttime} = \action$. The next state ${\state_{\ttime + 1}} = \state'$ is then determined randomly according to a probability distribution  ${p_\ttime}( \cdot |\state,\action)$ on ${\States_{\ttime + 1}}$. That is,
+Suppose that at time $\ttime$ we are in state ${\state_\ttime} = \state$, and choose an action ${\action_\ttime} = \action$. The next state ${\state_{\ttime + 1}} = \state'$ is then determined randomly according to a probability distribution  ${p_\ttime}( \cdot |\state,\action)$ on ${\States_{\ttime + 1}}$. That is,
 \[\Pr({\state_{\ttime + 1}} = \state'|{\state_\ttime} = \state,{\action_\ttime} = \action) = {p_\ttime}(\state'|\state,\action),\quad      \quad \state' \in {\States_{\ttime + 1}}\]
-\item   The probability ${p_\ttime}(\state'|\state,\action)$ is the \emph{transition probability} from state $\state$ to state $\state'$ for a given action $\action$. We naturally require that
+
+The probability ${p_\ttime}(\state'|\state,\action)$ is the \emph{transition probability} from state $\state$ to state $\state'$ for a given action $\action$. We naturally require that
             ${p_\ttime}(\state'|\state,\action) \ge 0$, and $\sum\nolimits_{\state' \in {\States_{\ttime + 1}}}^{} {{p_\ttime}(\state'|\state,\action)}  = 1$ for all $\state \in {\States_\ttime},\action \in {\Actions_\ttime}(\state)$.
-\item   Implicit in this definition is the controlled-Markov property:
+
+Implicit in this definition is the controlled-Markov property:
 \[
 \Pr({\state_{\ttime + 1}} =
 \state'|{\state_\ttime},{\action_\ttime}, \ldots
 ,{\state_{0,}}{\action_0}) =\Pr({\state_{\ttime + 1}} =
 \state'|{\state_\ttime},{\action_\ttime}).
 \]
-\item   The set of probability distributions
+
+The set of probability distributions
                                 \[\transitionkernel = \{ {\transitionprob_\ttime}( \cdot |\state,\action)\;\;:\;\;\state \in {\States_\ttime},\action \in {\Actions_\ttime}(\state),\ttime \in {\T}\}, \]
 is called the \emph{transition law} or \emph{transition kernel} of the controlled Markov process.
-\end{itemize}
 
 \paragraph{Stationary Models:}
     The controlled Markov chain is called stationary or time-invariant if the transition probabilities do not depend on the time $\ttime$. That is:
@@ -255,16 +256,22 @@ $\policy $.  Our goal is to find an optimal control policy that
 maximizes $\Value_\tHorizon^\policy
  (\state)$.
 
-\paragraph{Remarks:}
-\begin{enumerate}
-  \item Reward dependence on the next state:  In some problems, the obtained reward may depend on the next state as well: ${R_\ttime} = {\tilde \reward_\ttime}({\state_\ttime},{\action_\ttime},{\state_{\ttime + 1}})$.  For control purposes, when we only consider the expected value of the reward, we can reduce this reward function to the usual one by defining
-\[{\reward_\ttime}(\state,\action) \buildrel \Delta \over = \E({R_\ttime}|{\state_\ttime} = \state,{\action_\ttime} = \action) \equiv \sum\nolimits_{\state' \in S} {\transitionprob(\state'|\state,\action){{\tilde \reward}_\ttime}(} \state,\action,\state')\]
-  \item Random rewards:  The reward ${R_\ttime}$ may also be random, namely a random variable whose distribution depends on $({\state_\ttime},{\action_\ttime})$.  This can also be reduced to our standard model for planning purposes by looking at the expected value of ${R_\ttime}$, namely \[{\reward_\ttime}(\state,\action) = \E({R_\ttime}|{\state_\ttime} = \state,{\action_\ttime} =
+\begin{remark}
+    Reward dependence on the next state:  In some problems, the obtained reward may depend on the next state as well: ${R_\ttime} = {\tilde \reward_\ttime}({\state_\ttime},{\action_\ttime},{\state_{\ttime + 1}})$.  For control purposes, when we only consider the expected value of the reward, we can reduce this reward function to the usual one by defining
+\[{\reward_\ttime}(\state,\action) \buildrel \Delta \over = \E({R_\ttime}|{\state_\ttime} = \state,{\action_\ttime} = \action) \equiv \sum\nolimits_{\state' \in S} {\transitionprob(\state'|\state,\action){{\tilde \reward}_\ttime}(} \state,\action,\state').\]
+\end{remark}
+
+\begin{remark}
+    Random rewards:  The reward ${R_\ttime}$ may also be random, namely a random variable whose distribution depends on $({\state_\ttime},{\action_\ttime})$.  This can also be reduced to our standard model for planning purposes by looking at the expected value of ${R_\ttime}$, namely \[{\reward_\ttime}(\state,\action) = \E({R_\ttime}|{\state_\ttime} = \state,{\action_\ttime} =
   \action).\]
-  \item Risk-sensitive criteria: The expected cumulative return is by far the most common goal for planning. However, it is not the only one possible. For example, one may consider the following risk-sensitive  return function:
+\end{remark}
+
+\begin{remark}
+    Risk-sensitive criteria: The expected cumulative return is by far the most common goal for planning. However, it is not the only one possible. For example, one may consider the following risk-sensitive  return function:
 \[\Value_{{\tHorizon,\lambda }}^\policy (\state) = \frac{1}{\lambda }\log {\E^{\policy ,s}}(\exp (\lambda \sum\limits_{\ttime = 0}^\tHorizon {{R_\ttime}} )).\]
 For $\lambda  > 0$, the exponent gives higher weight to high rewards, and the opposite for $\lambda  < 0$.
-\end{enumerate}
+\end{remark}
+
 
 In the case that the rewards are stochastic, but have a discrete
 support, we can construct an equivalent MDP in which all the rewards
@@ -585,14 +592,17 @@ over it.
 The third identity observes that the expected value of the sum is actually the value function at $\state_{k+1}$. The last identity writes the expectation over $\state_{k+1}$ explicitly. This completes the proof of the lemma.
 \end{proof}
 
-\paragraph{Remarks:}
-\begin{itemize}
-  \item Note that $\sum\nolimits_{\state' \in {\States_{k + 1}}} {{\transitionprob_k}(\state'|\state,\action)} \;V_{k + 1}^\policy (\state') = {\E^\policy }(V_{k + 1}^\policy ({\state_{k + 1}})|{\state_k} = \state,{\action_k} = \action)$.
-  \item For the more general reward function ${\tilde \reward_\ttime}(\state,\action,\state')$, the recursion takes the form
+\begin{remark}
+    Note that $\sum\nolimits_{\state' \in {\States_{k + 1}}} {{\transitionprob_k}(\state'|\state,\action)} \;V_{k + 1}^\policy (\state') = {\E^\policy }(V_{k + 1}^\policy ({\state_{k + 1}})|{\state_k} = \state,{\action_k} = \action)$.
+\end{remark}
+
+\begin{remark}
+    For the more general reward function ${\tilde \reward_\ttime}(\state,\action,\state')$, the recursion takes the form
                      \[V_k^\policy (\state) = {\left\{ {\sum\nolimits_{\state' \in {\States_{k + 1}}} {{\transitionprob_k}(\state'|\state,\action)} [{\tilde \reward_k}(\state,\action,\state') + V_{k + 1}^\policy (\state')]} \right\}_{\action = {\policy _k}(\state)}}\;.\]
                       A similar observation applies to the Dynamic Programming
 equations in the next section.
-\end{itemize}
+\end{remark}
+
 
 \subsection{Dynamic Programming for Policy Optimization}
 

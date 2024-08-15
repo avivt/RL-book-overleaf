@@ -74,18 +74,23 @@ each stage:
 %adhere to that notation in the following}.
 
 
-\paragraph{Graphical description:} Finite models (over finite time horizons) can be represented by a corresponding decision graph:
+\paragraph{Graphical description:} Finite models (over finite time horizons) can be represented by a corresponding decision graph, as specified in the following example.
 
-\begin{centering}
-\includegraphics[width=0.5\textwidth]{figures/lecture2_decision_graph.png}\\
-\end{centering}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{{figures/lecture2_decision_graph.png}}
+    \caption{Graphical description of a finite model}
+    \label{fig:graph_description}
+\end{figure}
 
-Here:
+\begin{example}
+Consider the model specified by Figure \ref{fig:graph_description}. Here:
 \begin{itemize}
   \item $\tHorizon = 2$, ${\States_0} = \{ 1,2\} ,\;{\States_1} = \{ b,c,d\} ,\;{\States_2} = \{ 2,3\} $,
   \item ${\Actions_0}(1) = \{ 1,2\} $, ${\Actions_0}(2) = \{ 1,3\} $, ${\Actions_1}(b) = \{ \alpha \} $, ${\Actions_1}(c) = \{ 1,4\} $, ${\Actions_1}(d) = \{ \beta \} $
   \item ${f_0}(1,1) = b,\;{f_0}(1,2) = d,\;{f_0}(2,1) = b,\;{f_0}(2,3) = c$, ${f_1}(b,\alpha ) = 2$, etc.
 \end{itemize}
+\end{example}
 
 \begin{definition}{\textbf{Feasible Path}} \\
 A feasible path for the specified system is a sequence
@@ -122,7 +127,6 @@ some cost ${\Cost_\tHorizon} =
 The standard definition of the cost ${\Cost_\tHorizon}$ is through
 the following \emph{cumulative cost functional}:
 \[{\Cost_\tHorizon}({\history_\tHorizon}) = \sum_{\ttime = 0}^{\tHorizon - 1} {{\cost_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {c_\tHorizon}({\state_\tHorizon})} \]
-
 Here:
     \begin{itemize}
     \item
@@ -134,15 +138,16 @@ ${\cost_\tHorizon}({\state_\tHorizon})$ is the \emph{terminal} cost,
 and ${\cost_\tHorizon}$ is the terminal cost function.
   \end{itemize}
 
-\paragraph{Note:}
-\begin{itemize}
-  \item The cost functional defined above is \emph{additive} in time. Other cost functionals are possible, for example the max cost, but additive cost is by far the most common and useful.
-  \item We shall refer to ${\Cost_\tHorizon}$ as the \emph{cumulative $\tHorizon$-stage cost}, or just the \emph{cumulative cost}.
-\end{itemize}
 
+We shall refer to ${\Cost_\tHorizon}$ as the \emph{cumulative $\tHorizon$-stage cost}, or just the \emph{cumulative cost}.
 Our objective is to \emph{minimize} the cumulative cost
 ${\Cost_\tHorizon}$, by a proper choice of actions. We will define
 that goal more formally in the next section.
+
+\begin{remark}
+    The cost functional defined above is \emph{additive} in time. Other cost functionals are possible, for example the max cost, but additive cost is by far the most common and useful.
+\end{remark}
+
 
 \paragraph{Cost versus reward formulation: }
 It is often more natural to consider \emph{maximizing} reward rather
@@ -154,7 +159,6 @@ ${\reward_\tHorizon}$ is the terminal reward. Clearly, minimizing
 ${\Cost_\tHorizon}$ is equivalent to maximizing
 ${\Value_\tHorizon}$, if we set:
 $${\reward_{\ttime}}(\state,\action) =  - {\cost_{\ttime}}(\state,\action) \text{ and }{\reward_\tHorizon}(\state) =  - {\cost_\tHorizon}(\state).$$
-
 We denote by $\T$ the set of time steps for horizon $\tHorizon$, i.e.,
 $\T=\{1, \ldots, \tHorizon\}$
 
@@ -163,14 +167,14 @@ $\T=\{1, \ldots, \tHorizon\}$
 
 Our first planning problem is the following \emph{$\tHorizon$-stage
 Finite Horizon Problem}:
-\begin{itemize}
-\item For a given initial state ${\state_0}$, find a feasible path
+
+\begin{definition}[$\tHorizon$-stage
+Finite Horizon Problem]
+    For a given initial state ${\state_0}$, find a feasible path
   ${\history_\tHorizon} = ({\state_0},{\action_0}, \ldots ,{\state_{\tHorizon - 1}},{\action_{\tHorizon - 1}},{\state_\tHorizon})$
-  that minimizes the cost functional ${\Cost_\tHorizon}({\history_\tHorizon})$, over all feasible paths ${\history_\tHorizon}$.
-\end{itemize}
-%
-Such a feasible path ${\history_\tHorizon}$ is called an
+  that minimizes the cost functional ${\Cost_\tHorizon}({\history_\tHorizon})$, over all feasible paths ${\history_\tHorizon}$. Such a feasible path ${\history_\tHorizon}$ is called an
 \emph{optimal path} from ${\state_0}$.
+\end{definition}
 
 A more general notion than a path is that of a \emph{control
 policy}, that specifies the action to be taken at each state.
@@ -186,48 +190,50 @@ policies is their dependence on the history, and their use of
 randomization.
 
 
-\begin{itemize}
-\item
-A general or \textbf{history-dependent} control policy $\policy  =
+\begin{definition}[History-dependent deterministic policy]
+    A general or \textbf{history-dependent} control policy $\policy  =
 {({\policy _\ttime})_{\ttime \in \T}}$ is a mapping from each
 possible history ${\history_\ttime} = ({\state_0},{\action_0},
 \ldots ,{\state_{\ttime-1}},{\action_{\ttime-1}},{\state_\ttime})$,
 $\ttime \in \T$, to an action ${\action_\ttime} = {\policy
 _\ttime}({\history_\ttime}) \in {\Actions_\ttime}$.  We denote the
 set of general policies by ${\Pi _H}$.
-%
-\item
-A \textbf{Markov} control policy $\policy $ is allowed to depend only on
+\end{definition}
+\begin{definition}[Markov deterministic policy]
+    A \textbf{Markov} control policy $\policy $ is allowed to depend only on
 the current state and time: ${\action_\ttime} = {\policy
 _\ttime}({\state_\ttime})$.   We denote the set of Markov policies
 by ${\Pi _M}$.
-%
-\item
-For stationary models, we may define \textbf{stationary} control
+\end{definition}
+\begin{definition}[Stationary deterministic policy]
+    For stationary models, we may define \textbf{stationary} control
 policies that depend only on the current state. A stationary policy
 is defined by a single mapping $\policy :\States \to \Actions$, so
 that ${\action_\ttime} = \policy ({\state_\ttime})$ for all $\ttime
 \in \T$. We denote the set of stationary policies by ${\Pi _S}$.
-%
-\item
+\end{definition}
 Evidently, ${\Pi _H} \supset {\Pi _M} \supset {\Pi _S}$.
-\end{itemize}
+
 
 \paragraph{Randomized (Stochastic) Control policies}
-\begin{itemize}
-  \item The control policies defined above specify deterministically the action to be taken at each stage. In some cases we want to allow for a random choice of action.
-  \item
-A general randomized (stochastic) control policy assigns to each
+The control policies defined above specify deterministically the action to be taken at each stage. In some cases we want to allow for a random choice of action.
+
+\begin{definition}[History-dependent stochastic policy]
+    A general randomized (stochastic) control policy assigns to each
 possible history ${\history_\ttime}$ a probability distribution
 ${\policy _\ttime}( \cdot |{\history_\ttime})$ over the action set
 ${\Actions_\ttime}$. That is,  $\Pr\{ {\action_\ttime} =
 \action|{\history_\ttime}\}  = {\policy
 _\ttime}(\action|{\history_\ttime})$. We denote the set of general
 randomized policies by ${\Pi _{HS}}$.
-  \item Similarly, we can define the set ${\Pi _{MS}}$ of Markov randomized (stochastic) control policies, where ${\policy _\ttime}( \cdot |{\history_\ttime})$ is replaced by ${\policy _\ttime}( \cdot |{\state_\ttime})$, and the set ${\Pi _{SS}}$ of stationary randomized (stochastic) control policies, where ${\policy _\ttime}( \cdot |{\state_\ttime})$ is replaced by  $\policy ( \cdot |{\state_\ttime})$.
-  \item Note that the set ${\Pi _{HS}}$ includes all other policy sets as special cases.
-  \item For deterministic control policies, we similarly define ${\Pi _{HD}} \supset {\Pi _{MD}} \supset {\Pi _{SD}}$
-\end{itemize}
+\end{definition}
+\begin{definition}[Markov stochastic policy]
+Define the set ${\Pi _{MS}}$ of Markov randomized (stochastic) control policies, where ${\policy _\ttime}( \cdot |{\history_\ttime})$ is replaced by ${\policy _\ttime}( \cdot |{\state_\ttime})$.
+\end{definition}
+\begin{definition}[Stationary stochastic policy]
+Define the set ${\Pi _{SS}}$ of stationary randomized (stochastic) control policies, where ${\policy _\ttime}( \cdot |{\state_\ttime})$ is replaced by  $\policy ( \cdot |{\state_\ttime})$.
+\end{definition}
+Note that the set ${\Pi _{HS}}$ includes all other policy sets as special cases. For stochastic control policies, we similarly have ${\Pi _{HS}} \supset {\Pi _{MS}} \supset {\Pi _{SS}}$.
 
 
 %%%%%%%%%%%%%%%%%%%%%
@@ -252,7 +258,7 @@ randomized policies by ${\Pi _{HS}}$.
 %\end{itemize}
 
 \paragraph{Control policies and paths:}
-As mentioned, a control policy specifies an action for each state,
+As mentioned, a deterministic control policy specifies an action for each state,
 whereas a path specifies an action only for states along the path.
 The definition of a policy, allows us to consider counter-factual
 events, namely, what would have been the path if we considered a
@@ -264,7 +270,7 @@ figure.
 \end{centering}
 
 \paragraph{Induced Path:}
-A control policy $\policy $, together with an initial state
+A deterministic control policy $\policy $, together with an initial state
 ${\state_0}$, specify a feasible path ${\history_\tHorizon} =
 ({\state_0},{\action_0}, \ldots ,{\state_{N -
 1}},{\action_{\tHorizon - 1}},{\state_\tHorizon})$. This path may be
@@ -530,9 +536,8 @@ improvement in computation efficiency.
 The DP technique for dynamic systems is based on a general
 observation called Bellman's Principle of Optimality. Essentially, it
 states the following (for deterministic problems):
-\begin{itemize}
-  \item \textbf{Any sub-path of an optimal path is itself an optimal path between its end points.}
-\end{itemize}
+\textbf{Any sub-path of an optimal path is itself an optimal path between its end points.}
+
 To see why this should hold, consider a sub-path which is not
 optimal. We can replace it by an optimal sub-path, and improve the
 return.
@@ -569,31 +574,42 @@ sub-path ${\history_{\ttime:\tHorizon}} =
 ({\state_{\ttime}},{\action_{\ttime}}, \ldots ,{\state_\tHorizon})$
 that starts at ${\state_{\ttime}}$.
 
-%\begin{algorithm_}
-%\label{Alg:FHDP-DDP} \textbf{Finite-horizon Dynamic Programming}
-%\begin{enumerate}
-%  \item Initialize the value function:  $\Value_\tHorizon(\state) = {\reward_\tHorizon}(\state)$,  $\state \in {\States_\tHorizon}$.
-%  %$V_N^{}(s) = {r_N}(s)$,  $s \in {S_N}$.
-%  \item Backward recursion:  For $\ttime = \tHorizon - 1, \ldots ,0$, compute
-%%\[V_k^{}(s) = \mathop {\max }\limits_{a \in {A_k}} \left\{ {{r_k}(s,a) + V_{k + 1}^{}({f_k}(s,a))} \right\},\quad     s \in {S_k}.\]
-%\[\Value_{\ttime}^{}(\state) = \mathop {\max }\limits_{\action \in {\Actions_{\ttime}}} \left\{ {{\reward_{\ttime}}(\state,\action) + \Value_{\ttime + 1}^{}({f_{\ttime}}(\state,\action))} \right\},\quad     \state \in {\States_{\ttime}}.\]
-%  \item Optimal policy: Choose any control policy $\policy^*  = ({\policy^* _{\ttime}})$ that satisfies:
-%%\[\pi _k^{}(s) \in \mathop {\arg \max }\limits_{a \in {A_k}} \left\{ {{r_k}(s,a) + V_{k + 1}^{}({f_k}(s,a))} \right\},\quad k = 0, \ldots ,N - 1.\]
-%\[\policy^* _{\ttime}(\state) \in \mathop {\arg \max }\limits_{\action \in {\Actions_{\ttime}}} \left\{ {{\reward_{\ttime}}(\state,\action) + \Value_{\ttime + 1}^{}({f_{\ttime}}(\state,\action))} \right\},\quad \ttime = 0, \ldots ,\tHorizon - 1.\]
-%\end{enumerate}
-%\end{algorithm_}
 
-\begin{algorithm_}
-\label{Alg:FHDP-DDP} \textbf{Finite-horizon Dynamic Programming}
-\begin{enumerate}
-  \item Initialize the value function:
-  $\Value_\tHorizon(\state) = {\reward_\tHorizon}(\state)$,  $\state \in {\States_\tHorizon}$.
-  \item Backward recursion:  For $\ttime = \tHorizon - 1, \ldots ,0$, compute
-\[\Value_{\ttime}^{}(\state) = \mathop {\max }\limits_{\action \in {\Actions_{\ttime}}} \left\{ {{\reward_{\ttime}}(\state,\action) + \Value_{\ttime + 1}^{}({f_{\ttime}}(\state,\action))} \right\},\quad     \state \in {\States_{\ttime}}.\]
-  \item Optimal policy: Choose any control policy $\policy^*  = ({\policy^* _{\ttime}})$ that satisfies:
-\[\policy^* _{\ttime}(\state) \in \mathop {\arg \max }\limits_{\action \in {\Actions_{\ttime}}} \left\{ {{\reward_{\ttime}}(\state,\action) + \Value_{\ttime + 1}^{}({f_{\ttime}}(\state,\action))} \right\},\quad \ttime = 0, \ldots ,\tHorizon - 1.\]
-\end{enumerate}
-\end{algorithm_}
+\begin{algorithm}
+\caption{Finite-horizon Dynamic Programming}
+\label{Alg:FHDP-DDP}
+\begin{algorithmic}[1]
+\State \textbf{Initialize the value function:}
+\State \quad $\Value_\tHorizon(\state) = \reward_\tHorizon(\state)$ for all $\state \in \States_\tHorizon$.
+\State \textbf{Backward recursion:} For $\ttime = \tHorizon - 1, \ldots ,0$,
+\State \quad Compute $\Value_{\ttime}(\state) = \max_{\action \in \Actions_{\ttime}} \left\{ \reward_{\ttime}(\state,\action) + \Value_{\ttime + 1}(f_{\ttime}(\state,\action)) \right\}$ for all $\state \in \States_{\ttime}$.
+\State \textbf{Optimal policy:} Choose any control policy $\policy^*  = (\policy^*_{\ttime})$ that satisfies:
+\State \quad $\policy^*_{\ttime}(\state) \in \arg \max_{\action \in \Actions_{\ttime}} \left\{ \reward_{\ttime}(\state,\action) + \Value_{\ttime + 1}(f_{\ttime}(\state,\action)) \right\}$, for $\ttime = 0, \ldots ,\tHorizon - 1$.
+\end{algorithmic}
+\end{algorithm}
+
+Note that the algorithm involves visiting each state exactly once, proceeding
+backward in time. For each time instant (or stage) $\ttime$, the
+value function ${\Value_{\ttime}}(\state)$ is computed for all
+states $\state \in {\States_{\ttime}}$ before proceeding to stage
+$\ttime - 1$. The {\em backward induction} step of Algorithm \ref{Alg:FHDP-DDP} (Finite-horizon Dynamic Programming),
+along with similar equations in the theory of DP, is called
+\textbf{Bellman's equation}.
+% \begin{algorithm}
+% \caption{Finite-horizon Dynamic Programming}
+% \label{Alg:FHDP-DDP}
+% \begin{algorithmic}
+% \STATE \textbf{Initialization:}
+% \STATE $\Value_\tHorizon(\state) = \reward_\tHorizon(\state)$ for all $\state \in \States_\tHorizon$.
+% \STATE \textbf{Backward recursion:}
+% \FOR{$\ttime = \tHorizon - 1$ \TO $0$}
+% \STATE Compute $\Value_{\ttime}(\state) = \max_{\action \in \Actions_{\ttime}} \left\{ \reward_{\ttime}(\state,\action) + \Value_{\ttime + 1}(f_{\ttime}(\state,\action)) \right\}$ for all $\state \in \States_{\ttime}$.
+% \ENDFOR
+% \STATE \textbf{Optimal policy:}
+% \STATE Choose any control policy $\policy^*  = (\policy^*_{\ttime})$ that satisfies:
+% \STATE $\policy^*_{\ttime}(\state) \in \arg \max_{\action \in \Actions_{\ttime}} \left\{ \reward_{\ttime}(\state,\action) + \Value_{\ttime + 1}(f_{\ttime}(\state,\action)) \right\}$, for $\ttime = 0, \ldots ,\tHorizon - 1$.
+% \end{algorithmic}
+% \end{algorithm}
 
 \begin{proposition}
 The following holds for finite-horizon dynamic programming:
@@ -669,31 +685,21 @@ $\Value(P_2)\leq \Value(P)$. Hence, $\Value(P_1)\leq \Value(P_2)\leq
 
 %We will provide a proof of this result in a later lecture, for the
 %more general stochastic MDP model. For the time being, l
-Let us make
-the following observations:
-\begin{enumerate}
-  \item
-The algorithm involves visiting each state exactly once, proceeding
-backward in time. For each time instant (or stage) $\ttime$, the
-value function ${\Value_{\ttime}}(\state)$ is computed for all
-states $\state \in {\States_{\ttime}}$ before proceeding to stage
-$\ttime - 1$.
-  \item
-The {\em backward induction} step of Algorithm \ref{Alg:FHDP-DDP} (Finite-horizon Dynamic Programming),
-along with similar equations in the theory of DP, is called
-\textbf{Bellman's equation}.
-  \item
-Computational complexity: There is a total of $n\tHorizon$ states
+Let us evaluate the computational complexity of finite horizon DP: there is a total of $n\tHorizon$ states
 (excluding the final one), and in each we need $m$ computations.
 Hence, the number of required calculations is $mn\tHorizon$. For the
 example above with $m = n = \tHorizon = 10$, we need $O({10^3})$
 calculations.
-  \item
-A similar algorithm that proceeds forward in time (from $\ttime = 0$
+
+
+\begin{remark}
+    A similar algorithm that proceeds forward in time (from $\ttime = 0$
 to $\ttime = \tHorizon$) can be devised. We note that this will not
 be possible for stochastic systems (i.e., the stochastic MDP model).
-  \item
-The celebrated \textbf{Viterbi algorithm} is an important instance
+\end{remark}
+
+\begin{remark}
+    The celebrated \textbf{Viterbi algorithm} is an important instance
 of finite-horizon DP. The algorithm essentially finds the most
 likely sequence of states in a Markov chain $({\state_{\ttime}})$
 that is partially (or noisily) observed. The algorithm was
@@ -702,9 +708,7 @@ communication links. It has found extensive applications in
 communications, and is a basic computational tool in Hidden Markov
 Models (HMMs), a popular statistical model that is used extensively
 in speech recognition and bioinformatics, among other areas.
-\end{enumerate}
-
-
+\end{remark}
 % \section{Shortest Paths}
 % We can formulate a DDP problems similar to shortest path problems.
 % Given a directed graph $\graph(\nodes,\edges)$,  there is a set of goal states
@@ -910,49 +914,39 @@ We note that these equations are non-explicit, in the sense that the same quanti
 \subsection{The Bellman-Ford Algorithm}
 This algorithm solves the single destination (or the equivalent single source) shortest path problem. It allows both positive and negative edge weights. Assume for the moment that there are \emph{no negative-weight cycles}.
 
-\begin{algorithm_}\textbf{Bellman-Ford Algorithm}
-\begin{enumerate}
-\item[ Input: ] A weighted directed graph $\graph$, and destination node $\nodev_d$.
+\begin{algorithm}
+\caption{Bellman-Ford Algorithm}
+\label{Alg:BellmanFord}
+\begin{algorithmic}[1]
+\State \textbf{Input:} A weighted directed graph $\graph$, and destination node $\nodev_d$.
 
-\item Initialization:   $d[\nodev_d] = 0$,  $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_d\} $.
-                           \\\coderemark{$d[\nodev]$ holds the current shortest distance from $\nodev$ to $\nodev_d$.}
+\State \textbf{Initialization:} 
+\State \quad $d[\nodev_d] = 0$,  
+\State \quad $d[\nodev] = \infty$ for $\nodev \in \nodes \setminus \{ \nodev_d\}$.
+\State \quad \Comment{$d[\nodev]$ holds the current shortest distance from $\nodev$ to $\nodev_d$.}
 
-\item for  $i = 1$ to $|\nodes| - 1$,
+\State \textbf{For} $i = 1$ to $|\nodes| - 1$
 
-    %   \tab{$\tilde d[\nodev] = d[\nodev],\quad \nodev \in \nodes\backslash \{ \nodev_d\} $      \coderemark{temporary buffer for $d$}}
+\State \quad \textbf{For} {each vertex $\nodev \in \nodes \setminus \{ \nodev_d\}$}
 
-      \tab{for each vertex $\nodev \in \nodes\backslash \{ \nodev_d\} $,}
-
-	  \tab{\tab{$q[\nodev] = {\min_{\nodeu}}\{ \cost(\nodev,\nodeu) + d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
-	  
-	  \tab{\tab{$\policy [\nodev] \in \argmin_{\nodeu}\{ \cost(\nodev,\nodeu) + d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
-
-	  \tab{$d[\nodev] =  q[\nodev] \quad \forall \nodev \in \nodes\backslash \{ \nodev_d\}$} 
-    % \item for  $\nodev \in \nodes\backslash \{ \nodev_d\} $,
-
-    %   \tab{if  $d[\nodev] < \infty $}
-
-    %   \tab{\tab{set $\policy [\nodev] \in \argmin_{\nodeu}\{ \cost(\nodev,\nodeu) + \tilde d[\nodeu]:(\nodev,\nodeu) \in \edges\} $}}
-
-    %   \tab{else}
-
-    %   \tab{\tab{$\policy [\nodev]$=NULL}}
-
-\item return $\{ d[\nodev],\policy [\nodev], \quad  \forall \nodev \in \nodes\} $
-\end{enumerate}
-\end{algorithm_}
+\State \qquad $q[\nodev] = \min_{\nodeu}\{\cost(\nodev,\nodeu) + d[\nodeu] \mid (\nodev,\nodeu) \in \edges\}$
+\State \qquad $\policy[\nodev] \in \arg\min_{\nodeu}\{\cost(\nodev,\nodeu) + d[\nodeu] \mid (\nodev,\nodeu) \in \edges\}$
+\State \quad $d[\nodev] = q[\nodev]$ \quad $\forall \nodev \in \nodes \setminus \{ \nodev_d\}$
+\State \textbf{return} $\{d[\nodev], \policy[\nodev] \mid \forall \nodev \in \nodes\}$
+\end{algorithmic}
+\end{algorithm}
 
 The output of the algorithm is $d[\nodev] = \minlen(\nodev,\nodev_d)$, the weight of the shortest path from $\nodev$ to $\nodev_d$, and the routing list $\policy$. A shortest path from vertex $\nodev$ is obtained from $\policy $ by following the sequence: ${\nodev_1} = \policy [\nodev], {\nodev_2} = \policy [{\nodev_1}],  \ldots ,\nodev_d = \policy [{\nodev_{k - 1}}]$.
 To understand the algorithm, we observe that after round $i$, $d[\nodev]$ holds the length of the shortest path from $\nodev$ \textbf{in $i$ steps or less}. To see this, observe that the calculations done up to round $i$ are equivalent to the calculations in a finite horizon dynamic programming, where the horizon is $i$. Since the shortest path takes at most $|\nodes| - 1$ steps, the above claim on optimality follows.
 
-\paragraph{Remarks:}
-\begin{enumerate}
-  \item The running time of the algorithm is $O(|\nodes|\, \cdot \,|\edges|)$. This is because in each round $i$ of the algorithm, each edge $\edge$ is involved in exactly one update of $d[\nodev]$ for some $\nodev$.
-  \item If $\{ d[\nodev]:\nodev \in \nodes\}$ does not change at all at some round, then the algorithm may be stopped there.
-%   \item In the version shown above, $\tilde d[\nodev]$ is used to 'freeze' $d[\nodev]$ for an entire round. The standard form of the algorithm actually uses $d[\nodev]$ directly on the right-hand side.
-  \item We have assumed above that no negative-weight cycles exist. In fact the algorithm can be used to check for existence of such cycles: A negative-weight cycle exists if and only if  $d[\nodev]$ changes during an additional step ($i = |\nodes|$) of the algorithm.
-  \item The basic scheme above can also be implemented in an asynchronous manner, where each node performs a local update of $d[\nodev]$ at its own time. Further, the algorithm can be started from any initial conditions, although convergence can be slower. This makes the algorithm useful for distributed environments such as internet routing.
-\end{enumerate}
+The running time of the algorithm is $O(|\nodes|\, \cdot \,|\edges|)$. This is because in each round $i$ of the algorithm, each edge $\edge$ is involved in exactly one update of $d[\nodev]$ for some $\nodev$. If $\{ d[\nodev]:\nodev \in \nodes\}$ does not change at all at some round, then the algorithm may be stopped early.
+
+\begin{remark}
+    We have assumed above that no negative-weight cycles exist. In fact the algorithm can be used to check for existence of such cycles: A negative-weight cycle exists if and only if  $d[\nodev]$ changes during an additional step ($i = |\nodes|$) of the algorithm.
+\end{remark}
+\begin{remark}
+    The basic scheme above can also be implemented in an asynchronous manner, where each node performs a local update of $d[\nodev]$ at its own time. Further, the algorithm can be started from any initial conditions, although convergence can be slower. This makes the algorithm useful for distributed environments such as internet routing.
+\end{remark}
 
 \subsection{Dijkstra's Algorithm}
 Dijkstra's algorithm (introduced in 1959) provides a more efficient algorithm for the single-destination shortest path problem. This algorithm is restricted to non-negative link weights, i.e., $\cost(\nodev,\nodeu) \ge 0$.
@@ -963,39 +957,64 @@ described below.
 %, with more details in the recitation.
 The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to the destination has been determined. The other vertices $\nodes\backslash \vertexset$ are held in a queue. It proceeds as follows.
 
-\begin{algorithm_}\textbf{Dijkstra's Algorithm}
-\begin{enumerate}
-\item[ Input: ] A weighted directed graph, and destination node $\nodev_d$.
+% \begin{algorithm_}\textbf{Dijkstra's Algorithm}
+% \begin{enumerate}
+% \item[ Input: ] A weighted directed graph, and destination node $\nodev_d$.
 
-\item Initialization:
-\begin{itemize}
-  \item[] $d[\nodev_d] = 0$
-  \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_d\} $
-  \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
-  \item[] $\vertexset = \emptyset $
-\end{itemize}
+% \item Initialization:
+% \begin{itemize}
+%   \item[] $d[\nodev_d] = 0$
+%   \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_d\} $
+%   \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
+%   \item[] $\vertexset = \emptyset $
+% \end{itemize}
 
-\item while $\vertexset \ne \nodes$,
+% \item while $\vertexset \ne \nodes$,
 
-\tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value $d[\nodeu]$, add it to $\vertexset$}
+% \tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value $d[\nodeu]$, add it to $\vertexset$}
 
-\tab{for each vertex $\nodev$ with $(\nodev,\nodeu) \in \edges$,}
+% \tab{for each vertex $\nodev$ with $(\nodev,\nodeu) \in \edges$,}
 
-\tab{\tab{if $d[\nodev] > \cost(\nodev,\nodeu) + d[\nodeu]$,}}
+% \tab{\tab{if $d[\nodev] > \cost(\nodev,\nodeu) + d[\nodeu]$,}}
 
-\tab{\tab{\tab{	set  $d[\nodev] = \cost(\nodev,\nodeu) + d[\nodeu]$,  $\policy [\nodev] = \nodeu$ }}}
-\item return $\{ d[\nodev],\policy [\nodev] \ |\ v \in \nodes\} $
-\end{enumerate}
-\end{algorithm_}
+% \tab{\tab{\tab{	set  $d[\nodev] = \cost(\nodev,\nodeu) + d[\nodeu]$,  $\policy [\nodev] = \nodeu$ }}}
+% \item return $\{ d[\nodev],\policy [\nodev] \ |\ v \in \nodes\} $
+% \end{enumerate}
+% \end{algorithm_}
 
-\paragraph{Remarks:}
-\begin{enumerate}
-  \item The Bellman-Form algorithm visits each edge of the graph up to $|\nodes|-1$ times, leading to a running time of $O(|\nodes|\, \cdot \,|\edges|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|\edges|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $\vertexset$.
-  \item	The vertices in $\nodes\backslash \vertexset$ need to be extracted in increasing order of $d[\nodev]$.  This is handled by a min-priority queue, and the complexity of the algorithm depends on the implementation of this queue.
-  \item	With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|\nodes|)$ time, leading to overall running time of $O(|\nodes{|^2} + |\edges|)$ for the algorithm. Using a basic (binary heap) priority queue brings the running time to $O((|\nodes| + |\edges|)\log |\nodes|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|\nodes|\log |\nodes| + |\edges|)$.
-\end{enumerate}
+\begin{algorithm}
+\caption{Dijkstra's Algorithm}
+\label{Alg:Dijkstra}
+\begin{algorithmic}[1]
+\State \textbf{Input:} A weighted directed graph $\graph$, and destination node $\nodev_d$.
 
-In the following, we prove that Dijkstra's is \textit{complete}, i.e., that is finds the shortest path. Let $d^*[\nodev]$ denote the shortest path length from $\nodev$ to $\nodev_d$
+\State \textbf{Initialization:} 
+\State \quad $d[\nodev_d] = 0$
+\State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_d\}$
+\State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+\State \quad $\vertexset = \emptyset$
+
+\While{$\vertexset \neq \nodes$}
+    \State Choose $\nodeu \in \nodes \setminus \vertexset$ with minimal value $d[\nodeu]$
+    \State Add $\nodeu$ to $\vertexset$
+    \ForAll{$(\nodev, \nodeu) \in \edges$}
+        \State \textbf{If} {$d[\nodev] > \cost(\nodev, \nodeu) + d[\nodeu]$}
+            \State \quad $d[\nodev] = \cost(\nodev, \nodeu) + d[\nodeu]$
+            \State \quad $\policy[\nodev] = \nodeu$
+    \EndFor
+\EndWhile
+
+\State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \forall \nodev \in \nodes\}$
+\end{algorithmic}
+\end{algorithm}
+
+Let us discuss the running time of Dijkstra's algorithm. Recall that the Bellman-Form algorithm visits each edge of the graph up to $|\nodes|-1$ times, leading to a running time of $O(|\nodes|\, \cdot \,|\edges|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|\edges|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $\vertexset$.
+
+The vertices in $\nodes\backslash \vertexset$ need to be extracted in increasing order of $d[\nodev]$.  This is handled by a min-priority queue, and the complexity of the algorithm depends on the implementation of this queue.
+With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|\nodes|)$ time, leading to overall running time of $O(|\nodes{|^2} + |\edges|)$ for the algorithm. Using a basic (binary heap) priority queue brings the running time to $O((|\nodes| + |\edges|)\log |\nodes|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|\nodes|\log |\nodes| + |\edges|)$.
+
+
+In the following, we prove that Dijkstra's is \textit{complete}, i.e., that is finds the shortest path. Let $d^*[\nodev]$ denote the shortest path length from $\nodev$ to $\nodev_d$.
 \begin{theorem}
 Assume that $\cost(\nodev,\nodeu)\geq 0$ for all $\nodeu,\nodev\in\vertexset$. Then Dijkstra's algorithm terminates with $d[\nodev] = d^*[\nodev]$ for all $\nodev\in\vertexset$.
 \end{theorem}
@@ -1011,32 +1030,61 @@ By the induction hypothesis, $d[\nodey] = d^*[\nodey]$. Since $\nodex$ is on the
 
 For the single pair problem, Dijkstra's algorithm can be written in the Single Source Problem formulation, and terminated once the destination node is reached, i.e., when it is popped from the queue. From the discussion above, it is clear that the algorithm will terminate exactly when the shortest path between the source and destination is found.
 
-\begin{algorithm_}\textbf{Dijkstra's Algorithm (Single Pair Problem)}
-\begin{enumerate}
-\item{Input:} A weighted directed graph, source node $\nodev_s$, and destination node $\nodev_d$.
+% \begin{algorithm_}\textbf{Dijkstra's Algorithm (Single Pair Problem)}
+% \begin{enumerate}
+% \item{Input:} A weighted directed graph, source node $\nodev_s$, and destination node $\nodev_d$.
 
-\item Initialization:
-\begin{itemize}
-  \item[] $d[\nodev_s] = 0$
-  \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
-  \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
-  \item[] $\vertexset = \emptyset $
-\end{itemize}
+% \item Initialization:
+% \begin{itemize}
+%   \item[] $d[\nodev_s] = 0$
+%   \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
+%   \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
+%   \item[] $\vertexset = \emptyset $
+% \end{itemize}
 
-\item while $\vertexset \ne \nodes$,
+% \item while $\vertexset \ne \nodes$,
 
-\tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value $d[\nodeu]$, add it to $\vertexset$}
+% \tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value $d[\nodeu]$, add it to $\vertexset$}
 
-\tab{if $\nodeu == \nodev_d$, break}
+% \tab{if $\nodeu == \nodev_d$, break}
 
-\tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
+% \tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
 
-\tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
+% \tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
 
-\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
-\item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
-\end{enumerate}
-\end{algorithm_}
+% \tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
+% \item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
+% \end{enumerate}
+% \end{algorithm_}
+
+
+\begin{algorithm}
+\caption{Dijkstra's Algorithm (Single Pair Problem)}
+\label{Alg:DijkstraSinglePair}
+\begin{algorithmic}[1]
+\State \textbf{Input:} A weighted directed graph $\graph$, source node $\nodev_s$, and destination node $\nodev_d$.
+
+\State \textbf{Initialization:} 
+\State \quad $d[\nodev_s] = 0$
+\State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_s\}$
+\State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+\State \quad $\vertexset = \emptyset$
+
+\While{$\vertexset \neq \nodes$}
+    \State Choose $\nodeu \in \nodes \setminus \vertexset$ with the minimal value $d[\nodeu]$
+    \State Add $\nodeu$ to $\vertexset$
+    \State \textcolor{blue}{\textbf{If} {$\nodeu == \nodev_d$}}
+        \State \quad \textcolor{blue}{\textbf{break}}
+    \ForAll{$(\nodeu, \nodev) \in \edges$}
+        \State \textbf{If} {$d[\nodev] > d[\nodeu] + \cost(\nodeu, \nodev)$}
+            \State \quad $d[\nodev] = d[\nodeu] + \cost(\nodeu, \nodev)$
+            \State \quad $\policy[\nodev] = \nodeu$
+    \EndFor
+\EndWhile
+
+\State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \nodev \in \nodes\}$
+\end{algorithmic}
+\end{algorithm}
 
 \subsection{From Dijkstra's Algorithm to A$^*$}
 
@@ -1044,32 +1092,61 @@ Dijkstra's algorithm expands vertices in the order of their distance from the so
 
 The A$^*$ algorithm implements this idea through the use of a heuristic function $\heur[\nodev]$, which is an estimate of the distance from vertex $\nodev$ to the goal. It then expands vertices in the order of $d[\nodev] + \heur[\nodev]$, i.e., the (estimated) length of the shortest path from $\nodev_s$ to $\nodev_d$ that passes through $\nodev$.
 
-\begin{algorithm_}\textbf{A$^*$ Algorithm}
-\begin{enumerate}
-\item{Input:} A weighted directed graph, source $\nodev_s$, destination $\nodev_d$, and heuristic function $\heur$.
+% \begin{algorithm_}\textbf{A$^*$ Algorithm}
+% \begin{enumerate}
+% \item{Input:} A weighted directed graph, source $\nodev_s$, destination $\nodev_d$, and heuristic function $\heur$.
 
-\item Initialization:
-\begin{itemize}
-  \item[] $d[\nodev_s] = 0$
-  \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
-  \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
-  \item[] $\vertexset = \emptyset $
-\end{itemize}
+% \item Initialization:
+% \begin{itemize}
+%   \item[] $d[\nodev_s] = 0$
+%   \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
+%   \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
+%   \item[] $\vertexset = \emptyset $
+% \end{itemize}
 
-\item while $\vertexset \ne \nodes$,
+% \item while $\vertexset \ne \nodes$,
 
-\tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value \textcolor{blue}{$d[\nodeu]+\heur[\nodeu]$}, add it to $\vertexset$}
+% \tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value \textcolor{blue}{$d[\nodeu]+\heur[\nodeu]$}, add it to $\vertexset$}
 
-\tab{if $\nodeu == \nodev_d$, break}
+% \tab{if $\nodeu == \nodev_d$, break}
 
-\tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
+% \tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
 
-\tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
+% \tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
 
-\tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
-\item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
-\end{enumerate}
-\end{algorithm_}
+% \tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
+% \item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
+% \end{enumerate}
+% \end{algorithm_}
+
+\begin{algorithm}
+\caption{A$^*$ Algorithm}
+\label{Alg:ASTAR}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Weighted directed graph $\graph$, source $\nodev_s$, destination $\nodev_d$,  heuristic $\heur$.
+
+\State \textbf{Initialization:} 
+\State \quad $d[\nodev_s] = 0$
+\State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_s\}$
+\State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+\State \quad $\vertexset = \emptyset$
+
+\While{$\vertexset \neq \nodes$}
+    \State Choose $\nodeu \in \nodes \setminus \vertexset$ with the minimal value \textcolor{blue}{$d[\nodeu] + \heur[\nodeu]$}
+    \State Add $\nodeu$ to $\vertexset$
+    \State \textbf{If} {$\nodeu == \nodev_d$}
+        \State \quad \textbf{break}
+    \ForAll{$(\nodeu, \nodev) \in \edges$}
+        \State \textbf{If} {$d[\nodev] > d[\nodeu] + \cost(\nodeu, \nodev)$}
+            \State \quad $d[\nodev] = d[\nodeu] + \cost(\nodeu, \nodev)$
+            \State \quad $\policy[\nodev] = \nodeu$
+    \EndFor
+\EndWhile
+
+\State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \nodev \in \nodes\}$
+\end{algorithmic}
+\end{algorithm}
+
 
 Obviously, we cannot expect the estimate $\heur(\nodev)$ to be exact -- if we knew the exact distance then our problem would be solved. However, it turns out that relaxed properties of $\heur$ are required to guarantee the optimality of A$^*$. 
 
@@ -1080,20 +1157,29 @@ A heuristic is said to be \textbf{admissible} if it is a lower bound of the shor
 where we recall that $\minlen[\nodeu,\nodev]$ denotes the length of the shortest path between $\nodeu$ and $\nodev$.
 \end{definition}
 
-\paragraph{Remarks:}
-\begin{itemize}
-  \item It is easy to show that every consistent heuristic is also admissible (exercise: show it!). It is more difficult to find admissible heuristics that are not consistent. In path finding applications, a popular heuristic that is both admissible and consistent is the Euclidean distance to the goal.
-  \item With a consistent heuristic, A$^*$ is guaranteed to find the shortest path in the graph. With an admissible heuristic, some extra bookkeeping is required to guarantee optimality. 
-  \item Actually, a stronger result of \textit{optimal efficiency} can be shown for A$^*$: for a given $\heur$ that is consistent, no other algorithm that is guaranteed to be optimal will explore a smaller set of vertices during the search.
-  \item The notion of admissibility is a type of \emph{optimism}, and is required to guarantee that we don't settle on a suboptimal solution. Later in the course we will see that a similar idea plays a key role also in learning algorithms. 
-  \item We will show optimality for a consistent heuristic by showing that A$^*$ is equivalent to running Dijkstra's algorithm on a graph with modified weights.
-%   This is inspired by https://11011110.github.io/blog/2008/04/03/reweighting-graph-for.html
-  \begin{enumerate}
-      \item Define new weights $\hat{\cost}(\nodeu,\nodev) = \cost(\nodeu,\nodev) + \heur(\nodev) - \heur(\nodeu)$. This transformation does not change the shortest path from $\nodev_s$ to $\nodev_d$ (show this!), and the new weights are non-negative due to the consistency property.
-      \item The A$^*$ algorithm is equivalent to running Dijkstra's algorithm (for the single pair problem) with the weights $\hat{\cost}$, and defining $\hat{d}[\nodev] = d[\nodev] + \heur[\nodev]$. The optimality of A$^*$ therefore follows from the optimality results for Dijsktra's algorithm.
-  \end{enumerate}
-  \item The idea of changing the cost function to make the problem easier to solve without changing the optimal solution is known as \textit{cost shaping}, and also plays a role in learning algorithms.
-\end{itemize}
+It is easy to show that every consistent heuristic is also admissible (exercise: show it!). It is more difficult to find admissible heuristics that are not consistent. In path finding applications, a popular heuristic that is both admissible and consistent is the Euclidean distance to the goal.
+
+With a consistent heuristic, A$^*$ is guaranteed to find the shortest path in the graph. With an admissible heuristic, some extra bookkeeping is required to guarantee optimality. 
+We will show optimality for a consistent heuristic by showing that A$^*$ is equivalent to running Dijkstra's algorithm on a graph with modified weights.
+
+\begin{proposition}\label{prop:astar_complete}
+    Assume that $\cost(\nodev,\nodeu)\geq 0$ for all $\nodeu,\nodev\in\vertexset$, and that $\heur$ is a consistent heuristic. Then the A$^*$ algorithm terminates with $d[\nodev] = d^*[\nodev]$ for all $\nodev\in\vertexset$.
+\end{proposition}
+\begin{proof}
+Define new weights $\hat{\cost}(\nodeu,\nodev) = \cost(\nodeu,\nodev) + \heur(\nodev) - \heur(\nodeu)$. This transformation does not change the shortest path from $\nodev_s$ to $\nodev_d$ (show this!), and the new weights are non-negative due to the consistency property.
+
+The A$^*$ algorithm is equivalent to running Dijkstra's algorithm (for the single pair problem) with the weights $\hat{\cost}$, and defining $\hat{d}[\nodev] = d[\nodev] + \heur[\nodev]$. The optimality of A$^*$ therefore follows from the optimality results for Dijsktra's algorithm.
+\end{proof}
+
+\begin{remark}
+    Actually, a stronger result of \textit{optimal efficiency} can be shown for A$^*$: for a given $\heur$ that is consistent, no other algorithm that is guaranteed to be optimal will explore a smaller set of vertices during the search \cite{hart1968formal}.
+\end{remark}
+\begin{remark}
+    The notion of admissibility is a type of \emph{optimism}, and is required to guarantee that we do not settle on a suboptimal solution. Later in the course we will see that a similar idea plays a key role also in learning algorithms. 
+\end{remark}
+\begin{remark}
+    In the proof of Proposition \ref{prop:astar_complete}, the idea of changing the cost function to make the problem easier to solve without changing the optimal solution is known as \textit{cost shaping}, and also plays a role in learning algorithms \cite{ng1999policy}.
+\end{remark}
 
 \section{Average cost criteria}
 
@@ -1277,7 +1363,7 @@ A simple approach for solving Problem \ref{eq:opt_control} is using gradient bas
         & = \cost_0(\state_0, \action_0) + \cost_1(f_0(\state_0,\action_0), \action_1) + \dots + \cost_\tHorizon(f_{\tHorizon - 1}(f_{\tHorizon - 2}(\dots ),\action_{\tHorizon-1}), \action_\tHorizon).
 \end{split}
 \end{equation*}
-Using our differentiability assumption, we know $\frac{\partial f_\ttime}{\partial \state_\ttime}, \frac{\partial f_\ttime}{\partial \action_\ttime}, \frac{\partial \cost_\ttime}{\partial \state_\ttime}, \frac{\partial \cost_\ttime}{\partial \action_\ttime}$. Thus, using repeated application of the chain rule, we can calculate $\frac{\partial \Value}{\partial \action_\ttime}$, and optimize $\Value$ using gradient descent. There are, however, two potential issues with this approach. The first is that we will only be guaranteed a locally optimal solution. The second is that in practice, a first-order gradient optimization algorithm often converges very slowly.
+Using our differentiability assumption, we know $\frac{\partial f_\ttime}{\partial \state_\ttime}, \frac{\partial f_\ttime}{\partial \action_\ttime}, \frac{\partial \cost_\ttime}{\partial \state_\ttime}, \frac{\partial \cost_\ttime}{\partial \action_\ttime}$. Thus, using repeated application of the chain rule, we can calculate $\frac{\partial \Value}{\partial \action_\ttime}$, and optimize $\Value$ using gradient descent. There are, however, two potential issues with this approach. The first is that we will only be guaranteed a locally optimal solution. The second is that in practice, a first-order gradient optimization algorithm often converges slowly.
 
 We will now show a different approach. We will first show that for linear systems and quadratic costs, Problem \ref{eq:opt_control} can be solved using dynamic programming. This problem is often called a Linear Quadratic Regulator (LQR). We will then show how to extend the LQR solution to non-linear problems using linearization, resulting in an iterative LQR algorithm (iLQR).
 
@@ -1354,11 +1440,13 @@ From the construction in the proof of Proposition \ref{prop:lqr} one can recover
 % \end{proof}
 % \end{leftbar}
 
-\paragraph{Remarks:}
-\begin{enumerate}
-  \item The DP solution is \emph{globally} optimal for the LQR problem. Interestingly, the computational complexity is polynomial in the \textit{dimension} of the state, and linear in the time horizon. This is in contrast to the curse of dimensionality, which would make a discretization based approach infeasible for high dimensional problem. This efficiency is due to the special structure of the dynamics and cost function in the LQR problem, and does not hold in general.
-  \item Note that the DP computation resulted in a sequence of \textit{linear feedback controllers}. It turns out that these controllers are also optimal in the presence of Gaussian noise added to the dynamics.
-  \item A similar derivation holds for the system:
+Note that the DP solution is \emph{globally} optimal for the LQR problem. Interestingly, the computational complexity is polynomial in the \textit{dimension} of the state, and linear in the time horizon. This is in contrast to the curse of dimensionality, which would make a discretization based approach infeasible for high dimensional problem. This efficiency is due to the special structure of the dynamics and cost function in the LQR problem, and does not hold in general.
+
+\begin{remark}
+    Note that the DP computation resulted in a sequence of \textit{linear feedback controllers}. It turns out that these controllers are also optimal in the presence of Gaussian noise added to the dynamics.
+\end{remark}
+
+A similar derivation holds for the system:
   \begin{equation*}\label{eq:lqr_full}
     \begin{split}
         \min_{\action_0,\dots,\action_{\tHorizon}} & \sum_{\ttime=0}^\tHorizon \cost_\ttime(\state_\ttime, \action_\ttime), \\
@@ -1368,7 +1456,7 @@ From the construction in the proof of Proposition \ref{prop:lqr} one can recover
 \end{equation*}
 In this case, the optimal control is of the form 
 $\action_\ttime^* = K_\ttime \state + \kappa_\ttime, $ for some matrices $K_\ttime$ and vectors  $\kappa_\ttime$.
-\end{enumerate}
+
 
 
 \subsection{Iterative LQR}
@@ -1387,15 +1475,27 @@ Also note that the controller $\action_\ttime^* = K_\ttime (\state_\ttime - \hat
 
 The iterative LQR algorithm works by applying this approximation iteratively:
 
-\begin{enumerate}
-    \item Initialize a control sequence $\hat{\action_0},\dots,\hat{\action_\tHorizon}$ (e.g., by zeros).
-    \item Run a forward simulation of the controls in the nonlinear system to obtain a state trajectory $\hat{\state_0},\dots,\hat{\state_\ttime}$.
-    \item Linearize the dynamics and quadratize the cost (Eq. \ref{eq:Taylor_approx}), and solve using LQR.
-    \item By running a forward simulation of the control $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \alpha \kappa_\ttime + \hat{\action}_\ttime$ on the non-linear system, perform a line search for the optimal $\alpha$ according to the non-linear cost.
-    \item For the found $\alpha$, run a forward simulation to obtain a new trajectory  $\hat{\state}_0,\hat{\action}_0,\dots,\hat{\state}_{\tHorizon},\hat{\action}_{\tHorizon}$. Go to step 3.
-\end{enumerate}
+% \begin{enumerate}
+%     \item Initialize a control sequence $\hat{\action_0},\dots,\hat{\action_\tHorizon}$ (e.g., by zeros).
+%     \item Run a forward simulation of the controls in the nonlinear system to obtain a state trajectory $\hat{\state_0},\dots,\hat{\state_\ttime}$.
+%     \item Linearize the dynamics and quadratize the cost (Eq. \ref{eq:Taylor_approx}), and solve using LQR.
+%     \item By running a forward simulation of the control $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \alpha \kappa_\ttime + \hat{\action}_\ttime$ on the non-linear system, perform a line search for the optimal $\alpha$ according to the non-linear cost.
+%     \item For the found $\alpha$, run a forward simulation to obtain a new trajectory  $\hat{\state}_0,\hat{\action}_0,\dots,\hat{\state}_{\tHorizon},\hat{\action}_{\tHorizon}$. Go to step 3.
+% \end{enumerate}
 
-In practice, the iLQR algorithm is typically much more stable and efficient than the gradient descent approach.
+\begin{algorithm}
+\caption{Iterative LQR}
+\label{alg:nonlinear_control}
+\begin{algorithmic}[1]
+\State Initialize a control sequence $\hat{\action}_0, \dots, \hat{\action}_\tHorizon$ (e.g., by zeros).
+\State Run a forward simulation of the controls in the nonlinear system to obtain a state trajectory $\hat{\state}_0, \dots, \hat{\state}_\ttime$.
+\State Linearize the dynamics and quadratize the cost (Eq. \ref{eq:Taylor_approx}), and solve using LQR.
+\State By running a forward simulation of the control $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \alpha \kappa_\ttime + \hat{\action}_\ttime$ on the non-linear system, perform a line search for the optimal $\alpha$ according to the non-linear cost.
+\State For the found $\alpha$, run a forward simulation to obtain a new trajectory $\hat{\state}_0, \hat{\action}_0, \dots, \hat{\state}_{\tHorizon}, \hat{\action}_{\tHorizon}$. Go to step 3.
+\end{algorithmic}
+\end{algorithm}
+
+In practice, the iLQR algorithm can converge much faster than the simple gradient descent approach.
 
 % \section{Historical Notes:}
 % \begin{itemize}
@@ -1417,9 +1517,12 @@ In practice, the iLQR algorithm is typically much more stable and efficient than
 
 \section{Bibliography notes}
 
+Dijkstra's algorithm was published in \cite{dijkstra1959note}. The A$^*$ algorithm is from \cite{hart1968formal}. The Viterbi algorithm was published in \cite{viterbi1967error}.
+
+Our presentation of the iterative LQR follows \cite{todorov2005generalized}, which is closely related to differential dynamic programming \cite{JacobsonMayne1970}.
+
 \SM{Include:
 \begin{itemize}
-\item Dijkstra
-\item Viterbi
 \item LQR/LQG (continuous optimal control) - but which reference?
+\item Bellman Ford - which reference?
 \end{itemize}}

@@ -164,7 +164,7 @@ We have,
         &= \initdist(\state) + \sum_{\state'} \discdist^{\policy}(\state')P^{\policy}(\state | \state').
 \end{split}
 \end{equation*}
-Writing the result in matrix notation gives the first result. For the second result, we must show that $(I - P^{\policy})$ is invertible. \AT{TODO - in SSP chapter}
+Writing the result in matrix notation gives the first result. For the second result, Proposition \ref{prop:bellman_FP_ssp} showed that $(I - P^{\policy})$ is invertible. 
 \end{proof}
 
 To deal with large state spaces, as we did in previous chapters, we will want to use sampling to approximate quantities that depend on all states. Note that expectations over the state visitation frequencies can be approximated by sampling from policy rollouts.
@@ -618,11 +618,26 @@ $(\state_0,\action_0,\reward_0,\state_1,\action_1,\reward_1, \ldots ,
     \QValue^\policy
 (\state_{\ttime},\action_{\ttime}) = \mathbb{E}^{\pi}\left[ \sum_{i=\ttime}^\tau \reward_i \right]. 
 \end{equation*}
-Therefore, let $R_{\ttime:\tau}=\sum_{i=\ttime}^\tau \reward_i$, and at each iteration REINFORCE samples a rollout and updates the policy according to:
-\[
-\theta\leftarrow \theta+\alpha \sum_{\ttime=0}^{\tau} R_{\ttime:\tau} \nabla \log
+Therefore, let $R_{\ttime:\tau}=\sum_{i=\ttime}^\tau \reward_i$, and at each iteration REINFORCE samples a rollout and updates the policy in the direction 
+$
+\sum_{\ttime=0}^{\tau} R_{\ttime:\tau} \nabla \log
 \policy(\action_\ttime|\state_\ttime;\theta).
-\]
+$
+
+\begin{algorithm}[H]
+\caption{REINFORCE}
+\begin{algorithmic}[1]
+\State \textbf{Input} step size $\alpha$
+\State \textbf{Initialize} $\theta_0$ arbitrarily
+\State \textbf{For} $j = 0,1,2,\dots$
+\State \quad Sample rollout $(\state_0, \action_0, \reward_0, \ldots, \state_\tau, \action_\tau, \reward_\tau)$ using policy $\policy_{\theta_j}$.
+\State \quad Set $R_{\ttime:\tau} = \sum_{i=\ttime}^\tau \reward_i$
+\State \quad Update policy parameters:
+    \[
+    \theta_{j+1} = \theta_j + \alpha \sum_{\ttime=0}^{\tau} R_{\ttime:\tau} \nabla \log \policy(\action_\ttime | \state_\ttime; \theta_j)
+    \]
+\end{algorithmic}
+\end{algorithm}
 
 \subsection*{Baseline function}
 One caveat with the REINFORCE algorithm as stated above, is that is tends to have high variance in estimating the policy gradient, which in practice leads to slow convergence. A common and elegant technique to reduce variance is to to add to REINFORCE a baseline function, also termed a `control variate'.
@@ -696,19 +711,40 @@ $b(\state)$. Note that now we have two parameter vectors: $\theta$ for the polic
 % will have a class of value approximation function $V(\cdot;\weight)$
 % and a parameterized policy $\policy(\cdot|\cdot;\theta)$, and in
 % addition to step size parameters, $\alpha,\beta>0$. 
-Given a rollout
-$(\state_0,\action_0,\reward_0,
-\ldots,\state_\tau,\action_\tau,\reward_\tau)$, we update the parameters according to:
-\begin{equation*}
-    \begin{split}
-        R_{\ttime:\tau}&=\sum_{i=\ttime}^\tau \reward_i\\
-        \Gamma_\ttime &= R_{\ttime:\tHorizon}-V(\state_\ttime;\weight) \\
-        \theta &\leftarrow \theta + \alpha \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\theta} \log
-\policy(\action_\ttime|\state_\ttime;\theta)\\
-\weight &\leftarrow \weight + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight),
-    \end{split}
-\end{equation*}
-where the update for $\theta$ follows the policy gradient theorem with a baseline $V(\state_\ttime;\weight)$, and the update for $\weight$ is a stochastic gradient descent on the mean squared error with step size $\beta$.
+% Given a rollout
+% $(\state_0,\action_0,\reward_0,
+% \ldots,\state_\tau,\action_\tau,\reward_\tau)$, we update the parameters according to:
+% \begin{equation*}
+%     \begin{split}
+%         R_{\ttime:\tau}&=\sum_{i=\ttime}^\tau \reward_i\\
+%         \Gamma_\ttime &= R_{\ttime:\tHorizon}-V(\state_\ttime;\weight) \\
+%         \theta &\leftarrow \theta + \alpha \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\theta} \log
+% \policy(\action_\ttime|\state_\ttime;\theta)\\
+% \weight &\leftarrow \weight + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight),
+%     \end{split}
+% \end{equation*}
+
+\begin{algorithm}[H]
+\caption{REINFORCE with Value Baseline}
+\begin{algorithmic}[1]
+\State \textbf{Input} step sizes $\alpha,\beta$
+\State \textbf{Initialize} $\theta_0, \weight_0$ arbitrarily
+\State \textbf{For} $j = 0,1,2,\dots$
+\State \quad Sample rollout $(\state_0, \action_0, \reward_0, \ldots, \state_\tau, \action_\tau, \reward_\tau)$ using policy $\policy_{\theta_j}$.
+\State \quad Set $R_{\ttime:\tau} = \sum_{i=\ttime}^\tau \reward_i$
+\State \quad Set $\Gamma_\ttime = R_{\ttime:\tau}-V(\state_\ttime;\weight_j)$
+\State \quad Update policy parameters:
+\[
+\theta_{j+1} = \theta_j + \alpha \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_\theta \log \policy(\action_\ttime | \state_\ttime; \theta_j)
+\]
+\State \quad Update value parameters:
+\[
+\weight_{j+1} = \weight_j + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight_j)
+\]
+\end{algorithmic}
+\end{algorithm}
+
+Note that the update for $\theta$ follows the policy gradient theorem with a baseline $V(\state_\ttime;\weight)$, and the update for $\weight$ is a stochastic gradient descent on the mean squared error with step size $\beta$.
 
 % for each $\ttime\in [1,\tHorizon]$ we
 % compute the $R_{\ttime:\tHorizon}$ during the times $[\ttime,\tHorizon]$, i.e.,
@@ -890,13 +926,13 @@ Consider any $\theta^*$ such that for all $\state,\action$ satisfies $\theta^*_{
 Recall our discussion about the policy difference lemma: if the difference $\policy' - \policy$ is `small', then the difference in the state visitation frequencies $\discdist^{\policy'} - \discdist^{\policy}$ would also be `small', allowing us to safely replace $\discdist^{\policy'}$ in the right hand side of Eq.~\ref{eq:policy_perf_diff} with $\discdist^{\policy}$. The Proximal Policy Optimization (PPO) algorithm is a popular heuristic that takes this approach, and has proved to perform very well empirically.
 
 
-To simplify our notation we write $\AValue^{\policy}(\state,\action) = \QValue^{\policy}(\state,\action) - \Value^{\policy}(\state)$. The idea is to maximize the policy that leads to policy improvement
+To simplify our notation we write $\AdvValue^{\policy}(\state,\action) = \QValue^{\policy}(\state,\action) - \Value^{\policy}(\state)$. The idea is to maximize the policy that leads to policy improvement
 \begin{equation*}
-    \max_{\policy'\in \Pi}\sum_{\state} \discdist^{\policy'}(\state) \sum_\action \policy'(\action|\state)\AValue^{\policy}(\state,\action),
+    \max_{\policy'\in \Pi}\sum_{\state} \discdist^{\policy'}(\state) \sum_\action \policy'(\action|\state)\AdvValue^{\policy}(\state,\action),
 \end{equation*}
 by replacing $\discdist^{\policy'}$ with the visitation frequencies of the current policy $\discdist^{\policy}$, and performing the search over a limited set of policies $\Pi$ that is similar to $\policy$. The main trick in PPO is that this constrained optimization can be done implicitly, by maximizing the following objective:
 \begin{equation}\label{eq:PPO}
-    \textrm{PPO}(\policy) = \max_{\policy'}\sum_{\state} \discdist^{\policy}(\state) \sum_\action \policy(\action|\state) \min \left\{\frac{\policy'(\action|\state)}{\policy(\action|\state)}\AValue^{\policy}(\state,\action),  \textrm{clip}\left(\frac{\policy'(\action|\state)}{\policy(\action|\state)} , 1-\epsilon, 1+\epsilon\right)\AValue^{\policy}(\state,\action) \right\},
+    \textrm{PPO}(\policy) = \max_{\policy'}\sum_{\state} \discdist^{\policy}(\state) \sum_\action \policy(\action|\state) \min \left\{\frac{\policy'(\action|\state)}{\policy(\action|\state)}\AdvValue^{\policy}(\state,\action),  \textrm{clip}\left(\frac{\policy'(\action|\state)}{\policy(\action|\state)} , 1-\epsilon, 1+\epsilon\right)\AdvValue^{\policy}(\state,\action) \right\},
 \end{equation}
 where $\textrm{clip}\left(x , x_{\min}, x_{\max}\right) = \max\{\min\{x, x_{\min}\}, x_{\max}\}$, and $\epsilon$ is some small constant. Intuitively, the clipping in this objective prevents the ratio between the new policy $\policy'(\action|\state)$ and the previous policy $\policy(\action|\state)$ to grow larger than $\epsilon$, assuring that maximizing the objective indeed leads to an improved policy.
 
@@ -905,7 +941,29 @@ To optimize the PPO objective using a sample rollout, we let $\Gamma_\ttime$ den
     \nabla_{\theta}\sum_{\ttime=0}^\tau \min \left\{\frac{\policy'(\action_\ttime|\state_\ttime, \theta)}{\policy(\action_\ttime|\state_\ttime)}\Gamma_\ttime,  \textrm{clip}\left(\frac{\policy'(\action_\ttime|\state_\ttime, \theta)}{\policy(\action_\ttime|\state_\ttime)} , 1-\epsilon, 1+\epsilon\right)\Gamma_\ttime \right\}.
 \end{equation*}
 
-\section{Alternative Proof for the Policy Gradient Theorem}
+\begin{algorithm}[H]
+\caption{PPO}
+\begin{algorithmic}[1]
+\State \textbf{Input} step sizes $\alpha,\beta$, inner loop optimization steps $K$, clip parameter $\epsilon$
+\State \textbf{Initialize} $\theta, \weight$ arbitrarily
+\State \textbf{For} $j = 0,1,2,\dots$
+\State \quad Sample rollout $(\state_0, \action_0, \reward_0, \ldots, \state_\tau, \action_\tau, \reward_\tau)$ using policy $\policy$.
+\State \quad Set $R_{\ttime:\tau} = \sum_{i=\ttime}^\tau \reward_i$
+\State \quad Set $\Gamma_\ttime = R_{\ttime:\tau}-V(\state_\ttime;\weight)$
+\State \quad Set $\theta_{prev} = \theta$
+\State \quad \textbf{For} $k=1,\dots,K$
+\State \quad \quad \quad Update policy parameters:
+\[
+\quad \quad \quad \theta := \theta + \alpha \nabla_{\theta}\sum_{\ttime=0}^\tau \min \left\{\frac{\policy(\action_\ttime|\state_\ttime, \theta)}{\policy(\action_\ttime|\state_\ttime, \theta_{prev})}\Gamma_\ttime,  \textrm{clip}\left(\frac{\policy(\action_\ttime|\state_\ttime, \theta)}{\policy(\action_\ttime|\state_\ttime, \theta_{prev})} , 1-\epsilon, 1+\epsilon\right)\Gamma_\ttime \right\}
+\]
+\State \quad Update value parameters:
+\[
+\weight := \weight + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight)
+\]
+\end{algorithmic}
+\end{algorithm}
+
+\section{Alternative Proof for the Policy Gradient Theorem}\label{sec:alternative_proof}
 In this section, for didactic purposes, we show an alternative proof for the policy gradient theorem (Theorem \ref{thm:policy_gradient_direct}). 
 
 \begin{proof}
@@ -936,7 +994,7 @@ $\nabla \QValue^\policy(\state,\action)= \nabla
 %
 The next two identities role the policy one step in to the future.
 %
-The last identity follows from unrolling $\state_1$ to $\state_2$ etc., and then reorganizing the terms. The term that depends on $\nabla \Value^\policy(\state_2)$ for $t\to\infty$ because we assume that the termination time is bounded with probability 1.
+The last identity follows from unrolling $\state_1$ to $\state_2$ etc., and then reorganizing the terms. The term that depends on $\nabla \Value^\policy(\state_2)$ vanishes for $t\to\infty$ because we assume that the termination time is bounded with probability 1.
 
 Using this we have
 \begin{align*}
@@ -952,29 +1010,22 @@ where the last equality is by definition of $\discdist^{\policy}$.
 
 
 \section{Bibliography Remarks}
-\AT{Needs revision}
 % Part of the outline borrows from David Silver class notes and the
 % the book of Sutton and Barto \cite{SuttonB98}.
+The policy difference lemma is due to Kakade and Langford \cite{kakade2002approximately}, and the proof here is based on \cite{scherrer2014local}. The policy gradient theorem originated in \cite{SuttonMSM99}, and the proof in Section \ref{sec:alternative_proof} follows the original derivation. Alternative formulations of the theorem appear in \cite{MarbachT01,MarbachT03} and \cite{BaxterB01}.
 
-Our exposition of the Policy Gradient Theorem follows \cite{SuttonMSM99}. Alternative formulations of the theorem appears in \cite{MarbachT01,MarbachT03} and \cite{BaxterB01}.
+The REINFORCE algorithm is from \cite{Williams92}, which introduced also the baseline functions. Convergence properties of the REINFORCE algorithm were studied in \cite{PhansalkarT95}. Optimal variance reduction using baseline functions was studied in \cite{greensmith2004variance}.
 
-The introduction of the REINFORCE algorithm is from \cite{Williams92}, which introduced also the baseline functions. Convergence properties of the reinforce algorithm were studies in \cite{PhansalkarT95}.
+The PPO algorithm is from \cite{schulman2017proximal}.
 
-The Grid world example follows the example from David Silver class notes \cite{SilverClass}.
+% The Grid world example follows the example from David Silver class notes \cite{SilverClass}.
 
-The training of Aibo for RoboSoccer is by \cite{KohlS04}.
-The work on AlphaGo is by \cite{SilverHMGSDSAPL16}.
+% The training of Aibo for RoboSoccer is by \cite{KohlS04}.
+% The work on AlphaGo is by \cite{SilverHMGSDSAPL16}.
 
 
 
-Recall that Reinforcement Learning is concerned with learning optimal control policies by interacting with the environment. So far, we have focused on learning methods that rely on learning the value function, from which the optimal policy can be inferred.
-Policy gradient methods take a different approach. Here a set of \textbf{policies} is directly parameterized by a continuous set of parameters, which are then optimized online. The basic algorithms use online gradient descent, hence achieve only local optimality in the parameter space.
-% To allow efficient learning, the parameter vector should be of a reasonably low dimension. 
-This also means that the set of possible policies is restricted, and might require a fair amount of prior knowledge for its effective definition. On the other hand, the restriction to a given set of policies simplifies the treatment of various aspects of the RL problem such as large or continuous state and action spaces. For these reasons, policy gradient methods are finding many applications in the area of robot learning.
-Policy Gradient algorithms belong to a larger class of Policy Search algorithms. An extensive survey can be found in:
-\begin{itemize}
-  \item M. Deisenroth, G. Neumann and J. Peters, "A Survey on Policy Search for Robotics," Foundations and Trends in Robotics, Vol. 2, 2011, pp. 1-142.
-\end{itemize}
+
 %
 %Contents:
 %13.1  Problem Description

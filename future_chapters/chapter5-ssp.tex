@@ -10,13 +10,17 @@ Probably a better view, is to think of the edges as general actions, which induc
 %
 The goal state can be either a single state or a set of states, both notions would be equivalent. 
 
-The SSP problem includes an important sub-category, which is {\em episodic MDP}. In an episodic MDP we are guarantee to complete the episode in (expected) finite time, regardless of the policy we employ. This will not be true for a general SSP, as some policies might get `stuck in a loop' and never terminate.
+The SSP problem includes an important sub-category, which is {\em episodic MDP}. In an episodic MDP we are guarantee to complete the episode in (expected) finite time, regardless of the policy we employ. This will not be true for a general SSP, as some policies might get `stuck in a loop' and never terminate. 
 
 
 Some conditions on the system dynamics and reward function must be imposed for the problem to be well posed (e.g., that a goal state may be reached  with probability one).
 Such problems are known as stochastic shortest path problems, or also episodic planning problems. 
 
 \section{Definition}
+
+We consider a stationary (time-invariant) MDP, with a finite state
+space $\States$, finite action set $\Actions$, and transition kernel
+$\transitionkernel = \{\transitionprob(\state'|\state,\action)\}$, and reward $\reward(\state,\action)$.
 
 Stochastic Shortest Path is an important class of planning problems, 
 where the time horizon is not
@@ -25,68 +29,299 @@ event occurs. This event can be defined as reaching some goal state.
 Let  ${\States_G} \subset \States$ define the set of \emph{goal
 states}. 
 
-Define
-\[\tau  = \inf \{ t \ge 0:{\state_\ttime} \in {\States_G}\} \]
-as the first time in which a goal state is reached. 
+\begin{definition}[Termination time]
+Define the random variable
+\[\tau  = \inf \{ \ttime \ge 0:{\state_\ttime} \in {\States_G}\} \]
+as the first time in which a goal state is reached.     
+\end{definition}
+
+We shall make the following assumption on the MDP, which states that for any policy, we will always reach the goal state in finite time.
+\begin{assumption}\label{ass:finite_termination_prob}
+    For any policy $\pi$, we have that $\tau < \infty$ with probability $1$.
+\end{assumption}
+
+For the case of positive rewards, Assumption \ref{ass:finite_termination_prob} guarantees that the agent cannot get `stuck in a loop' and obtain infinite reward. This is similar to the assumption on no negative cycles in deterministic shortest paths. When the rewards are negative, the agent will be driven to reach the goal state as quickly as possible, and in principle, Assumption \ref{ass:finite_termination_prob} could be relaxed. We will keep it nonetheless, as it will significantly simplify our analysis. 
 
 The total expected return for Stochastic Shortest Path problem is defined as:
 \[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau }))\]
 Here ${\reward_G}(\state),\;\state \in {\States_G}$ specified the
-reward at goal states. Note that the length of the run $\tau$ is a random variable.
+reward at goal states. Note that the expectation is taken also over the random length of the run $\tau$.
+
+To simplify the notation, in the following we will assume a single goal state $\States_G = \{ \state_G \}$, and that ${\reward_G}({\state_\tau }) = 0$.\footnote{This does not reduce the generality of the problem, as we can modify the MDP by adding another state with deterministic reward $\reward_G$ that transitions to a state in $\States_G$ deterministically.}  We therefore write the value as 
+\begin{equation}\label{eq:ssp_objective}
+    \Value_{ssp}^\policy (\state) = \begin{cases}
+        {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^{\tau} {\reward({\state_\ttime},{\action_\ttime})}\right), & \state \neq \state_G\\
+        0, & \state = \state_G
+    \end{cases}.
+\end{equation}
+Our objective is to find a policy that maximizes $\Value_{ssp}^\policy (\state)$. Let $\Value_{ssp}^*(\state)$ the maximal value from each state.
 
 %Clearly, there is a potential that some policies would never reach the goa; states. implicit 
 
 
-\subsection{Cost versus reward} 
+% \subsection{Cost versus reward} 
 
-%Reward may try to avoid the goal states.
+% %Reward may try to avoid the goal states.
 
-While we can always switch the optimization from minimizing costs to maximizing rewards, in this case the two would have a conceptually different optimal policies.
-If we have non-negative costs, then the optimal policy would try to reach the goal states as fast as possible. (Actually, would minimize the expected cost in reaching the goal states.)
-When we have non-negative rewards, the optimal policy would try to avoid the goal states.  
+% While we can always switch the optimization from minimizing costs to maximizing rewards, in this case the two would have a conceptually different optimal policies.
+% If we have non-negative costs, then the optimal policy would try to reach the goal states as fast as possible. (Actually, would minimize the expected cost in reaching the goal states.)
+% When we have non-negative rewards, the optimal policy would try to avoid the goal states.  
 
-When we are considering a Deterministic Decision Process we can illustrate the difference.
-Recall that DMP is simply a graph where the actions are traversing edges. For costs, we are looking for the minimum cost path to the goal. For rewards, we are looking for a cycle with positive costs. (In Chapter \ref{chapter:DDP}, we derive an algorithm for the average reward for DDP.)
-Note that if there is a cycle of negative cost, then the shortest path is not well define 
-(we can get infinite negative cost). Similarly, if we have a positive reward cycle we can get infinite reward.
+% When we are considering a Deterministic Decision Process we can illustrate the difference.
+% Recall that DMP is simply a graph where the actions are traversing edges. For costs, we are looking for the minimum cost path to the goal. For rewards, we are looking for a cycle with positive costs. (In Chapter \ref{chapter:DDP}, we derive an algorithm for the average reward for DDP.)
+% Note that if there is a cycle of negative cost, then the shortest path is not well define 
+% (we can get infinite negative cost). Similarly, if we have a positive reward cycle we can get infinite reward.
 
 \section{Relationship to other models}
 
+We now show that the SSP generalizes several previous models we studied.
 
 \subsection{Finite Horizon Return}
-
 Stochastic shortest path includes, naturally, the finite horizon case. 
 This can be shown by creating a leveled MDP where at each time step we move to the next level and terminate at level $\tHorizon$.
 Specifically, we define a new state space $\States'=\States\times \T$, transition function $p((\state',i+1)|\state,\action)=p(\state'|\state,\action)$, and goal states $\States_G=\{(\state,\tHorizon):\state \in\States\}$.
-
-
+Clearly, Assumption \ref{ass:finite_termination_prob} is satisfied here.
 
 \subsection{Discounted infinite return}
 
-
 Stochastic shortest path includes also the discounted infinite
 horizon. To see that, add a new goal state, and from each state with
-probability $1-\discount$ jump to the goal state and terminate. The
-expected return of a policy would be the same in both models.
+probability $1-\discount$ jump to the goal state and terminate. Clearly, Assumption \ref{ass:finite_termination_prob} is satisfied here too. 
+
+The expected return of a policy would be the same in both models.
 Specifically, we add a state $\state_G$, such that
 $p(\state_G|\state,\action)=1-\discount$, for any state
 $\state\in\States$ and action $\action\in\Actions$ and
 $p(\state'|\state,\action)=\discount p(\state'|\state,\action)$. The
 probability that we do not terminate by time $\ttime$ is exactly
 $\discount^\ttime$. Therefore the expected return is
-$\sum_{t=1}^\infty \discount^t\reward(\state_t,\action_t)$ which is
+$\mathbb{E}\left(\sum_{t=1}^\infty \discount^t\reward(\state_t,\action_t)\right)$ which is
 identical to the discounted return.
 
-\section{Proper versus improper policies}
+% \section{Proper versus improper policies}
 
-Episodic MDP
+% Episodic MDP
 
-\subsection{Proper policies}
+% \subsection{Proper policies}
 
-Show that if we add $\epsilon>0$ to all the cost, for sufficiently small $\epsilon$ we get the optimal proper policy.
+% Show that if we add $\epsilon>0$ to all the cost, for sufficiently small $\epsilon$ we get the optimal proper policy.
 
-\section{Belman Operator}
+\section{Bellman Equations}
 
-Add assumption that any improper policy has infinite cost.
+We now extend the Bellman equations to the SSP setting. We begin by noting that once the goal state has been reached, we do not care anymore about the state transitions, and therefore, with loss of generality, we can consider an MDP where $\transitionkernel(\state_G|\state_G,\action) = 1$ for all $\action$. 
 
-Show that the Belman operator converge.
+Consider a Markov stationary policy $\policy$. Define the column vector ${\reward^\policy } =
+{({\reward^\policy }(\state))_{\state \in \States \setminus \state_G}}$ with components
+${\reward^\policy }(\state) = \reward(\state,\policy (\state))$, and the
+transition matrix ${\transitionkernel^\policy }$ with components ${\transitionkernel^\policy
+}(\state'|\state) = \transitionprob(\state'|\state,\policy (\state))$ for all $\state,\state' \in \States \setminus \state_G$. Finally,
+let ${\Value_{ssp}^\policy }$ denote a column vector with components
+${\Value_{ssp}^\policy }(\state)$. The next results extends Bellman's equation for a fixed policy to the SSP setting.
+
+
+
+\begin{proposition}\label{prop:bellman_FP_ssp}
+    The value function $\Value_{ssp}^\policy$ is finite, and is the unique solution to the Bellman equation
+    \begin{equation}\label{eq:Bellman_fixed_policy_ssp}
+        \Value = \reward^{\policy} + \transitionkernel^\policy \Value,
+    \end{equation}
+    i.e.,
+    \begin{equation*}
+        \Value = (I - \transitionkernel^\policy)^{-1}\reward^{\policy}
+    \end{equation*}
+    and $(I - \transitionkernel^\policy)$ is invertible.
+\end{proposition}
+
+\begin{proof} 
+From Assumption \ref{ass:finite_termination_prob}, every state $\state \neq \state_G$ is transient. For any $i,j \in \States \setminus \state_G$ Let $q_{i,j}=\Pr({\state_\ttime} =
+j { \textrm{ for some }}\ttime \ge 1|{\state_0} = i) $. Since state $i$ is
+transient we have $q_{i,i}<1$. Let $Z_{i,j}$ be the number of times the
+trajectory returns to state $j$ when starting from state $i$. Note that $Z_{i,j}$ is geometrically
+distributed with parameter $q_{j,j}$, namely $\Pr(Z_{i,j}=k) = q_{i,j}q_{j,j}^{(k-1)}(1 - q_{j,j}) $.
+Therefore the expected number of visits to state $j$ when starting from state $i$ is $\frac{q_{i,j}}{q_{j,j}(1-q_{j,j})}$
+and is finite.
+
+We can write the value function as
+\begin{equation*}
+    \Value_{ssp}^\policy (\state) = \sum_{\state' \in  \States \setminus \state_G} \mathbb{E}[Z_{\state,\state'}] \reward^{\policy}(\state') < \infty,
+\end{equation*}
+so the value function is well defined. Now, note that
+\begin{equation*}
+    \Value_{ssp}^\policy (\state) = \sum_{\ttime=0}^\infty \sum_{\state' \in  \States \setminus \state_G} \Pr (\state_\ttime = \state' | \state_0 = \state) \reward^{\policy}(\state').
+\end{equation*}
+Similarly to result for Markov chains, we have that
+\begin{equation*}
+    \Pr (\state_\ttime = j | \state_0 = i) =  {[(\transitionkernel^\policy)^\ttime]_{ij}},
+\end{equation*}
+therefore,
+\begin{equation*}
+    \Value_{ssp}^\policy = \sum_{\ttime=0}^\infty (\transitionkernel^\policy)^\ttime \reward^{\policy}.
+\end{equation*}
+Now, consider the equation \eqref{eq:Bellman_fixed_policy_ssp}.
+By unrolling the right hand side and noting that $\lim_{\ttime \to \infty}(\transitionkernel^\policy)^\ttime =0$ because the states are transient we obtain
+\begin{equation*}
+    \Value = \reward^{\policy} + \transitionkernel^\policy \reward^{\policy} + \transitionkernel^\policy \Value = \dots = \sum_{\ttime=0}^\infty (\transitionkernel^\policy)^\ttime \reward^{\policy} = \Value_{ssp}^\policy.
+\end{equation*}
+We have thus shown that the linear Equation \ref{eq:Bellman_fixed_policy_ssp} has a unique solution $\Value_{ssp}^\policy$, and so the claim follows.
+\end{proof}
+
+\begin{remark}
+    At first sight, it seems that Equation \ref{eq:Bellman_fixed_policy_ssp} is simply Bellman's equation for the discounted setting \eqref{eq:PF_Bellman_vector}, just with $\discount=1$. The subtle yet important differences are that Equation \ref{eq:Bellman_fixed_policy_ssp} considers states $\States \setminus \state_G$, and Proposition \ref{prop:bellman_FP_ssp} requires Assumption \ref{ass:finite_termination_prob} to hold, while in the discounted setting the discount factor guaranteed that a solution exists for any MDP.
+\end{remark}
+
+\subsection{Value Iteration}
+Consider the Value Iteration algorithm for SSP, in Algorithm \ref{alg:VI_ssp}.
+\begin{algorithm}
+\caption{Value Iteration (for SSP) }
+\label{alg:VI_ssp}
+\begin{algorithmic}[1]
+\State \textbf{Initialization:} Set $\Value_0 = (\Value_0(\state))_{\state \in \States \setminus \state_G}$ arbitrarily, $\Value_0(\state_G)=0$.
+\State \textbf{For} {$n = 0, 1, 2, \ldots$}
+    \State \quad Set $\Value_{n + 1}(\state) = \max_{\action \in \Actions} \left\{ \reward(\state,\action) + \sum_{\state' \in \States \setminus \state_G} \transitionprob(\state'|\state,\action)\Value_n(\state') \right\}, \quad \forall \state \in \States \setminus \state_G$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[\textbf{Convergence of value iteration}]\label{thm:_VI_ssp}
+Let Assumption \ref{ass:finite_termination_prob} hold. We have ${\lim _{n \to \infty }}{\Value_n} = \Value_{ssp}^*$
+(component-wise). 
+\end{theorem}
+
+\begin{proof}
+%[\textbf{Proof of Theorem \ref{thm:_VI}:}]
+Using our previous results on value iteration for the finite-horizon
+problem, namely the proof of Proposition~\ref{prop:FP_VI}, it
+follows that
+\[{\Value_n}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{n - 1} {{R_t} + } {\Value_0}({\state_n})).\]
+Since any policy reaches the goal state with probability $1$, and after reaching the goal state the agent stays at the goal and receives $0$ reward, we can write the optimal value function as
+\[{\Value_{ssp}^*}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\tau  {{R_t}} ) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\infty  {{R_t}} ).\]
+it may be seen that that
+    \[\lim_{n \to \infty}|{\Value_n}(\state) - \Value_{ssp}^*(\state)| = \lim_{n \to \infty} \left|\mathop {\max }\limits_\policy  {\E^{\policy ,\state}} \sum\limits_{\ttime = n}^{\infty} {R_t} - {\Value_0}({\state_n})\right| = 0,\]
+where the last equality is since Assumption \ref{ass:finite_termination_prob} guarantees that with probability $1$ the goal state will be reached, and from that time onwards the agent will recieve $0$ reward.
+\end{proof}
+
+\subsection{Policy Iteration}
+The Policy Iteration for the SSP setting is given in Algorithm \ref{alg:PI_ssp}.
+
+\begin{algorithm}
+\caption{Policy Iteration (SSP)}
+\label{alg:PI_ssp}
+\begin{algorithmic}[1]
+\State \textbf{Initialization:} choose some stationary policy $\policy_0$.
+\State \textbf{For} {$k = 0, 1, 2,\ldots$}
+    \State \quad \textbf{Policy Evaluation:} Compute $\Value^{\policy_k}$.
+    \State \quad \quad (For example, use the explicit formula $\Value^{\policy_k} = (I - \transitionkernel^{\policy_k})^{-1}\reward^{\policy_k}$)
+    \State \quad \textbf{Policy Improvement:} Compute $\policy_{k+1}$, a greedy policy with respect to $\Value^{\policy_k}$:
+    \State \quad $\policy_{k+1}(\state) \in \arg \max_{\action \in \Actions} \left\{ \reward(\state,\action) + \sum_{\state' \in \States \setminus \state_G} \transitionprob(\state'|\state,\action)\Value^{\policy_k}(\state') \right\}, \forall \state \in \States \setminus \state_G.$
+    \State \quad \textbf{If} $\policy_{k+1} = \policy_k$ (or if $\Value^{\policy_k}$ satisfies the optimality equation)
+    \State \quad \quad \textbf{Stop}
+\end{algorithmic}
+\end{algorithm}
+
+The next theorem shows that policy iteration converges to an optimal policy. The proof is the same as in the discounted setting, i.e., Theorem \ref{thm:_PI}.
+
+\begin{theorem}[\textbf{Convergence of policy iteration for SSP}]\label{thm:_PI_ssp}
+The following statements hold:
+\begin{enumerate}
+  \item Each policy ${\policy _{k + 1}}$ is improving over the previous one ${\policy _k}$, in the sense that ${\Value^{{\policy _{k + 1}}}} \ge {\Value^{{\policy _k}}}$ (component-wise).
+  \item ${\Value^{{\policy _{k + 1}}}} = {\Value^{{\policy _k}}}$ if and only if ${\policy _k}$ is an optimal policy.
+  \item Consequently, since the number of stationary policies is finite, ${\policy _k}$ converges to the optimal policy after a finite number of steps.
+\end{enumerate}
+\end{theorem}
+
+\subsection{Bellman Operators}
+Let us define the Bellman operators.
+\begin{definition}
+For a fixed stationary policy $\policy :\States \to \Actions$,
+define the Fixed Policy DP Operator $T^\policy:\reals^{|\States|-1}
+\to \reals^{|\States|-1}$ as follows: For any $V=(V(\state))\in
+\reals^{|\States|-1}$,
+\[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \sum\nolimits_{\state' \in \States \setminus \state_G} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States \setminus \state_G.\]
+\end{definition}
+In our column-vector notation, this is equivalent to  $T^\policy
+(V) = {\reward^\policy } + {\transitionkernel^\policy }V$.
+
+\begin{definition}
+Define the Dynamic Programming
+Operator  $T^*:\mathbb R^{|\States| -1} \to \mathbb R^{|\States| -1}$ as
+follows: For any $V=(V(\state))\in R^{|\States|-1}$,
+\[(T_{}^*(V))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) +  \sum\nolimits_{\state' \in \States \setminus \state_G} {\transitionprob(\state'|\state,\action)V(\state')} } \right\},\quad \forall \state \in \States\setminus \state_G\]
+\end{definition}
+
+In the discounted MDP setting, we relied on the discount factor to show that the DP operators are contractions. Here, we will use Assumption \ref{ass:finite_termination_prob} to show a weaker contraction-type result.
+
+For any policy $\policy$ (not necessarily stationary), Assumption \ref{ass:finite_termination_prob} means that $\Pr (\state_{\ttime=|\States|} = \state_G | \state_0 = \state) > 0$ for all $\state \in \States$, since otherwise, the Markov chain corresponding to $\policy$ would have a state that is not communicating with $\state_G$. Let
+\begin{equation*}
+    \epsilon = \min_{\policy} \min_{\state} \Pr (\state_{\ttime=|\States|} = \state_G | \state_0 = \state),
+\end{equation*}
+which is well defined since the space of policies is compact.
+Therefore, we have that for a stationary Markov policy $\policy$,
+\begin{equation}
+    \sum_{j}[(\transitionkernel^\policy)^{|\States|}]_{ij} < 1-\epsilon, \forall i \in |\States|-1,
+\end{equation}
+and, for any set of $|\States|$ Markov stationary policies $\policy_1,\dots,\policy_{|\States|}$,
+\begin{equation}
+    \sum_{j}[\prod_{k=1,\dots,|\States|} \transitionkernel^{\policy_k}]_{ij} < 1-\epsilon, \forall i \in |\States|-1.
+\end{equation}
+From these results, we have that both $(\transitionkernel^\policy)^{|\States|}$ and $\prod_{k=1,\dots,|\States|} \transitionkernel^{\policy_k}$ are $(1-\epsilon)$-contractions.
+We are now ready to show the contraction property of the DP operators.
+
+\begin{theorem}
+    Let Assumption \ref{ass:finite_termination_prob} hold. Then $(T^{\policy})^{|\States|}$ and $(T^*)^{|\States|}$ are $(1-\epsilon)$-contractions.
+\end{theorem}
+\begin{proof}
+The proof is similar to the proof of Theorem \ref{thm:DP_op}, and we only describe the differences. For $T^\policy$, note that 
+    \begin{align*}
+    \left| ((T^{\policy})^{|\States|} (\Value_1))(\state) - ((T^{\policy})^{|\States|} (\Value_2))(\state) \right| &= \left| \left((\transitionkernel^\policy)^{|\States|}[\Value_1 - \Value_2]\right)(\state)  \right|,
+    \end{align*}
+and use the fact that $(\transitionkernel^\policy)^{|\States|}$ is a $(1-\epsilon)$-contraction to proceed as in Theorem \ref{thm:DP_op}.
+
+For $(T^*)^{|\States|}$, note that
+\begin{equation*}
+\begin{split}
+    ((T^*)^{|\States|}(\Value_1))(\state) = &\argmax_{\action_0,\dots,\action_{|\States|-1}} \reward(\state,\action_0) + \sum_{\state'}\Pr(\state_1=\state'|\state_0=\state,\action_0)\reward(\state',\action_1) \\
+    &+ \sum_{\state'}\Pr(\state_2=\state'|\state_0=\state,\action_0,\action_1)\reward(\state',\action_2) + \dots \\
+    &+ \sum_{\state'}\Pr(\state_{|\States|}=\state'|\state_0=\state,\action_0,\dots,\action_{|\States|-1})\Value_1(\state') 
+\end{split}
+\end{equation*}
+
+To showing $(T^*)^{|\States|}({\Value_1})(\state) - (T^*)^{|\States|}({\Value_2})(\state)
+\le (1-\epsilon) {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$:
+Let $\bar \action_0,\dots,\bar \action_{|\States|-1}$ denote actions that attains the maximum in
+$(T^*)^{|\States|}({\Value_1})(\state)$.
+ Then proceed similarly as in the proof of Theorem \ref{thm:DP_op}, and use the fact that $\prod_{k=1,\dots,|\States|} \transitionkernel^{\policy_k}$ is a $(1-\epsilon)$-contraction.
+\end{proof}
+
+\begin{remark}
+    While $T^{\policy}$ and $T^*$ are not necessarily contractions in the sup-norm, they can be shown to be contractions in a \textit{weighted} sup-norm; see, e.g., \cite{Bertsekas05}. For our discussion here, however, the fact that $(T^{\policy})^{|\States|}$ and $(T^*)^{|\States|}$ are contractions will suffice.
+\end{remark}
+
+\subsection{Bellman's Optimality Equations}
+We are now ready to state the optimality equations for the SSP setting.
+
+\begin{theorem}[Bellman's Optimality Equation for SSP]
+\label{thm:Bellman_optimality_ssp}
+The following statements hold:
+\begin{enumerate}
+  \item $\Value_{ssp}^*$ is the unique solution of the following set of (nonlinear) equations:
+\begin{equation}\label{eq:Bellman2}
+\Value(\state) = \mathop {\max }\limits_{\action \in \Actions}
+\left\{ {\reward(\state,\action) + \sum\nolimits_{\state'
+\in \States \setminus \state_G} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},
+\quad \forall \state \in \States \setminus \state_G.
+\end{equation}
+  \item Any stationary policy ${\policy ^*}$ that satisfies
+\[{\policy ^*}(\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) +  \sum\nolimits_{\state' \in \States \setminus \state_G} {\transitionprob(\state'|\state,\action)\Value^{\policy^*}(\state')} } \right\},
+\quad \forall \state \in \States \setminus \state_G\]
+     is an optimal policy (for any initial state ${\state_0} \in \States$).
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}[\textbf{Proof of Theorem \ref{thm:Bellman_optimality_ssp}:}]
+The proof is similar to the proof of the discounted setting, but we cannot use Theorem \ref{chapter-discount:thm:Banach} directly as we have not shown that $T^*$ is a contraction. However, a relatively simple extension of the Banach fixed point theorem holds also when $(T^*)^{k}$ is a contraction, for some integer $k$ (see, e.g., Theorem 2.4 in \cite{latif2014banach}). Therefore the proof follows, with Theorem \ref{thm:_VI_ssp} replacing Theorem \ref{thm:_VI}.
+\end{proof}
+
+
+
+% Add assumption that any improper policy has infinite cost.
+
+% Show that the Belman operator converge.

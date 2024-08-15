@@ -53,11 +53,12 @@ called the {\em steady state distribution}, and would be discussed
 later.
 \end{example}
 
-\paragraph{State classification:}
+\section{State Classification}
 
-\begin{itemize}
-\item State $j$ is \textit{accessible} (or \textit{reachable}) from $i$  (denoted by $i \to j$) if $p_{i,j}^{(m)} > 0$ for some $m \ge
-1$.\\
+\begin{definition}
+    State $j$ is \textit{accessible} (or \textit{reachable}) from $i$  (denoted by $i \to j$) if $p_{i,j}^{(m)} > 0$ for some $m \ge
+1$.
+\end{definition}
 For a finite $X$  we can compute the accessibility property as
 follows. Construct a directed graph $G(X,E)$ where the vertices are
 the states $X$ and there is a directed edge $(i,j)$ if $p_{i,j}>0$.
@@ -68,31 +69,37 @@ Note that the relation is transitive. If $i \to j$ and $j \to k$ then $i \to k$.
 i$.\\
 For a finite $X$, this implies that in $G(X,E)$ there is both a
 directed path from $i$ to $j$ and from $j$ to $i$.
-\item A \textit{communicating class} (or just
-\emph{class}) is a maximal collection of states that communicate.\\
+\begin{definition}
+    A \textit{communicating class} (or just
+\emph{class}) is a maximal collection of states that communicate.
+\end{definition}
 For a finite $X$, this implies that in $G(X,E)$ we have $i$ and $j$
 in the same strongly connected component of the graph. (A strongly
 connected component has a directed path between any pair of
 vertices.)
-\item The Markov chain is
+\begin{definition}
+    The Markov chain is
 \textit{irreducible} if all states belong to a single class (i.e.,
-all states communicate with each other).\\
+all states communicate with each other).
+\end{definition}
 For a finite $X$, this implies that $G(X,E)$ is strongly
 connected.
-\item
-State $i$ has a \textit{period} $d_i=GCD \{m\geq
+\begin{definition}
+    State $i$ has a \textit{period} $d_i=GCD \{m\geq
 1:p_{i,i}^{(m)}>0\}$, where $GCD$ is the greatest common divisor. A
-state is aperiodic if $d_i=1$.\\
+state is aperiodic if $d_i=1$.
+\end{definition}
 State $i$ is periodic with period $d_i \ge 2$ if  $p_{i,i}^{(m)} =
 0$ for $m \pmod {d_i} \neq 0$ and for any $m$ such that
 $p_{i,i}^{(m)} > 0$ we have $m \pmod {d_i} =0$.\\
 If a state $i$ is aperiodic, then there exists an integer $m_0$ such
 that for any $m\geq m_0$ we have $p_{i,i}^{(m)}>0$.
-\item
+
 Periodicity is a class property: all states in the same class
 have the same period. Specifically, if some state is
 \textit{a-periodic},
-then all states in the class are a-periodic.\\
+then all states in the class are a-periodic.
+
 \begin{claim}
 For any two states $i$ and $j$ with periods $d_i$ and $d_j$, in the
 same communicating class, we have $d_i=d_j$.
@@ -112,19 +119,19 @@ $d_i \pmod {d_j}=0$, which implies that $d_i=d_j$.
 \end{proof}
 The claim shows that periodicity is a class property, and all the
 states in a class have the same period.
-\end{itemize}
 
 \begin{example}
 Add figures explaining the definitions.
 \end{example}
 
-\paragraph{Recurrence:}
-\begin{itemize}
-\item
+\section{Recurrence}
+We define the following.
+\begin{definition}
 State $i$ is \textit{recurrent} if ${\cal P}({X_\ttime} = i{
 \textrm{ for some }}\ttime \ge 1|{X_0} = i) = 1$. Otherwise, state $i$ is
-\textit{transient}.\\
-%\item
+\textit{transient}.    
+\end{definition}
+
 We can relate the state property of recurrent and transient to the
 expected number of returns to a state.
 
@@ -204,9 +211,11 @@ assumption that $\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  <
 %recurrent if and only if $\sum\nolimits_{m = 1}^\infty
 %{p_{i,i}^{(m)}}  = \infty $.
 
-
-\item Recurrence is a class property.\\
-To see this consider two states $i$ and $j$ in the same communicating class and $i$ is recurrent. Since $i$ is recurrent
+\begin{claim}
+Recurrence is a class property.
+\end{claim}
+\begin{proof}
+    To see this consider two states $i$ and $j$ in the same communicating class and $i$ is recurrent. Since $i$ is recurrent
 $\sum\nolimits_{m = 1}^\infty {p_{i,i}^{(m)}}  = \infty $. Since $j$
 is accessible from $i$ there is a $k$ such that $p_{i,j}^{(k)}
 >0$. Since $i$ is accessible from $j$, there exists a $k'$ such that
@@ -214,35 +223,48 @@ $p_{j,i}^{(k')}>0$. We can lower bound $\sum\nolimits_{m = 1}^\infty
 {p_{j,j}^{(m)}}$ by $\sum_{m = 1}^\infty
 {p_{j,i}^{(k')}}{p_{i,i}^{(m)}} {p_{i,j}^{(k)}} = \infty $.
 Therefore we showed that state $j$ is recurrent.
+\end{proof}
 
 
-\item
+\begin{claim}
 If states $i$ and $j$ are in the same recurrent (communicating)
 class, then state $j$ is (eventually) reached from state $i$ with
 probability 1, namely,  ${\cal P}({X_\ttime} = j{\textrm{ for some t}} \ge
-1|{X_0} = i) = 1$.\\
+1|{X_0} = i) = 1$.    
+\end{claim}
+\begin{proof}
 This follows from the fact that both states occur infinitely often,
 with probability $1$.
-\item
-Let ${T_i}$ be the {\em return time} to state $i$  (i.e., number of stages
+\end{proof}
+
+\begin{definition}
+    Let ${T_i}$ be the {\em return time} to state $i$  (i.e., number of stages
 required for $({X_\ttime})$ starting from state $i$ to the first
-return to $i$). If $i$ is a recurrent
-state, then ${T_i} < \infty $ w.p. 1.\\
+return to $i$).
+\end{definition} 
+
+\begin{claim}
+If $i$ is a recurrent
+state, then ${T_i} < \infty $ w.p. 1.
+\end{claim}
+\begin{proof}
 Since otherwise, there is a positive probability that we never
-return to state $i$, and hence state $i$ is not recurrent.
-%
-\item State $i$ is {\em positive recurrent} if  $\E({T_i}) < \infty $,
-and null recurrent if $\E({T_i}) = \infty $.\\
-If the state space $X$
-is finite, all recurrent states are positive recurrent.\\
-This follows since the set of states that are null recurrent cannot
-have transitions from positive recurrent states and cannot have a
-transition to transient states. If the chain never leaves the set of
-null recurrent states, then some state would have a return time
-which is at most the size of the set. If there is a positive
-probability of leaving the set (and never returning) then the states
-are transient. (See the proof of Theorem \ref{thm:countableMC} for a more formal proof of a similar claim for countable Markov Chains.)
-\end{itemize}
+return to state $i$, and hence state $i$ is not recurrent.  
+\end{proof}
+
+\begin{definition}
+    State $i$ is {\em positive recurrent} if  $\E({T_i}) < \infty $,
+and null recurrent if $\E({T_i}) = \infty $.
+\end{definition}
+\begin{claim}
+    If the state space $X$
+is finite, all recurrent states are positive recurrent.
+\end{claim}
+\begin{proof}
+    This follows since the set of states that are null recurrent cannot
+have transitions from positive recurrent states and cannot have a transition to transient states. If the chain never leaves the set of null recurrent states, then some state would have a return time which is at most the size of the set. If there is a positive probability of leaving the set (and never returning) then the states are transient. (See the proof of Theorem \ref{thm:countableMC} for a more formal proof of a similar claim for countable Markov Chains.)
+\end{proof}
+
 
 In the following we illustrate some of the notions that we define. we start with the classic random walk on the integers, where all integer (states) are null recurrent.
 
@@ -322,9 +344,9 @@ Note that this Markov chain is aperiodic.
 
 
 
-\paragraph{Invariant Distribution:} %changed pi to mu since pi is latter a policy!
-The probability vector $\mu  = ({\mu_i})$ is an invariant
-distribution (or stationary distribution or steady state
+\section{Invariant Distribution} %changed pi to mu since pi is latter a policy!
+The probability vector $\mu  = ({\mu_i})$ is an \textit{invariant
+distribution} (or stationary distribution or steady state
 distribution) for the Markov chain if $\mu^\top P = \mu^\top$,
 namely
 \[{\mu_j} = \sum_i {{\mu_i}} {p_{i,j}}\quad \forall j.\]
@@ -582,7 +604,8 @@ are transient.
 \end{proof}
 
 %\begin{leftbar}
-\paragraph{Reversible Markov chains:} Suppose there exists a probability vector $\mu  = ({\mu_i})$ so that
+\subsection{Reversible Markov Chains} 
+Suppose there exists a probability vector $\mu  = ({\mu_i})$ so that
 \begin{equation}\label{eq:DB}
 {\mu _i}{p_{i,j}} = {\mu _j}{p_{j,i}},\quad \quad i,j \in X.
 \end{equation}
@@ -622,7 +645,7 @@ distribution of this queue.
 %\end{leftbar}
 
 
-\paragraph{Mixing time:} %Add definition and motivation
+\subsection{Mixing Time} %Add definition and motivation
 The mixing time measures how fast the Markov chain converges to the steady state distribution. We first define the Total Variation distance between distributions $D_1$ and $D_2$ as:
 \[
 \|D_1-D_2\|_{TV}=\max_{B\subseteq X} \{ D_1(B)-D_2(B) \}

@@ -61,27 +61,40 @@ $$
 \QValue^*(\state,\action)=\reward(\state,\action)+\discount
 \max_{\action'}\QValue^*(f(\state,\action),\action').
 $$
-
 The $\QValue$-learning algorithm runs as follows:
-\begin{itemize}
-\item {\em Initialize:} Set $\widehat{\QValue}(\state,\action)=0$, for all $\state$, $\action$.
-\item At time $\ttime=0,1,\dots$:
+% \begin{itemize}
+% \item {\em Initialize:} Set $\widehat{\QValue}(\state,\action)=0$, for all $\state$, $\action$.
+% \item At time $\ttime=0,1,\dots$:
 
--- Select action $\action_\ttime$
+% -- Select action $\action_\ttime$
 
--- Observe $(\state_\ttime$, $\action_\ttime$, $\reward_\ttime$,
-$\state_{\ttime+1}),$
-% where $\reward_\ttime$ is the observed reward
-% when executing action $\action_\ttime$ in state $\state_\ttime$ and
-% $\state_\ttime'$ is the next state, i.e.,
-where here $\state_{\ttime+1}=f(\state_\ttime,\action_\ttime)$.
-% $s\leftarrow \state_n$, $a \leftarrow \action_n$, $r\leftarrow \reward_n$, $s'\leftarrow \state_{n+1}$.
+% -- Observe $(\state_\ttime$, $\action_\ttime$, $\reward_\ttime$,
+% $\state_{\ttime+1}),$
+% % where $\reward_\ttime$ is the observed reward
+% % when executing action $\action_\ttime$ in state $\state_\ttime$ and
+% % $\state_\ttime'$ is the next state, i.e.,
+% where here $\state_{\ttime+1}=f(\state_\ttime,\action_\ttime)$.
+% % $s\leftarrow \state_n$, $a \leftarrow \action_n$, $r\leftarrow \reward_n$, $s'\leftarrow \state_{n+1}$.
 
--- Update:\ \ \
-$\widehat{\QValue}_{\ttime+1}(\state_\ttime,\action_\ttime) :=
-\reward_\ttime+\discount \max_{\action'}
-\widehat{\QValue}_\ttime(\state_{\ttime+1},\action')$.
-\end{itemize}
+% -- Update:\ \ \
+% $\widehat{\QValue}_{\ttime+1}(\state_\ttime,\action_\ttime) :=
+% \reward_\ttime+\discount \max_{\action'}
+% \widehat{\QValue}_\ttime(\state_{\ttime+1},\action')$.
+% \end{itemize}
+
+\begin{algorithm}
+\caption{Q-learning (for deterministic decision processes)}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $\widehat{\QValue}(\state,\action) = 0$, for all $\state$, $\action$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Select action $\action_\ttime$
+    \State \quad Observe $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})$, where $\state_{\ttime+1} = f(\state_\ttime, \action_\ttime)$.
+    \State \quad Update:
+    \[
+    \widehat{\QValue}_{\ttime+1}(\state_\ttime, \action_\ttime) := \reward_\ttime + \discount \max_{\action'} \widehat{\QValue}_\ttime(\state_{\ttime+1}, \action').
+    \]
+\end{algorithmic}
+\end{algorithm}
 
 The update in $\QValue$-learning is an example of a technique that is often termed ``bootstrapping''\footnote{Related to the saying ``to pull oneself up by one's bootstraps''.}, where we use our current, and possibly inaccurate value estimate $\widehat{\QValue}_\ttime$, to improve the accuracy of the same value function. The intuition for why this makes sense comes from the discount factor: since in the update $\reward_\ttime+\discount \max_{\action'}
 \widehat{\QValue}_\ttime(\state_{\ttime+1},\action')$ the first term is accurate (the reward is not estimated), and the second term is multiplied by the discount factor, we expect that if $\discount<1$ our updated value would suffer less from the inaccuracy. 
@@ -594,16 +607,12 @@ the episode.
 %We can now reduce collapse other state to a single state.
 This implies that we have two states MDP as described in
 Figure~\ref{fig:2state-general}.
-
-
 \begin{figure}
-  % Requires \usepackage{graphicx}
-  % \begin{centering}
-\includegraphics[width=0.5\textwidth]{figures/2state-general.png}
-  \caption{The situated agent}\label{fig:2state-general}
-  % \end{centering}
+\begin{center}
+\includegraphics[width=0.5\linewidth]{figures/2state-general.PNG}    
+\end{center}
+\caption{The situated agent}\label{fig:2state-general}
 \end{figure}
-
 
 For this MDP, the value is
 $\Value^\pi(\state_1)=\frac{1-p}{p}\reward_1+\reward_2$. The single
@@ -1053,34 +1062,48 @@ Then,
 E^\policy[\widehat{V}_\ttime(\state_\ttime)]=
 E^\policy[\reward_\ttime+\discount
 \widehat{V}_\ttime(\state_{\ttime+1})]=E^\policy[\reward(\state,\action)+\discount
-\widehat{V}_\ttime(\state')|\state=\state_\ttime,a=\policy(\state)]
+\widehat{V}_\ttime(\state')|\state=\state_\ttime,a=\policy(\state)].
 \]
 %where $E^\policy [\widehat{V}_\ttime]=V_\ttime$.
 
 The $TD(0)$ will do an update in this direction, namely,
 $[\reward_\ttime+\discount \widehat{V}_\ttime(\state_{\ttime+1})]$.
 
-\paragraph{$TD(0)$ Algorithm}
+% \paragraph{$TD(0)$ Algorithm}
 
-\begin{itemize}
-\item \emph{Initialize:} $\widehat{V}(\state)$ arbitrarily.
+% \begin{itemize}
+% \item \emph{Initialize:} $\widehat{V}(\state)$ arbitrarily.
 
-\item At time $\ttime=0,1,\dots$:
+% \item At time $\ttime=0,1,\dots$:
 
 
--- Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime,
-\state_{\ttime+1})$.
+% -- Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime,
+% \state_{\ttime+1})$.
 
--- Update:
-%$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$:
-\[
-\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)
-\big[\reward_\ttime+\discount
-\widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)\big]
-\]
-where $\alpha_\ttime(\state,\action)$ is the step size for
-$(\state,\action)$ at time $\ttime$.
-\end{itemize}
+% -- Update:
+% %$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$:
+% \[
+% \widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)
+% \big[\reward_\ttime+\discount
+% \widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)\big]
+% \]
+% where $\alpha_\ttime(\state,\action)$ is the step size for
+% $(\state,\action)$ at time $\ttime$.
+% \end{itemize}
+
+\begin{algorithm}[H]
+\caption{Temporal Difference TD(0) Learning Algorithm}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $\widehat{V}(\state)$ arbitrarily for all $\state$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})$.
+    \State \quad Update:
+    \[
+    \widehat{V}(\state_\ttime) = \widehat{V}(\state_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime + \discount \widehat{V}(\state_{\ttime+1}) - \widehat{V}(\state_\ttime)\right]
+    \]
+    \quad where $\alpha_\ttime(\state, \action)$ is the step size for $(\state, \action)$ at time $\ttime$.
+\end{algorithmic}
+\end{algorithm}
 
 We define the {\em temporal difference} to be
 \[
@@ -1301,25 +1324,39 @@ and time $\ttime$. For example $\alpha_\ttime(\state,\action)=1/n$
 where $n$ is the number of times we updated $(\state,\action)$ up to
 time $\ttime$. The following is the definition of the algorithm.
 
-\paragraph{The $\QValue$-learning algorithm:}
+% \paragraph{The $\QValue$-learning algorithm:}
 
-\begin{itemize}
-\item {\em Initialize:} Set $ Q_0(\state,\action)=0$, for all $\state$, $\action$.
+% \begin{itemize}
+% \item {\em Initialize:} Set $ Q_0(\state,\action)=0$, for all $\state$, $\action$.
 
-\item At time $\ttime=0,1,\dots$:
+% \item At time $\ttime=0,1,\dots$:
 
--- Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime,
-\state_{\ttime}')$.
-% $s\leftarrow \state_n$, $a \leftarrow \action_n$, $r\leftarrow \reward_n$, $s'\leftarrow \state_{n+1}$.
+% -- Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime,
+% \state_{\ttime}')$.
+% % $s\leftarrow \state_n$, $a \leftarrow \action_n$, $r\leftarrow \reward_n$, $s'\leftarrow \state_{n+1}$.
 
--- Update: %$\widehat{\QValue}(\state_\ttime,\action_\ttime)$:
-\begin{align*}
- Q_{\ttime+1}(\state_\ttime,\action_\ttime) & :=
- Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)  [\reward_\ttime +
-\discount \max_{\action'} Q_\ttime (\state_{\ttime}', \action')
--Q_\ttime (\state_\ttime,\action_\ttime)]
-\end{align*}
-\end{itemize}
+% -- Update: %$\widehat{\QValue}(\state_\ttime,\action_\ttime)$:
+% \begin{align*}
+%  Q_{\ttime+1}(\state_\ttime,\action_\ttime) & :=
+%  Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)  [\reward_\ttime +
+% \discount \max_{\action'} Q_\ttime (\state_{\ttime}', \action')
+% -Q_\ttime (\state_\ttime,\action_\ttime)]
+% \end{align*}
+% \end{itemize}
+
+
+\begin{algorithm}[H]
+\caption{Q-learning}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $Q_0(\state,\action) = 0$, for all $\state$, $\action$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime}')$.
+    \State \quad Update:
+    \[
+    Q_{\ttime+1}(\state_\ttime, \action_\ttime) := Q_\ttime(\state_\ttime, \action_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime + \gamma \max_{\action'} Q_\ttime(\state_{\ttime}', \action') - Q_\ttime(\state_\ttime, \action_\ttime)\right]
+    \]
+\end{algorithmic}
+\end{algorithm}
 
 
 It is worth to try and gain some intuition regarding the $Q$
@@ -1517,7 +1554,7 @@ When we solve the recursion we get that
 $Q_\ttime=\Theta(1/\ttime^{1-\discount})$.\footnote{$Q_\ttime=\prod_{i=1}^\ttime (1-(1-\discount)/i)\approx
 \prod_{i=1}^\ttime e^{-(1-\discount)/i}=e^{-\sum_{i=1}^\ttime
 (1-\discount)/i }\approx e^{-(1-\discount)\ln
-t}=t^{-(1-\discount)}$. }
+\ttime}=\ttime^{-(1-\discount)}$. }
 %
 This implies that for $t\leq  (1/\varepsilon)^{1/(1-\discount)}$ we
 have $Q_\ttime \geq \varepsilon$.
@@ -1525,8 +1562,8 @@ have $Q_\ttime \geq \varepsilon$.
 In contrast, if we use a polynomial step size, we have,
 \[
 Q_\ttime =
-(1-\frac{1}{t^\theta})Q_{\ttime-1}+\frac{1}{t^\theta}[0+\discount
-Q_{\ttime-1}]=(1-\frac{1-\discount}{t^\theta})Q_{\ttime-1}
+(1-\frac{1}{\ttime^\theta})Q_{\ttime-1}+\frac{1}{\ttime^\theta}[0+\discount
+Q_{\ttime-1}]=(1-\frac{1-\discount}{\ttime^\theta})Q_{\ttime-1}
 \]
 When we solve the recursion we get that
 $Q_\ttime=\Theta(e^{-(1-\discount)t^{1-\theta}})$. This implies that
@@ -1574,32 +1611,46 @@ estimates to converge, as done in $\QValue$-learning, but also the return
 to be near optimal. For this we need the action selection to
 converge to being greedy with respect to the $\QValue$ function.
 
-\paragraph{The SARSA algorithm}\ \\
+% \paragraph{The SARSA algorithm}\ \\
 
 
-\begin{itemize}
-\item {\em Initialize:} Set $ Q_0(\state,\action)=0$, for all $\state$, $\action$.
+% \begin{itemize}
+% \item {\em Initialize:} Set $ Q_0(\state,\action)=0$, for all $\state$, $\action$.
 
-\item At time $\ttime=0,1,\dots$:
+% \item At time $\ttime=0,1,\dots$:
 
--- Observe
-$(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$.
-% $s\leftarrow \state_n$, $a \leftarrow \action_n$, $r\leftarrow \reward_n$, $s'\leftarrow \state_{n+1}$.
+% -- Observe
+% $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$.
+% % $s\leftarrow \state_n$, $a \leftarrow \action_n$, $r\leftarrow \reward_n$, $s'\leftarrow \state_{n+1}$.
 
---Select $\action_{\ttime+1}=\policy(\state_{\ttime+1};Q_\ttime)$.
+% --Select $\action_{\ttime+1}=\policy(\state_{\ttime+1};Q_\ttime)$.
 
--- Update %$\widehat{\QValue}(\state_\ttime,\action_\ttime)$:
-\begin{align*}
- Q_{\ttime+1}(\state_\ttime,\action_\ttime) & :=   Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)  [\reward_\ttime +
-\discount  Q_\ttime (\state_{\ttime+1}, a_{\ttime+1}) -Q_\ttime
-(\state_\ttime,\action_\ttime)]
-\end{align*}
-\end{itemize}
-Note that SARSA selects an action $\action_{\ttime+1}$ for state
-$\state_{\ttime+1}$, dependent on the values of $Q_\ttime$ and not
-$Q_{\ttime+1}$. The update of $Q_\ttime$ is done only after we
-selected action $\action_{\ttime+1}$ (which is performed at time
-$\ttime+1$).
+% -- Update %$\widehat{\QValue}(\state_\ttime,\action_\ttime)$:
+% \begin{align*}
+%  Q_{\ttime+1}(\state_\ttime,\action_\ttime) & :=   Q_\ttime (\state_\ttime,\action_\ttime) + \alpha_\ttime(\state_\ttime,\action_\ttime)  [\reward_\ttime +
+% \discount  Q_\ttime (\state_{\ttime+1}, a_{\ttime+1}) -Q_\ttime
+% (\state_\ttime,\action_\ttime)]
+% \end{align*}
+% \end{itemize}
+% Note that SARSA selects an action $\action_{\ttime+1}$ for state
+% $\state_{\ttime+1}$, dependent on the values of $Q_\ttime$ and not
+% $Q_{\ttime+1}$. The update of $Q_\ttime$ is done only after we
+% selected action $\action_{\ttime+1}$ (which is performed at time
+% $\ttime+1$).
+
+\begin{algorithm}[H]
+\caption{SARSA}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $Q_0(\state,\action) = 0$, for all $\state$, $\action$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})$.
+    \State \quad Select $\action_{\ttime+1} = \policy(\state_{\ttime+1}; Q_\ttime)$.
+    \State \quad Update:
+    \[
+    Q_{\ttime+1}(\state_\ttime, \action_\ttime) := Q_\ttime(\state_\ttime, \action_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime + \gamma Q_\ttime(\state_{\ttime+1}, \action_{\ttime+1}) - Q_\ttime(\state_\ttime, \action_\ttime)\right]
+    \]
+\end{algorithmic}
+\end{algorithm}
 
 \paragraph{Selecting the action:}
 As we discussed before, one of the main tasks of an on-policy
@@ -2279,7 +2330,26 @@ Using the $TD(0)$ updates, each time action one is selected by $\pi$ we can do a
 To compare the two approaches, consider the number of trajectories required to get an $\epsilon$ approximation for the return of $\rho$. Using Monte-Carlo, we need $O(\tHorizon 2^\tHorizon/\epsilon^2)$ trajectories, in expectation. In contrast, for $TD(0)$ we need only $O(\tHorizon/\epsilon^2)$ trajectories. The huge gap is due to the fact that $TD(0)$ utilizes partial trajectories while Monte-Carlo requires the entire trajectory to agree with $\rho$.
 \end{example}
 
+\subsection{Algorithms for Episodic MDPs}\label{ssec:mfrl_episodic}
+Modifying the learning algorithms above from the discounted to the episodic setting requires a simple but important change. We show it here for Q-learning, but the extension to the other algorithms is immediate.
 
+\begin{algorithm}[H]
+\caption{Q-learning for Episodic MDPs}
+\begin{algorithmic}[1]
+\State \textbf{Initialize:} Set $Q_0(\state,\action) = 0$, for all $\state$, $\action$.
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime}')$.
+    \State \quad Update:
+    \[
+    Q_{\ttime+1}(\state_\ttime, \action_\ttime) := \begin{cases}
+        Q_\ttime(\state_\ttime, \action_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime + \max_{\action'} Q_\ttime(\state_{\ttime}', \action') - Q_\ttime(\state_\ttime, \action_\ttime)\right] & \state_{\ttime}' \notin \States_G\\
+        Q_\ttime(\state_\ttime, \action_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime  - Q_\ttime(\state_\ttime, \action_\ttime)\right] & \state_{\ttime}' \in \States_G
+    \end{cases}
+    \]
+\end{algorithmic}
+\end{algorithm}
+
+Note that we removed the discount factor, and also explicitly used the fact that the value of a goal state is $0$. The latter is critical for the algorithm to converge, under the Assumption \ref{ass:finite_termination_prob} that a goal state will always be reached.
 
 \section{Bibliography Remarks}
 
