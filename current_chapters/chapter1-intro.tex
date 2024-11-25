@@ -5,10 +5,10 @@ environments where sequential decisions are made. That is, the decision made at 
 will be followed by other decisions and therefore the decision maker has to consider the implications 
 of her decision on subsequent decisions. 
 
-\begin{commentary}
-This is some text in a gray box. This is some text in a gray box. This is some text in a gray box. 
-This is some text in a gray box. This is some text in a gray box. This is some text in a gray box.
-\end{commentary}
+% \begin{commentary}
+% This is some text in a gray box. This is some text in a gray box. This is some text in a gray box. 
+% This is some text in a gray box. This is some text in a gray box. This is some text in a gray box.
+% \end{commentary}
 
 
 In the early days of the field, there was an analogy drawn between human learning and computer 
@@ -64,21 +64,25 @@ Another domain, popularized by DeepMind, is playing Atari video
 games \cite{mnih2015human}, which were popular in the 1980's. DeepMind were able to
 show that deep neural networks can achieve human level performance,
 using only the raw video image and the game score as input (and having no additional
-information about the goal of the game). 
+information about the goal of the game). Importantly, this result reignited the interest of RL in the robotics community, where acting based on raw sensor measurements (a.k.a. `end-to-end') is a promising alternative to the conventional practice of separating decision making into perception, planning, and control components \cite{levine2016end}.
 % There has been many successes in games
 % such Starcraft\cite{xx}, Dotta \cite{xx}, and others.
 
-Looking to the future, the real promise of RL
-is learning in interactive settings. Probably one the most important
-applications is robotics, where reaching a human level performance
-would have far outreaching consequences. 
-\SM{Mention RLHF and such?}
+More recently, interest in RL sparked yet again, as it proved to be an important component in fine tuning large language models to match user preferences, or to accomplish certain tasks \cite{ouyang2022training,zhang2023planning}. One can think of the sequence of words in a conversation as individual decisions made with some higher level goal in mind, and RL fits naturally with this view of language generation.
+
+While the RL implementations in each of the different applications mentioned above were very different, the fundamental models and algorithmic ideas were surprisingly similar. These foundations are the topic of this book.
+
+% Looking to the future, the real promise of RL
+% is learning in interactive settings. Probably one the most important
+% applications is robotics, where reaching a human level performance
+% would have far outreaching consequences. 
+% \SM{Mention RLHF and such?}
 
 \section{The Need for This Book}
 
 There are already several books on RL. However, while teaching RL in class, we felt that there is a gap between advanced textbooks that focus on one aspect or another of the art, and more general books that opt for readability rather than rigor. Coming from computer science and electrical engineering backgrounds, we like to teach RL in a rigorous, self-contained manner. This book serves this purpose, and is based on our lecture notes for an advanced undergraduate course that we have taught for over ten years at Tel Aviv University and at Technion.
 
-\SM{We provide at the end of every chapter a list of exercises to help students practice the material. These exercised were developed by us and our teaching assistants over the years.}
+Complementing this book is a booklet with exercises and exam questions to help students practice the material. These exercised were developed by us and our teaching assistants over the years.
 
 \section{Mathematical Models}
 %
@@ -97,22 +101,23 @@ The algorithm would be faced with an inherent tradeoff between
 exploitation (getting the most reward given the current information)
 and exploration (gathering more information about the environment).
 
-\SM{Need a figure here with the classical feedback system}
-\SM{Discuss classical agent-centric view of RL/AI?, i.e., the separation between an agent and the environment }
+% \SM{Need a figure here with the classical feedback system}
+% \SM{Discuss classical agent-centric view of RL/AI?, i.e., the separation between an agent and the environment }
 
-There are other models that are useful, such a partially observed MDPs (POMDPs) where the exact state is not fully known, and bandits where the current decision has no effect on subsequent decision. In accordance with most of the literature with the exception of Chapter \ref{chapter-MAB} the book concerns the MDP model.
+There are other models that are useful, such a partially observed MDPs (POMDPs) where the exact state is not fully known, and bandits where the current decision has no effect on subsequent decision. In accordance with most of the literature with the exception of Chapter \ref{chapter:MAB} the book concerns the MDP model.
 
 
 \section{Book Organization}
 
 The book is thematically comprised of two main parts -- \textit{planning} and \textit{learning}. 
 
-\paragraph{Planning:} The planning theme develops the fundamentals of optimal decision making in the face of uncertainty, under the Markov decision process model. The basic assumption in planning is that the MDP model is \textit{known} (yet, as the model is stochastic, uncertainty must still be accounted for in making decisions).
+\paragraph{Planning:} The planning theme develops the fundamentals of optimal decision making in the face of uncertainty, under the Markov decision process model. The basic assumption in planning is that the MDP model is \textit{known} (yet, as the model is stochastic, uncertainty must still be accounted for in making decisions). In a preface to the planning section, Chapter \ref{chapter-planning-preface}, we motivate the MDP model and relate it to other models in the planning and control literature.
 In Chapter \ref{chapter:DDP} we introduce the problem and basic algorithmic ideas under the deterministic setting. In Chapter \ref{chapter:MC} we review the topic of Markov chains, which the Markov decision process model is based on, and
-then, in Chapter \ref{chapter:MDP-FH} we introduce the finite horizon MDP model and a fundamental dynamic programming approach. Chapter \ref{chapter:disc} covers the infinite horizon discounted setting.
+then, in Chapter \ref{chapter:MDP-FH} we introduce the finite horizon MDP model and a fundamental dynamic programming approach. Chapter \ref{chapter:disc} covers the infinite horizon discounted setting, and Chapter \ref{chapter:episodic} covers the episodic setting. Chapter \ref{chapter-LP} covers an alternative approach for solving MDPs using a linear programming formulation.
 % and episodic settings, respectively.
 
-\paragraph{Learning:} The learning theme covers decision making when the MDP model is \textit{not known in advance}. Chapter \ref{chapter-model-based} introduces the \textit{model-based} approach, where the agent explicitly learns an MDP model from its experience and uses it for planning decisions. Chapter \ref{chapter:learning-model-free} covers an alternative \textit{model-free} approach, where decisions are learned without explicitly building a model. Chapters \ref{chapter:function-approximation} and \ref{chapter:policy-gradient} address learning of approximately optimal solutions in \textit{large} problems, that is, problems where the underlying MDP model is intractable to solve. Chapter \ref{chapter:function-approximation} approaches this topic using approximation of the value function, while Chapter \ref{chapter:policy-gradient} considers policy approximations. In Chapter \ref{chapter:MAB} we consider the special case of Multi-Arm Bandits, which can be viewed as a MDP with a single state and unknown rewards. 
+\paragraph{Learning:} The learning theme covers decision making when the MDP model is \textit{not known in advance}. In a preface to the learning section, Chapter \ref{ym-chapter-learning-preface}, we motivate this learning problem and relate it to other learning problems in decision making.
+Chapter \ref{chapter-model-based} introduces the \textit{model-based} approach, where the agent explicitly learns an MDP model from its experience and uses it for planning decisions. Chapter \ref{chapter:learning-model-free} covers an alternative \textit{model-free} approach, where decisions are learned without explicitly building a model. Chapters \ref{chapter:function-approximation} and \ref{chapter:policy-gradient} address learning of approximately optimal solutions in \textit{large} problems, that is, problems where the underlying MDP model is intractable to solve. Chapter \ref{chapter:function-approximation} approaches this topic using approximation of the value function, while Chapter \ref{chapter:policy-gradient} considers policy approximations. In Chapter \ref{chapter:MAB} we consider the special case of Multi-Arm Bandits, which can be viewed as a MDP with a single state and unknown rewards, and study the online nature of decision making in more detail. 
 
 \section{Bibliography notes}
 
@@ -120,12 +125,8 @@ Markov decision processes have a long history. The first works that directly add
 
 There is a variety of books addressing Markov Decision Processes and Reinforcement Learning. Puterman's book \cite{puterman2014markov} gives an extensive exposition of mathematical properties of MDPs, including planning algorithms. Bertsekas and Tsitsiklis \cite{BertsekasTsitsiklis96} give a stochastic processes approach for reinforcement learning. Bertsekas \cite{Bertsekas05} give a detailed exposition of stochastic shortest paths.
 
-Sutton and Barto \cite{SuttonB98} give a general exposition to modern reinforcement learning, which is more focused on implementation issues less focused on mathematical issues. Szepesvari's monograph \cite{Szepesvari} gives an outline of basic reinforcement learning algorithms.
+Sutton and Barto \cite{SuttonB98} give a general exposition to modern reinforcement learning, which is more focused on implementation issues less focused on mathematical issues. Szepesvari's monograph \cite{Szepesvari} gives an outline of basic reinforcement learning algorithms. Bertsekas and Tsitsiklis provide a thorough treatment of RL algorithms and theory in \cite{BertsekasTsitsiklis96}.
 
-\SM{
-Things we want added here:
-%\item{}
-}
 
 % To complete the picture, Chapter \ref{chapter:tree-based-search} considers online planning using tree-search methods.
 % \section{Markov Decision Process (MDP)}

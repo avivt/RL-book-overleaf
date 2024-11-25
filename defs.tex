@@ -35,6 +35,7 @@
 \usepackage{amsthm}
 \usepackage{amsmath}
 \usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning}
 % \usepackage{algorithm2e}
 % \usepackage{algorithm}
 % \usepackage{algorithmic}
@@ -143,6 +144,7 @@
 \newcommand{\initdist}{\mu}
 \newcommand{\termtime}{\tau}
 \newcommand{\discdist}{d}
+\newcommand{\rollout}{\texttt{X}}
 
 
 \newcommand{\operator}{\mathcal{T}}
@@ -161,6 +163,7 @@
 \newcommand{\rewfunction}{f_r}
 \newcommand{\field}[1]{\mathbb{#1}}
 \newcommand{\Reals}{\field{R}}
+\newcommand{\IND}{\field{I}}
 %\newcommand{\eqref}[1]{(\ref{#1})}
 \newcommand{\policy}{\pi}
 \newcommand{\hatpolicy}{{\widehat{\pi}}}
@@ -250,8 +253,13 @@
 \newcommand{\subsubtopic}[2]{\subsubsection{#1} \index{#2}}
 
 
-\newcommand{\SM}[1]{\textcolor{blue}{#1}}
-\newcommand{\AT}[1]{\textcolor{red}{#1}}
+\newcommand{\SM}[1]{\textcolor{blue}{SM: #1}}
+\newcommand{\AT}[1]{\textcolor{red}{AT: #1}}
+\newcommand{\YM}[1]{\textcolor{purple}{YM: #1}}
+
 
 \definecolor{lightgray}{rgb}{0.9,0.9,0.9}
 \newmdenv[backgroundcolor=lightgray]{commentary}
+
+
+\usepackage[normalem]{ulem}

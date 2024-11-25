@@ -876,7 +876,7 @@ which converges to zero for a well-behaved algorithm, due to the first step size
 Here we will consider the general stochastic approximation form in Eq.~\ref{eq:stochastic_approx}, and we will not limit ourselves to algorithms that update only certain states, but may update the whole vector $X_\ttime$ at every time step. 
 
 The asymptotic behavior of the stochastic approximation algorithm is closely related to the solutions
-of a certain ODE (Ordinary Differential Equation), namely
+of a certain ODE (Ordinary Differential Equation)\footnote{We provide an introduction to ODEs in Appendix \ref{chapter:ode}.}, namely
 $$
 \frac{d}{dt}\theta(t)=\safunc(\theta(t)),
 $$
@@ -1004,6 +1004,36 @@ If $\Gamma$ is a bounded set then the estimated sequence $\{X_\ttime\}$ is guara
 to be bounded. However, in this case the corresponding ODE must account for the projection, and is $\dot \theta(t) = \safunc(\theta(t)) + \zeta$, where $\zeta$ is zero in the interior of $\Gamma$, and on the boundary of $\Gamma$, $\zeta$ is the infinitesimal change to $\theta$ required to keep it in $\Gamma$. In this case, to show convergence using Theorem \ref{thm:stoch-approx-ODE}, we must verify that $X^*$ is still a globally asymptotically stable equilibrium, that is, we must verify that the projection did not add a spurious stable point on the boundary of $\Gamma$. A thorough treatment of this idea is presented in \cite{kushner2003stochastic}.
 \end{remark}
 
+\subsection{Comparison between the two convergence proof techniques}
+
+The two proof techniques above are qualitatively different, and also require different conditions to be applied. For the contraction approach, establishing that the iterates are bounded with probability 1 is not required, while with the ODE method, this is known to be a big technical difficulty in some applications. For linear ODEs, however, as Theorem \ref{thm:stoch-approx-ODE-linear} shows, this is not an issue. Another important difference is that some recurrence relations may converge even though they are not necessarily contractions. In such cases, the ODE method is more suitable. We next give a simple example of such a system. In Chapter \ref{chapter:function-approximation}, we will encounter a similar case when establishing convergence of an RL algorithm with linear function approximation.
+
+\begin{example}
+    Consider the following linear recurrence equation in $\mathbb{R}^2$, where for simplicity we omit the noise term
+    \begin{equation*}
+        X_{\ttime+1} =
+X_\ttime+\alpha_\ttime A X_\ttime,
+    \end{equation*}
+    where $A \in \mathbb{R}^{2 \times 2}.$ Clearly, $X^* = [0,0]$ is a fixed point. Let $X_0 = [0, 1]$, and consider two different values of the matrix $A$, namely, $A_{\textrm{contraction}} = \begin{bmatrix}
+-0.9 & -0.9 \\
+0 & -0.9
+\end{bmatrix}$, and $A_{\textrm{no-contraction}} = \begin{bmatrix}
+-3 & -3 \\
+2.1 & 1.9
+\end{bmatrix}$. Note that the resulting operator $H(X) = X + AX$ can be either $H_{\textrm{contraction}} = \begin{bmatrix}
+0.1 & -0.9 \\
+0 & 0.1
+\end{bmatrix}$, and $H_{\textrm{no-contraction}} = \begin{bmatrix}
+-2 & -3 \\
+2.1 & 2.9
+\end{bmatrix}$. It can be verified that $\|H_{\textrm{contraction}} X\| < \|X\|$ for any $X \neq 0$. However, note that $\|H_{\textrm{no-contraction}} X_0 \| = \| [-3, 2.9] \| > \|[0, 1]\|$, therefore $H_{\textrm{no-contraction}}$ is not a contraction in the Euclidean norm (nor in any other weighted $p$-norm).
+\\
+The next plot shows the evolution of the recurrence when starting from $X_0$, for a constant step size $\alpha_\ttime = 0.2$. Note that both iterates converge to $X^*$, as it is an asymptotically stable fixed point for the ODE $\dot{X} = AX$ for both values of $A$. However, the iterates for $H_{\textrm{contraction}}$ always reduce the distance to $X^*$, while the iterates for $H_{\textrm{no-contraction}}$ do not. Thus, for $H_{\textrm{no-contraction}}$, only the ODE method would have worked for showing convergence.
+\\
+\begin{center}
+\includegraphics[width=0.7\linewidth]{figures/ode.png}
+\end{center}
+\end{example}
 
 
 \section{Temporal Difference algorithms}
@@ -2375,22 +2405,22 @@ are from Chapter 6 of \cite{SuttonB98}.
 The stochastic approximation method was introduced by Robbins and  Monro \cite{RobbinsS51} and developed by Blum \cite{Blum54}. For an extensive survey of this literature ????
 
 
-The ODE method was pioneered by Ljung \cite{Ljung77,LjungS83} and further developed by Kushner \cite{KushnerC78,Kushner84} For an extensive survey of this literature ????
+The ODE method was pioneered by Ljung \cite{Ljung77,LjungS83} and further developed by Kushner \cite{KushnerC78,Kushner84} For an extensive survey of this literature.
 
-[[YM: is this correct?!]
+% [[YM: is this correct?!]
 
-\paragraph{OLD}
-
-
+% \paragraph{OLD}
 
 
 
 
-Part of the outline borrows from David Silver class notes and the
-the book of Sutton and Barto \cite{SuttonB98}.
 
 
-The presentation of the TD algorithms follows the book of Sutton and
-Barto \cite{SuttonB98}. [[Need to check!!!]]
+% Part of the outline borrows from David Silver class notes and the
+% the book of Sutton and Barto \cite{SuttonB98}.
+
+
+% The presentation of the TD algorithms follows the book of Sutton and
+% Barto \cite{SuttonB98}. [[Need to check!!!]]
 
 

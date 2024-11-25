@@ -14,16 +14,15 @@
 \newcommand{\ymignore}[1]{}
 \usepackage{hyperref}
 
-\newenvironment{advanced}{\begin{leftbar}}{\end{leftbar}}
+% \newenvironment{advanced}{\begin{leftbar}}{\end{leftbar}}
+\newenvironment{advanced}{}{}
 
 \input{defs}
 
 
 \title{Reinforcement Learning: Foundations}
-\date{October 2023
-\\
-  \textcolor{red}{This book is still work in progress. In particular, references to literature are not complete. We would be grateful for comments, suggestions, omissions, and errors of any kind, at \url{rlfoundationsbook@gmail.com}. }
-
+\date{November 2024 \\
+  \textcolor{red}{This book is still work in progress. In particular, references to literature are not complete. We would be grateful for comments, suggestions, omissions, and errors of any kind, at \url{rlfoundationsbook@gmail.com}. }\\
 \flushleft{Please cite as\\
 \textcolor{blue}{
 @book$\{$MannorMT-RLbook,\\
@@ -35,8 +34,8 @@
 $\}$\\
 }
 }
-
 }
+
 \author{Shie Mannor, Yishay Mansour and Aviv Tamar}
 
 
@@ -53,6 +52,10 @@ $\}$\\
 \label{chapter:intro}
 \input{current_chapters/chapter1-intro}
 
+\chapter{Preface to the Planning Chapters}
+\label{chapter-planning-preface}
+\input{current_chapters/planningpreface}
+
 \chapter{Deterministic Decision Processes}
 \label{chapter:DDP}
 \input{current_chapters/chapter2-ddp}
@@ -68,14 +71,19 @@ $\}$\\
 \chapter{Discounted Markov Decision Processes}
 \label{chapter:disc}
 \input{current_chapters/chapter5-disc}
-\chapter*{Episodic Markov Decision Processes}
+
+\chapter{Episodic Markov Decision Processes}
+\label{chapter:episodic}
 \input{future_chapters/chapter5-ssp}
 
 \chapter{Linear Programming Solutions}\label{chapter-LP}
 \input{current_chapters/LP}
 
-\chapter{Preface to the Learning Chapters}\label{chapter-learning-preface}
-\input{future_chapters/chapter-learning-preface}
+% \chapter{Preface to the Learning Chapters}\label{chapter-learning-preface}
+% \input{future_chapters/chapter-learning-preface}
+
+\chapter{Preface to the Learning Chapters}\label{ym-chapter-learning-preface}
+\input{future_chapters/chapter-learning-preface-final}
 
 \chapter{Reinforcement Learning: Model Based}\label{chapter-model-based}
 \input{current_chapters/chapter6-mbrl}
@@ -96,9 +104,9 @@ $\}$\\
 \label{chapter:MAB}
 \input{current_chapters/chapter10-mab}
 
-\chapter{Online MDP}
-\label{chapter:OnlineMDP}
-\input{current_chapters/online-MDP}
+% \chapter{Online MDP}
+% \label{chapter:OnlineMDP}
+% \input{current_chapters/online-MDP}
 
 % \chapter{POMDP}
 % \label{chapter:POMDP}
@@ -121,6 +129,11 @@ $\}$\\
 \chapter{Dynamic Programming}
 \label{chapter:dp}
 \input{current_chapters/appendix-dp}
+
+\chapter{Ordinary Differential Equations}
+\label{chapter:ode}
+\input{future_chapters/chapter-ODEs}
+
 
 \bibliographystyle{plain}
 \bibliography{bib-lecture}

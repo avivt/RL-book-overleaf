@@ -716,6 +716,10 @@ This algorithm can be written as a stochastic approximation:
 \end{equation*}
 where $\omega_\ttime$ is a noise term, and the corresponding ODE is $\dot{\weights} = b -  A \weights_\ttime$, with a unique stable fixed point at $\weights^* = A^{-1}b$. 
 
+\begin{remark}
+    In the tabular setting, we proved the convergence of TD(0) using the contraction method for stochastic approximation. Here, we cannot use this approach, as the contraction in TD(0), which follows from the Bellman equation, applies to the values of each state. However, with function approximation, we iterate over the weights $\weights_\ttime$ and not over the values for each state, and for these weights the contraction does not necessarily hold. For this reason, we shall seek a convergence proof based on the ODE method.
+\end{remark}
+
 We next prove convergence of TD(0). For simplicity, we will consider a somewhat synthetic version of TD(0) where at each iteration $\ttime$, the state $\state_\ttime$ is drawn i.i.d. from the stationary distribution $\xi(\state)$, and the next state $\state_{\ttime+1}$ in the update rule is drawn from $P^\policy(\state'|\state = \state_\ttime)$, respectively. This will allow us to claim that the noise term satisfies $\E[\omega_\ttime|h_{\ttime-1}]=0$. 
 
 

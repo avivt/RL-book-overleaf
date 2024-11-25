@@ -64,8 +64,8 @@ follows. Construct a directed graph $G(X,E)$ where the vertices are
 the states $X$ and there is a directed edge $(i,j)$ if $p_{i,j}>0$.
 State $j$ is accessible from state $i$ iff there exists a directed
 path in $G(X,E)$ from $i$ to $j$.\\
-Note that the relation is transitive. If $i \to j$ and $j \to k$ then $i \to k$. This follows since $i \to j$ implies that there is $m_1$ such that  $p_{i,j}^{(m_1)} > 0$. Similarly, since $j \to k$ there is $m_2$ such that  $p_{j,k}^{(m_2)} > 0$. Therefore, for $m=m_1+m_2$ we have $p_{i,k}^{(m)} > p_{i,j}^{(m_1)}p_{j,k}^{(m_2)}>0$.
-\item States $i$ and $j$ are \textit{communicating} states (or communicate) if $i \to j$ and $j \to
+Note that the relation is transitive. If $i \to j$ and $j \to k$ then $i \to k$. This follows since $i \to j$ implies that there is $m_1$ such that  $p_{i,j}^{(m_1)} > 0$. Similarly, since $j \to k$ there is $m_2$ such that  $p_{j,k}^{(m_2)} > 0$. Therefore, for $m=m_1+m_2$ we have $p_{i,k}^{(m)} > p_{i,j}^{(m_1)}p_{j,k}^{(m_2)}>0$.\\
+States $i$ and $j$ are \textit{communicating} states (or communicate) if $i \to j$ and $j \to
 i$.\\
 For a finite $X$, this implies that in $G(X,E)$ there is both a
 directed path from $i$ to $j$ and from $j$ to $i$.
@@ -256,7 +256,7 @@ return to state $i$, and hence state $i$ is not recurrent.
     State $i$ is {\em positive recurrent} if  $\E({T_i}) < \infty $,
 and null recurrent if $\E({T_i}) = \infty $.
 \end{definition}
-\begin{claim}
+\begin{claim}\label{claim:finite_states_positive_recurrent}
     If the state space $X$
 is finite, all recurrent states are positive recurrent.
 \end{claim}

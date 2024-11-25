@@ -100,9 +100,9 @@ and, for ${\state_\ttime} = 1$:
   This state algebraic equation notation is especially useful for problems with continuous state space, but also for some models with discrete states.
 Equivalently, we can write
     \[
- {f_\ttime}(1,2,{w_\ttime}) = 1\cdot \I[{w_\ttime}=4]+2\cdot \I[{w_\ttime}=5]+3\cdot \I[{w_\ttime}=6] ,
+ {f_\ttime}(1,2,{w_\ttime}) = 1\cdot \IND[{w_\ttime}=4]+2\cdot \IND[{w_\ttime}=5]+3\cdot \IND[{w_\ttime}=6] ,
     \]
-where $\I[\cdot]$ is the indicator function.
+where $\IND[\cdot]$ is the indicator function.
 
 Next we recall the definitions of control policies from Chapter \ref{chapter:DDP}.
 
@@ -314,7 +314,7 @@ For each $(\state,i)\in \States'$ and action $\action\in\Actions$ we
 have
 $\transitionprob'_t((\state',j)|(\state,i),\action)=\transitionprob_t(\state'|\state,\action)\Pr[R_t(\state,\action)=j]$,
 and
-$\transitionprob'_{\tHorizon}((\state',j)|(\state,i))=\I(\state'=\state)\Pr[R_{\tHorizon}(\state)=j]$.
+$\transitionprob'_{\tHorizon}((\state',j)|(\state,i))=\IND(\state'=\state)\Pr[R_{\tHorizon}(\state)=j]$.
 The reward is $\reward'_t((\state,i),\action)=i$. The initial state
 is $\state'_0=(\state_0,0)$.
 

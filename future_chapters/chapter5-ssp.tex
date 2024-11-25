@@ -19,8 +19,8 @@ Such problems are known as stochastic shortest path problems, or also episodic p
 \section{Definition}
 
 We consider a stationary (time-invariant) MDP, with a finite state
-space $\States$, finite action set $\Actions$, and transition kernel
-$\transitionkernel = \{\transitionprob(\state'|\state,\action)\}$, and reward $\reward(\state,\action)$.
+space $\States$, finite action set $\Actions$, a transition kernel
+$\transitionkernel = \{\transitionprob(\state'|\state,\action)\}$, and rewards $\reward(\state,\action)$.
 
 Stochastic Shortest Path is an important class of planning problems, 
 where the time horizon is not
@@ -30,22 +30,26 @@ Let  ${\States_G} \subset \States$ define the set of \emph{goal
 states}. 
 
 \begin{definition}[Termination time]
-Define the random variable
-\[\tau  = \inf \{ \ttime \ge 0:{\state_\ttime} \in {\States_G}\} \]
-as the first time in which a goal state is reached.     
+Define the termination time as the random variable
+\[\tau  = \inf \{ \ttime \ge 0:{\state_\ttime} \in {\States_G}\}, \]
+the first time in which a goal state is reached, or infinity otherwise.    
 \end{definition}
 
-We shall make the following assumption on the MDP, which states that for any policy, we will always reach the goal state in finite time.
+We shall make the following assumption on the MDP, which states that for any policy, we will always reach a goal state in finite time.
 \begin{assumption}\label{ass:finite_termination_prob}
-    For any policy $\pi$, we have that $\tau < \infty$ with probability $1$.
+    The state space is finite, and for any policy $\pi$, we have that $\tau < \infty$ with probability $1$.
 \end{assumption}
 
-For the case of positive rewards, Assumption \ref{ass:finite_termination_prob} guarantees that the agent cannot get `stuck in a loop' and obtain infinite reward. This is similar to the assumption on no negative cycles in deterministic shortest paths. When the rewards are negative, the agent will be driven to reach the goal state as quickly as possible, and in principle, Assumption \ref{ass:finite_termination_prob} could be relaxed. We will keep it nonetheless, as it will significantly simplify our analysis. 
+For the case of positive rewards, Assumption \ref{ass:finite_termination_prob} guarantees that the agent cannot get `stuck in a loop' and obtain infinite reward.\footnote{The finite state space, by Claim \ref{claim:finite_states_positive_recurrent}, guarantees that the \textit{expected} termination time is also finite.}
+% \footnote{\YM{This is not true. The expectation can be infinite. We might have that the length is $i$ with probability $1/i$, so it is finite with probability $1$ but its expected length is infinite. We can alternatively assume that the expectation is finite.}} 
+This is similar to the assumption on no negative cycles in deterministic shortest paths. When the rewards are negative, the agent will be driven to reach the goal state as quickly as possible, and in principle, Assumption \ref{ass:finite_termination_prob} could be relaxed. 
+We will keep it nonetheless, as it will significantly simplify our analysis. 
 
 The total expected return for Stochastic Shortest Path problem is defined as:
 \[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau }))\]
 Here ${\reward_G}(\state),\;\state \in {\States_G}$ specified the
-reward at goal states. Note that the expectation is taken also over the random length of the run $\tau$.
+reward at goal states. 
+Note that the expectation is taken also over the random length of the run $\tau$.
 
 To simplify the notation, in the following we will assume a single goal state $\States_G = \{ \state_G \}$, and that ${\reward_G}({\state_\tau }) = 0$.\footnote{This does not reduce the generality of the problem, as we can modify the MDP by adding another state with deterministic reward $\reward_G$ that transitions to a state in $\States_G$ deterministically.}  We therefore write the value as 
 \begin{equation}\label{eq:ssp_objective}
@@ -54,7 +58,7 @@ To simplify the notation, in the following we will assume a single goal state $\
         0, & \state = \state_G
     \end{cases}.
 \end{equation}
-Our objective is to find a policy that maximizes $\Value_{ssp}^\policy (\state)$. Let $\Value_{ssp}^*(\state)$ the maximal value from each state.
+Our objective is to find a policy that maximizes $\Value_{ssp}^\policy (\state)$. Let $\pi^*$ be the optimal policy and let $\Value_{ssp}^*(\state)$ be its value, which is the maximal value from each state $\state$.
 
 %Clearly, there is a potential that some policies would never reach the goa; states. implicit 
 
@@ -79,7 +83,11 @@ We now show that the SSP generalizes several previous models we studied.
 \subsection{Finite Horizon Return}
 Stochastic shortest path includes, naturally, the finite horizon case. 
 This can be shown by creating a leveled MDP where at each time step we move to the next level and terminate at level $\tHorizon$.
-Specifically, we define a new state space $\States'=\States\times \T$, transition function $p((\state',i+1)|\state,\action)=p(\state'|\state,\action)$, and goal states $\States_G=\{(\state,\tHorizon):\state \in\States\}$.
+Specifically, we define a new state space $\States'=\States\times \T$.
+For any $\state\in\States$, action $\action\in\Actions$ and time 
+$i\in \T$  we define a transition function 
+$\transitionprob' ((\state',i+1)|(\state,i),\action)=\transitionprob(\state'|\state,\action)$, 
+and goal states $\States_G=\{(\state,\tHorizon):\state \in\States\}$.
 Clearly, Assumption \ref{ass:finite_termination_prob} is satisfied here.
 
 \subsection{Discounted infinite return}
@@ -90,9 +98,9 @@ probability $1-\discount$ jump to the goal state and terminate. Clearly, Assumpt
 
 The expected return of a policy would be the same in both models.
 Specifically, we add a state $\state_G$, such that
-$p(\state_G|\state,\action)=1-\discount$, for any state
+$\transitionprob'(\state_G|\state,\action)=1-\discount$, for any state
 $\state\in\States$ and action $\action\in\Actions$ and
-$p(\state'|\state,\action)=\discount p(\state'|\state,\action)$. The
+$\transitionprob'(\state'|\state,\action)=\discount \transitionprob(\state'|\state,\action)$. The
 probability that we do not terminate by time $\ttime$ is exactly
 $\discount^\ttime$. Therefore the expected return is
 $\mathbb{E}\left(\sum_{t=1}^\infty \discount^t\reward(\state_t,\action_t)\right)$ which is
@@ -108,7 +116,7 @@ identical to the discounted return.
 
 \section{Bellman Equations}
 
-We now extend the Bellman equations to the SSP setting. We begin by noting that once the goal state has been reached, we do not care anymore about the state transitions, and therefore, with loss of generality, we can consider an MDP where $\transitionkernel(\state_G|\state_G,\action) = 1$ for all $\action$. 
+We now extend the Bellman equations to the SSP setting. We begin by noting that once the goal state has been reached, we do not care anymore about the state transitions, and therefore, with loss of generality, we can consider an MDP where $\transitionprob(\state_G|\state_G,\action) = 1$ for all $\action$. 
 
 Consider a Markov stationary policy $\policy$. Define the column vector ${\reward^\policy } =
 {({\reward^\policy }(\state))_{\state \in \States \setminus \state_G}}$ with components
@@ -133,7 +141,7 @@ ${\Value_{ssp}^\policy }(\state)$. The next results extends Bellman's equation f
 \end{proposition}
 
 \begin{proof} 
-From Assumption \ref{ass:finite_termination_prob}, every state $\state \neq \state_G$ is transient. For any $i,j \in \States \setminus \state_G$ Let $q_{i,j}=\Pr({\state_\ttime} =
+From Assumption \ref{ass:finite_termination_prob}, every state $\state \neq \state_G$ is transient. For any $i,j \in \States \setminus \state_G$ let $q_{i,j}=\Pr({\state_\ttime} =
 j { \textrm{ for some }}\ttime \ge 1|{\state_0} = i) $. Since state $i$ is
 transient we have $q_{i,i}<1$. Let $Z_{i,j}$ be the number of times the
 trajectory returns to state $j$ when starting from state $i$. Note that $Z_{i,j}$ is geometrically
@@ -194,9 +202,10 @@ follows that
 \[{\Value_n}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{n - 1} {{R_t} + } {\Value_0}({\state_n})).\]
 Since any policy reaches the goal state with probability $1$, and after reaching the goal state the agent stays at the goal and receives $0$ reward, we can write the optimal value function as
 \[{\Value_{ssp}^*}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\tau  {{R_t}} ) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\infty  {{R_t}} ).\]
-it may be seen that that
+It may be seen that that
     \[\lim_{n \to \infty}|{\Value_n}(\state) - \Value_{ssp}^*(\state)| = \lim_{n \to \infty} \left|\mathop {\max }\limits_\policy  {\E^{\policy ,\state}} \sum\limits_{\ttime = n}^{\infty} {R_t} - {\Value_0}({\state_n})\right| = 0,\]
-where the last equality is since Assumption \ref{ass:finite_termination_prob} guarantees that with probability $1$ the goal state will be reached, and from that time onwards the agent will recieve $0$ reward.
+where the last equality is since Assumption \ref{ass:finite_termination_prob} guarantees that with probability $1$ the goal state will be reached, and from that time onwards the agent will receive $0$ reward.
+% \footnote{\YM{Here you also assume that $E[\tau]$ is finite, and it is not enough that it is finite with probability $1$.}}
 \end{proof}
 
 \subsection{Policy Iteration}
@@ -284,7 +293,7 @@ For $(T^*)^{|\States|}$, note that
 \end{split}
 \end{equation*}
 
-To showing $(T^*)^{|\States|}({\Value_1})(\state) - (T^*)^{|\States|}({\Value_2})(\state)
+To show $(T^*)^{|\States|}({\Value_1})(\state) - (T^*)^{|\States|}({\Value_2})(\state)
 \le (1-\epsilon) {\left\| {{\Value_1} - {\Value_2}} \right\|_\infty }$:
 Let $\bar \action_0,\dots,\bar \action_{|\States|-1}$ denote actions that attains the maximum in
 $(T^*)^{|\States|}({\Value_1})(\state)$.
@@ -316,7 +325,7 @@ The following statements hold:
 \end{enumerate}
 \end{theorem}
 
-\begin{proof}[\textbf{Proof of Theorem \ref{thm:Bellman_optimality_ssp}:}]
+\begin{proof}[\textbf{Sketch Proof of Theorem \ref{thm:Bellman_optimality_ssp}:}]
 The proof is similar to the proof of the discounted setting, but we cannot use Theorem \ref{chapter-discount:thm:Banach} directly as we have not shown that $T^*$ is a contraction. However, a relatively simple extension of the Banach fixed point theorem holds also when $(T^*)^{k}$ is a contraction, for some integer $k$ (see, e.g., Theorem 2.4 in \cite{latif2014banach}). Therefore the proof follows, with Theorem \ref{thm:_VI_ssp} replacing Theorem \ref{thm:_VI}.
 \end{proof}
 

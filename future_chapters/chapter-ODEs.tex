@@ -1,0 +1,152 @@
+Ordinary differential equations (ODEs) are fundamental tools in mathematical modeling, used to describe dynamics and processes in various scientific fields. This chapter provides an introduction to ODEs, with a focus on linear systems of ODEs, their solutions, and stability analysis.
+
+
+\section{Definitions and Fundamental Results}
+An ordinary differential equation (ODE) is an equation that involves a function of one independent variable and its derivatives. The most general form of an ODE can be expressed as:
+\[
+F(x, y, y', y'', \dots, y^{(n)}) = 0
+\]
+where $ y = y(x) $ is the unknown function, and $ y', y'', \dots, y^{(n)} $ represent the first through $ n $-th derivatives of $ y $ with respect to $ x $.
+
+A linear ODE has the form:
+\[
+a_n(x) y^{(n)} + a_{n-1}(x) y^{(n-1)} + \cdots + a_1(x) y' + a_0(x) y = g(x),
+\]
+where $ a_0, a_1, \dots, a_n $ and $ g $ are continuous functions on a given interval.
+
+Typically, given an ODE, the goal is to find a set of functions yy that solve it. We may also be interested in other properties of the set of solutions, such as their limits.
+
+\begin{example}    
+Consider the first-order linear ODE
+\[
+y' = ay + b,
+\]
+where $ a $ and $ b $ are constants. This equation can be solved using an integrating factor. The integrating factor, $ \mu(x) $, is given by $ \mu(x) = e^{-ax} $. Multiplying through by this integrating factor, the equation becomes:
+\[
+e^{-ax} y' = ae^{-ax} y + be^{-ax}.
+\]
+This simplifies to:
+\[
+(e^{-ax} y)' = be^{-ax}.
+\]
+Integrating both sides with respect to $ x $ gives:
+\[
+e^{-ax} y = -\frac{b}{a} e^{-ax} + C,
+\]
+where $ C $ is the constant of integration. Solving for $ y $, we obtain:
+\[
+y(x) = -\frac{b}{a} + Ce^{ax}.
+\]
+Note that if $a<0$, we have that $\lim_{x \to \infty} y(x) = -\frac{b}{a}$ for all the solutions of the ODE.
+\end{example} 
+
+A fundamental result in ODE theory is the Picard-Lindelöf theorem, also known as the existence and uniqueness theorem.
+\begin{theorem}[Existence and Uniqueness]\label{thm:ODE_picard}
+Consider the ODE given by
+\[
+y'(x) = f(x, y(x)), \quad y(x_0) = y_0,
+\]
+where $f: [a, b] \times \mathbb{R} \rightarrow \mathbb{R}$ is a function. Assume that $f$ satisfies the following conditions: (1) $ f $ is \textbf{continuous} on the domain $ [a, b] \times \mathbb{R} $.
+(2) $ f $ satisfies a \textbf{Lipschitz condition} with respect to $ y $ in the domain, i.e., there exists a constant $ L > 0 $ such that
+$ 
+   |f(x, y_1) - f(x, y_2)| \leq L |y_1 - y_2|
+$
+   for all $ x \in [a, b] $ and $ y_1, y_2 \in \mathbb{R} $.
+Then, there exists a \textbf{unique} function $ y: [a, b] \rightarrow \mathbb{R} $ that solves the ODE on some interval containing $ x_0 $.
+\end{theorem}
+The proof of this theorem involves constructing a sequence of approximate solutions using the method of successive approximations and showing that this sequence converges to the actual solution of the differential equation.
+For a detailed proof and further exploration of this theorem, refer to classic texts on differential equations such as \cite{hirsch2013differential}.
+
+\subsection{Systems of Linear Differential Equations}
+When dealing with multiple interdependent variables, we can extend the concept of linear ODEs to systems of equations. These are particularly useful in modeling multiple phenomena that influence each other.
+
+Consider a system of linear differential equations represented in matrix form as follows:
+
+\begin{equation}\label{eq:lin_ODE}    
+\mathbf{y}' = A \mathbf{y} + \mathbf{b},
+\end{equation}
+where $ \mathbf{y} $ is a vector of unknown functions, $ A $ is a matrix of coefficients, and $ \mathbf{b} $ is a vector of constants. This compact form encapsulates a system where each derivative of the component functions in $ \mathbf{y} $ depends linearly on all other functions in $ \mathbf{y} $ and possibly some external inputs $ \mathbf{b} $. We shall now present the general solution to the ODE \eqref{eq:lin_ODE}.
+
+Let us first define the matrix exponential.
+
+\begin{definition}
+The matrix exponential, $ e^{Ax} $, where $ A $ is a matrix, is defined similarly to the scalar exponential function but extended to matrices,    
+\[
+e^{Ax} = \sum_{k=0}^{\infty} \frac{x^k A^k}{k!}.
+\]
+\end{definition}
+The matrix exponential is fundamental in systems theory and control engineering, as it provides a straightforward method for solving linear systems of differential equations.
+
+\begin{proposition}
+    The solutions of the system of linear differential equations in \eqref{eq:lin_ODE} are given by $ \mathbf{y}(x) = e^{Ax} \mathbf{y}_0 + \mathbf{y}_p$, where $\mathbf{y}_p$ is such that $A\mathbf{y}_p = -\mathbf{b}$.
+\end{proposition}
+
+\begin{proof}
+    Let us first consider the homogeneous case $ \mathbf{b} = 0 $. To prove that $ \mathbf{y}(x) = e^{Ax} \mathbf{y}_0 $ solves $ \mathbf{y}' = A \mathbf{y} $, we differentiate $ \mathbf{y}(x) $ with respect to $ x $ and show that it satisfies the differential equation $\mathbf{y}' = A \mathbf{y}$.
+
+    The derivative of $ \mathbf{y}(x) $ with respect to $ x $ is given by:
+   \[
+   \frac{d}{dx} \mathbf{y}(x) = \frac{d}{dx} \left(e^{Ax} \mathbf{y}_0\right).
+   \]
+   Applying the derivative to the series expansion of $ e^{Ax} $, we get:
+   \[
+   \frac{d}{dx} \left(e^{Ax}\right) = \frac{d}{dx} \left( \sum_{k=0}^{\infty} \frac{(Ax)^k}{k!} \right) = \sum_{k=0}^{\infty} \frac{d}{dx} \left( \frac{(Ax)^k}{k!} \right).
+   \]
+   Using the power rule and the properties of matrix multiplication, we find:
+   \[
+   \sum_{k=1}^{\infty} \frac{A (Ax)^{k-1} k}{k!} = A \sum_{k=1}^{\infty} \frac{(Ax)^{k-1}}{(k-1)!} = A e^{Ax}.
+   \]
+   Therefore,
+   \[
+   \frac{d}{dx} \mathbf{y}(x) = A e^{Ax} \mathbf{y}_0.
+   \]
+Substituting $ \mathbf{y}(x) $ back into the original differential equation:
+   \[
+   \mathbf{y}' = A \mathbf{y} \quad \Rightarrow \quad A e^{Ax} \mathbf{y}_0 = A \mathbf{y}.
+   \]
+   Since $ \mathbf{y}(x) = e^{Ax} \mathbf{y}_0 $, it follows that:
+   \[
+   A e^{Ax} \mathbf{y}_0 = A \mathbf{y}(x).
+   \]
+To show that $e^{Ax} \mathbf{y}_0$ is the only possible solution, note that at $x=0$, $e^{Ax} \mathbf{y}_0 = \mathbf{y}_0$. Therefore, for any initial condition, we have found a solution, and the uniqueness follows from Theorem \ref{thm:ODE_picard}.
+
+Now, for the case $\mathbf{b} \neq 0 $, let $\mathbf{y}_p$ such that $A \mathbf{y}_p = -\mathbf{b}$. We have that for $ \mathbf{y}(x) = e^{Ax} \mathbf{y}_0 + \mathbf{y}_p$, $\mathbf{y}'(x) = A e^{Ax} \mathbf{y}_0 = A e^{Ax} \mathbf{y}_0 + A\mathbf{y}_p - A\mathbf{y}_p = A \mathbf{y}(x) + \mathbf{b}$.
+\end{proof}
+
+
+\section{Asymptotic Stability}
+
+We will be interested in the asymptotic behavior of ODE solutions. In particular, we shall be interested in the following stability definitions.
+
+\begin{definition}[Stability]
+A solution \( y(x) \) of a differential equation is called \textbf{stable} if, for every \( \epsilon > 0 \), there exists a \( \delta > 0 \) such that for any other solution \( \tilde{y}(x) \) with \( |\tilde{y}(0) - y(0)| < \delta \), it holds that \( |\tilde{y}(x) - y(x)| < \epsilon \) for all \( x \geq 0 \).    
+\end{definition}
+\begin{definition}[Asymptotic Stability]
+A solution \( y(x) \) of a differential equation is called \textbf{globally asymptotically stable} if for any other solution \( \tilde{y}(x) \), we have  \( \lim_{x \to \infty} |\tilde{y}(x) - y(x)| = 0 \).
+\end{definition}
+
+Intuitively, asymptotic stability means that not only do perturbations remain small, but they also decay to zero as $x$ progresses, causing the perturbed solutions to eventually converge to the stable solution. 
+
+\begin{definition}[Global Asymptotic Stability]
+A solution \( y(x) \) of a differential equation is called \textbf{asymptotically stable} if it is stable and additionally, there exists a \( \delta > 0 \) such that if \( |\tilde{y}(0) - y(0)| < \delta \), then \( \lim_{x \to \infty} |\tilde{y}(x) - y(x)| = 0 \).
+\end{definition}
+
+We have the following result for the system of linear differential equations in \eqref{eq:lin_ODE}.
+
+\begin{theorem}
+Consider the ODE in \eqref{eq:lin_ODE}, and let $A\in \mathbb{R}^{N \times N}$ be diagonizable. If all the eigenvalues of $A$ have a negative real part, and let $\mathbf{y}_p$ such that $A\mathbf{y}_p = -\mathbf{b}$, then $y = \mathbf{y}_p$ is a globally asymptotically stable solution.
+\end{theorem}
+
+\begin{proof}
+    We have already established that every solution is of the form $ \mathbf{y}(x) = e^{Ax} \mathbf{y}_0 + \mathbf{y}_p$. Let $\lambda_i, v_i$ denote the eigenvalues and eigenvectors of $A$. Since $A$ is diagonizable, we can write $A y_0 = \sum_{i=1}^N \lambda_i v_i^T y_0$, so
+    \[
+e^{Ax}y_0 = \sum_{k=0}^{\infty} \frac{x^k A^k y_0}{k!} = \sum_{k=0}^{\infty}\sum_{i=1}^N \frac{x^k \lambda_i^k v_i^T y_0}{k!} = \sum_{i=1}^N e^{\lambda_i x}v_i^T y_0.
+\]
+If $\lambda_i$ has a negative real part, then $\lim_{x \to \infty} e^{\lambda_i x} = 0$. Thus, if all the eigenvalues of $A$ have a negative real part, $\lim_{x \to \infty} e^{Ax}y_0 = 0$ for all $y_0$, and the claim follows.
+\end{proof}
+
+A similar result can be shown to hold for general (not necessarily diagonizable) matrices. We state here a general theorem (see, e.g., Theorem 4.5 in \cite{khalil2002nonlinear}) without proof.
+
+\begin{theorem}
+Consider the ODE $\mathbf{y}' = A \mathbf{y}$, where $A\in \mathbb{R}^{N \times N}$. The solution $y = 0$ is globally asymptotically stable if and only if all the eigenvalues of $A$ have a negative real part.
+\end{theorem}

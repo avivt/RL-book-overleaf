@@ -1,18 +1,124 @@
-Up until now, we have discussed \textit{planning} under a known model, such as the MDP. In the remainder of this book, we shall tackle the \textit{learning} setting -- how to make decisions when the model is not known in advance. Before diving in, however, we shall spend some time on defining the various approaches to modeling the learning problem. In the next chapters, we will rigorously cover some of these approaches.
+Up until now, we have discussed \textit{planning} under a known model, such as the MDP. In the remainder of this book, we shall tackle the \textit{learning} setting -- how to make decisions when the model is not known in advance. Before diving in, however, we shall spend some time on defining the various approaches to modeling a learning problem. In the next chapters, we will rigorously cover some of these approaches. This chapter is quite different than the rest of the book, as it discusses epistemological issues more than anything else. 
 
 \section{Interacting with an Unknown MDP}
 
-Regret VS PAC guarantees
+To a great extent, much of the RL literature deals with the question of interacting with an MDP whose parameters are unknown. When faced with such a situation, the question is what should the decision maker (or agent) do? 
 
-\section{A Parameter Identification View}
+%What are we trying to achieve: Regret VS PAC guarantees.
+One approach is to try and learn the parameters of the MDP. That is, the decision maker may want to estimate from data the parameters of the unknown MDP, similarly to proper learning in standard machine learning. While learning exact parameters may require infinite time a more relaxed goal is 
 
-\subsection{Bayesian}
+\begin{enumerate}
+    \item 
+What are we trying to achieve: Regret VS PAC guarantees.
+\item A Parameter Identification View:
+Bayesian VS Frequentist
+\item A Model Free RL
+\item Asymptotics and Finite Time Results
+\end{enumerate}
 
-\subsection{Frequentist}
 
-\section{A Model Free View}
-?
+\section{Foundations of Knowledge Acquisition in RL}
+\begin{itemize}
+    \item Experience-driven learning: Knowledge gained through interaction
+    \item Inductive reasoning: Generalizing from specific experiences
+    \item Delayed feedback: Temporal credit assignment problem
+    \item Exploration vs. exploitation: Balancing known and unknown
+\end{itemize}
 
-\section{Asymptotics and Finite Time Results}
+\section{Representation of Knowledge}
+\begin{itemize}
+    \item State representation: Abstracting relevant features from environment
+    \item Policy-based knowledge: Mapping states to actions
+    \item Value-based knowledge: Estimating long-term rewards
+    \item Model-based knowledge: Explicit representation of environment dynamics
+\end{itemize}
 
-\section{Generalization in RL}
+\section{Reasoning Under Uncertainty}
+\begin{itemize}
+    \item Aleatoric uncertainty: Handling inherent randomness
+    \item Epistemic uncertainty: Dealing with lack of knowledge
+    \item Model misspecification: Addressing incorrect assumptions
+    \item Partial observability: Reasoning with incomplete information
+\end{itemize}
+
+\section{Generalization and Transfer}
+\begin{itemize}
+    \item Abstraction: Forming general concepts from specific experiences
+    \item Transfer learning: Applying knowledge across different tasks
+    \item Meta-learning: Learning to learn, adapting learning processes
+    \item Domain randomization: Seeking invariant knowledge across variations
+\end{itemize}
+
+\section{Robustness and Adaptability}
+\begin{itemize}
+    \item Distributional shift: Handling differences between training and deployment
+    \item Adversarial robustness: Maintaining performance under perturbations
+    \item Continual learning: Adapting to changing environments over time
+    \item Safe exploration: Balancing knowledge acquisition with constraints
+\end{itemize}
+
+\section{Causal Reasoning}
+\begin{itemize}
+    \item Correlation vs. causation: Distinguishing predictive from causal relationships
+    \item Counterfactual reasoning: Imagining alternative scenarios
+    \item Interventions: Understanding the effects of actions on the environment
+\end{itemize}
+
+\section{Interpretability and Explainability}
+\begin{itemize}
+    \item Transparency: Understanding the basis of agent decisions
+    \item Abstraction hierarchies: Representing knowledge at multiple levels
+    \item Symbolic vs. subsymbolic representations: Balancing interpretability and performance
+\end{itemize}
+
+\section{Epistemological Limitations and Challenges}
+\begin{itemize}
+    \item Limits of induction: Fundamental constraints on generalization
+    \item Exploration in large state spaces: Scalability of knowledge acquisition
+    \item Reality gap: Transferring knowledge from simulations to real-world
+    \item Reward specification: Challenges in defining and pursuing goals
+\end{itemize}
+
+\section{Multi-Agent and Social Epistemology}
+\begin{itemize}
+    \item Emergent behaviors: Complex strategies arising from simple rules
+    \item Theory of mind: Reasoning about other agents' knowledge and intentions
+    \item Cooperative vs. competitive learning: Knowledge acquisition in multi-agent settings
+\end{itemize}
+
+\section{Ethical and Philosophical Implications}
+\begin{itemize}
+    \item Value alignment: Ensuring AI systems acquire knowledge aligned with human values
+    \item Epistemological pluralism: Recognizing multiple valid approaches to knowledge
+    \item AI consciousness: Philosophical questions about machine knowledge and awareness
+\end{itemize}
+
+\section{Objective Optimization}
+\begin{itemize}
+    \item Reward design: Epistemological challenges in defining "right" objectives
+    \item Proxy rewards: Implications of optimizing indirect measures
+    \item Long-term vs. short-term objectives: Balancing immediate and future knowledge, the dubious role of the discount factor
+    \item Multi-objective reinforcement learning: Handling competing epistemological goals
+    \item Inverse reinforcement learning: Inferring objectives from observed behavior
+\end{itemize}
+
+\section{Bayesian vs. Non-Bayesian Approaches}
+\begin{itemize}
+    \item Bayesian RL: Probabilistic reasoning about knowledge and uncertainty
+    \item Posterior updating (Thompson Sampling): Formal framework for belief revision in light of evidence
+    \item Non-Bayesian approaches: Alternative frameworks for handling uncertainty
+    \item Model-free vs. model-based from a Bayesian perspective
+    \item Computational tractability: Balancing theoretical ideals with practical constraints
+\end{itemize}
+
+\section{Importance of Small (Finite) Models}
+\begin{itemize}
+    \item Occam's Razor in RL: Balancing model complexity with explanatory power
+    \item Finite MDPs: Epistemological implications of working with limited state spaces
+    \item Sample efficiency: Learning effectively from limited experiences
+    \item Interpretability of small models: Enhanced understanding and explainability
+    \item Generalization in finite models: Extracting broad knowledge from limited representations
+    \item Computational benefits: Tractability and scalability considerations
+    \item Latent models
+\end{itemize}
+

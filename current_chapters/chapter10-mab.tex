@@ -265,7 +265,8 @@ Hence, the probability that after $8R$ rounds, the algorithm will
 stop playing $\action_2$ (if $\mu_2 = \frac{1}{4}$) is at least
 $\frac{1}{2}$. This implies that there is some sequence of $8R$
 outcomes which will result in stopping to try action $\action_2$. For simplicity, assume that the sequence is the all zero sequence. (It is sufficient to note that any sequence of length $8R$ has probability at least $4^{-8R}$.)
-\textcolor{red}{Do we need to add that the algorithm is deterministic?}
+
+% \textcolor{red}{Do we need to add that the algorithm is deterministic?}
 
 Assume $\mu_2 = \frac{3}{4}$, but all $8R$ first rounds, playing
 $\action_2$ yield the value zero (which happens with probability
@@ -290,10 +291,10 @@ Which implies that:
 R=\Omega\left(\log \tHorizon\right)
 \]
 Contrary to the assumption that $R$ does not depend on $\tHorizon$.
-%\footnote{More formally, after $8R$ steps, there exists some
+%\footnote{More formally, after 8R8R steps, there exists some
 %sequence of outcomes that cause the algorithm to switch to action
-%$\action_2$. The probability of that sequence is at least
-%$\left(\frac{1}{4}\right)^{8R}$.}
+%\action2\action_2. The probability of that sequence is at least
+%(14)8R\left(\frac{1}{4}\right)^{8R}.}
 
 \topic{Explore-Then-Exploit}{random}
 
@@ -302,7 +303,7 @@ We will now develop an algorithm with a vanishing average regret. The algorithm 
 \begin{enumerate}
 %
 \item We choose a parameter $M$.
-% time frame $kM$ to explore.
+% time frame kMkM to explore.
 %
 For $M$ phases we choose each action once (for a total of $kM$
 rounds of exploration).
@@ -314,7 +315,7 @@ average reward during the explore phase.
 Define:
 \begin{align*}
 S_{j}&= \left\{ t:\action_{\ttime}=j,t\le k\cdot M\right\}\\
-\hat{\mu}_{j}&=\frac{1}{M} \sum_{t\in S_{j}}\reward_{j}(\ttime)\\
+\hat{\mu}_{j}&=\frac{1}{M} \sum_{\ttime\in S_{j}}\reward_{j}(\ttime)\\
 \mu_{j}&=\E[\reward_{j}(\ttime)]\\
 \Delta_{j}&=\mu^{*}-\mu_{j}
 \end{align*}
@@ -392,22 +393,22 @@ $n_{\ttime}(i)$ - the number of times we chose action $i$ by round $\ttime$
 $\hat{\mu}_{\ttime}(i)$ - the average reward of action $i$ so far, that
 is:
 \[
-\hat{\mu}_{\ttime}(i)={\displaystyle
-\sum_{\ttime=1}^{\tHorizon}\reward_{i}(\ttime)}\mathbb{I}\left(\action_{\ttime}=i\right)\frac{1}{n_{i}(\ttime)}
+\hat{\mu}_{\ttime}(i)=\frac{1}{n_{\ttime}(i)}{\displaystyle
+\sum_{\tau=1}^{\ttime}\reward_{i}(\tau)}\mathbb{I}\left(\action_{\tau}=i\right)
 \]
 Notice that $n_{i}(\ttime)$ is a random variable and not a number!
 
 We would like to get the following result:
 \[
 \Pr\left[\left|\hat{\mu}_{\ttime}(i)-\mu_{i}\right|\le\underbrace{\sqrt{\frac{2\log
-T}{n_{i}(\ttime)}}}_{\lambda_{\ttime}(i)}\right]\ge1-\frac{2}{\tHorizon^{4}}
+T}{n_{\ttime}(i)}}}_{\lambda_{\ttime}(i)}\right]\ge1-\frac{2}{\tHorizon^{4}}
 \]
 
 We would like to look at the $m^{th}$ time we sampled action $i$:
 \[
 \hat{\mathbb{V}}_{m}(i)=\frac{1}{m} \sum_{\tau=1}^{m}\reward_{i}(\ttime_{\tau})
 \]
-Where the $t_{\tau}$'s are the rounds when we chose action $i$
+Where the $\ttime_{\tau}$'s are the rounds when we chose action $i$.
 
 Now we fix $m$ and get:
 \[
@@ -416,15 +417,15 @@ Now we fix $m$ and get:
 \tHorizon}{m}}\right]\ge1-\frac{2}{\tHorizon^{4}}
 \]
 and notice that $\hat{\mu}_{\ttime}(i)\equiv\hat{\mathbb{V}}_{i}(m)$ when
-$m=n_{i}(\ttime)$.
+$m=n_{\ttime}(i)$.
 
 Define the ``good event'' $G$:
 \[
-G=\left\{ \forall_{i}\forall_{\ttime}\left|\hat{\mu}_{i}(\ttime)-\mu_{i}\right|\le\lambda_{i}(\ttime)\right\}
+G=\left\{ \forall_{i}\forall_{\ttime}\left|\hat{\mu}_{\ttime}(i)-\mu_{i}\right|\le\lambda_{\ttime}(i)\right\}.
 \]
 The probability of $G$ is,
 \[
-Pr\left(G\right)\ge1-\frac{2}{\tHorizon^{2}}
+Pr\left(G\right)\ge1-\frac{2}{\tHorizon^{2}}.
 \]
 
 \section{Refine Confidence Bound}
@@ -451,7 +452,7 @@ Pr\biggl[\forall{i}\forall{\ttime}\;\;\;
 
 We maintain a set of actions S.
 
-Initially $S=\Actions$
+Initially $S=\Actions$.
 
 In each phase:
 \begin{itemize}
@@ -497,7 +498,7 @@ This implies that we can bound the pseudo regret as follows,
   +\underbrace{\frac{2}{\tHorizon^{2}}\cdot T}_{\text{The bad event}}
 \end{align*}
 
-%meaning that the expected pseudo regret is bounded by $O\left(\frac{1}{\tHorizon}\right)$.
+%meaning that the expected pseudo regret is bounded by O(1\tHorizon)O\left(\frac{1}{\tHorizon}\right).
 
 \begin{theorem}
 \label{thm:MAB:SE1}
@@ -531,12 +532,12 @@ follows:
 \item Afterwards we choose:
 \end{itemize}
 \[
-a_{\ttime}=\arg\max_{i}UCB_{\ttime}(i)
+a_{\ttime}=\arg\max_{i}UCB_{\ttime}(i).
 \]
 
 If we chose action $i$ then, assuming $G$ holds, we have
 \[
-UCB_{\ttime}(i)  \ge  UCB_{\ttime}(a^*)\geq\mu^{*}
+UCB_{\ttime}(i)  \ge  UCB_{\ttime}(a^*)\geq\mu^{*},
 \]
 where $a^*$ is the optimal action.
 
@@ -667,7 +668,8 @@ Using Lemma~\ref{MAB:lemma:UCB-RL:optimism}, we have that,
     -\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}]
     %\Value^{\policy^\ttime}(\state_1|R^*)]
     \]
-Since the good event $G$ holds, we have [[YM: needed??]]
+Since the good event $G$ holds, we have 
+% [[YM: needed??]]
 \[
 \sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} \geq \sum_{\tau=1}^\tHorizon
  \hat{\mu}_{\state_\tau^\ttime,\action_\tau^\ttime}-\lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}
@@ -687,7 +689,8 @@ which compltes the proof of the lemma.
 \end{proof}
 
 We are now left with only upper bounding the sum of the confidence bounds.
-We can upper bound this sum regardless of the realization. [[YM: hopefully correct]]
+We can upper bound this sum regardless of the realization. 
+% [[YM: hopefully correct]]
 
 \begin{lemma}
     \[
