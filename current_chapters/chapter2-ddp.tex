@@ -132,9 +132,9 @@ Here:
     \item
 ${\cost_{\ttime}}({\state_{\ttime}},{\action_{\ttime}})$ is the
 \emph{instantaneous}  cost or \emph{single-stage }cost at stage
-$\ttime$, and ${\cost_{\ttime}}$ is the instantaneous cost function.
+$\ttime$, state $\state_\ttime$ and $\action_\ttime$, and ${\cost_{\ttime}}$ is the instantaneous cost function.
     \item
-${\cost_\tHorizon}({\state_\tHorizon})$ is the \emph{terminal} cost,
+${\cost_\tHorizon}({\state_\tHorizon})$ is the \emph{terminal} cost at state $\state_\tHorizon$,
 and ${\cost_\tHorizon}$ is the terminal cost function.
   \end{itemize}
 
@@ -463,7 +463,7 @@ Eq. (\ref{eq:sec2-MS-MD}).
 \end{remark}
 
 \begin{remark}
- We remark that for the case of deterministic decision processes on can derive a simpler proof, which unfortunately does not extend to stochastic case, or other linear return functions. The observation is that any $\policy\in \Pi_{HS}$ induces a distribution over paths. Therefore there is a path $p$ such that $\E[\Cost^\policy(\state_0)]\geq \Cost(p)$ and for any path $p$ there is a deterministic Markov policy (due to the ability to depend on the time-step).
+ We remark that for the case of deterministic decision processes one can derive a simpler proof, which unfortunately does not extend to stochastic case, or other linear return functions. The observation is that any $\policy\in \Pi_{HS}$ induces a distribution over paths. Therefore there is a path $p$ such that $\E[\Cost^\policy(\state_0)]\geq \Cost(p)$ and for any path $p$ there is a deterministic Markov policy (due to the ability to depend on the time-step).
  \end{remark}
 
 
@@ -1008,7 +1008,7 @@ The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to
 \end{algorithmic}
 \end{algorithm}
 
-Let us discuss the running time of Dijkstra's algorithm. Recall that the Bellman-Form algorithm visits each edge of the graph up to $|\nodes|-1$ times, leading to a running time of $O(|\nodes|\, \cdot \,|\edges|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|\edges|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $\vertexset$.
+Let us discuss the running time of Dijkstra's algorithm. Recall that the Bellman-Ford algorithm visits each edge of the graph up to $|\nodes|-1$ times, leading to a running time of $O(|\nodes|\, \cdot \,|\edges|)$. Dijkstra's algorithm visits each edge only once, which contributes $O(\,|\edges|)$ to the running time. The rest of the computation effort is spent on determining the order of node insertion to $\vertexset$.
 
 The vertices in $\nodes\backslash \vertexset$ need to be extracted in increasing order of $d[\nodev]$.  This is handled by a min-priority queue, and the complexity of the algorithm depends on the implementation of this queue.
 With a naive implementation of the queue that simply keeps the vertices in some fixed order, each extract-min operation takes  $O(|\nodes|)$ time, leading to overall running time of $O(|\nodes{|^2} + |\edges|)$ for the algorithm. Using a basic (binary heap) priority queue brings the running time to $O((|\nodes| + |\edges|)\log |\nodes|)$, and a more sophisticated one (Fibonacci heap) can bring it down to  $O(|\nodes|\log |\nodes| + |\edges|)$.

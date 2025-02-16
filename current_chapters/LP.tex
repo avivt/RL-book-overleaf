@@ -10,7 +10,7 @@
 
 An alternative approach to value and policy iteration is the linear programming method. Here the optimal control problem is formulated as a linear program (LP), which can be solved efficiently using standard LP solvers.  
 %
-In this chapter we will briefly overview the Linear Program in general and the Linear Program approach for planing in reinforcement learning.
+In this chapter we will briefly overview the Linear Programming in general and the Linear Program approach for planing in reinforcement learning.
 
 %There are two formulations: primal and dual. As this method is less related to learning we will only sketch it briefly.
 
@@ -19,19 +19,19 @@ In this chapter we will briefly overview the Linear Program in general and the L
 %\subsection{Some Background on Linear Programming}
 A Linear Program (LP) is an optimization problem that involves
 minimizing (or maximizing) a linear objective function subject to
-linear constraints. A standard form of a LP is
+linear constraints. A standard form of an LP is
 \begin{equation}\label{eq:LP}
- \textrm{minimize } {b^\top}x,   \quad \textrm{subject to } Ax \ge c,  x \ge 0.
+ \textrm{minimize } {b^\top}x,   \quad \textrm{subject to } Ax \ge c,  x \ge 0,
 \end{equation}
 where $x = {({x_1},{x_2}, \ldots ,{x_n})^\top}$ is a vector of real
-variables arranged as a column vector. The set of constraints is
-linear and defines a \emph{convex polytope} in $\reals^n$, namely a
+variables arranged as a column vector. The set of linear constraints defines a \emph{convex polytope} in $\reals^n$, namely a
 closed and convex set $U$ that is the intersection of a finite
-number of half-spaces.The set  $U$ has a finite number of vertices, which are points that cannot be generated as a convex combination of other points in $U$. If $U$ is bounded, it equals the convex combination of its vertices. It can be seen that an optimal solution (if finite) will be in one of these vertices.
+number of half-spaces. The set $U$ has a finite number of vertices, which are points that cannot be represented as a convex combination of other points in $U$. If $U$ is bounded, it equals the convex combination of its vertices. It can be seen that an optimal solution (if finite) will be in one of these vertices.
 
-The LP problem has been extensively studied, and many efficient solvers exist. In 1947, Danzig introduced the Simplex algorithm, which essentially moves greedily along neighboring vertices.  In the 1980's effective algorithms (interior point and others) were introduced which had polynomial time guarantees.
+The LP problem has been extensively studied, and many efficient solvers exist. In 1947, Danzig introduced the Simplex algorithm, which essentially moves greedily along neighboring vertices, and may run in time exponential in the number of constraints. In the 1980's effective algorithms (interior point and others) were introduced which had polynomial (in the number of
+constraints) time guarantees.
 
-One of the most important notion in a linear program is \textit{duality}, which in many cases allows to gain insight to the solutions of a linear program. The following is the definition of the dual LP.
+One of the most important notions in a linear program is \textit{duality}, which in many cases allows to gain insight to the solutions of a linear program. The following is the definition of the dual LP.
 
 \paragraph{Duality:} The \emph{dual} of the LP in \eqref{eq:LP} is defined as the following LP:
 \begin{equation}\label{eq:LP_dual}
@@ -162,7 +162,7 @@ the dual is
 \label{C-MDP-FH:sec:LP}
 %[Good idea to add to get them familiar with the notion and notation for the very simple case.]
 
-Our goal is to derive both the primal and the dual linear programs for the finite horizon case. The linear programs for the discounted return and average reward are similar in spirit.
+Our goal is to derive both the primal and the dual linear programs for the finite horizon case. The linear programs for the discounted return is in Section~\ref{chapter-discount:section:LP} and average reward, which is similar in spirit, is omitted.
 
 \paragraph{Representing a policy:}
 The first step is to decide how to represent a policy, then compute its expected return, and finally, maximize over all policies.
@@ -210,7 +210,7 @@ Formally,
 \[
 \sum_{\action} x_{\ttime}(\state,\action)=
 \sum_{\state',\action'}
-x_{\ttime-1}(\state',\action')\transitionprob_{\ttime-1}(\state|\state'\action').
+x_{\ttime-1}(\state',\action')\transitionprob_{\ttime-1}(\state|\state',\action').
 \]
 and for terminal states simply
 \[
@@ -234,12 +234,14 @@ The main observation is that the expected objective depends only on the probabil
 \paragraph{Primal LP:}
 %
 Combining the above we derive the resulting linear program is the following.
+%
+(Recall that ${\States_\ttime} \subset \States$ is the set of possible states at time $\ttime\in {\mathbb{T}}$.)
 
 \begin{align*}
 \max_{x_\ttime(\state,\action),x_{\tHorizon}(\state)}&\;\;\;
 \sum_{\ttime,\state,\action}
 \reward_{\ttime}(\state,\action)x_{\ttime}(\state,\action)+\sum_{\state}\reward_{\tHorizon}(\state)x_{\tHorizon}(\state)\\
-&\mbox{ such that }\\
+\mbox{ such that }&\\
 &\sum_{\action} x_{\ttime}(\state,\action)\leq
 \sum_{\state',\action'}
 x_{\ttime-1}(\state',\action')\transitionprob_{\ttime-1}(\state|\state'\action').
@@ -292,7 +294,15 @@ z_{\tHorizon}(\state) &= \reward_{\tHorizon}(\state) &\quad\forall
 \end{align*}
 
 One can identify the dual random variables $z_\ttime(\state)$ with
-the optimal value function $\Value_\ttime(\state)$. At the optimal
+the optimal value function $\Value^*_\ttime(\state)$. 
+
+The logic for the dual LP is the following.
+The constraints at time $\tHorizon$ are setting the terminal cost for each node, and this initializes the optimal value function correctly for time $\tHorizon$.
+The constraints at time $\ttime$ are lower bounding the value function at state $\state$ given the value function at times $\ttime+1$. The Bellman optimality equations require that the the value function would be the maximum value over the actions, i.e., $\Value_\ttime^*(\state)=\max_a \{\reward_{\ttime}(\state,\action) + \sum_{\state'}\Value^*_{\ttime +
+1}(\state')\transitionprob_{\ttime}(\state'|\state,\action)\}$. We impose in the LP only an inequality, but we will reach the equality in the optimal solution, since we will perform a minimization over $z_\ttime(\cdot)$. 
+The minimization is technically done only over the initial state $\state_0$ and initial time $\ttime=0$. However, this minimization implies a minimization of  $z_\ttime(\state)$ for any state $\state$ and time $\ttime$. 
+
+At the optimal
 solution of the dual linear program one can show that we have
 \begin{align*}
  z_{\ttime}(\state) &= \max_\action \big\{
@@ -308,12 +318,15 @@ which are the familiar Bellman optimality equations.
 In this section we will use linear programming to derive the optimal
 policy for discounted return.
 %
-The resulting program would be very similar to that of the finite horizon, however, we do need to make a few changes to accommodate for the introduction of a discount factor $\discount$ and the fact that the horizon is infinite.
+The resulting program would be very similar to that of the finite horizon, however, we do need to make a few changes to accommodate for the introduction of a discount factor $\discount$ and the fact that the horizon is infinite (and the policy is time-homogeneous).
 %
-Again, we will see that both the primal and dual program will play an important part in defining the optimal policy. As before, we will fix an initial state $\state_0$ and compute the optimal policy for it.
+Again, we will see that both the primal and dual programs will play an important part in defining the optimal policy. 
+A slight difference from the finite horizon return case, is that for the discounted return case the optimal policy does not depend on the start state, so we compute the optimal policy independent from the start state.
+%before, we will fix an initial state $\state_0$ and compute the optimal policy for it.
+%As before, we will fix an initial state $\state_0$ and compute the optimal policy for it.
 
 We will start with the primal linear program, which will compute the optimal policy. In the finite horizon return we had for each time $\ttime$  state $\state$ and action $\action$ a variable $x_\ttime(\state,\action)$.
-In the discounted return we will consider stationary policies, so we will drop the dependency on the time $\ttime$. In addition we will replace the probabilities by \textit{discounted fraction of time}.
+In the discounted return case we will consider stationary policies, so we will drop the dependency on the time $\ttime$. In addition we will replace the probabilities by \textit{discounted fraction of time}.
 Namely, for each state $\state$ and action $\action$ we will have a variable $x(\state,\action)$ that will indicate the discounted fraction of time we are at state $\state$ and perform action $\action$.
 
 To better understand what we mean by the {discounted fraction of time} consider a fixed stationary policy $\policy$ and a trajectory $(\state_0, \ldots )$ generated by $\policy$. Define the discounted time of state-action $(\state,\action)$ in the trajectory as $X^\policy(\state,\action)=\sum_\ttime \discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)$, which is a random variable. We are interested in
@@ -327,7 +340,7 @@ We can recover a policy that generates those discounted fraction of times by set
 \[
 \policy(\action|\state)=\frac{x(\state,\action)}{\sum_{\action'\in\Actions}x(\state,\action')}.
 \]
-All this is under the assumption that the discounted fraction of time values $x(\state,\action)$ where generated by some policy. However, in the linear program we will need to guarantee that indeed those values are feasible, namely, can be generated by the given dynamics. For this we will introduce feability constraints.
+All this is under the assumption that the discounted fraction of time values $x(\state,\action)$ were generated by some policy. However, in the linear program we will need to guarantee that indeed those values are feasible, namely, can be generated by the given dynamics. For this we will introduce feasibility constraints.
 
 \paragraph{The feasibility constraints:}
 As in the finite horizon case, our main constraint will be flow constraints, stating that the discounted fraction of time we reach state $\state$ equals the discounted fraction of time we exit it, times the discounted factor. (We are multiplying by the discount factor since we are moving one step to the future.) Technically, it will be sufficient to use only an upper bound, and in the optimal solution, maximizing the expected return, there will be an equality. Formally, for $\state\in\States$,
@@ -338,7 +351,9 @@ x(\state',\action')\transitionprob(\state|\state'\action')+\I(\state=\state_0)
 \]
 For the initial state $\state_0$ we add $1$ for the incoming flow, since initially we start in it, and not reach it from another state.
 
-Let us verify that indeed the constraints show that when we sum over all states and actions  we get the correct value of $1/(1-\discount)$.
+At first sight the dependency on the initial state $\state_0$ might be surprising, since the optimal policy does not depend on the initial state. However, we would be maximizing the discounted return from the initial state, i.e., the optimal value function $\Value^*_\ttime(\state_0)$. Clearly, the optimal value function does depend on the state, which will result in a dependency on the initial state in the LP.
+
+Let us verify that indeed the constraints show that when we sum over all states and actions  we get the correct value of $1/(1-\discount)$, which equals the infinite discounted sum $\sum_\ttime\discount^\ttime$.
 If we sum the inequalities over all states, we have
 \[
 \sum_{\state,\action} x(\state,\action)\leq\discount
@@ -348,13 +363,13 @@ x(\state',\action')+1,\]
 %
 which implies that $\sum_{\state,\action} x(\state,\action)\leq
 1/(1-\discount)$, as we should expect. Namely, in each time we are
-in some state, therefore the sum over states should be $\sum_\ttime
+in some state, therefore, the sum over states should be $\sum_\ttime
 \discount^\ttime=1/(1-\discount)$.
 
 \paragraph{The objective:}
 The discounted return, which we would like to maximize, is
 $\E[\sum_\ttime
-\discount^\ttime\reward(\state_\ttime,\action_\ttime) ]$. We can
+\discount^\ttime\reward(\state_\ttime,\action_\ttime) ]$. (Again, note that the expectation implicitly depends on the initial state $\state_0$.) We can
 regroup the sum by state and action and have
 \[
 \sum_{\state,\action}\E[\sum_\ttime
@@ -367,8 +382,7 @@ which is equivalent to
 \discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)].
 \]
 Since our variable are $x(\state,\action)=\E[\sum_\ttime
-\discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)]$,
-and the expected return would be
+\discount^\ttime\I(\state_\ttime=\state,\action_\ttime=\action)]$, the expected return would be
 \[
 \sum_{\state,\action} \reward(\state,\action)x(\state,\action)
 \]
@@ -377,9 +391,9 @@ and the expected return would be
 Combining all the above, the resulting linear program is the following.
 
 \begin{align*}
-\max_{x(\state,\action)}&\;\;\; \sum_{\state,\action}
+\max_{x(\state,\action)}\;\;\; \sum_{\state,\action}&
 \reward(\state,\action)x(\state,\action)\\
-&\mbox{ such that }\\
+\mbox{ such that }&\\
 %
 &\sum_{\action} x(\state,\action)\leq \discount
 \sum_{\state',\action'} x(\state',\action')\transitionprob(\state|\state'\action')+\I(\state=\state_0)
@@ -420,12 +434,20 @@ program.
 \end{align*}
 
 One can identify the dual random variables $z(\state)$ with the
-optimal vale function $\Value(\state)$. At the optimal solution of
+optimal value function $\Value^*(\state)$. 
+
+To gain insight to the dual LP, recall the Bellman optimality equations: 
+$\Value^*(\state) =
+\max_a\{ \reward(\state,\action) + \discount
+\sum_{\state'}\Value^*(\state')\transitionprob(\state'|\state,\action)\}$.
+As in the finite horizon case, we impose only inequalities. The minimization over $z(\state_0)$ guarantees that the inequalities would be tight for at least one action. Note that we can minimize any $z(\state)$, since the value function of the discounted return does not depend on the initial state.
+
+At the optimal solution of
 the dual linear program one can show that we have
 \begin{align*}
  z(\state) &= \max_\action \big\{
 \reward(\state,\action) + \discount
-\sum_{\state'}z(\state')\transitionprob_{\ttime}(\state'|\state,\action) \big\} ,
+\sum_{\state'}z(\state')\transitionprob(\state'|\state,\action) \big\} ,
 &\quad\forall \state \in {\States},
 \end{align*}
 which are the familiar Bellman optimality equations.
@@ -471,8 +493,10 @@ which are the familiar Bellman optimality equations.
 
 %Madani et al \cite{MadaniTZ10}.
 
+We do not attemt in any way to cover the area of linear programming optimization.
+There are many excellent books that cover linear programming, for example \cite{Karloff-LP,chvatal1983linear,vanderbei1998linear}. 
+The classical relationship between linear programming and MDPs planning is given in \cite{puterman2014markov}. More reinforcement learning specific approach can be found in \cite{FariasR03}.
 
-
-The work of \cite{d1963probabilistic} was the first to formalize a Linear Programming for the discounted return, and \cite{manne1960linear} for the average cost. 
+Historically, the work of \cite{d1963probabilistic} was the first to formalize a Linear Programming for the discounted return, and \cite{manne1960linear} for the average cost. 
 
 There are works that use a linear programming approach to derive strongly polynomial algorithms. Specifically, for deterministic MDPs we have polynomial time algorithms which are based on linear programming \cite{MadaniTZ10,PostY13}.

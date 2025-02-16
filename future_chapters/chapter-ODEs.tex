@@ -14,7 +14,7 @@ a_n(x) y^{(n)} + a_{n-1}(x) y^{(n-1)} + \cdots + a_1(x) y' + a_0(x) y = g(x),
 \]
 where $ a_0, a_1, \dots, a_n $ and $ g $ are continuous functions on a given interval.
 
-Typically, given an ODE, the goal is to find a set of functions yy that solve it. We may also be interested in other properties of the set of solutions, such as their limits.
+Typically, given an ODE, the goal is to find a set of functions $y$ that solve it. We may also be interested in other properties of the set of solutions, such as their limits.
 
 \begin{example}    
 Consider the first-order linear ODE
@@ -110,7 +110,10 @@ Substituting $ \mathbf{y}(x) $ back into the original differential equation:
    \]
 To show that $e^{Ax} \mathbf{y}_0$ is the only possible solution, note that at $x=0$, $e^{Ax} \mathbf{y}_0 = \mathbf{y}_0$. Therefore, for any initial condition, we have found a solution, and the uniqueness follows from Theorem \ref{thm:ODE_picard}.
 
-Now, for the case $\mathbf{b} \neq 0 $, let $\mathbf{y}_p$ such that $A \mathbf{y}_p = -\mathbf{b}$. We have that for $ \mathbf{y}(x) = e^{Ax} \mathbf{y}_0 + \mathbf{y}_p$, $\mathbf{y}'(x) = A e^{Ax} \mathbf{y}_0 = A e^{Ax} \mathbf{y}_0 + A\mathbf{y}_p - A\mathbf{y}_p = A \mathbf{y}(x) + \mathbf{b}$.
+Now, for the case $\mathbf{b} \neq 0 $, let $\mathbf{y}_p$ such that $A \mathbf{y}_p = -\mathbf{b}$. We have that for $ \mathbf{y}(x) = e^{Ax} \mathbf{y}_0 + \mathbf{y}_p$, 
+\begin{equation*}
+\mathbf{y}'(x) = A e^{Ax} \mathbf{y}_0 = A e^{Ax} \mathbf{y}_0 + A\mathbf{y}_p - A\mathbf{y}_p = A \mathbf{y}(x) + \mathbf{b}.
+\end{equation*}
 \end{proof}
 
 

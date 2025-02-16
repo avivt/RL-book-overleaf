@@ -14,9 +14,9 @@ $\policy(\action|\state,\theta)$ the probability of
 selecting action $\action$ when observing state $\state$, and having a policy parametrization
 $\theta$. 
 
-For technical ease, we consider a stochastic shortest path objective:
+For technical ease, we consider the stochastic shortest path objective described in Chapter \ref{chapter:episodic}:
 \[\Value^\policy(\state) = \mathbb E^{\pi }\left[\left.\sum\limits_{\ttime = 0}^\termtime {{\reward_\ttime}} \right|\state_0 = \state\right],\]
-where $\termtime$ is the termination time, which we will assume to bounded with probability one.
+where $\termtime$ is the termination time, which we will assume to bounded with probability one, i.e., Assumption \ref{ass:finite_termination_prob} holds.
 We are given a distribution over the initial state of the MDP, $\initdist(\state_0)$, and define $J(\theta) \triangleq \mathbb{E}\left[ \Value^\policy(\state_0)\right] = \initdist^\top \Value^\policy$ to be the expected value of the policy (where the expectation is with respect to $\initdist$).
 
 The optimization problem we consider is:
@@ -34,9 +34,9 @@ mainly explore gradient based methods.
 In the setting that the MDP is not known, we shall assume that we are allowed to simulate `rollouts' from a given policy, $\state_0,\action_0,\reward_0,\dots,\state_\termtime, \action_\termtime, \reward_\termtime$, where $\state_0 \sim \initdist$, $\action_\ttime\sim \policy(\cdot|\state_\ttime,\theta)$, and $\state_{\ttime+1} \sim \transitionkernel (\cdot | \state_\ttime, \action_\ttime)$. We shall devise algorithms that use such rollouts to modify the policy parameters $\theta$ in a way that increases $J(\theta)$.
 
 \section{Policy Representations}
-We start by giving a few examples on how to parameterize the policy.
+We start with a few examples on how to parameterize the policy.
 \paragraph{Log linear policy} We will assume a feature encoding
-of the state and action pairs, i.e., $\phi(\state,\action)\in \mathbb{R}^{d}$. Given the parameter $\theta$, The linear part will compute $\xi(\state,\action)=\phi(\state,\action)^\top \theta$. Given the values of $\xi(\state,\action)$ for each $\action\in \Actions$, the policy selects action $\action$ with probability proportional to
+of the state and action pairs, i.e., $\phi(\state,\action)\in \mathbb{R}^{d}$. Given the parameter $\theta$, the linear part will compute $\xi(\state,\action)=\phi(\state,\action)^\top \theta$. Given the values of $\xi(\state,\action)$ for each $\action\in \Actions$, the policy selects action $\action$ with probability proportional to
 $e^{\xi(\state,\action)}$. Namely,
 \[
 \policy(\action|\state,\theta)=
@@ -46,18 +46,16 @@ $e^{\xi(\state,\action)}$. Namely,
 Note that this is essentially a soft-max selection over $\xi(\state,\action)$.
 
 \paragraph{Gaussian linear policy} This policy representation applies when the action
-space is a real number, i.e., $\Actions=\mathbb{R}$. The encoding is of states, i.e., $\phi(\state)\in \mathbb{R}^{d}$, and the actions are any real number. Given a state $\state$
+space is a real number, i.e., $\Actions=\mathbb{R}$. The encoding of states is $\phi(\state)\in \mathbb{R}^{d}$. Given a state $\state$,
 we compute $\xi(\state)=\phi(\state)^\top\theta$. We select an
 action $\action$ from the normal distribution with mean
-$\xi(\state)$ and variance $\sigma^2$, i.e.,
-$\mathcal{N}(\xi(\state),\sigma^2)$. (The Gaussian policy has an additional
-parameter $\sigma$.)
+$\xi(\state)$ and variance $\sigma^2$, that is, $\mathcal{N}(\xi(\state),\sigma^2)$ (the Gaussian policy has an additional parameter $\sigma$). For an action space with dimension larger than 1, we can consider such a policy with a different parameter vector $\theta$ for every dimension.
 
-\paragraph{Non-linear policy} Note that in both the log linear and Gaussian linear policies above, the dependence of $\mu$ on $\theta$ was linear. It is straightforward to extend these policies such that $\mu$ depends on $\theta$ in a more expressive and non-linear manner. A popular parametrization is a feed-forward neural network, also called a multi-layered perceptron (MLP). An MLP with $d$ inputs, 2 hidden layers of sizes $h_1$, $h_2$, and $k$ outputs has parameters $\theta_0 \in \mathbb{R}^{d \times h_1}$, $\theta_1 \in \mathbb{R}^{h_1 \times h_2}$, $\theta_2 \in \mathbb{R}^{h_2 \times k}$. The MLP computes $\mu\in \mathbb{R}^{k}$ as follows:
+\paragraph{Non-linear policy} Note that in both the log linear and Gaussian linear policies above, the dependence of $\xi$ on $\theta$ was linear. It is straightforward to extend these policies such that $\xi$ depends on $\theta$ in a more expressive and non-linear manner. A popular parametrization is a feed-forward neural network, also called a multi-layered perceptron (MLP). An MLP with $d$ inputs, 2 hidden layers of sizes $h_1$, $h_2$, and $k$ outputs has parameters $\theta_0 \in \mathbb{R}^{d \times h_1}$, $\theta_1 \in \mathbb{R}^{h_1 \times h_2}$, $\theta_2 \in \mathbb{R}^{h_2 \times k}$. The MLP computes $\xi\in \mathbb{R}^{k}$ as follows:
 \begin{equation*}
     \xi(\state) = \theta_2^T f_{nl}\left(\theta_1^T\left( f_{nl}\left(\theta_0^T \phi\left(\state \right)\right)\right)\right) \in \mathbb{R}^{k},
 \end{equation*}
-where $f_{nl}$ is some non-linear function that is applied element-wise to each component of a vector, for example the Rectified Linear Unit (ReLU) defined as $\text{ReLU}(x) = \max(0, x)$. Once $\mu$ is computed, selecting an
+where $f_{nl}$ is some non-linear function that is applied element-wise to each component of a vector, for example the Rectified Linear Unit (ReLU) defined as $\text{ReLU}(x) = \max(0, x)$. Once $\xi$ is computed, selecting an
 action proceeds similarly as above, e.g., by sampling from the normal distribution with mean
 $\xi(\state)$ and variance $\sigma^2$.
 
@@ -67,21 +65,21 @@ $\xi(\state)$ and variance $\sigma^2$.
 
 Considering the optimization problem \eqref{eq:policy_opt}, an important question is how a change in the parameters $\theta$, which induces a change in the policy $\policy$, relates to a change in the performance criterion $J(\theta)$. We shall derive a fundamental result known as the performance difference lemma.
 
-Let $P^{\policy}(\state' | \state)$ denote the state transitions in the Markov chain induced by policy $\policy$. Let us define the visitation frequencies $\discdist^{\policy}(\state) = \sum_{t=0}^\infty P(\state_t = \state | \initdist, \policy)$. We first establish the following result.
+Let $\transitionkernel^{\policy}(\state' | \state)$ denote the state transitions in the Markov chain induced by policy $\policy$ (following Section \ref{sec:ssp-bellman}, we only consider transitions between non-goal states). Let us define the visitation frequencies $\discdist^{\policy}(\state) = \sum_{t=0}^\infty \Pr(\state_t = \state | \initdist, \policy)$. We first establish the following result.
 \begin{proposition}\label{prop:visitation_freq}
-    We have that $\discdist^{\policy} = \initdist + \discdist^{\policy} P^{\policy}$, and therefore $\discdist^{\policy} = \initdist (I - P^{\policy})^{-1}$.
+    We have that $\discdist^{\policy} = \initdist + \discdist^{\policy} \transitionkernel^{\policy}$, and therefore $\discdist^{\policy} = \initdist (I - \transitionkernel^{\policy})^{-1}$.
 \end{proposition}
 \begin{proof}
 We have,
 \begin{equation*}
 \begin{split}
-        \discdist^{\policy}(\state) &= \initdist(\state) + \sum_{t=1}^\infty P(\state_t = \state | \initdist, \policy) \\
-        &= \initdist(\state) + \sum_{t=1}^\infty \sum_{\state'} P(\state_{t-1} = \state' | \initdist, \policy) P^{\policy}(\state | \state')\\
-       &= \initdist(\state) +  \sum_{\state'} P^{\policy}(\state | \state') \sum_{t=1}^\infty P(\state_{t-1} = \state' | \initdist, \policy) \\
-        &= \initdist(\state) + \sum_{\state'} \discdist^{\policy}(\state')P^{\policy}(\state | \state').
+        \discdist^{\policy}(\state) &= \initdist(\state) + \sum_{t=1}^\infty \Pr(\state_t = \state | \initdist, \policy) \\
+        &= \initdist(\state) + \sum_{t=1}^\infty \sum_{\state'} \Pr(\state_{t-1} = \state' | \initdist, \policy) \transitionkernel^{\policy}(\state | \state')\\
+       &= \initdist(\state) +  \sum_{\state'} \transitionkernel^{\policy}(\state | \state') \sum_{t=1}^\infty \Pr(\state_{t-1} = \state' | \initdist, \policy) \\
+        &= \initdist(\state) + \sum_{\state'} \discdist^{\policy}(\state')\transitionkernel^{\policy}(\state | \state').
 \end{split}
 \end{equation*}
-Writing the result in matrix notation gives the first result. For the second result, Proposition \ref{prop:bellman_FP_ssp} showed that $(I - P^{\policy})$ is invertible. 
+Writing the result in matrix notation gives the first result. For the second result, Proposition \ref{prop:bellman_FP_ssp} showed that $(I - \transitionkernel^{\policy})$ is invertible. 
 \end{proof}
 
 To deal with large state spaces, as we did in previous chapters, we will want to use sampling to approximate quantities that depend on all states. Note that expectations over the state visitation frequencies can be approximated by sampling from policy rollouts.
@@ -113,18 +111,18 @@ We now state the performance difference lemma.
     \end{equation}
 \end{lemma}
 \begin{proof}
-    We have that $\Value^{\policy'} = (I - P^{\policy'})^{-1}\reward$, and therefore
+    We have that $\Value^{\policy'} = (I - \transitionkernel^{\policy'})^{-1}\reward$, and therefore
     \begin{equation*}
     \begin{split}
-        \Value^{\policy'} - \Value^\policy &= (I - P^{\policy'})^{-1}\reward - (I - P^{\policy'})^{-1} (I - P^{\policy'}) \Value^\policy \\
-        &=(I - P^{\policy'})^{-1} \left(\reward +P^{\policy'}\Value^\policy - \Value^\policy \right).
+        \Value^{\policy'} - \Value^\policy &= (I - \transitionkernel^{\policy'})^{-1}\reward - (I - \transitionkernel^{\policy'})^{-1} (I - \transitionkernel^{\policy'}) \Value^\policy \\
+        &=(I - \transitionkernel^{\policy'})^{-1} \left(\reward +\transitionkernel^{\policy'}\Value^\policy - \Value^\policy \right).
     \end{split}
     \end{equation*}
-    Multiplying both sides by $\initdist$, and by Proposition \ref{prop:visitation_freq} $\discdist^{\policy'}=\initdist (I - P^{\policy'})^{-1}$, this gives
+    Multiplying both sides by $\initdist$, and by Proposition \ref{prop:visitation_freq} $\discdist^{\policy'}=\initdist (I - \transitionkernel^{\policy'})^{-1}$, this gives
     \begin{equation*}
-        J(\theta') - J(\theta) = \discdist^{\policy'}\left(\reward +P^{\policy'}\Value^\policy - \Value^\policy \right).
+        J(\theta') - J(\theta) = \discdist^{\policy'}\left(\reward +\transitionkernel^{\policy'}\Value^\policy - \Value^\policy \right).
     \end{equation*}
-    Finally, note that $\sum_\action \policy'(\action|\state) \QValue^{\policy}(\state,\action) = \reward(\state) + \sum_{\state'}P^{\policy'}(\state'|\state)\Value^{\policy}(\state')$.
+    Finally, note that $\sum_\action \policy'(\action|\state) \QValue^{\policy}(\state,\action) = \reward(\state) + \sum_{\state'}\transitionkernel^{\policy'}(\state'|\state)\Value^{\policy}(\state')$.
 \end{proof}
 
 Given some policy $\policy(\action|\state)$, an improved policy $\policy'(\action|\state)$ must satisfy that the right hand side of Eq.~\ref{eq:policy_perf_diff} is positive.
@@ -329,7 +327,7 @@ would be indeed observable by the learner.
 \end{proof}
 
 The Policy Gradient Theorem gives us a way to compute the gradient.
-We can sample states from the distribution $\discdist^{\policy}(\state)$ using the
+We can sample states from the distribution $\discdist^{\policy}$ using the
 policy $\policy$. We still need to resolve the sampling of the
 action. We are going to observe the outcome of only one action in
 state $\state$, and the theorem requires summing over all of them!
@@ -899,11 +897,16 @@ To simplify our notation we write the advantage function $\AdvValue^{\policy}(\s
 \end{equation*}
 by replacing $\discdist^{\policy'}$ with the visitation frequencies of the current policy $\discdist^{\policy}$, and performing the search over a limited set of policies $\Pi$ that is similar to $\policy$. The main trick in PPO is that this constrained optimization can be done implicitly, by maximizing the following objective:
 \begin{equation}\label{eq:PPO}
-    \textrm{PPO}(\policy) = \max_{\policy'}\sum_{\state} \discdist^{\policy}(\state) \sum_\action \policy(\action|\state) \min \left\{\frac{\policy'(\action|\state)}{\policy(\action|\state)}\AdvValue^{\policy}(\state,\action),  \textrm{clip}\left(\frac{\policy'(\action|\state)}{\policy(\action|\state)} , 1-\epsilon, 1+\epsilon\right)\AdvValue^{\policy}(\state,\action) \right\},
+    \textrm{PPO}(\!\policy\!) \!=\! \max_{\!\policy'\!}\sum_{\!\state\!} \!\discdist^{\policy}(\state)\! \sum_{\!\action\!} \policy(\!\action|\state\!) \min \! \left\{\frac{\policy'(\!\action|\state\!)}{\policy(\!\action|\state\!)}\AdvValue^{\policy}(\!\state,\!\action\!),  \textrm{clip}\!\left(\frac{\policy'(\!\action|\state\!)}{\policy(\!\action|\state\!)}\!\!, 1 \!-\!\epsilon, 1\!+\!\epsilon\!\right)\!\!\AdvValue^{\policy}(\!\state,\!\action\!) \!\right\},
 \end{equation}
 where $\textrm{clip}\left(x , x_{\min}, x_{\max}\right) = \min\{\max\{x, x_{\min}\}, x_{\max}\}$,
-% \footnote{\YM{when will the clipping return $x_{\min}$  should it be $\textrm{clip}\left(x , x_{\min}, x_{\max}\right) = \min\{\max\{x, x_{\min}\}, x_{\max}\}$. Somehow everywhere they distinguish between $A>0$ and $A<0$, which is even more confusing for me.}}
 and $\epsilon$ is some small constant. Intuitively, the clipping in this objective prevents the ratio between the new policy $\policy'(\action|\state)$ and the previous policy $\policy(\action|\state)$ to grow larger than $\epsilon$, assuring that maximizing the objective indeed leads to an improved policy.
+
+To understand exactly how this works, consider the following two cases:
+\begin{enumerate}
+    \item $\AdvValue^{\policy}(\state,\action) > 0$: in this case, the $\max$ over $\policy'$ would drive to maximize $\policy'(\action|\state)$, but the $\min$ in the objective would limit $\policy'(\action|\state)$ to at most $\left( 1+\epsilon\right)\policy(\action|\state)$.
+    \item $\AdvValue^{\policy}(\state,\action) < 0$: in this case, the $\max$ over $\policy'$ would drive to minimize $\policy'(\action|\state)$ to $0$, but the $\min$ in the objective would limit $\policy'(\action|\state)$ to be no smaller than $\left( 1-\epsilon\right)\policy(\action|\state)$.
+\end{enumerate}
 
 To optimize the PPO objective using a sample rollout, we let $\Gamma_\ttime$ denote an estimate of the advantage at state $\state_\ttime, \action_\ttime$, and take gradient descent steps on:
 \begin{equation*}
@@ -942,19 +945,19 @@ For each state $\state$ we have
 \begin{align*}
 \nabla \Value^\policy(\state) =& \nabla \sum_\action \policy(\action|\state) \QValue^\policy(\state,\action)\\
 =&\sum_\action  \QValue^\policy(\state,\action) \nabla \policy(\action|\state) + \policy(\action|\state) \nabla \QValue^\policy(\state,\action)\\
-=&\sum_\action  \QValue^\policy(\state,\action) \nabla \policy(\action|\state) + \policy(\action|\state) \sum_{\state_1} \transitionkernel(\state_1|\state,\action) \nabla \Value^\policy(\state_1)\\
+=&\sum_\action  \QValue^\policy(\state,\action) \nabla \policy(\action|\state) + \policy(\action|\state) \sum_{\state_1} \transitionprob(\state_1|\state,\action) \nabla \Value^\policy(\state_1)\\
 =& \sum_\action  \QValue^\policy(\state,\action) \nabla
-\policy(\action|\state) + \sum_{\state_1} P^{\policy}(\state_1|\state)
+\policy(\action|\state) + \sum_{\state_1} \transitionkernel^{\policy}(\state_1|\state)
 \nabla \Value^\policy(\state_1)\\
 =& \sum_\action  \QValue^\policy(\state,\action) \nabla
-\policy(\action|\state) + \sum_{\state_1} P^{\policy}(\state_1|\state)
+\policy(\action|\state) + \sum_{\state_1} \transitionkernel^{\policy}(\state_1|\state)
 \sum_\action \QValue^\policy(\state_1,\action) \nabla
 \policy(\action|\state_1) \\
 & + \sum_{\state_1, \state_2}
-P^{\policy}(\state_2|\state_1)P^{\policy}(\state_1|\state)
+\transitionkernel^{\policy}(\state_2|\state_1)\transitionkernel^{\policy}(\state_1|\state)
 \nabla \Value^\policy(\state_2)\\
 =& \sum_{\state\in
-\States}\sum_{t=0}^\infty P(\state_t = \state | \state_0 = \state, \policy) \sum_\action
+\States}\sum_{t=0}^\infty \Pr(\state_t = \state | \state_0 = \state, \policy) \sum_\action
 \QValue^\policy(\state,\action)\nabla\policy(\action|\state)
 \end{align*}
 where the first identity follows since by averaging $Q^\policy(\state,\action)$ over the actions $\action$, with the
@@ -970,8 +973,8 @@ The last identity follows from unrolling $\state_1$ to $\state_2$ etc., and then
 Using this we have
 \begin{align*}
 \nabla J(\theta) &= \nabla \sum_{\state} \initdist(\state) \Value^\policy (\state)\\
-&= \sum_\state \initdist(\state) \left(\sum_{t=0}^\infty P(\state_t = \state | \state_0 = \state, \policy) \right) \sum_\action \QValue^\policy (\state,\action) \nabla\policy(\action|\state) \\
-&= \sum_\state \left(\sum_{t=0}^\infty P(\state_t = \state | \initdist, \policy) \right) \sum_\action \QValue^\policy (\state,\action) \nabla\policy(\action|\state) \\
+&= \sum_\state \initdist(\state) \left(\sum_{t=0}^\infty \Pr(\state_t = \state | \state_0 = \state, \policy) \right) \sum_\action \QValue^\policy (\state,\action) \nabla\policy(\action|\state) \\
+&= \sum_\state \left(\sum_{t=0}^\infty \Pr(\state_t = \state | \initdist, \policy) \right) \sum_\action \QValue^\policy (\state,\action) \nabla\policy(\action|\state) \\
 &= \sum_\state \discdist^{\policy}(\state) \sum_\action \nabla\policy(\action|\state) \QValue^\policy (\state,\action) \\
 \end{align*}
 where the last equality is by definition of $\discdist^{\policy}$.
@@ -982,9 +985,9 @@ where the last equality is by definition of $\discdist^{\policy}$.
 
 We next describe yet another proof for the policy gradient theorem, which will provide some interesting insights.
 
-We begin by denoting by $\rollout$ a random rollout from the policy, $\rollout = \{\state_0,\action_0,\reward_0,\dots,\state_\termtime, \action_\termtime, \reward_\termtime \}$, where $\state_0 \sim \initdist$, $\action_\ttime\sim \policy(\cdot|\state_\ttime,\theta)$, $\state_{\ttime+1} \sim \transitionkernel (\cdot | \state_\ttime, \action_\ttime)$, and $\termtime$ is the termination time. We also let $\reward(\rollout) = \sum_{\ttime=0}^\termtime \reward_\ttime$ denote the accumulated reward in the rollout, and $\Pr(\rollout)$ the probability of observing $\rollout$, which by our definitions is 
+We begin by denoting by $\rollout$ a random rollout from the policy, $\rollout = \{\state_0,\action_0,\reward_0,\dots,\state_\termtime, \action_\termtime, \reward_\termtime \}$, where $\state_0 \sim \initdist$, $\action_\ttime\sim \policy(\cdot|\state_\ttime,\theta)$, $\state_{\ttime+1} \sim \transitionprob (\cdot | \state_\ttime, \action_\ttime)$, and $\termtime$ is the termination time. We also let $\reward(\rollout) = \sum_{\ttime=0}^\termtime \reward_\ttime$ denote the accumulated reward in the rollout, and $\Pr(\rollout)$ the probability of observing $\rollout$, which by our definitions is 
 \begin{equation}\label{eq:rollout_prob}
-\Pr(\rollout) = \initdist(\state_0)\policy(\action_0|\state_0,\theta)\transitionkernel(\state_1|\state_0,\action_0)\policy(\action_1|\state_1,\theta)\cdots\transitionkernel(\state_G|\state_{\termtime},\action_{\termtime}).
+\Pr(\rollout) = \initdist(\state_0)\policy(\action_0|\state_0,\theta)\transitionprob(\state_1|\state_0,\action_0)\policy(\action_1|\state_1,\theta)\cdots\transitionprob(\state_G|\state_{\termtime},\action_{\termtime}).
 \end{equation}
 We therefore have that
 \begin{equation*}
@@ -997,7 +1000,7 @@ and, by using a similar trick to \eqref{eq:log_likelihood_trick}, we have that
 We now notice that 
 \begin{equation*}
 \begin{split}
-    \nabla \log \Pr(\rollout) &= \nabla \left( \log \initdist(\state_0) + \log \policy(\action_0|\state_0,\theta) + \log\transitionkernel(\state_1|\state_0,\action_0) + \dots + \log\transitionkernel(\state_G|\state_{\termtime-1},\action_{\termtime-1})\right) \\
+    \nabla \log \Pr(\rollout) &= \nabla \left( \log \initdist(\state_0) + \log \policy(\action_0|\state_0,\theta) + \log\transitionprob(\state_1|\state_0,\action_0) + \dots + \log\transitionprob(\state_G|\state_{\termtime-1},\action_{\termtime-1})\right) \\
     &= \sum_{\ttime=0}^{\termtime} \nabla\log \policy(\action_\ttime|\state_\ttime,\theta),
 \end{split}
 \end{equation*}
