@@ -17,54 +17,43 @@
 \newcommand{\ftrs}{\phi}
 \newcommand{\FtrMtx}{\Phi}
 
-This chapter starts looking at the case where the MDP model is
+This chapter starts looking at the case where the MDP is
 large. In the current chapter we will look at approximating the
 value function. In the next chapter we will consider learning
 directly a policy and optimizing it.
 
 When we talk about a large MDP, it can be due to a few different
-reasons. The most common is having a large state space. For example,
-Backgammon has over $10^{20}$ states, Go has over $10^{170}$ and robot control typically 
-has a continuous state space. The \textit{curse of dimensionality} is a common term for this problem, and relates to states that are composed of several state variables. For example, the configuration of a robot manipulator with $N$ joints can be described using $N$ variables for the angles at each joint. Assuming that each variable can take on $M$ different values, the size of the state space, $M^N$, i.e., grows exponentially with the number of state variables.
+reasons. The most common is having a large state space $\States$. For example,
+Backgammon has over $10^{20}$ states, Go has over $10^{170}$, and robot control typically 
+has a continuous state space. The \textit{curse of dimensionality} is a common term for this problem, and relates to states that are composed of several state variables. For example, the configuration of a robot manipulator with $N$ joints can be described using $N$ variables for the angles at each joint. Assuming that each variable can take on $M$ different values, the size of the state space, $M^N$, grows exponentially with the number of state variables $N$.
 
-Another dimension is the action space,
-which can even be continuous in many applications (say, robots).
-Finally, we might have complex dynamics which are hard to describe
-succinctly (e.g., the next state is the result of a complex simulation), or are not even known to sufficient accuracy. 
+Another reason why an MDP can be large is the size of the action space $\Actions$,
+which can even be continuous in some applications (say, robots).
+Finally, we might have complex dynamics $\transitionkernel$ that are hard to describe
+succinctly (e.g., the next state is the result of a complex simulation) or are not even known to sufficient accuracy. 
 
 Recall Bellman's dynamic programming equation,
 $$\Value(\state) = \max_{\action \in \Actions} \left\{\reward(\state,\action) + \gamma \sum_{\state' \in \States} \transitionprob(\state'|\state,\action)\Value(\state')\right\}\quad \forall \state \in \States.$$
-Dynamic programming requires knowing the model and is only feasible for small problems, where iterating over all states and actions is feasible. The model-free and model-based learning algorithms described in Chapters \ref{chapter:learning-model-free} and \ref{chapter-model-based} do not require knowing the model, but require storing either value estimates \textit{for each} state and action, or state transition probabilities for every possible state, action, and next state. Scaling up our planning and RL algorithms to very large state and action spaces is the challenge we shall address in this chapter.
+Dynamic programming requires knowing the model transitions $\transitionkernel$ and is only feasible for small problems, where iterating over all states and actions is feasible. The model-free and model-based learning algorithms described in Chapters \ref{chapter:learning-model-free} and \ref{chapter-model-based} do not require knowing the model, but require storing either value estimates \textit{for each} state and action, or state transition probabilities for every possible state, action, and next state. Scaling up our planning and RL algorithms to very large state and action spaces is the challenge we shall address in this chapter.
 
 
 \section{Approximation approaches}
-There are 4 general approaches to handle the curses of dimensionality:
+There are 4 main approaches for handling large MDPs:
 \begin{enumerate}
-\item \textbf{Myopic}: When $\transitionprob(\state'|\state,\action)$ is approximately uniform across $\action$ (i.e., the actions do not affect much the transition to the next state), we may ignore the state transition dynamics and simply use $\policy(\state)\approx \underset{\action \in \Actions}{\operatorname{argmax}} \{\reward(\state,\action)\}$. If $\reward(\state,\action)$ is not known exactly -- replace it with an estimate.
+\item \textbf{Myopic}: When $\transitionprob(\state'|\state,\action)$ is approximately uniform across $\action$ (that is, the actions do not have much effect on the transition to the next state), we may ignore the state transitions and simply use $\policy(\state)\approx \underset{\action \in \Actions}{\operatorname{argmax}} \{\reward(\state,\action)\}$. If $\reward(\state,\action)$ is not known exactly -- replace it with an estimate.
 
-\item \textbf{Lookahead policies}: Rolling horizon/model-predictive control.\\
-At each step $\ttime$, simulate a horizon of $\tHorizon$ steps, and use
-$$\policy(\state_\ttime) = \underset{\policy' \in \Policies}{\operatorname{argmax}}\  \mathbb{E}^{\policy'} \left[\left.\sum_{\ttime'=\ttime}^{\ttime+\tHorizon} \reward(\state_{\ttime'},\action_{\ttime'})\right|\state_\ttime\right].$$
+\item \textbf{Lookahead policies}: also known as rolling horizon/model-predictive control.\\
+At each step $\ttime$, observe the state $\state_\ttime$ and simulate a horizon of $\tHorizon$ steps to calculate
+$$\policy = \underset{\policy' \in \Policies}{\operatorname{argmax}}\  \mathbb{E}^{\policy'} \left[\left.\sum_{\ttime'=\ttime}^{\ttime+\tHorizon} \reward(\state_{\ttime'},\action_{\ttime'})\right|\state_\ttime\right].$$
+Then, apply action $\policy(\state_\ttime)$, observe the resulting state transition to $\state_{\ttime+1}$, and repeat.
 
 \item \textbf{Policy function approximation}\\
-Assume the policy is of some parametric function form $\policy = \policy(\weight), \ \ \weight \in \mathtt{W}$, and optimize over function parameters.\\
-% \begin{example}[Inventory management]
-% Consider an inventory management problem, in which the state is the inventory level $\state_\ttime$, the demand is $d_\ttime$ and the action is the replenishment level $\action_\ttime$. The dynamics are given by:
-% $$s_{t+1} = [\state_\ttime + \action_\ttime-d_\ttime]^+.$$
-% The immediate reward is:
-% $$R_\ttime = R \min\{d_\ttime,\state_\ttime+\action_\ttime\} - c_a \action_\ttime -C[\state_\ttime + \action_\ttime-d_\ttime]^+,$$
-% where $R$ is the profit in satisfying the demand, $c_a$ is the ordering cost, and $C$ is the cost of not satisfying a demand.
-
-% One possible replenishment policy is:
-% $$a^\pi(\state_\ttime|\weights) = \begin{cases} 0 & \state_\ttime > q\\Q-\state_\ttime & \state_\ttime \le q \end{cases}, \ \ \ \weights=(q,Q).$$
-% A different possibility is the \emph{softmax} policy, given by
-% $$p(s,a) = \frac{e^{-\weights\alpha(s,a)}}{\sum_{a'} e^{-\weights\alpha(s,a')}}, \ \ \mathrm{where}\ \ \alpha=R(s,a)\ \ \mathrm{or} \ \ \alpha=Q(s,a).$$
-% \end{example}
+Assume the policy is of some parametric form $\policy(\state) = \policy(\state; \weight), \ \ \weight \in \mathtt{W}$, and optimize over parameters $\weight$.\\
 
 \item \textbf{Value function approximation}\\
-In problems where computing the value function directly is intractable, due to the reasons described above, we consider an approximate value function of some parametric form.
+Assume the value function is of some parametric form and optimize over parameters $\weight$; the current chapter focuses on this approach.
 When considering a value function approximation, there are a few interpretations
-to what exactly we mean. Given a policy $\policy$, it can either be: (1) mapping from a state
+of what exactly we mean. Given a policy $\policy$, it can either be: (1) mapping from a state
 $\state$ to its expected return, i.e.,
 $\widehat{\Value}^\policy(\state;\weight)$. (2) mapping from state-action
 pairs $(\state,\action)$ to their expected return, i.e.,
@@ -80,13 +69,13 @@ small). We shall also be interested in approximating the optimal value function,
 Given an approximate $\widehat{Q}^*(\state,\action;\weight)$, we can derive an approximately optimal policy by choosing the \emph{greedy} action with respect to $\widehat{Q}^*(\state,\action;\weight)$.
 \end{enumerate}
 
-We mention that the approaches above are not mutually exclusive, and often in practice, the best performance is obtained by combining different approaches. For example, a common approach is to combine a $\tHorizon$ step lookahead with an approximate terminal value function, 
+The 4 approaches above for dealing with large MDPs are not mutually exclusive and in practice, combining different approaches often produces the best performance. For example, a common approach is to combine a $\tHorizon$ step lookahead with an approximate terminal value function, 
 \begin{equation*}
     \policy(\state_\ttime) = \underset{\pi' \in \Pi}{\operatorname{argmax}}\  \mathbb{E}^{\policy'} \left[\sum_{\ttime'=\ttime}^{\ttime+\tHorizon-1} \reward(\state_{\ttime'}) + \widehat{\Value}^*(\state_{\ttime+\tHorizon}))\right].
 \end{equation*}
 We shall also see, in the next chapter, that value function approximations will be a useful component in approximate policy optimization. In the rest of this chapter, we focus on value function approximation. 
 We will consider (mainly) the discounted return with
-a discount parameter $\gamma\in(0,1)$. The results extend very
+a discount parameter $\gamma\in(0,1)$. The results extend 
 naturally to the finite horizon and episodic settings.
 
 % \tikzstyle{block} = [rectangle, draw,
@@ -112,9 +101,8 @@ naturally to the finite horizon and episodic settings.
 
 \subsection{Value Function Approximation Architectures}
 
-We now need to discuss how will we build the approximating function.
-For this we can turn to the rich literature in Machine Learning and
-consider popular hypothesis classes. For example: (1) Linear
+We now discuss how to build the approximating function. For this we can consider popular hypothesis classes from the machine learning literature. 
+For example: (1) Linear
 functions, (2) Neural networks, (3) Decision trees, (4) Nearest
 neighbors, (5) Fourier or wavelet basis, etc. We will concentrate
 here on linear functions.
@@ -122,21 +110,19 @@ here on linear functions.
 
 In a linear function approximation, we represent the value as a weighted combination of some $\nftrs$ features:
 $$\widehat{\Value}^\policy(\state;\weight) = \sum_{j=1}^\nftrs \weight_j \ftrs_j(\state) = \weight^T \ftrs(\state),$$
-where $\weight \in \mathbb{R}^\nftrs$ are the model parameters and $\ftrs(\state) \in \mathbb{R}^\nftrs$ are the model's \emph{features} (a.k.a. basis functions). Similarly, for state-action value functions, we use state-action features, $\ftrs(\state,\action)\in \mathbb{R}^\nftrs$, and approximate the value by $\widehat{Q}^\policy(\state,\action;\weight) =  \weight^T \ftrs(\state,\action)$.
+where $\weight \in \mathbb{R}^\nftrs$ are the function approximation parameters and $\ftrs(\state) \in \mathbb{R}^\nftrs$ are the states' \emph{features} (a.k.a. basis functions). Similarly, for state-action value functions, we use state-action features, $\ftrs(\state,\action)\in \mathbb{R}^\nftrs$, and approximate the value by $\widehat{Q}^\policy(\state,\action;\weight) =  \weight^T \ftrs(\state,\action)$.
 
-Popular example of state feature vectors include radial basis functions $\phi_j(\state) \propto \exp(\frac{(\state-\mu_j)^2}{\sigma_j})$, and tile features, where $\phi_j(\state) = 1$ for a set of states $A_j \subset \States$, and $\phi_j(\state) = 0$ otherwise. For state-action features, when the number of actions is finite $\Actions = \left\{1,2,\dots,|\Actions|\right\}$, a common approach is to extend the state features independently for every action. That is, consider the following construction for $\ftrs(\state,i)\in \mathbb{R}^{\nftrs \cdot |\Actions|}$, $i\in \Actions$:
+Popular examples of state feature vectors include radial basis functions $\phi_j(\state) \propto \exp(\frac{(\state-\mu_j)^2}{\sigma_j})$, and tile features, where $\phi_j(\state) = 1$ for a set of states $A_j \subset \States$, and $\phi_j(\state) = 0$ otherwise. For state-action features, when the number of actions is finite $\Actions = \left\{1,2,\dots,|\Actions|\right\}$, a common approach is to extend the state features independently for every action. That is, consider the following construction for $\ftrs(\state,i)\in \mathbb{R}^{\nftrs \cdot |\Actions|}$, $i\in \Actions$:
 \begin{equation*}
     \ftrs(\state,i)^T = \left[ \underbrace{\mathbf{0}^T, \mathbf{0}^T, \dots, \mathbf{0}^T}_{i-1 \text{ times}}, \ftrs(\state)^T, \underbrace{\mathbf{0}^T, \dots, \mathbf{0}^T}_{|\Actions|-i \text{ times}}\right],
 \end{equation*}
 where $\mathbf{0}$ is a vector of $\nftrs$ zeros.
 
-For most interesting problems, however, designing appropriate features is a difficult problem that requires significant domain knowledge, as the structure of the value function may be intricate. In the following, we assume that the features $\ftrs(\state)$ (or $\ftrs(\state,\action)$) are given to us in advance, and we will concentrate on general methods for calculating the weights $\weight$ in a way that minimizes the approximation error as best as possible, with respect to the available features. 
+However, for most interesting settings designing appropriate features is a difficult problem that requires significant domain knowledge. In the following, we assume that the features $\ftrs(\state)$ (or $\ftrs(\state,\action)$) are given to us in advance, and we concentrate on general methods for learning weights $\weight$ that minimize the approximation error as best as possible, with respect to the available features. 
 
 \section{Quantification of Approximation Error}
 
-Before we start the discussion on the learning methods, we will do a
-small detour. We will discuss the effect of having an error in the
-value function we learn, and its effect on the outcome. Assume we
+Before we start the discussion on learning methods, we take a small detour to discuss the effect of error in the value function. Assume we
 have a value function $\widehat{\Value}$ such that $\|\widehat{\Value}-\Value^*\|_\infty\leq
 \varepsilon$. Let $\widehat{\policy}$ be the greedy policy with respect to
 $\widehat{\Value}$, namely,
@@ -168,7 +154,7 @@ The second, $\operator^*$, is
 \mathbb{E}_{\state'\sim \transitionprob(\cdot|\state,\action)}[v(\state')] ],
 \]
 and it converges to $\Value^*$ (see Theorem~\ref{thm:DP_op}).
-In addition, recall that we have shown that both
+In addition, we have shown that both
 $\operator^\policy$ and $\operator^*$ are $\gamma$-contracting (see
 Theorem~\ref{thm:DP_op}).
 
@@ -198,22 +184,23 @@ and the theorem follows.
 The above theorem states that if we have small errors in
 $L_\infty$ norm, the effect of the errors on the expected return is
 bounded. However, in most cases we will not be able to guarantee an
-approximation in norm $L_\infty$. This is since it is infeasible even
-to compute the $L_\infty$ norm of two given value functions, as the computation requires considering {\em all} states. In the large state space setting, such operations are infeasible. 
+approximation in norm $L_\infty$. In fact, even if $\Value^*$ is given to us, it is infeasible to compute $\|\Value^{\widehat{\policy}}-\Value^*\|_\infty$ in the large state space setting, as it requires iterating over \textit{all} states. 
 
-Intuitively, a more feasible guarantee is that some \textit{average} error is small. In the following, we shall see that this condition can be represented mathematically as a weighted $L_2$ norm. Extending Theorem \ref{thm:approx_error} to a weighted $L_2$ norm is possible, but is technically involved~\cite{munos2007performance}, and we will not consider it in this book. Nevertheless, we shall next study learning algorithms that have a guaranteed average error bound.
+Intuitively, a more feasible guarantee is that some \textit{average} error is small. In the following, we shall see that this condition can be represented mathematically as a weighted $L_2$ norm. Extending Theorem \ref{thm:approx_error} to a weighted $L_2$ norm is possible, but is technically involved~\cite{munos2007performance}, and we will not derive it in this book. Nevertheless, we shall next study learning algorithms that have a guaranteed average error bound.
 
 \section{From RL to Supervised Learning}
 
 To learn the value function, we would like to reduce our reinforcement learning problem to a
-supervised learning problem. This will enable us to use any of the many techniques of machine learning to address the problem. Let us consider the basic ingredients of supervised learning. The most important ingredient is having a labeled sample set, which is sampled i.i.d.
+supervised learning problem. This will enable us to use any of the many techniques of machine learning to address the problem. Let us consider the basic ingredients of supervised learning. The first ingredient is a labeled training set that is sampled i.i.d.
 
 Let us start by considering an idealized setting. Fix a policy $\policy$, and consider learning its value function $\widehat{\Value}^{\policy}$. To apply supervised learning, we should
 generate a training set, i.e., 
 \[
 \{(\state_1, \Value^\policy(\state_1)),\ldots,
-(\state_m,\Value^\policy(\state_m))\}.
+(\state_m,\Value^\policy(\state_m))\},
 \]
+where $\Value^\policy(\state))$ is the label of a sample state $\state$.
+
 We first need to discuss how to sample the states $\state_i$ in an
 i.i.d. way. We can generate a trajectory, but we need to be careful,
 since adjacent states are definitely dependent! One solution is to
@@ -225,7 +212,7 @@ stationary distribution of $\policy$ and are (almost) independent. In the episod
 
 Second, we need to define a loss function, which will tradeoff the different approximation errors. Since the value is a real scalar, a natural candidate is the average squared error loss, $\frac{1}{m}\sum_{i=1}^m (\widehat{\Value}^\policy(\state_i) - \Value^\policy(\state_i))^2$. With this loss, the corresponding supervised learning problem is least squares regression.
 
-The hardest, and most confusing, ingredient is the labels
+The hardest, and most confusing, ingredient is generating the labels
 $\Value^\policy(\state_i)$. In supervised machine leaning we assume
 that someone gives us the labels to build a classifier.
 % (or alternatively, in unsupervised learning, where there is no clear ground truth).
@@ -251,10 +238,10 @@ Our main task, therefore, would be to replace the ground truth labels with quant
 
 % We start with the simplest setting - approximating the value of a fixed policy. A direct approach for this task is through regression, which we will now review. 
 
-\subsection{Preliminaries -- Least Squares Regression}
+\subsection{Preliminaries -- Least Squares Regression}\label{ssec:least_squares_regression}
 To simplify our formulation, we will assume that the state space may be very large, but finite. Equivalently, we will consider a regression problem where the independent variable can only take a finite set of values. 
 
-Assume we have some function $y = f(x)$, where $y \in \mathbb{R}$, $x\in X$, and $X$ is finite. As in standard regression analysis, $x$ is termed the independent variable, while $y$ is the dependent variable. We assume that data is generated by sampling i.i.d. from a distribution $\xi(x)$, and the labels are noisy. That is, we are given $N$ labeled samples $\left\{(x_1, y_1),\dots, (x_N, y_N) \right\}$, where $x_i \sim \xi(x)$, $y_i = f(x_i) + \omega(x_i)$, and $\omega(x)$ is a zero-mean i.i.d. noise (which may depend on the state).
+Assume we have some function $y = f(x)$, where $y \in \mathbb{R}$, $x\in X$, and $X$ is finite. As usual, $x$ is termed the independent variable, while $y$ is the dependent variable. We assume that data is generated by sampling i.i.d. from a distribution $\xi(x)$, and the labels are noisy. That is, we are given $N$ labeled samples $\left\{(x_1, y_1),\dots, (x_N, y_N) \right\}$, where $x_i \sim \xi(x)$, $y_i = f(x_i) + \omega(x_i)$, and $\omega(x)$ is a zero-mean i.i.d. noise (which may depend on the state).
 
 Our goal is to fit to our data a parametric function $g(x;\weights):X \to \mathbb{R}$, where $\weights \in \mathbb{R}^{\nftrs}$, such that $g$ approximates $f$ well. The Least Squares approach solves the following problem:
 \begin{equation}\label{eq:least_squares}
@@ -276,17 +263,18 @@ When $g$ is linear in some features $\ftrs(x)$, i.e., $g(x;\weights) = \weights^
 \hat{\weights}_{LS} = \min_\weights \frac{1}{N} (\hat{\FtrMtx} \weights - \hat{Y})^T(\hat{\FtrMtx} \weights - \hat{Y}) = 
 \min_\weights \frac{1}{N} \left( \weights^T (\hat{\FtrMtx}^T \hat{\FtrMtx}) \weights -2 \weights^T \hat{\FtrMtx}^T \hat{Y} + \hat{Y}^T\hat{Y} \right).
 \end{equation}
-Noting that \eqref{eq:linear_least_squares} is a quadratic form, the least squares solution is calculated to be: 
+Noting that \eqref{eq:linear_least_squares} is a quadratic form, the least squares solution is: 
 \begin{equation}\label{eq:sampled_LS}
     \hat{\weights}_{LS} = (\hat{\FtrMtx}^T \hat{\FtrMtx})^{-1} \hat{\FtrMtx}^T \hat{Y}.
 \end{equation}
 
-We now characterize the LS solution when $N \to \infty$, which  will allow us to talk about the \textit{expected} least squares solution. Without loss of generality, we assume that the states are ordered, $1,2,\dots,|X|$. Let $\xi\in \mathbb{R}^{|X|}$ denote a vector with elements $\xi(x)$, and define the diagonal matrix
+We now show that the LS solution \eqref{eq:sampled_LS} converges to the \textit{expected} least squares solution when $N \to \infty$.
+Without loss of generality, we assume that the states are ordered, $1,2,\dots,|X|$. Let $\xi\in \mathbb{R}^{|X|}$ denote a vector of probabilities for each state $\xi(x)$, and define the diagonal matrix
 $\Xi = \text{diag}(\xi)\in\mathbb{R}^{|X| \times |X|}$. Further, let $\FtrMtx \in \mathbb{R}^{|X| \times \nftrs}$ be a matrix with $\ftrs(x)$ as its rows, and let $Y\in \mathbb{R}^{|X|}$ be a vector of $f(x)$.
 
 
 \begin{proposition}
-Assume that $\FtrMtx^T \Xi \FtrMtx$ is not singular. We have that $\lim_{N \to \infty} \hat{\weights}_{LS} = \weights_{LS}$, where
+Assume that $\FtrMtx^T \Xi \FtrMtx$ is not singular (i.e., no feature is a linear combination of other features and each state has a positive probability). Then $\lim_{N \to \infty} \hat{\weights}_{LS} = \weights_{LS}$, where
 \begin{equation*}
     \weights_{LS} = (\FtrMtx^T \Xi \FtrMtx)^{-1} \FtrMtx^T \Xi Y.
 \end{equation*}
@@ -318,7 +306,8 @@ Note that the expected LS solution can also be written as the solution to the fo
 \begin{equation}\label{eq:LS_expected}
 \weights_{LS} = \min_\weights (\FtrMtx \weights - Y)^T \Xi (\FtrMtx \weights - Y).
 \end{equation}
-Observe that $\FtrMtx \weights_{LS} \in \mathbb{R}^{|X|}$ denotes a vector that contains the approximated function $g(x;\weights_{LS})$ for every $x$. This is the best approximation, in terms of expected least square error, of $f$ onto the linear space spanned by the features $\ftrs(x)$. Recalling that $Y$ is a vector of ground truth $f$ values, we view this approximation as a \emph{projection} of $Y$ onto the space spanned by $\FtrMtx \weights$, and we can write the projection operator explicitly as:
+Observe that $\FtrMtx \weights_{LS} \in \mathbb{R}^{|X|}$ denotes a vector that contains the approximated function $g(x;\weights_{LS})$ for every $x$. 
+This is the best approximation of $f$ in the span of the features $\ftrs(x)$, in terms of expected square error. Recalling that $Y$ is a vector of ground truth $f$ values, we view this approximation as a \emph{projection} of $Y$ onto the space spanned by $\FtrMtx \weights$, and we can write the projection operator explicitly as:
 $$
 \Project_\xi Y = \FtrMtx \weights_{LS} = \FtrMtx (\FtrMtx^T \Xi \FtrMtx)^{-1} \FtrMtx^T \Xi Y.
 $$
@@ -363,7 +352,7 @@ For calculating the approximation, we can apply the various least squares algori
 % We next describe an alternative approach, using the fact that the value function satisfies Bellman's equation.
 
 \subsection{Approximate Policy Evaluation: Bootstrapping}\label{ssec:APE_bootstrapping}
-While the MC estimate is intuitive, it turns out that there is a much cleverer way of estimating labels for regression, based on the idea bootstrapping (cf. Chapter \ref{chapter:learning-model-free}). We motivate this approach with an example.
+While the MC estimate is intuitive, it turns out that there is a more efficient way of estimating labels for regression, based on the idea bootstrapping (cf. Chapter \ref{chapter:learning-model-free}). We motivate this approach with an example.
 
 \begin{figure}
     \centering
@@ -372,7 +361,10 @@ While the MC estimate is intuitive, it turns out that there is a much cleverer w
     \label{fig:td_vs_mc_FA}
 \end{figure}
 
-Consider the MDP in Figure \ref{fig:td_vs_mc_FA}, where $\state_{Term}$ is a terminal state, and rewards are normally distributed, as shown. There are no actions, and therefore for any $\policy$, $\Value^{\policy}(\state_1) = 1$, $\Value^{\policy}(\state_2) = 2+\varepsilon$, $\Value^{\policy}(\state_3) = 0$, and $\Value^{\policy}(\state_4) = \varepsilon$. We will particularly be interested in estimating $\Value^{\policy}(\state_1)$ and $\Value^{\policy}(\state_2)$.
+Consider the episodic MDP in Figure \ref{fig:td_vs_mc_FA}.
+In this MDP there are two paths towards a terminal state. The first state in each path gives a large reward that determines most of the total return. The second state on each path gives a small reward that does not affect the total return by much, and therefore, the values of each of these second states are similar. We shall show that this value similarity may be exploited to reduce the variance in the estimates of the initial state values $\Value^{\policy}(\state_1)$ and $\Value^{\policy}(\state_2)$.
+
+Formally, $\state_{Term}$ is a terminal state, and rewards are normally distributed with unit variance, as shown. There are no actions, and therefore for any $\policy$, $\Value^{\policy}(\state_1) = 1$, $\Value^{\policy}(\state_2) = 2+\varepsilon$, $\Value^{\policy}(\state_3) = 0$, and $\Value^{\policy}(\state_4) = \varepsilon$. We will particularly be interested in estimating $\Value^{\policy}(\state_1)$ and $\Value^{\policy}(\state_2)$.
 
 Consider the case of no function approximation. Assume that we have sampled $N$ trajectories, where half start from $\state_1$, and the other half from $\state_2$. In this case, the MC estimates for $\widehat{\Value}^{\policy}(\state_1)$ and $\widehat{\Value}^{\policy}(\state_2)$ will each be based on $N/2$ samples, and their variance will therefore be $2 / ({N}/{2}) = 4/{N}$.
 
@@ -393,9 +385,9 @@ In the following, we shall develop a rigorous formulation of bootstrapping with 
 % \begin{enumerate}
 % \item Direct approach: Evaluate $\Value^\policy(s)$ only for several states (e.g. by simulation) and interpolate, e.g., using least squares regression: $\FtrMtx \weights = \Pi \Value^\policy$. This method is simple, however, it has several drawbacks. The first is that value estimates typically have a large variance, as they accumulate rewards from multiple states in the future. The second is that we need to wait for full simulations to complete before updating the value estimate. Practically, this can take too long in some problems. 
 % \item 
-Recalling the relation between TD methods and the Bellman equation, we shall start our investigation from a fundamental equation that takes function approximation into account -- the projected Bellman equation (PBE). We will use the PBE to define a particular approximation of the value function, and study its properties. We will later develop algorithms that estimate this approximation using sampling.
+Recall from Chapter \ref{chapter:learning-model-free} that without function approximation, TD methods effectively compute a solution to the Bellman equation. With function approximation, this is no longer the case, as it is clear that whatever solution TD methods converge to (if they converge at all), must take the function approximation into account. We shall start our investigation from a fundamental equation that takes function approximation into account -- the projected Bellman equation (PBE). We will use the PBE to define a particular approximation of the value function, and study its properties. We will later develop TD algorithms that estimate this approximation using sampling.
 
-We consider a linear function approximation, and let $\FtrMtx \in \mathbb{R}^{|\States|\times \nftrs}$ denote a matrix in which each row $\state$ is $\ftrs(\state)$, where without loss of generality we assume that the states are ordered as $1,2,\dots, |\States|$. 
+For technical simplicity, our analysis mainly considers linear function approximation. The algorithms we develop, however, can easily be extended to non-linear  approximation, and we will expand on particular cases where relevant. Let $\FtrMtx \in \mathbb{R}^{|\States|\times \nftrs}$ denote a matrix in which each row $\state$ is $\ftrs(\state)$, where without loss of generality we assume that the states are ordered as $1,2,\dots, |\States|$. 
 Let $\ftrspace = \left\{ \FtrMtx \weights: \weights \in \mathbb{R}^{\nftrs} \right\}$ denote the linear subspace spanned by $\FtrMtx$.
 Recall that $\Value^\policy(s)\in\mathbb{R}^{|\States|}$ satisfies the Bellman equation: $\Value^\policy = \operator^\policy \Value^\policy$. However, $\Value^\policy$ does not necessarily belong to $\ftrspace$, as we may not be able to accurately represent the true value function as a linear combination of our features. 
 
@@ -465,7 +457,7 @@ and
 \end{proposition}
 
 We remark that the bound in \eqref{eq:bias_bound_2} is stronger than the bound in  \eqref{eq:bias_bound_1} (show this!). We nevertheless include the bound \eqref{eq:bias_bound_1} for didactic purpose, as it's proof is slightly different.
-Proposition \ref{prop:PBE_contraction} shows that for the particular projection defined by weighting the Euclidean norm according to the stationary distribution of the Markov chain, we can both guarantee a solution to the PBE, and bound its bias with respect to the best solution possible under this weighting, $\Project_\xi \Value^\policy$. Fortunately, we shall later see that this specific weighting is suitable for developing on-policy learning algorithms. However, the reader should note that for a different $\xi$, the conclusions of Proposition \ref{prop:PBE_contraction} do not necessarily hold.
+Proposition \ref{prop:PBE_contraction} shows that for the particular projection defined by weighting the Euclidean norm according to the stationary distribution of the Markov chain, we can both guarantee a solution to the PBE, and bound its bias with respect to $\Project_\xi \Value^\policy$ -- the best approximation of $\Value^\policy$ under the $\xi$ weighting. Fortunately, we shall see that this weighting is suitable for developing on-policy learning algorithms. However, the reader should note that for a different $\xi$, the conclusions of Proposition \ref{prop:PBE_contraction} do not necessarily hold.
 
 \begin{proof}
 We begin by showing the contraction property. We use two lemmas.
@@ -475,17 +467,14 @@ $$\forall z \ \ ||P^\policy z||_\xi \le ||z||_\xi.$$
 \begin{proof}
 Let $p_{ij}$ be the components of $P^\policy$. For all $z \in \mathbb{R}^{|\States|}$:
 $$||P^\policy z||_\xi^2 = \sum_i \xi_i\left(\sum_j p_{ij}z_j\right)^2 \underbrace{\leq}_{\textrm{Jensen}} \sum_i \xi_i \sum_j p_{ij} z_j^2 =  \sum_j z_j^2 \sum_i\xi_i p_{ij} = ||z||_\xi^2,$$
-where the last equality is since by definition of $\xi_i$, $\sum_i\xi_i p_{ij}  =\xi_j$, and
+where the last equality uses a property of the stationary distribution $\xi_i$, $\sum_i\xi_i p_{ij}  =\xi_j$, and
 $\sum_{j=1}^n\xi_j z_j^2 = ||z||_\xi^2.$
 \end{proof}
-%\textcolor{red}{Yishay, I didn't find a proof for the lemma above in the MC or other chapters. Let me know if I missed something. Answer: Theorem 3.3 has something related, but let's keep the proof.}
 \begin{lemma}\label{lem:pythagorian}
-The projection $\Project_\xi$ obeys the Pythagorian theorem:
+The projection $\Project_\xi$ obeys the Pythagorean theorem:
 $$\forall J\in \mathbb{R}^{|\States|}, \widehat{J}\in \ftrspace: \ \ ||J-\widehat{J}||_\xi^2 = ||J-\Project_\xi J||_\xi^2 + ||\Project_\xi J - \widehat{J}||_\xi^2.$$
 \end{lemma}
 \begin{proof}
-% Since $\Project_\xi$ is a projection with respect to a weighted Euclidean norm, it obeys the Pythagorian theorem:
-%First, let's observe that the Pythagorian theorem holds for $||\cdot||_\xi$, and therefore
 Observe that
 $$||J-\widehat{J}||_\xi^2 = ||J-\Project_\xi J + \Project_\xi J - \widehat{J}||_\xi^2 = ||J-\Project_\xi J||_\xi^2 + ||\Project_\xi J - \widehat{J}||_\xi^2 + 2 \cdot \langle J-\Project_\xi J, \Project_\xi J - \widehat{J}\rangle_\xi.$$
 We claim that $J-\Project_\xi J$ and $\Project_\xi J-\widehat{J}$ are orthogonal under $\langle\cdot,\cdot\rangle_\xi$ (this is known as the error orthogonality for weighted Euclidean-norm projections). To see this, recall that 
@@ -502,7 +491,7 @@ Now,
         \langle J-\Project_\xi J, \Project_\xi J - \widehat{J}\rangle_\xi &= (J-\Project_\xi J)^T \Xi (\Project_\xi J - \widehat{J}) \\
         &= J^T \Xi \Project_\xi J - J^T \Xi \widehat{J} - J^T \Project_\xi^T \Xi \Project_\xi J + J^T \Project_\xi^T \Xi \widehat{J} \\
         &= J^T \Xi \Project_\xi J - J^T \Xi \widehat{J} - J^T \Xi \Project_\xi \Project_\xi J + J^T \Xi\Project_\xi \widehat{J} \\
-        &= J^T \Xi \Project_\xi J - J^T \Xi \Project_\xi J - J^T \Xi \widehat{J} + J^T \widehat{J} = 0,
+        &= J^T \Xi \Project_\xi J - J^T \Xi \Project_\xi J - J^T \Xi \widehat{J} + J^T \Xi \widehat{J} = 0,
     \end{split}
 \end{equation*}
 where in the penultimate equality we used that fact that $\Project_\xi \widehat{J} = \widehat{J}$, as $\widehat{J}\in \ftrspace$, and that $\Project_\xi \Project_\xi = \Project_\xi$, as projecting a vector that is already in $\ftrspace$ effects no change to the vector.
@@ -519,7 +508,7 @@ $$||\Project_\xi {J}_1 - \Project_\xi {J}_2||_\xi^2 = ||\Project_\xi({J}_1-{J}_2
 where the first inequality is by linearity of $\Project_\xi$, and the last equality is by the Pythagorean theorem of Lemma \ref{lem:pythagorian}, where we set $J={J}_1-{J}_2$ and $\widehat{J} = 0$.
 \end{proof}
 
-In order to prove the contraction $\forall {J}_1,{J}_2\in \mathbb{R}^{|\States|}$:
+In order to prove the contraction of $\Project_\xi \operator^\policy$, $\forall {J}_1,{J}_2\in \mathbb{R}^{|\States|}$:
 \begin{equation*}
 \begin{split}
 ||\Project_\xi \operator^\policy {J}_1 - \Project_\xi \operator^\policy {J}_2||_\xi &\overset{\Project_\xi \textrm{ non-expansive}}{\le} ||\operator^\policy {J}_1 - \operator^\policy {J}_2||_\xi\\
@@ -580,7 +569,8 @@ where the first equality is by the Pythagorean theorem, and the remainder follow
 % \end{remark}
 
 \subsection{Solution Techniques for the Projected Bellman Equation}\label{ssec:TD_solution_techniques}
-We now move to solving the projected Bellman equation. Taking inspiration from the algorithms for linear least squares described above, we will seek sampling-based approximations to the solution of the PBE.
+We now move to solving the projected Bellman equation. 
+In Section \ref{ssec:least_squares_regression} we presented a closed-form solution for linear least squares and an algorithm based on SGD. We use these approaches as inspiration for a sampling-based solution for the PBE.
 
 Using the explicit formulation of the projection $\Project_\xi$, we see that the PBE solution is some $\widehat{\Value} = \FtrMtx \weights^*$ where $\weights^*$ solves
 $$\weights^* = \underset{{\weights \in \mathbb{R}^\nftrs}}{\operatorname{argmin}} \ ||\FtrMtx \weights - (R^\policy+\gamma P^\policy\FtrMtx \weights^*)||_\xi^2.$$
@@ -597,9 +587,9 @@ A = \FtrMtx^T \Xi(I-\gamma P^\policy) \FtrMtx, \ \ b = \FtrMtx^T\Xi R^\policy.
 
 \paragraph{Solution approaches:}
 \begin{enumerate}
-\item \textbf{Matrix inversion (LSTD)}: 
+\item \textbf{Matrix inversion (Least Squares Temporal Differences, LSTD)}: 
 We have that $$\weights^* = A^{-1}b.$$
-In order to evaluate $A,b$, we can use simulation.
+In order to evaluate $A,b$, we use simulation.
 \begin{proposition}\label{prop:TD_expectations}
     We have that 
     \begin{equation*}
@@ -685,7 +675,7 @@ If we sample trajectories from $\policy$, after some mixing time $\ttime$, a pai
 % We observe that $A_n,b_n,G_n$ can also be computed via the SA algorithm.
 
 \begin{remark}
-Projected value iteration can be used with more general regression algorithm. Let $\Project_{gen}$ denote a general regression algorithm, such as a non-linear least squares fit, or even a non-parametric regression such as K-nearest neighbors. We can consider the iterative algorithm:
+Projected value iteration can be used with a more general regression algorithm. Let $\Project_{gen}$ denote a general regression algorithm, such as a non-linear least squares fit, a neural network, or even a non-parametric regression such as K-nearest neighbors. We can consider the iterative algorithm:
 $$\widehat{\Value}(\weights_{n+1}) = \Project_{gen} \operator^\policy \widehat{\Value}(\weights_{n}).$$
 To realize this algorithm, we use the same samples as above, and only replace the regression algorithm. Note that convergence in this case is not guaranteed, as in general, $\Project_{gen} \operator^\policy$ is not necessarily a contraction in any norm.
 \end{remark}
@@ -714,7 +704,7 @@ This algorithm can be written as a stochastic approximation:
 \begin{equation*}
     \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime ( b -  A \weights_\ttime + \omega_\ttime ),
 \end{equation*}
-where $\omega_\ttime$ is a noise term, and the corresponding ODE is $\dot{\weights} = b -  A \weights_\ttime$, with a unique stable fixed point at $\weights^* = A^{-1}b$. 
+where $A$ and $b$ are defined in \eqref{eq:A_b_TD}, and $\omega_\ttime$ is a noise term. The corresponding ODE is $\dot{\weights} = b -  A \weights_\ttime$, with a unique stable fixed point at $\weights^* = A^{-1}b$. 
 
 \begin{remark}
     In the tabular setting, we proved the convergence of TD(0) using the contraction method for stochastic approximation. Here, we cannot use this approach, as the contraction in TD(0), which follows from the Bellman equation, applies to the values of each state. However, with function approximation, we iterate over the weights $\weights_\ttime$ and not over the values for each state, and for these weights the contraction does not necessarily hold. For this reason, we shall seek a convergence proof based on the ODE method.
@@ -862,7 +852,7 @@ As we have seen earlier, it is easier to define a policy improvement step using 
     \State \quad Observe $\reward_\ttime, \state_{\ttime+1}$
     \State \quad Update:
     \begin{equation*}
-    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \left( \reward(\state_\ttime,\action_\ttime) + f(\state_{\ttime+1},\action_{\ttime+1};\weights_\ttime) - f(\state_{\ttime},\action_{\ttime}; \weights_\ttime) \right) \nabla_{\weights} f(\state_\ttime,\action_\ttime,\weights)
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \left( \reward(\state_\ttime,\action_\ttime) + \discount f(\state_{\ttime+1},\action_{\ttime+1};\weights_\ttime) - f(\state_{\ttime},\action_{\ttime}; \weights_\ttime) \right) \nabla_{\weights} f(\state_\ttime,\action_\ttime,\weights)
 \end{equation*}
 \end{algorithmic}
 \end{algorithm}
@@ -906,7 +896,7 @@ $\action^*_{\ttime+1} = \argmax_\action \widehat{Q}^{\policy_{k-1}}(\state_{\tti
 % \end{align*}
 % where $\action^*_{t+1} = \argmax_\action \widehat{Q}^{\policy_{k-1}}(\state_{t+1},\action) = \argmax_\action \weights_{k-1}^T\ftrs(\state_{t+1},\action)$.
 
-It is also possible to collect data from the modified at each iteration $k$, instead of from the initial policy.
+It is also possible to collect data from the modified policy at each iteration $k$, instead of the initial policy.
 
 \subsection{Approximate Value Iteration}
 Approximate value iteration algorithms directly approximate the optimal value function (or optimal $Q$ function). Let us first consider the linear case. The idea in approximate VI is similar to the PBE, but replacing $\operator^\policy$ with $\operator^*$. That is, we seek solutions to the following projected equation:

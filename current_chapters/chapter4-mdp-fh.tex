@@ -29,11 +29,11 @@ case, which can always be ``truncated" at $\tHorizon$ if needed.
 \end{itemize}
 
 \paragraph{State transition probabilities:}
-Suppose that at time $\ttime$ we are in state ${\state_\ttime} = \state$, and choose an action ${\action_\ttime} = \action$. The next state ${\state_{\ttime + 1}} = \state'$ is then determined randomly according to a probability distribution  ${p_\ttime}( \cdot |\state,\action)$ on ${\States_{\ttime + 1}}$. That is,
-\[\Pr({\state_{\ttime + 1}} = \state'|{\state_\ttime} = \state,{\action_\ttime} = \action) = {p_\ttime}(\state'|\state,\action),\quad      \quad \state' \in {\States_{\ttime + 1}}\]
+Suppose that at time $\ttime$ we are in state ${\state_\ttime} = \state$, and choose an action ${\action_\ttime} = \action$. The next state ${\state_{\ttime + 1}} = \state'$ is then determined randomly according to a probability distribution  ${\transitionprob_\ttime}( \cdot |\state,\action)$ on ${\States_{\ttime + 1}}$. That is,
+\[\Pr({\state_{\ttime + 1}} = \state'|{\state_\ttime} = \state,{\action_\ttime} = \action) = {\transitionprob_\ttime}(\state'|\state,\action),\quad      \quad \state' \in {\States_{\ttime + 1}}\]
 
-The probability ${p_\ttime}(\state'|\state,\action)$ is the \emph{transition probability} from state $\state$ to state $\state'$ for a given action $\action$. We naturally require that
-            ${p_\ttime}(\state'|\state,\action) \ge 0$, and $\sum_{\state' \in {\States_{\ttime + 1}}}^{} {{p_\ttime}(\state'|\state,\action)}  = 1$ for all $\state \in {\States_\ttime},\action \in {\Actions_\ttime}(\state)$.
+The probability ${\transitionprob_\ttime}(\state'|\state,\action)$ is the \emph{transition probability} from state $\state$ to state $\state'$ for a given action $\action$. We naturally require that
+            ${\transitionprob_\ttime}(\state'|\state,\action) \ge 0$, and $\sum_{\state' \in {\States_{\ttime + 1}}}^{} {{\transitionprob_\ttime}(\state'|\state,\action)}  = 1$ for all $\state \in {\States_\ttime},\action \in {\Actions_\ttime}(\state)$.
 
 Implicit in this definition is the controlled-Markov property:
 \[
