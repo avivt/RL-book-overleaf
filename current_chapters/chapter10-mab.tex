@@ -1,50 +1,48 @@
 
+The multi-arm bandit model (MAB) is a simplified version of the MDP model, and historically predated it. Conceptually, the MAB does not have states (or technically, a single state), but has multiple actions. Conceptually, our uncertainty is regarding the expected rewards of the various actions. This lead naturally to the well known tradeoff between \emph{exploration} and \emph{exploitation}. On the one hand we need to keep exploring the various actions, to reduce the uncertainty regarding their expected rewards, this is the \emph{exploration} part. On the other hand we would like to guarantee a high return by using the information we already gathered, which is the \emph{exploitation} part.
+
+
+\paragraph{Motivation:} Many natural problems can be modeled as an MAB problems.
+\begin{enumerate}
+\item \textbf{Clinical Trials}: Each patient in the trial is prescribed one treatment out of several possible treatments. Each treatment is viewed as an action, and the reward for each patient is the effectiveness of the prescribed treatment. The goal is to maximize the overall effectiveness of the treatments.
+\item \textbf{Route selection}: Consider a navigation application selecting routes for users. The actions are the various routes from the initial point to the target place. The cost (negative reward) is the time it takes to drive on a given route. The goal is to minimize the total cost of the users.
+% \item \textbf{News}: a user visits a news site and is presented with a news header. The user either clicks on this header or not. The goal of
+% the website is to maximize the number of clicks. So each possible
+% header is an action in a bandit problem, and the clicks are the
+% rewards
+\item \textbf{Online advertisement}: In website advertising, a user visits a webpage, and a learning algorithm selects one of many possible advertisements to display to them. If an advertisement is displayed, the website observes whether the user clicks on the advertisement, in which case the advertiser pays
+a prescribed amount (which can depend also on the advertisement). In this case, each advertisement is an action, and the paid amount is the reward.
+\item \textbf{Gambling}: The name Multi-Arm Bandits comes from a gambling application. Consider a slot-machine with multiple arms (or alternatively, multiple slot-machines, each with a single arm). Each of the arms has a (slightly) different expected reward. The gambler, at each time, needs to decide which arm to pull. The goal of the gambler is to maximize their return, the sum of the rewards.
+\end{enumerate}
 
 % \chapter{Stochastic Bandits and Regret Minimization}
 % \label{chapter-MAB}
 
-We consider a simplified model of an MDP where there is only a
-single state and a fixed set $\Actions$ of $k$ actions (a.k.a., arms). We consider a finite horizon problem, where the horizon is $\tHorizon$.
-Clearly, the planning problem is trivial, simply select the action
-with the highest expected reward. We will concentrate on the
-learning perspective, where the expected reward of each action is
-unknown. In the learning setting we would have a \emph{single} episode of length $\tHorizon$.
+\subsection*{Multi-Arm Bandit Model}
 
-At each round $1\leq \ttime\leq \tHorizon$ the learner selects and executes an action. After executing the action, the leaner observes the reward of the action. However, the rewards of the other actions in $\Actions$ are not revealed to the learner.
+A MAB is a simplified model of an MDP where there is only a
+single state and a fixed set $\Actions$ of $k$ actions (a.k.a., arms). We consider a finite horizon problem, where the horizon is $\tHorizon$.
+Clearly, the planning problem is trivial, simply select the action with the highest expected reward. We will concentrate on the learning perspective, where the expected reward of each action is unknown. In the learning setting we would have a \emph{single} episode of length $\tHorizon$.
+
+At each round $1\leq \ttime\leq \tHorizon$ the learner selects and executes an action. After executing an action, the learner observes the reward of the played action. However, the rewards of the other actions in $\Actions$ are not revealed to the learner.
 
 The reward for action $i$ at round $\ttime$ is denoted by $\reward_{\ttime}(i)\sim D_{i}$, where the support of the reward distribution $D_{i}$ is $[0,1]$. We assume that the rewards are i.i.d. (independent and identically distributed) across time steps, but can be correlated across actions in a single time step.
 
-\paragraph{Motivation}
-\begin{enumerate}
-\item \textbf{News}: a user visits a news site and is presented with a news header. The user either clicks on this header or not. The goal of
-the website is to maximize the number of clicks. So each possible
-header is an action in a bandit problem, and the clicks are the
-rewards
-\item \textbf{Medical Trials}: Each patient in the trial is prescribed one treatment out of several possible treatments. Each treatment is an
-action, and the reward for each patient is the effectiveness of the
-prescribed treatment.
-\item \textbf{Ad selection}: In website advertising, a user visits a webpage, and a learning algorithm selects one of many possible ads to
-display. If an advertisement is displayed, the website observes
-whether the user clicks on the ad, in which case the advertiser pays
-some amount $v_{a} \in[0, 1]$. So each advertisement is an action,
-and the paid amount is the reward.
-\end{enumerate}
-
-\paragraph{Model}
+More formally, we have the following model,
 \begin{itemize}
-\item A set of actions $\Actions=\left\{ \action_{1}\dots,\action_{k}\right\} $. For simplicity we identify action $\action_i$ with the integer $i$.
-\item Each action $\action_{i}$ has a reward distribution $D_{i}$ over
-$[0,1]$.
-\item The expectation of distribution $D_{i}$ is:
+\item \textbf{Actions}: A set of actions $\Actions=\left\{ \action_{1}\dots,\action_{k}\right\} $. For simplicity we identify action $\action_i$ with the integer $i$.
+\item \textbf{Rewards}: Each action $\action_{i}$ has a reward distribution $D_{i}$ over $[0,1]$. The expectation of the reward of action $\action_i$ is:
+%of distribution $D_{i}$ is:
 \[
 \mu_{i}=\E_{X\sim D_{i}}\left[X\right]
 \]
-\item $\mu^{*}= \max_{i}\mu_{i}$ and $\action^*=\arg\max_i\mu_i$.
-\item $\action_{\ttime}$ is the action the learner chose at round $\ttime$.
-\item The leaner observes either full feedback, the reward for each possible action, or bandit feedback, only the reward $\reward_\ttime$ of the selected action $\action_\ttime$. For most of the chapter we will consider the bandit setting.
+The random variable of the reward of action $\action_i$ at time $\ttime$ is denoted by $\reward_\ttime(\action_\ttime)$.
+\item \textbf{Best action}: The maximum expected reward is $\mu^{*}= \max_{i}\mu_{i}$ and the corresponding action is $\action^*\in \arg\max_i\mu_i$.
+\item \textbf{Learner's actions and rewards}: $\action_{\ttime}$ is the action the learner choose at round $\ttime$ and $\reward_\ttime$ is its reward.
+\item \textbf{Feedback}: The learner observes either full feedback, the reward for each possible action, or bandit feedback, only the reward $\reward_\ttime(\action_\ttime)$ of the selected action $\action_\ttime$. For most of the chapter we will consider the bandit setting.
 \end{itemize}
 
-We need to define the objective of the learner. The simple objective is to maximize the cumulative reward during the entire episode, namely $\sum_{\ttime=1}^\tHorizon \reward_\ttime$. We will measure the performance by comparing the learner's cumulative reward to the optimal cumulative reward. The difference would be called the \emph{regret}. Our goal would be that the average regret would be vanishing and $\tHorizon$ goes to infinity.
+Next, we need to define the objective of the learner. The simple objective is to maximize the cumulative reward collected during the entire episode, namely $\sum_{\ttime=1}^\tHorizon \reward_\ttime$. Equivalently, We measure the performance by comparing the learner's cumulative reward to the optimal cumulative reward. The difference is called the \emph{regret}. Our goal would be that the average regret would vanish as $\tHorizon$ goes to infinity.
 Formally we define the regret as follows.
 \[
 \text{Regret}=\max_{i\in \Actions}{\displaystyle
@@ -54,13 +52,15 @@ Formally we define the regret as follows.
 The regret as define above is a random variable and we can consider the expected regret, i.e., $\E[\text{Regret}]$. This regret is a somewhat unachievable objective, since even if the learner would have known the complete model, and would have selected the optimal action in each time, it would still have a regret. This would follow from the difference between the expectation and the realizations of the rewards.
 For this reason we would concentrate on the Pseudo Regret, which compares the learner's expected cumulative reward to the maximum expected cumulative reward. 
 \[
-\begin{array}{ccc}
-\text{Pseudo Regret} & = & {\displaystyle \max_{i}}\E\left[{\displaystyle \sum_{\ttime=1}^{\tHorizon}\reward_{\ttime}(i)}\right]-\E\left[{\displaystyle \sum_{\ttime=1}^{\tHorizon}\reward_{\ttime}(\action_{\ttime})}\right]\\
+\begin{array}{ccl}
+\text{Pseudo Regret} & = & \max_{i}\E\left[ \sum_{\ttime= 1}^{\tHorizon}\reward_{\ttime}(i)\right]-\E\left[ \sum_{\ttime=1}^{\tHorizon}\reward_{\ttime}(\action_{\ttime})\right]\\
 \\
- & = & \mu^{*}\cdot \tHorizon-{\displaystyle \sum_{\ttime=1}^{\tHorizon}\mu_{\action_{\ttime}}}
+ & = & \mu^{*}\cdot \tHorizon- \E\left[\sum_{\ttime=1}^{\tHorizon}\mu_{\action_{\ttime}}\right]
 \end{array}
 \]
-Note that the difference between the regret and the Pseudo Regret is related to the difference between taking the expected maximum (in Regret) versus the maximum expectation (Pseudo Regret). In this chapter we will only consider pseudo regret (and sometime call it simply regret). 
+Note that the difference between the regret and the Pseudo Regret is related to the difference between taking the expected maximum (in Regret) versus the maximum expectation (Pseudo Regret). Namely, in regret our benchmark is $\E[\max_i \reward(i)]$ while in pseudo regret the benchmark is $\max_i \E[\reward(i)]$. When considering a horizon $\tHorizon$ the two benchmarks can differ by at most $O(\sqrt{\tHorizon})$, by Lemma~\ref{lem:hoeffding} below.
+%
+In this chapter we will only consider pseudo regret (and sometime call it simply regret). 
 
 % \ymignore{
 % \begin{leftbar}
@@ -126,19 +126,19 @@ Note that the difference between the regret and the Pseudo Regret is related to 
 % \subsection{Hoeffding's inequality}
 % }
 
-We will use extensively the following concentration bound.
+We will use extensively the following concentration bound, which is the additive bound in Lemma~\ref{lemma:chernoff}.
 
-\begin{theorem}[Hoeffding's inequality]
-\label{thm:hoeffding}
+\begin{lemma}[Chernoff-Hoffding]
+\label{lem:hoeffding}
 %
 Given $X_{1},\dots,X_{m}$ i.i.d random
 variables s.t $X_{i}\in[0,1]$ and $\E[X_{i}]=\mu$ we have
 \[
-Pr[\frac{1}{m} \sum_{i=1}^{m}X_{i}-\mu \ge\epsilon] \le  \exp(-2\epsilon^{2}m)
+\Pr\left[\frac{1}{m} \sum_{i=1}^{m}X_{i}-\mu \ge\epsilon\right] \le  \exp(-2\epsilon^{2}m)
 %Pr[\underbrace{\frac{1}{m}{\displaystyle \sum_{i=1}^{m}X_{i}-\mu}}_{\frac{1}{m}S}\ge\epsilon] & \le & \exp(-\frac{\epsilon^{2}m}{2})\end{array}
 \]
 or alternatively, for $m\geq \frac{1}{2\epsilon^2}\log(1/\delta)$, with probability $1-\delta$ we have that $\frac{1}{m} \sum_{i=1}^{m}X_{i}-\mu \le\epsilon$.
-\end{theorem}
+\end{lemma}
 
 % \ymignore{
 % \begin{leftbar}
@@ -155,7 +155,7 @@ or alternatively, for $m\geq \frac{1}{2\epsilon^2}\log(1/\delta)$, with probabil
 % \end{leftbar}
 % }
 
-\subsection{Warmup: Full information two actions }
+\section{Warmup: Full information, two actions }
 
 We start with a simple case where there are two actions and we
 observe the reward of both actions at each time $\ttime$. We will analyze
@@ -167,41 +167,39 @@ The greedy policy at time $\ttime$ does the following:
 \item We observe $\big\langle \reward_{\ttime}(1),\reward_{\ttime}(2)\big\rangle$
 \item Define
 \[
-avg_{\ttime}(i)=\frac{1}{\ttime} \sum_{\tau=1}^{\ttime}\reward_{\tau}(i)
+\hat{\mu}_{\ttime}(i)=\frac{1}{\ttime} \sum_{\tau=1}^{\ttime}\reward_{\tau}(i)
 \]
 \item In time $\ttime+1$ we choose:
 \[
-a_{\ttime+1}=\arg\max_{i\in\{1,2\}}avg_{\ttime}(i)
+a_{\ttime+1}=\arg\max_{i\in\{1,2\}}\hat{\mu}_{\ttime}(i)
 \]
 \end{itemize}
 
 
 We now would like to compute the expected regret of the greedy
 policy. W.l.o.g., we assume that $\mu_{1}\ge\mu_{2}$, and define
-$\Delta=\mu_{1}-\mu_{2}\ge0$.
+$\Delta=\mu_{1}-\mu_{2}\ge0$. Each time we select the sub-optimal action, we incur a pseudo regret. For the greedy algorithm this happens when at time $\ttime$ we have $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$. The expected pseudo regret is,
 \[
 \text{Pseudo Regret}= \sum_{\ttime=1}^{\infty}(\mu_{1}-\mu_{2})
-\Pr\left[avg_{\ttime}(2)\ge avg_{\ttime}(1)\right]
+\Pr\left[\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)\right]
 \]
-Note that the above is an equivalent formulation of the pseudo regret. In each time step that greedy selects the optimal action, clearly the difference is zero, so we can ignore those time steps. In time steps which greedy selects the alternative action, action $2$, it has a regret of $\mu_1-\mu_2$ compared to action $1$. This is why we sum over all time steps, the probability that we select action $2$ time the regret in that case, i.e., $\mu_1-\mu_2$. Since we select action $2$ at time $\ttime$ when $avg_{\ttime}(2)\ge avg_{\ttime}(1)$, the probability that we select action $2$ is  exactly the probability that $avg_{\ttime}(2)\ge avg_{\ttime}(1)$.
+Note that the above is an equivalent formulation of the pseudo regret. In each time step that greedy selects the optimal action, clearly the difference is zero, so we can ignore those time steps. In time steps which greedy selects the alternative action, action $2$, it has a regret of $\mu_1-\mu_2$ compared to action $1$. This is why we sum over all time steps, the probability that we select action $2$ time the regret in that case, i.e., $\mu_1-\mu_2$. Since we select action $2$ at time $\ttime$ when $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$, the probability that we select action $2$ is  exactly the probability that $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$.
 
-We would like now to upper bound the probability of $avg_{\ttime}(2)\ge avg_{\ttime}(1)$. 
+We would like now to upper bound the probability of $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$. 
 Clearly, at any time $\ttime$,
 \[
-E[avg_{\ttime}(2)-avg_{\ttime}(1)]=\mu_{2}-\mu_{1}=-\Delta
+E[\hat{\mu}_{\ttime}(2)-\hat{\mu}_{\ttime}(1)]=\mu_{2}-\mu_{1}=-\Delta
 \]
-We can define a random variable $X_{\ttime}=\reward_{\ttime}(2)-\reward_{\ttime}(1)+\Delta$ and
-$\E[X_{\ttime}]=0$. Since $(1/\ttime)\sum_{\ttime} X_{\ttime} = avg_{\ttime}(2)- avg_{\ttime}(1)+\Delta$, by
-Theorem~\ref{thm:hoeffding}
+We can define a random variable $X_{\ttime}=\reward_{\ttime}(2)-\reward_{\ttime}(1)+\Delta$ and have$\E[X_{\ttime}]=0$. Since $(1/\ttime)\sum_{\ttime} X_{\ttime} = \hat{\mu}_{\ttime}(2)- \hat{\mu}_{\ttime}(1)+\Delta$, by
+Lemma~\ref{lem:hoeffding},
 \[
-Pr[avg_\ttime(2)\geq avg_\ttime(1)]= Pr\left[avg_{\ttime}(2)-avg_{\ttime}(1)+\Delta
+Pr[\hat{\mu}_\ttime(2)\geq \hat{\mu}_\ttime(1)]= Pr\left[\hat{\mu}_{\ttime}(2)-\hat{\mu}_{\ttime}(1)+\Delta
 \ge\Delta\right]\le e^{-2\Delta^{2}\ttime}
 \]
-We can now bound the pseudo regret as follows,
-
+We can now bound the expected pseudo regret as follows,
 \begin{align*}
 E\left[\text{Pseudo Regret}\right] & = 
- \sum_{\ttime=1}^{\infty}\Delta\Pr\left[avg_\ttime(2)\geq avg_\ttime(1)\right]\\
+ \sum_{\ttime=1}^{\tHorizon}\Delta\Pr\left[\hat{\mu}_\ttime(2)\geq \hat{\mu}_\ttime(1)\right]\\
  & \le   \sum_{\ttime=1}^{\infty}\Delta e^{-2\Delta^{2}\ttime}\\
  & \le  \int_{0}^{\infty}\Delta e^{-2\Delta^{2}\ttime}dt\\
  & =  \left[-\frac{1}{2\Delta}e^{-2\Delta^{2}\ttime}\right]_{0}^{\infty}\\
@@ -335,7 +333,7 @@ For the analysis define:
 \lambda=\sqrt{\frac{2\log \tHorizon}{M}}
 \]
 
-By Theorem~\ref{thm:hoeffding} we have
+By Lemma~\ref{lem:hoeffding} we have
 \[
 \Pr\left[\left|\hat{\mu}_{j}-\mu_{j}\right|\ge\lambda\right]  \le
 2e^{-2\lambda^2 M}=\frac{2}{\tHorizon^{4}}
@@ -758,7 +756,7 @@ We sample each action $i$ for
 $m=\frac{8}{\epsilon^{2}}\log\frac{2k}{\delta}$ times, and return
 $a= \arg\max_{i}\hat{\mu}_{i}$ .
 
-For rewards in $[ 0 ,1]$, then, by Theorem \ref{thm:hoeffding}, for
+For rewards in $[ 0 ,1]$, then, by Lemma \ref{lem:hoeffding}, for
 every action $i$ we have
 \[
 Pr\left[\underbrace{\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}}_{\text{bad

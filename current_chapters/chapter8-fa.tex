@@ -99,7 +99,7 @@ naturally to the finite horizon and episodic settings.
 %     \path [line] (d) -- (e);
 % \end{tikzpicture}
 
-\subsection{Value Function Approximation Architectures}
+\subsection{Value Function Approximation Architectures}\label{ssec:value_func_approx_arch}
 
 We now discuss how to build the approximating function. For this we can consider popular hypothesis classes from the machine learning literature. 
 For example: (1) Linear
@@ -188,7 +188,12 @@ approximation in norm $L_\infty$. In fact, even if $\Value^*$ is given to us, it
 
 Intuitively, a more feasible guarantee is that some \textit{average} error is small. In the following, we shall see that this condition can be represented mathematically as a weighted $L_2$ norm. Extending Theorem \ref{thm:approx_error} to a weighted $L_2$ norm is possible, but is technically involved~\cite{munos2007performance}, and we will not derive it in this book. Nevertheless, we shall next study learning algorithms that have a guaranteed average error bound.
 
-\section{From RL to Supervised Learning}
+\section{Approximate Policy Evaluation}\label{sec:approx_policy_eval}
+
+We begin our investigation with the problem of approximating the value function of a given policy. We shall later discuss methods that improve a policy, or approximate the optimal value function.
+
+
+\subsection{From RL to Supervised Learning}
 
 To learn the value function, we would like to reduce our reinforcement learning problem to a
 supervised learning problem. This will enable us to use any of the many techniques of machine learning to address the problem. Let us consider the basic ingredients of supervised learning. The first ingredient is a labeled training set that is sampled i.i.d.
@@ -385,7 +390,7 @@ In the following, we shall develop a rigorous formulation of bootstrapping with 
 % \begin{enumerate}
 % \item Direct approach: Evaluate $\Value^\policy(s)$ only for several states (e.g. by simulation) and interpolate, e.g., using least squares regression: $\FtrMtx \weights = \Pi \Value^\policy$. This method is simple, however, it has several drawbacks. The first is that value estimates typically have a large variance, as they accumulate rewards from multiple states in the future. The second is that we need to wait for full simulations to complete before updating the value estimate. Practically, this can take too long in some problems. 
 % \item 
-Recall from Chapter \ref{chapter:learning-model-free} that without function approximation, TD methods effectively compute a solution to the Bellman equation. With function approximation, this is no longer the case, as it is clear that whatever solution TD methods converge to (if they converge at all), must take the function approximation into account. We shall start our investigation from a fundamental equation that takes function approximation into account -- the projected Bellman equation (PBE). We will use the PBE to define a particular approximation of the value function, and study its properties. We will later develop TD algorithms that estimate this approximation using sampling.
+Recall from Chapter \ref{chapter:learning-model-free} that without function approximation, TD methods effectively compute a solution to the Bellman equation. With function approximation, this is no longer the case, as clearly  whatever solution TD methods converge to (if they converge at all), must depend on the function approximation. We shall start our investigation from a fundamental equation that takes function approximation into account -- the projected Bellman equation (PBE). We will use the PBE to define a particular approximation of the value function, and study its properties. We will later develop TD algorithms that estimate this approximation using sampling.
 
 For technical simplicity, our analysis mainly considers linear function approximation. The algorithms we develop, however, can easily be extended to non-linear  approximation, and we will expand on particular cases where relevant. Let $\FtrMtx \in \mathbb{R}^{|\States|\times \nftrs}$ denote a matrix in which each row $\state$ is $\ftrs(\state)$, where without loss of generality we assume that the states are ordered as $1,2,\dots, |\States|$. 
 Let $\ftrspace = \left\{ \FtrMtx \weights: \weights \in \mathbb{R}^{\nftrs} \right\}$ denote the linear subspace spanned by $\FtrMtx$.
@@ -456,7 +461,7 @@ and
 \end{enumerate}
 \end{proposition}
 
-We remark that the bound in \eqref{eq:bias_bound_2} is stronger than the bound in  \eqref{eq:bias_bound_1} (show this!). We nevertheless include the bound \eqref{eq:bias_bound_1} for didactic purpose, as it's proof is slightly different.
+We remark that the bound in \eqref{eq:bias_bound_2} is stronger than the bound in  \eqref{eq:bias_bound_1} (show this!). We nevertheless include the bound \eqref{eq:bias_bound_1} for didactic purpose, as its proof is slightly different.
 Proposition \ref{prop:PBE_contraction} shows that for the particular projection defined by weighting the Euclidean norm according to the stationary distribution of the Markov chain, we can both guarantee a solution to the PBE, and bound its bias with respect to $\Project_\xi \Value^\policy$ -- the best approximation of $\Value^\policy$ under the $\xi$ weighting. Fortunately, we shall see that this weighting is suitable for developing on-policy learning algorithms. However, the reader should note that for a different $\xi$, the conclusions of Proposition \ref{prop:PBE_contraction} do not necessarily hold.
 
 \begin{proof}
@@ -674,7 +679,7 @@ If we sample trajectories from $\policy$, after some mixing time $\ttime$, a pai
 % $$G_n^{-1} \approx \frac{1}{n+1} \sum_{t=0}^n  {\ftrs}(\state_\ttime) {\ftrs}(\state_\ttime)^T \Rightarrow G_n \approx (\FtrMtx^T \Xi \FtrMtx)^{-1}.$$
 % We observe that $A_n,b_n,G_n$ can also be computed via the SA algorithm.
 
-\begin{remark}
+\begin{remark}\label{remark:non_linear_PVI}
 Projected value iteration can be used with a more general regression algorithm. Let $\Project_{gen}$ denote a general regression algorithm, such as a non-linear least squares fit, a neural network, or even a non-parametric regression such as K-nearest neighbors. We can consider the iterative algorithm:
 $$\widehat{\Value}(\weights_{n+1}) = \Project_{gen} \operator^\policy \widehat{\Value}(\weights_{n}).$$
 To realize this algorithm, we use the same samples as above, and only replace the regression algorithm. Note that convergence in this case is not guaranteed, as in general, $\Project_{gen} \operator^\policy$ is not necessarily a contraction in any norm.
@@ -774,13 +779,13 @@ A similar convergence result holds for the standard TD(0) of Eq.~\ref{eq:TD_func
 % \begin{remark}
 For a general (not necessarily linear) function approximation, the TD(0) algorithm takes the form:
 \begin{equation*}
-    \weights_{n+1} = \weights_n + \alpha_n \left( \reward(\state_n,\policy(\state_n)) + \widehat{\Value}(\state_{n+1},\weights_n) - \widehat{\Value}(\state_{n},\weights_n) \right) \nabla_{\weights} \widehat{\Value}(\state_n,\weights).
+    \weights_{n+1} = \weights_n + \alpha_n \left( \reward(\state_n,\policy(\state_n)) + \discount\widehat{\Value}(\state_{n+1},\weights_n) - \widehat{\Value}(\state_{n},\weights_n) \right) \nabla_{\weights} \widehat{\Value}(\state_n,\weights).
 \end{equation*}
 It can be derived as a stochastic gradient descent algorithm for the loss function
 \begin{equation*}
     Loss(\weights) = ||\widehat{\Value}(\state,\weights) - \Value^\policy(\state)||_\xi,
 \end{equation*}
-and replacing the unknown $\Value^\policy(\state)$ with a Bellman-type estimator $\reward(\state,\policy(\state))+f(\state',\weights)$.
+and replacing the unknown $\Value^\policy(\state)$ with a TD-style estimator $\reward(\state,\policy(\state))+\discount \widehat{\Value}(\state',\weights)$.
 % \end{remark}
 %\end{document}
 %~
@@ -796,13 +801,13 @@ We can extend the learning algorithms above to the  episodic MDP setting, by rem
 \end{equation*}
 Setting the value of goal states to $0$ is critical with function approximation (and is a common `bug' in episodic MDP implementations), as with function approximation, updates to the non-goal states will impact the approximation of goal state values, and  nothing in the algorithm will push to correct these errors.
 
-\section{Approximate Policy Optimization}
+\section{Approximate Policy Iteration}
 
-So far we have developed various algorithms for approximating the value of a fixed policy $\policy$. Our main interest, however, is finding a \textit{good} policy. Similarly to RL without function approximation, we will consider two different approaches, based on either policy iteration or value iteration.
+So far we have developed various algorithms for approximating the value of a fixed policy $\policy$. Our main interest, however, is finding a \textit{good} policy. Similarly to RL without function approximation, we will consider two different approaches, based on either policy iteration or value iteration. In this section we consider approximate policy iteration.
 
-\subsection{Approximate Policy Iteration}
+% \subsection{Approximate Policy Iteration}
 
-\paragraph{The algorithm:} iterate between projection of $\Value^{\policy_k}$ onto $\ftrspace$ and policy improvement via a greedy policy update w.r.t. the projected $\Value^{\policy_k}$.
+\paragraph{The general algorithm:} iterate between projection of $\Value^{\policy_k}$ onto $\ftrspace$ and policy improvement via a greedy policy update w.r.t. the projected $\Value^{\policy_k}$.
 %$\operator^\policy$ (recall $\operator^\policy V = R^\policy + \gamma  P\policy V$, and Bellman's operator satisfies $TV = \max_{\policy \in \Pi} \operator^\policy V$):
 
 \vspace{20pt}
@@ -812,8 +817,8 @@ So far we have developed various algorithms for approximating the value of a fix
 \begin{tikzpicture}[node distance = 2cm, auto]
     % Place nodes
     \node [block, node distance=1.5in, text width=3em] (a) {Guess $\policy_0$};
-    \node [block, node distance=2in, right of =a, text width=15em] (b) {evaluate: \\ $\widehat{\Value}_k=\FtrMtx \weights_k \approx \Value^{\policy_{k}}$ };
-    \node [block, node distance=2in, right of = b, text width=5em] (c) {improve: $\policy_{k+1}$};
+    \node [block, node distance=2in, right of =a, text width=10em] (b) {Evaluate: \\ $\widehat{\Value}_k=\FtrMtx \weights_k \approx \Value^{\policy_{k}}$ };
+    \node [block, node distance=2in, right of = b, text width=10em] (c) {Improve: $\policy_{k+1}\approx \textrm{greedy}(\widehat{\Value}_k)$};
     % Draw edges
     \path [line] (a) -- (b);
     \path [line] (b) -- (c);
@@ -821,23 +826,247 @@ So far we have developed various algorithms for approximating the value of a fix
 \end{tikzpicture}
 \vspace{20pt}
 
-The key question in approximate policy iteration, is how errors in the value-function approximation, and possibly also errors in the greedy policy update, affect the error in the final policy. The next result shows that if we can guarantee that the value-function approximation error is bounded at each step of the algorithm, then the error in the final policy will also be bounded. This result suggests that approximate policy iteration is a fundamentally sound idea.
+A key question in approximate policy iteration, is how errors in the value-function approximation, and possibly also errors in the greedy policy update, affect the error in the final policy. The next result shows that if we can guarantee that the approximation errors are bounded at each step of the algorithm, then the error in the final policy will also be bounded. This result suggests that approximate policy iteration is a fundamentally sound idea.
 
 \begin{theorem}\label{thm:API}
 If for each iteration $k$ the policies are approximated well over $\States$:
-$$\max_\state |\widehat{\Value}_k(\state)-\Value^{\policy_k}(\state)| \le \delta,$$
+\begin{equation}\label{eq:approx_pi_1}
+\|\widehat{\Value}_k(\state)-\Value^{\policy_k}(\state)\|_\infty \le \delta,
+\end{equation}
 and policy improvement approximates well
-$$ \max_\state |\operator^{\policy_{k+1}}\widehat{\Value}_k - \operator\widehat{\Value}_k| < \varepsilon,$$
+\begin{equation}\label{eq:approx_pi_2}
+\|\operator^{\policy_{k+1}}\widehat{\Value}_k - \operator\widehat{\Value}_k\|_\infty < \varepsilon,
+\end{equation}
 Then
-$$ \limsup_k \ \max_\state | \Value^{\policy_k}(\state)-\Value^*(\state)| \le \frac{\varepsilon+2\gamma\delta}{(1-\gamma)^2}.$$
+$$ \limsup_k \ \| \Value^{\policy_k}(\state)-\Value^*(\state)\|_\infty \le \frac{\varepsilon+2\gamma\delta}{(1-\gamma)^2}.$$
 \end{theorem}
+\sloppy To understand the policy improvement approximation term \eqref{eq:approx_pi_2}, recall that the Bellman operator $\operator\widehat{\Value}_k$ corresponds to a greedy policy improvement step, $\policy_{\textrm{greedy}}\left(\widehat{\Value}_k\right)(\state) = \argmax_{\action} \reward(\state,\action) + \discount \sum_{\state'} \transitionprob(\state'|\state,\action)\widehat{\Value}_k(\state')$. Suppose we cannot perform the $\argmax$ accurately for every state when computing the next policy $\policy_{k+1}$, that is, $\policy_{k+1} \neq \policy_{\textrm{greedy}}\left(\widehat{\Value}_k\right)$. The condition \eqref{eq:approx_pi_2} ensures that $\policy_{k+1}$ is not too far off, in that $\reward(\state,\policy_{k+1}(\state)) + \discount \sum_{\state'} \transitionprob(\state'|\state,\policy_{k+1}(\state))\widehat{\Value}_k(\state')$ is not more than $\varepsilon$ away from $\policy_{\textrm{greedy}}\left(\widehat{\Value}_k\right)(\state)$.
+\begin{proof}
+    Let $e$ denote a vector of ones. From the contraction property of $\operator$ and $\operator^{\policy_{k+1}}$ we have that
+    \begin{equation*}
+        \| \operator^{\policy_{k+1}} \widehat{\Value}_k - \operator^{\policy_{k+1}}\Value^{\policy_k} \|_\infty \leq \discount \delta,
+    \end{equation*}
+    \begin{equation*}
+        \| \operator \widehat{\Value}_k - \operator\Value^{\policy_k} \|_\infty \leq \discount \delta.
+    \end{equation*}
+    Therefore, 
+
+    \begin{equation}\label{eq:approx_pi_3}
+        \operator^{\policy_{k+1}}\Value^{\policy_k} \geq \operator^{\policy_{k+1}}\widehat{\Value}_k - \discount \delta e \geq \operator\widehat{\Value}_k - (\varepsilon + \discount \delta) e \geq \operator\Value^{\policy_k} - (\varepsilon + 2 \discount \delta) e
+    \end{equation}
+    where the inequalities are element-wise, the first inequality is by \eqref{eq:approx_pi_3}, the second inequality is by \eqref{eq:approx_pi_2}, and the last inequality is again by \eqref{eq:approx_pi_3}.
+    Now, by definition of $\operator$,
+    \begin{equation*}
+        \operator\Value^{\policy_k} - (\varepsilon + 2 \discount \delta) e \geq \operator^{\policy_k}\Value^{\policy_k} - (\varepsilon + 2 \discount \delta) e = \Value^{\policy_k} - (\varepsilon + 2 \discount \delta) e,
+    \end{equation*}
+    so we have
+    \begin{equation}\label{eq:approx_pi_4}
+        \operator^{\policy_{k+1}}\Value^{\policy_k} \geq \Value^{\policy_k} - (\varepsilon + 2 \discount \delta) e.
+    \end{equation}
+    Since $\operator^{\policy_{k+1}}$ is a contraction and linear, we have that for any $\Value$ and a scalar $\alpha > 0$,
+    \begin{equation*}
+        \| \operator^{\policy_{k+1}}(\Value - \alpha e) - \operator^{\policy_{k+1}}\Value \|_\infty \leq \discount \alpha \| e \|_\infty = \discount \alpha.
+    \end{equation*}
+    Therefore, 
+    \begin{equation}\label{eq:approx_pi_5}
+        \operator^{\policy_{k+1}}(\Value - \alpha e) \geq \operator^{\policy_{k+1}}\Value - \discount \alpha e,
+    \end{equation}
+    and
+    \begin{equation}\label{eq:approx_pi_5b}
+        \operator^{\policy_{k+1}}(\Value - \alpha e) \leq \operator^{\policy_{k+1}}\Value + \discount \alpha e.
+    \end{equation}
+    Recalling that $\operator^{\policy_{k+1}}$ is a monotone operator (see proof of Lemma \ref{lemma:policy_improvement}), applying $\operator^{\policy_{k+1}}$ to both sides of \eqref{eq:approx_pi_4} and using \eqref{eq:approx_pi_5} we obtain:
+    \begin{equation*}
+    \left(\operator^{\policy_{k+1}}\right)^2\Value^{\policy_k} \geq \operator^{\policy_{k+1}}\Value^{\policy_k} - \discount(\varepsilon + 2 \discount \delta) e.
+    \end{equation*}
+    Similarly, applying $\left(\operator^{\policy_{k+1}}\right)^m$ to both sides of \eqref{eq:approx_pi_4} gives
+    \begin{equation}\label{eq:approx_pi_6}
+    \left(\operator^{\policy_{k+1}}\right)^{m+1}\Value^{\policy_k} \geq \left(\operator^{\policy_{k+1}}\right)^m\Value^{\policy_k} - \discount^m(\varepsilon + 2 \discount \delta) e.
+    \end{equation}
+    Now, consider the telescoping sum 
+    \begin{equation*}    \left(\operator^{\policy_{k+1}}\right)^{n}\Value^{\policy_k} - \Value^{\policy_k} = \sum_{m=0}^{n-1}\left(\operator^{\policy_{k+1}}\right)^{m+1}\Value^{\policy_k} - \left(\operator^{\policy_{k+1}}\right)^m\Value^{\policy_k} \geq \left(\sum_{m=0}^{n-1}\discount^m\right)(\varepsilon + 2 \discount \delta) e,
+    \end{equation*}
+    where in the last equality we plugged \eqref{eq:approx_pi_6}. Taking $n \to \infty$ we obtain:
+    \begin{equation}\label{eq:approx_pi_7}
+        \Value^{\policy_{k+1}} - \Value^{\policy_k} \geq \frac{\varepsilon + 2 \discount \delta}{1 - \discount}e.
+    \end{equation}
+    Now,
+    \begin{equation*}
+    \begin{split}
+        -\Value^{\policy_{k+1}} = -\operator^{\policy_{k+1}}\Value^{\policy_{k+1}} &= -\operator^{\policy_{k+1}}\Value^{\policy_{k}} - \left( \operator^{\policy_{k+1}}\Value^{\policy_{k+1}} - \operator^{\policy_{k+1}}\Value^{\policy_{k}}\right) \\ 
+        &\leq -\operator^{\policy_{k+1}}\left(\Value^{\policy_{k}} + \frac{\varepsilon + 2 \discount \delta}{1 - \discount}e \right)\\
+        &= \operator^{\policy_{k+1}}\left(-\Value^{\policy_{k}} - \frac{\varepsilon + 2 \discount \delta}{1 - \discount}e \right)\\
+        &\leq -\operator^{\policy_{k+1}}\Value^{\policy_{k}} + \discount \frac{\varepsilon + 2 \discount \delta}{1 - \discount}e,
+    \end{split}
+    \end{equation*}
+    where the first inequality is by \eqref{eq:approx_pi_7} and the second is by \eqref{eq:approx_pi_5b}.
+
+    We next have,
+    \begin{equation}\label{eq:approx_pi_8}
+        \Value^{*} - \Value^{\policy_{k+1}} \leq \Value^{*} -\operator^{\policy_{k+1}}\Value^{\policy_{k}} + \discount \frac{\varepsilon + 2 \discount \delta}{1 - \discount}e.
+    \end{equation}
+    From the contraction of $\operator$ we have:
+    \begin{equation}\label{eq:approx_pi_contraction}
+        \Value^{*} - \operator \Value^{\policy_{k}} = \operator\Value^{*} - \operator \Value^{\policy_{k}} \leq \discount \|\Value^{*} - \Value^{\policy_{k}}\|_\infty e.
+    \end{equation}
+    From \eqref{eq:approx_pi_3}, we have
+    \begin{equation*}
+    \begin{split}
+        \Value^{*} -\operator^{\policy_{k+1}}\Value^{\policy_{k}} &\leq \Value^{*} - \operator\Value^{\policy_k} + (\varepsilon + 2 \discount \delta) e \\
+        &\leq \left(\discount \|\Value^{*} - \Value^{\policy_{k}}\|_\infty + \varepsilon + 2 \discount \delta\right)e
+    \end{split}
+    \end{equation*}
+    Combining this with \eqref{eq:approx_pi_8} we obtain
+    \begin{equation*}
+        \Value^{*} - \Value^{\policy_{k+1}} \leq \left(\discount \frac{\varepsilon + 2 \discount \delta}{1 - \discount} + \discount \|\Value^{*} - \Value^{\policy_{k}}\|_\infty + \varepsilon + 2 \discount \delta\right)e = \left(\discount \|\Value^{*} - \Value^{\policy_{k}}\|_\infty + \frac{\varepsilon + 2 \discount \delta}{1 - \discount} \right)e.
+    \end{equation*}
+    Since by definition $\Value^{*} \geq \Value^{\policy_{k+1}}$, we must have
+    \begin{equation*}
+        \|\Value^{*} - \Value^{\policy_{k+1}}\|_\infty \leq \discount \|\Value^{*} - \Value^{\policy_{k}}\|_\infty + \frac{\varepsilon + 2 \discount \delta}{1 - \discount}.
+    \end{equation*}
+    The above holds for every $k$. Taking the $ \limsup$ of both sides as $k \to \infty$ (note that the policies and values do not necessarily converge, but $ \limsup$ always exists) we obtain,
+    \begin{equation*}
+        (1-\discount)\limsup_k\|\Value^{*} - \Value^{\policy_{k}}\|_\infty \leq  \frac{\varepsilon + 2 \discount \delta}{1 - \discount}.
+    \end{equation*}
+\end{proof}
 
 \subsection{Approximate Policy Iteration Algorithms}
 
-We next discuss several algorithms that implement approximate policy iteration.
+We next discuss several algorithms that implement approximate policy iteration. That is, methods for approximating the policy evaluation and the greedy policy improvement. We begin with methods that require knowledge of the state transition probabilities $\transitionkernel$, or a simulator thereof. We shall later consider methods that only require state transition samples.
 
-\subsubsection{Online - SARSA}
-As we have seen earlier, it is easier to define a policy improvement step using the $Q$ function. We can easily modify the TD(0) algorithm above to learn $\widehat{Q}^\policy(\state,\action) = f(\state,\action;\weights)$.
+\subsubsection{Classification Based Policy Iteration}
+We have already discussed approximate policy evaluation in Section \ref{sec:approx_policy_eval}, so let us begin by assuming we have obtained an approximate value function $\widehat{\Value}^{\policy}(\state,\weights)$ for our current policy $\policy$. The main question is how obtain an (approximately) greedy policy $\policy_{\textrm{greedy}}\left(\widehat{\Value}^\policy\right)$ when the state space is too large to iterate over. We would like to treat this as another supervised learning problem. Therefore, we should
+generate a training set, 
+\[
+D = \{(\state_1, \action_{\textrm{greedy}}(\state_1)),\ldots,
+(\state_m,\action_{\textrm{greedy}}(\state_m))\},
+\]
+where the label of a sample state $\state$, $\action_{\textrm{greedy}}(\state)$, is an action taken from the greedy policy with resect to $\widehat{\Value}^{\policy}(\state,\weights)$.
+
+We can use this training set to train a machine learning model for the greedy policy using standard supervised learning techniques, i.e., classification if the action space is finite or regression if the action space is continuous.
+For concreteness, we focus here on a simple parametric method for finite actions; this approach extends naturally to other supervised learning techniques, including neural networks and non-parametric methods.
+Let $\widehat{\policy}(\action | \state; \weights')$ be a policy parametrized by a weight vector $\weights'$ as follows,
+\begin{equation*}
+    \widehat{\policy}(\action | \state; \weights') = \frac{e^{\weight'^T \ftrs(\state,\action)}}{\sum_{\action'\in\Actions}e^{\weight'^T \ftrs(\state,\action')}},
+\end{equation*}
+where $\ftrs(\state,\action)$ are some state-action features (cf. the approximate $\QValue$ function in Section \ref{ssec:value_func_approx_arch}).
+Note the distinction between the value function parameters $\weights$ and policy parameters $\weights'$. A standard classification technique for fitting the policy $\widehat{\policy}(\action | \state; \weights')$ to the data $D$ is maximum likelihood:
+\begin{equation*}
+    \weight'_{\textrm{ML}} = \argmax_{\weight'} \sum_{(\state_i, \action_{\textrm{greedy}}(\state_i)) \in D} \log \widehat{\policy}(\action_{\textrm{greedy}}(\state_i)) | \state_i; \weights'),
+\end{equation*}
+where the optimization is typically solved using gradient descent methods.
+
+\begin{algorithm}[H]
+\caption{Classification Based Approximate Policy Iteration}\label{alg:CB_API}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Model $\transitionkernel$, policy $\policy_0$, size $N$, approximation architectures $\widehat{\Value}(\state, \weights)$, $\widehat{\policy}(\action | \state; \weights')$
+\State \textbf{For} {$k = 0,1,2,\dots$ }
+\State \quad Collect a set of $N$ samples $\{(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})\}$ under $\policy_k$
+\State \quad \label{line:value_fit}Fit value function parameters $\weights_k$ 
+\State \quad \label{line:label_generation}For each sample $\state_\ttime$ calculate
+$$\action_{\textrm{greedy}}(\state_\ttime) = \argmax_{\action} \left\{\reward(\state_\ttime,\action) + \discount \sum_{\state'} \transitionprob(\state'|\state_\ttime,\action)\widehat{\Value}(\state', \weights_k)\right\}$$
+\State \quad \label{line:policy_fit}Fit policy parameters $\weights'_k$
+\begin{equation*}
+    \weight'_k = \argmax_{\weight'} \sum_{(\state_\ttime, \action_{\textrm{greedy}}(\state_\ttime))} \log \widehat{\policy}(\action_{\textrm{greedy}}(\state_\ttime)) | \state_\ttime; \weights')
+\end{equation*}
+\end{algorithmic}
+\end{algorithm}
+
+Algorithm \ref{alg:CB_API} gives a template for classification-based approximate policy iteration. For the policy evaluation in Line \ref{line:value_fit}, any approximate policy evaluation method from Section \ref{sec:approx_policy_eval} can be used. The maximum-likelihood fit in Line \ref{line:policy_fit} can be replaced with different supervised learning methods for fitting a policy to data.
+Note that we require the state transition probabilities $\transitionkernel$ for generating the greedy action labels in Line \ref{line:label_generation}. 
+
+\subsubsection{Approximate Policy Iteration with $\tHorizon$-step Lookahead}
+
+As long as we are generating improved actions for fitting the policy, there is no reason to limit ourselves to greedy actions. We can, for instance, calculate actions that are optimal with respect to a $\tHorizon$-step lookahead (whereas greedy corresponds to $\tHorizon=1$),
+
+\begin{equation}\label{eq:lookahead_greedy}
+    \policy_{\tHorizon-\textrm{greedy}}(\state_\ttime) = \argmax_{\action_\ttime} \left\{\max_{\policy}  \mathbb{E}^{\policy,\action_\ttime} \left[\sum_{\ttime'=\ttime}^{\ttime+\tHorizon-1} \discount^{\ttime' - \ttime}\reward(\state_{\ttime'}) + \discount^\tHorizon \widehat{\Value}(\state_{\ttime+\tHorizon}))\right]\right\}.
+\end{equation}
+
+The next theorem show that as we increase the lookahead horizon $\tHorizon$, the error bound for approximate policy iteration improves.
+
+\begin{theorem}\label{thm:lookahead_API}
+If for each iteration $k$ the policies are approximated well over $\States$:
+\begin{equation}\label{eq:lookahead_approx_pi_1}
+\|\widehat{\Value}_k(\state)-\Value^{\policy_k}(\state)\|_\infty \le \delta,
+\end{equation}
+and policy improvement approximates well
+\begin{equation}\label{eq:lookahead_approx_pi_2}
+\|\operator^{\policy_{k+1}}\widehat{\Value}_k - \operator^\tHorizon\widehat{\Value}_k\|_\infty < \varepsilon,
+\end{equation}
+Then
+$$ \limsup_k \ \| \Value^{\policy_k}(\state)-\Value^*(\state)\|_\infty \le \frac{\varepsilon+2\gamma\delta}{(1-\gamma)(1-\gamma^\tHorizon)}.$$
+\end{theorem}
+\begin{proof}
+    (Sketch) The proof follows the lines of Theorem \ref{thm:API}, where in Equation \ref{eq:approx_pi_contraction} we replace the $\discount$-contraction of $\operator$ with the $\discount^\tHorizon$ contraction of $\operator^\tHorizon$.
+\end{proof}
+
+Calculating the optimal action for a $\tHorizon$-step lookahead in \eqref{eq:lookahead_greedy} is not trivial for $\tHorizon > 1$, as essentially we need to solve a finite horizon MDP on a potentially large state space. Even if the number of possible state transitions for each state-action pair is bounded by some $M$, the number of states reachable from $\state_\ttime$ in $\tHorizon$ steps is bounded by $(\Actions M)^\tHorizon$, therefore searching for an optimal policy becomes intractable. 
+
+A family of methods that has proven to work very well in practice approximates the optimal action in \eqref{eq:lookahead_approx_pi_2} using an approximate tree search algorithm. In particular, we focus here on the Monte-Carlo Tree Search (MCTS) algorithm.
+
+\paragraph{Monte-Carlo Tree Search}
+We can think of the optimization problem in \eqref{eq:lookahead_greedy} as finding an optimal action for each possible state that can be reached from $\state_\ttime$ in $\tHorizon$ steps. 
+
+In MCTS, we sequentially build a tree representing the reachable states and their $\QValue$ values. The idea is to build the tree in a way that will focus on the more promising actions, and therefore will provide a good approximation of \eqref{eq:lookahead_approx_pi_2} even before the full tree is built. To do this, for each state we encounter, we maintain a $\QValue$ value estimate, and expand the tree sequentially by selecting actions that maximize, 
+\begin{equation*}
+    \action = \argmax \QValue(\state, \action) + B(\state,\action),
+\end{equation*}
+where $B(\state,\action)$ is an exploration bonus. Thus, most of the search is focused on exploring actions with a high $\QValue$ estimate, while the bonus term drives exploration of other actions, which is important in case the $\QValue$ estimate is not accurate.
+
+A common term for the exploration bonus is termed \textit{upper confidence trees (UCT)},
+\begin{equation*}
+    B_{\textrm{UCT}}(\state,\action) = \frac{\sqrt{\log\sum_{\action'} N(\state,\action')}}{1+N(\state,\action)},
+\end{equation*}
+where $N(\state,\action)$ counts how many times a state-action pair was encountered during the tree search, and $\policy$ is the current policy in the approximate policy iteration. This term gives a higher bonus to actions that were not sampled often. Some motivation for this specific form of exploration-exploitation balance comes from a formal result that we shall establish in Chapter \ref{chapter:MAB} for the upper confidence bound algorithm. 
+
+An alternative heuristic for the exploration bonus that was suggested in the popular Alpha Zero study takes into account the policy, and uses it to weigh the bonus term, 
+\begin{equation*}
+    B_{\textrm{AlphaZero}}(\state,\action) = \policy(\state,\action)\frac{\sqrt{\sum_{\action'} N(\state,\action')}}{1+N(\state,\action)}.
+\end{equation*}
+
+\begin{algorithm}[H]
+\caption{Monte-Carlo Tree Search (MCTS)}\label{alg:MCTS}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Simulator $\transitionkernel$, initial state $\state_{\textrm{root}}$, value estimate $\widehat{\Value}(\state)$, horizon $\tHorizon$, budget $K$
+\State Initialize Tree = $\{ \state_{\textrm{root}}\}$
+\State Initialize $\forall \action: \quad $ $W(\state_{\textrm{root}},\action) = 0$, $N(\state_{\textrm{root}},\action) = 0$, 
+$\QValue(\state_{\textrm{root}},\action) = 0$ 
+\State \textbf{For} {$k = 0,\dots,K$ }
+\State \quad \texttt{search}($\state$, 0)
+\State \textbf{Return} $\argmax_\action \QValue(\state_{\textrm{root}},\action)$
+\\
+\Function{\texttt{search}}{$\state,\ttime$}
+\State \quad \textbf{If} $\state \notin \textrm{Tree}$
+\State \quad \quad Add $\state$ to Tree.
+\State \quad \quad Initialize $\forall \action: \quad $ $W(\state,\action) = 0,$ 
+$N(\state,\action) = 0,$ 
+$\QValue(\state,\action) = 0$ 
+\State \quad \quad \textbf{Return} $\widehat{\Value}(\state)$
+\State \quad \textbf{If} $\ttime = \tHorizon$:
+\State \quad \quad \textbf{Return} $\widehat{\Value}(\state)$
+\State \quad $\action = \argmax \QValue(\state, \action) + B(\state,\action)$
+\State \quad $\state' \sim \transitionprob(\cdot|\state,\action)$
+\State \quad $W(\state,\action) = W(\state,\action) + \reward(\state,\action) + \discount\cdot$\texttt{search}($\state', \ttime+1$)
+\State \quad $N(\state,\action) = N(\state,\action) + 1$
+\State \quad $\QValue(\state, \action) = W(\state,\action) / N(\state,\action)$
+\State \quad \textbf{Return} $\QValue(\state, \action)$
+\end{algorithmic}
+\end{algorithm}
+
+Finally, we can use the MCTS algorithm \ref{alg:MCTS} as a replacement of the greedy action selection in Line \ref{line:label_generation} of the classification based approximate policy iteration algorithm \ref{alg:CB_API}, as an approximation of a $\tHorizon$-step lookahead action.
+
+\begin{remark}
+    In a very influential study~\cite{silver2017mastering}, a variant of the MCTS-based policy iteration algorithm above termed \emph{AlphaGo Zero} was used to train a super-human level policy in the challenging game of Go, and followup works extended the results to other board games~\cite{silver2018general}. These methods used deep neural networks for the policy and value function approximations, and were trained to play games using self-play: the policy was trained to play against itself as an opponent. For a fixed opponent policy, the game can be cast as an MDP as follows: following an action by the player at some state, the next state transition corresponds to first changing the board state according to the player's action, then using the policy to sample an action for the opponent, and subsequently changing board state according to the opponent action. In self-play, every once in a while, the opponent policy was changed to the currently trained policy, effectively changing the MDP.
+\end{remark}
+
+\subsubsection{Online Model Free Approximate Policy Iteration -- SARSA}
+
+We now consider approximate policy iteration methods that do not require the model $\transitionkernel$ to compute the greedy improvement step. The main trick, similarly to the tabular setting, is to consider the state-action value function $\QValue$ instead of the state values $\Value$.
+
+% As we have seen earlier, it is easier to define a policy improvement step using the $Q$ function. 
+
+We start with an online method. For a given policy $\policy$, we can easily modify the TD(0) algorithm above to learn $\widehat{Q}^\policy(\state,\action;\weight)$.
 % \begin{equation*}
 %     \weights_{n+1} = \weights_n + \alpha_n \left( r(\state_n,a_n) + f(\state_{n+1},\action_{n+1};\weights_n) - f(\state_{n},\action_{n}; \weights_n) \right) \nabla_{\weights} f(\state_n,\action_n,\weights).
 % \end{equation*}
@@ -845,22 +1074,28 @@ As we have seen earlier, it is easier to define a policy improvement step using 
 \begin{algorithm}[H]
 \caption{SARSA with Function Approximation}
 \begin{algorithmic}[1]
-\State \textbf{Initialize:} Set $\weights_0 = 0$.
+\State \textbf{Initialize:} Set $\weights_0 = 0$, $\state_0, \action_0$ arbitrary.
 \State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
-    \State \quad Observe: $\state_\ttime$ 
-    \State \quad Choose action: $\action_\ttime$ 
+    \State \quad Take action $\action_\ttime$ at state $\state_\ttime$
     \State \quad Observe $\reward_\ttime, \state_{\ttime+1}$
+    \State \quad \label{line:sarsa_choose_action}Choose next action: $\action_{\ttime+1}$ 
     \State \quad Update:
-    \begin{equation*}
-    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \left( \reward(\state_\ttime,\action_\ttime) + \discount f(\state_{\ttime+1},\action_{\ttime+1};\weights_\ttime) - f(\state_{\ttime},\action_{\ttime}; \weights_\ttime) \right) \nabla_{\weights} f(\state_\ttime,\action_\ttime,\weights)
-\end{equation*}
+  \[
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \left( \reward(\state_\ttime,\action_\ttime) + \discount \widehat{Q}(\state_{\ttime+1},\action_{\ttime+1};\weights_\ttime) - \widehat{Q}(\state_{\ttime},\action_{\ttime}; \weights_\ttime) \right) \nabla_{\weights} \widehat{Q}(\state_\ttime,\action_\ttime; \weights_\ttime)\]
 \end{algorithmic}
 \end{algorithm}
 
-The actions are typically selected according to an $\xi-$greedy or softmax rule. Thus, policy evaluation is interleaved with policy improvement.
+\AT{how to get rid of the =0 in the algo??}
 
-\subsubsection{Batch - Least Squares Policy Iteration (LSPI)}
-One can also derive an approximate policy iteration algorithm that works on a batch of data. Consider the linear case $\widehat{Q}^\policy(\state,\action) = \weights^T \ftrs(\state,\action)$. The idea is to use LSTD(0) to iteratively fit $\widehat{Q}^{\policy_k}$, where $\policy_k$ is the greedy policy w.r.t. $\widehat{Q}^{\policy_{k-1}}$.
+The actions in Line \ref{line:sarsa_choose_action} are typically selected according to an $\xi-$greedy or softmax rule. Thus, policy evaluation is interleaved with policy improvement.
+
+\subsubsection{Batch Model Free Approximate Policy Iteration -- Least Squares Policy Iteration (LSPI)}
+One can also derive an approximate policy iteration algorithm that works on a batch of data. Looking at the SARSA algorithm above, where action selection was updated throughout the run of the algorithm, this may seem a bit surprising -- how can we perform policy iteration on data that was collected once, using a single policy? The trick is to recall the Bellman equation for $\QValue$. Let $\policy_{\textrm{greedy}}$ be a policy that is greedy with respect to a value function $\widehat{Q}^\policy(\state,\action;\weight)$,  $\policy_{\textrm{greedy}}(\state) = \argmax_{\action}\widehat{Q}^\policy(\state,\action;\weight)$. Then $\QValue^{\policy_{\textrm{greedy}}}$ satisfies:
+\begin{equation*}
+\QValue^{\policy_{\textrm{greedy}}}(\state,\action) = \reward(\state,\action) + \discount \mathbb{E}\left[ \QValue^{\policy_{\textrm{greedy}}}(\state', \policy_{\textrm{greedy}}(\state'))\right].
+\end{equation*}
+Notice that in the equation above the expectation is with respect to the state transitions, and not any policy, therefore we can approximate it using a fixed set of samples. The Least Squares Policy Iteration (LSPI) builds on this idea to iteratively compute a least squares fit to the greedy policy with respect to the current $\QValue$.
+Consider linear function approximation $\widehat{Q}^\policy(\state,\action) = \weights^T \ftrs(\state,\action)$. The idea is to use LSTD(0) to iteratively fit $\widehat{Q}^{\policy_k}$, where $\policy_k$ is the greedy policy w.r.t. $\widehat{Q}^{\policy_{k-1}}$.
 
 
 \begin{algorithm}[H]
@@ -896,9 +1131,9 @@ $\action^*_{\ttime+1} = \argmax_\action \widehat{Q}^{\policy_{k-1}}(\state_{\tti
 % \end{align*}
 % where $\action^*_{t+1} = \argmax_\action \widehat{Q}^{\policy_{k-1}}(\state_{t+1},\action) = \argmax_\action \weights_{k-1}^T\ftrs(\state_{t+1},\action)$.
 
-It is also possible to collect data from the modified policy at each iteration $k$, instead of the initial policy.
+It is straightforward to extend the LSPI algorithm to nonlinear function approximation, by replacing LSTD with, e.g., projected value iteration (cf. Remark \ref{remark:non_linear_PVI}). It is also possible to collect data from the modified policy at each iteration $k$, instead of the initial policy.
 
-\subsection{Approximate Value Iteration}
+\section{Approximate Value Iteration}
 Approximate value iteration algorithms directly approximate the optimal value function (or optimal $Q$ function). Let us first consider the linear case. The idea in approximate VI is similar to the PBE, but replacing $\operator^\policy$ with $\operator^*$. That is, we seek solutions to the following projected equation:
 \begin{equation*}
     \FtrMtx \weights = \Project \operator^* \{\FtrMtx \weights\},
@@ -910,14 +1145,14 @@ where $\Project$ is some projection, such as the weighted least squares projecti
 %     \widehat{Q}(\weights_{n+1}) = \Pi T \widehat{Q}(\weights_{n}).
 % \end{equation*}
 
-\subsubsection{Online - Q Learning}
+\subsubsection{Online Approximate Value Iteration -- Q Learning}
 The function approximation version of online Q-learning resembles SARSA, only with an additional maximization over the next action:
 % \begin{equation*}
 %     \weights_{n+1} = \weights_n + \alpha_n \left( \reward(\state_n,\action_n) + \discount \max_\action \widehat{Q}(\state_{n+1},\action;\weights_n) - \widehat{Q}(\state_{n},\action_{n}; \weights_n) \right) \nabla_{\weights} \widehat{Q}(\state_n,\action_n,\weights).
 % \end{equation*}
 
 \begin{algorithm}[H]
-\caption{Q-learning with Function Approximation}
+\caption{Q-learning with Function Approximation}\label{alg:Q-learning}
 \begin{algorithmic}[1]
 \State \textbf{Initialize:} Set $\weights_0 = 0$.
 \State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
@@ -933,16 +1168,69 @@ The function approximation version of online Q-learning resembles SARSA, only wi
 
 The actions are typically selected according to an $\varepsilon-$greedy or softmax rule, to balance exploration and exploitation.
 
-\subsubsection{Batch -- Fitted Q}
+\subsubsection{Batch Approximate Value Iteration -- Fitted Q}
 
 In this approach, we iteratively project (fit) the Q function based on the projected equation:
 \begin{equation*}
     \widehat{Q}(\weights_{n+1}) = \Project \operator^* \widehat{Q}(\weights_{n}).
 \end{equation*}
 
-Assume we have a data set of samples $\{\state_i,\action_i,\state'_i,\reward_i\}$,obtained from some data collection policy. Then, the right hand side of the equation denotes a regression problem where the samples are: $\left\{(\state_i,\action_i), r_i + \gamma \max_\action \widehat{Q}(\state'_i, \action;\weights_{n})\right\}$. Thus, by solving a sequence of regression problems we approximate a solution to the projected equation.
+Assume we have a data set of samples $\{\state_i,\action_i,\state'_i,\reward_i\}$,obtained from some data collection policy. Then, the right hand side of the equation denotes a regression problem where the samples and labels are: $\left\{(\state_i,\action_i), \reward_i + \discount \max_\action \widehat{Q}(\state'_i, \action;\weights_{n})\right\}$. Thus, by solving a sequence of regression problems we approximate a solution to the projected equation.
+
+\begin{algorithm}[H]
+\caption{Fitted Q Learning}\label{alg:fitted_Q}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Data collection policy $\policy_0$, approximation architecture $\widehat{Q}(\state, \action;\weights)$
+\State Initialize $\weights_{0}=0$
+\State Collect a set of $N$ samples $\{(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})\}$ under $\policy_0$
+\State \textbf{For} {$k = 0,1,2,\dots$ }
+    \State \quad Compute labels for each sample $x_\ttime = (\state_\ttime, \action_\ttime)$: 
+\begin{align*}
+y_\ttime = \reward_\ttime + \discount \max_\action \widehat{Q}(\state_{\ttime+1}, \action;\weights_{k})
+\end{align*}
+\State \quad Solve least-squares regression for $\{ (x_\ttime,y_\ttime)\}$: 
+\begin{align*}
+\weights_{k+1} &= \argmin_\weights \frac{1}{N}\sum_{\ttime} \left( \widehat{Q}(\state_{\ttime}, \action_\ttime;\weights) - y_\ttime\right)^2
+\end{align*}
+\end{algorithmic}
+\end{algorithm}
+
 
 Note that approximate VI algorithms are \emph{off-policy} algorithms. Thus, in both Q-learning and fitted-Q, the policy that explores the MDP can be arbitrary (assuming of course it explores `enough' interesting states).
+
+\subsubsection{The Deep Q Learning Algorithm}
+
+A notable milestone in RL history is the application of RL to a large collection of Atari games, using the Deep Q Learning (DQN) algorithm~\citep{mnih2015human}, which advanced the study of deep RL. DQN employed several  techniques to stabilize learning, which were important for its training with deep neural networks. Here, we shall see that these techniques resemble a mix of online Q learning and batch fitted Q.
+
+\paragraph{Replay Buffer} The algorithm is online, similarly to the Q learning Algorithm \ref{alg:Q-learning}. However, instead of updating the $\QValue$ function weights using the current $(\state,\action,\reward,\state')$ sample, as in Q learning, the current sample is stored in a buffer, and a random sample is retrieved from the buffer to perform the update. This works to break correlations between subsequent updates to the $\QValue$ function, which may arise from the algorithm encountering similar states during the agent's interaction with the environment.
+
+\paragraph{Target $\QValue$ Network} 
+Similarly to the fitted Q algorithm \ref{alg:fitted_Q}, DQN uses the same weight vector $\bar{\weights}$ in the labels $\reward(\state_\ttime,\action_\ttime) + \discount \max_\action \widehat{Q}(\state_{\ttime+1},\action;\bar{\weights})$ for multiple updates of the algorithm. This works to stabilize the training, as current changes to the $\QValue$ approximation do not affect the update direction. Every fixed number of updates, the \textit{target} weights $\bar{\weights}$ are replaced to be the current weights.
+
+\begin{algorithm}[H]
+\caption{DQN}\label{alg:DQN}
+\begin{algorithmic}[1]
+\State \textbf{Input:} Replay buffer size $N$, initial weights, $\weights_0$, initial state $\state_0$, target update rate $K$, minibatch size $B$
+\State \textbf{Initialize:} Set target weights $\bar{\weights} = \weights_0$, replay buffer $D = \{ \}$
+\State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
+    \State \quad Observe: $\state_\ttime$ 
+    \State \quad \label{line:dqn_action_selection}Choose action: $\action_\ttime$ 
+    \State \quad Observe $\reward_\ttime, \state_{\ttime+1}$
+    \State \quad Add $\left(\state_\ttime,  \action_\ttime, \reward_\ttime, \state_{\ttime+1}\right)$ to $D$
+    \State \quad Sample minibatch $b = \left\{\left(\state_i,  \action_i, \reward_i, \state_{i}'\right)\right\}$ of size $B$ uniformly from $D$ 
+    \State \quad Compute labels for each sample $x_i = (\state_i, \action_i)$ in $b$: 
+\begin{align*}
+y_i = \reward_i + \discount \max_\action \widehat{Q}(\state_{i}', \action;\bar{\weights})
+\end{align*}
+    \State \quad Take gradient descent step:
+    \begin{equation*}
+    \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \nabla_{\weights} \left( \frac{1}{B}\sum_{(x_i,y_i)\in b} \left(\widehat{Q}(\state_{i}, \action_{i};\weights_\ttime) - y_i)\right)^2\right) 
+\end{equation*}
+\State \quad Every $K$ iteration set $\bar{\weights} = \weights_\ttime$
+\end{algorithmic}
+\end{algorithm}
+
+As in the Q learning algorithm, action selection in Line \ref{line:dqn_action_selection} of DQN follows  an $\varepsilon-$greedy or softmax rule, to balance exploration and exploitation.
 
 \section{Off-Policy Learning with Function Approximation}
 \label{sec:off_policy_FA}
@@ -1033,7 +1321,7 @@ reach the terminal state and we have
 \[
 \frac{\weight_{\ttime+1}}{\weight_\ttime}=(1+\alpha(2\gamma-1))(1-4\alpha(1-\gamma))^n>1
 \]
-and therefore, for the some setting of $n$ we have that the weight
+and therefore, for some setting of $n$ we have that the weight
 $\weight_\ttime$ diverges.
 
 We might hope that the divergence is due to the online nature of the
@@ -1056,7 +1344,7 @@ Solving for $\weight_{\ttime+1}$ we have
 \end{align*}
 So for $\gamma(6-4p)>5$ we have divergence. (Recall that
 $\gamma\approx 1-\varepsilon$ and $p\approx \varepsilon$ is a very
-important setting.)
+important setting.\AT{what is $\varepsilon$ here?})
 
 Note that if we have taken in to account the influence of
 $\weight_{\ttime+1}$ on $\Value$ and use

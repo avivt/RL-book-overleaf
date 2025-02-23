@@ -811,7 +811,7 @@ called $\policy$- improving if it is a greedy policy with respect to
 ${\Value^\policy }$, namely
 \[\bar \policy (\state) \in \arg {\max _{\action \in \Actions}}\left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action){\Value^\policy }(\state')} } \right\}, \quad \forall \state \in \States.\]
 
-\begin{lemma}[Policy Improvement]
+\begin{lemma}[Policy Improvement]\label{lemma:policy_improvement}
 Let $\policy$ be a stationary policy and $\bar{\policy}$ be a
 $\policy$- improving policy.
 %
