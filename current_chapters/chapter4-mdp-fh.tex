@@ -143,7 +143,7 @@ stationary policies by ${\Pi _{SD}}$.
 \end{itemize}
 
 \paragraph{The Induced Stochastic Process}
-Let  ${p_0} = \{ {p_0}(\state),\state \in {\States_0}\} $ be a
+Let  ${\transitionprob_0} = \{ {\transitionprob_0}(\state),\state \in {\States_0}\} $ be a
 probability distribution for the initial state ${\state_0}$. (Many
 times we will assume that the initial state is deterministic and
 given by $\state_0$.) A control policy $\policy \in {\Pi _{HS}}$,
@@ -176,7 +176,7 @@ Therefore, the state-action sequence ${\history_\infty } =
 {({\state_k},{\action_k})_{k \ge 0}}$ can now be considered a
 stochastic process. We denote the probability law of this stochastic
 process by ${\Pr^{\policy ,{\transitionprob_0}}}( \cdot )$. The corresponding
-expectation operator is denoted by ${\E^{\policy ,{\transitionprob_0}}}( \cdot )$, where the expectation is over state-action seqeunces generated using the stochastic
+expectation operator is denoted by ${\E^{\policy ,{\transitionprob_0}}}( \cdot )$, where the expectation is over state-action sequences generated using the stochastic
 process ${\Pr^{\policy ,{\transitionprob_0}}}( \cdot )$.
 When the initial state ${\state_0}$ is deterministic (i.e.,
 ${\transitionprob_0}(\state)$ is concentrated on a single state $\state$), we may
@@ -196,7 +196,7 @@ This follows since:
 + 1}} = \state'|{\state_\ttime} = \state,\action_\ttime=\action) \Pr(\action_\ttime=\action |
 \state_\ttime=\state) \\
 &= \sum_{\action \in {\Actions_\ttime}} {{\transitionprob_\ttime}}
-(\state'|\state,\action){\policy _\ttime}(\action|\state)
+(\state'|\state,\action){\policy _\ttime}(\action|\state).
 \end{align*}
  \ymignore{
 \begin{exercise}{Prove this!}\end{exercise}
@@ -224,7 +224,7 @@ case we need to consider the problem of a Partially Observed MDP
 
 \subsection{Finite Horizon Return}
 Consider the finite-horizon return, with a fixed time horizon
-$\tHorizon$. As in the deterministic case, we are given a running
+$\tHorizon$. As in the deterministic case, we are given an instantaneous
 reward function ${\reward_\ttime} = \{
 {\reward_\ttime}(\state,\action):\state \in {\States_\ttime},\action
 \in {\Actions_\ttime}\} $ for $0 \le \ttime \le \tHorizon -1$, and a
@@ -249,7 +249,7 @@ stochastic, the cumulative return will generally be a random variable, and we
 need to specify in which sense to maximize it. A natural first
 option is to consider the expected value of the return. That is,
 define:
-\[\Value_\tHorizon^\policy (\state) = {\E^\policy }\left(\sum_{\ttime = 0}^\tHorizon {{R_\ttime}} |{\state_0} = \state\right) \equiv {\E^{\policy ,s}}\left(\sum_{\ttime = 0}^\tHorizon {{R_\ttime}} \right) .\]
+\[\Value_\tHorizon^\policy (\state) = {\E^\policy }\Big(\sum_{\ttime = 0}^\tHorizon {{R_\ttime}} |{\state_0} = \state\Big) \equiv {\E^{\policy ,s}}\Big(\sum_{\ttime = 0}^\tHorizon {{R_\ttime}} \Big) .\]
 Here $\policy $ is the control policy as defined above, and $\state$
 denotes the initial state. Hence,  $\Value_\tHorizon^\policy
 (\state)$ is the expected cumulative return under the control policy
@@ -422,7 +422,7 @@ expected reward obtained at stage $\ttime$ is $\E[{R_\ttime}] =
 \reward({\state_\ttime},{\action_\ttime})$.
 
 \paragraph{Discounted return:} The most common performance criterion for infinite horizon problems is the expected discounted return:
-\[\Value_\discount ^\policy (\state) = {\E^\policy }\left(\sum_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} |{\state_0} = \state\right) \equiv {\E^{\policy ,s}}\left(\sum_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} \right)\;,\]
+\[\Value_\discount ^\policy (\state) = {\E^\policy }\Big(\sum_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} |{\state_0} = \state\Big) \equiv {\E^{\policy ,s}}\Big(\sum_{\ttime = 0}^\infty  {{\discount ^t}\reward({\state_\ttime},{\action_\ttime})} \Big) ,\]
 where $0 < \discount  < 1$ is the discount factor. Mathematically,
 the discount factor ensures convergence of the sum (whenever the
 reward sequence is unbounded). This makes the problem ``well behaved",
@@ -446,7 +446,7 @@ Let  ${\States_G} \subset \States$ define the set of \emph{goal
 states}. Define
 \[\tau  = \inf \{ \ttime \ge 0:{\state_\ttime} \in {\States_G}\} \]
 as the first time in which a goal state is reached. The total expected return for this problem is defined as:
-\[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}\left(\sum_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau })\right)\]
+\[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}\left(\sum_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau })\right).\]
 Here ${\reward_G}(\state),\;\state \in {\States_G}$ specified the
 reward at goal states. Note that the length of the run $\tau$ is a random variable.
 
@@ -527,7 +527,7 @@ ${\Value^\policy }({\state_0})$ over all control policies, and find
 an optimal policy ${\policy ^*}$ that achieves the maximal expected
 return ${\Value^*}({\state_0})$ for all initial states ${\state_0}$.
 Thus,
-\[{\Value^*_\tHorizon}({\state_0}) \buildrel \Delta \over = {\Value^{\policy *}_\tHorizon}({\state_0}) = \mathop {\max }\limits_{\policy  \in {\Pi _{HS}}} {\Value^\policy_\tHorizon }({\state_0})\]
+\[{\Value^*_\tHorizon}({\state_0}) \buildrel \Delta \over = {\Value^{\policy *}_\tHorizon}({\state_0}) = \mathop {\max }\limits_{\policy  \in {\Pi _{HS}}} {\Value^\policy_\tHorizon }({\state_0}).\]
 
 
 \subsection{The Principle of Optimality}
@@ -536,8 +536,8 @@ to a large class of multi-stage optimization problems, and is at the
 heart of Dynamic Programming. As a general principle, it states
 that:
 \begin{center}
-\textbf{The tail of an optimal policy is optimal for the ``tail"
-problem.}
+\textbf{The tail of an optimal policy is optimal for the ``tail
+problem".}
 \end{center}
 
 This principle is not an actual claim, but rather a guiding
@@ -580,7 +580,7 @@ V_k^\policy (\state) &= {\E^\policy }\left( {{R_k} + \sum_{\ttime = k + 1}^\tHor
  %{\state_k} = \state,{\action_k} = {\policy _k}(\state),
  {\state_{k + 1}}} \right)|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
  &= {\E^\policy }\left( {\reward_k({\state_k},{\action_k}) + V_{k + 1}^\policy ({\state_{k + 1}})|{\state_k} = \state,{\action_k} = {\policy _k}(\state)} \right)\\
- &= {\reward_k}(s,{\policy _k}(\state)) + \sum_{\state' \in {\States_{k + 1}}} {{\transitionprob_k}(\state'|s,{\policy _k}(\state))} \;V_{k + 1}^\policy (\state')
+ &= {\reward_k}(s,{\policy _k}(\state)) + \sum_{\state' \in {\States_{k + 1}}} {{\transitionprob_k}(\state'|s,{\policy _k}(\state))} \;V_{k + 1}^\policy (\state').
 \end{align*}
 The first identity is simply writing the value function explicitly,
 starting at state $\state$ at time $k$ and using action
@@ -688,7 +688,7 @@ as was required.
 
 (b) To establish $V_k^{*}(\state) \le {W_k}(\state)$, it is enough
 to show that $V_k^{{\policy ^k}}(\state) \le {W_k}(\state)$ for any
-(general, randomized) ''tail" policy ${\policy ^k}$.
+(general, randomized) ``tail" policy ${\policy ^k}$.
 
 Fix $\state \in {\States_k}$. Consider then some tail policy ${\policy ^k} =
 ({\policy _k}, \ldots {\policy _{\tHorizon -1}})$. Note that this
@@ -923,11 +923,11 @@ would be discussed in Chapter~\ref{chapter:learning-model-free}.
 
 
 %\paragraph{To summarize:}
-\section{Summary}
-\begin{itemize}
-  \item The optimal value function can be computed by backward recursion. This recursive equation is known as the \emph{dynamic programming equation}, \emph{optimality equation}, or \emph{Bellman's Equation}.
-  \item Computation of the value function in this way is known as the \emph{finite-horizon value iteration} algorithm.
-  \item The value function is computed for all states at each stage.
-  \item An optimal policy is easily derived from the optimal value.
-  \item The optimization in each stage is performed in the action space.  The total number of minimization operations needed is $\tHorizon  |\States|$  - each over $|\Actions|$ choices. This replaces ``brute force" optimization in policy space, with tremendous computational savings as the number of Markov policies is $|\Actions{|^{\tHorizon |\States|}}$.
-\end{itemize}
+% \section{Summary}
+% \begin{itemize}
+%   \item The optimal value function can be computed by backward recursion. This recursive equation is known as the \emph{dynamic programming equation}, \emph{optimality equation}, or \emph{Bellman's Equation}.
+%   \item Computation of the value function in this way is known as the \emph{finite-horizon value iteration} algorithm.
+%   \item The value function is computed for all states at each stage.
+%   \item An optimal policy is easily derived from the optimal value.
+%   \item The optimization in each stage is performed in the action space.  The total number of minimization operations needed is $\tHorizon  |\States|$  - each over $|\Actions|$ action choices, and for each action requires summing over $|\States|$ next states, resulting in $\tHorizon  |\States|^2 |\Actions|$ operations. This replaces ``brute force" optimization in policy space, with tremendous computational savings as the number of Markov deterministic policies is $|\Actions{|^{\tHorizon |\States|}}$.
+% \end{itemize}

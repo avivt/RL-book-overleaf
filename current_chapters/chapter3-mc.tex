@@ -2,7 +2,7 @@
 
 %\section{Markov Chains}
 
-Extending the deterministic decision making framework of Chapter \ref{chapter:DDP} to stochastic models requires a mathematical model for decision making under uncertainty. With the goal of presenting such a model in mind, in this chapter we cover the fundamentals of the Markov chain stochastic process.
+Our goal in extending the deterministic decision making framework of Chapter \ref{chapter:DDP} to stochastic models is to develop a mathematical model for decision making under uncertainty. With the goal of presenting such a model in mind, in this chapter we cover the fundamentals of the Markov chain stochastic process. A detailed treatment can be found in various books, e.g., \citep{levin2017markov,puterman2014markov}.
 
 % We start by considering a stochastic dynamics model which does not have any actions, so that we can concentrate on the dynamics.
 
@@ -22,7 +22,7 @@ to $1$ and all entries non-negative).
 
 Given the initial distribution ${p_0}$ of ${X_0}$, namely ${\cal
 P}({X_0} = i) = {p_0}(i)$, we obtain the finite-dimensional
-distributions:
+distributions  for states $i_0,i_1,\ldots,i_t$:
 \[{\cal P}({X_0} = {i_0}, \ldots ,{X_\ttime} = {i_\ttime}) = {p_0}(i_0){p_{{i_0},{i_1}}} \cdot  \ldots  \cdot {p_{{i_{\ttime - 1}},{i_\ttime}}}.\]
 
 Define $p_{i,j}^{(m)} = {\cal P}({X_m} = j|{X_0} = i),$ the $m$-step
@@ -31,7 +31,8 @@ transition probabilities.  It is easy to verify that $p_{i,j}^{(m)}
 $P$.
 
 \begin{example}
-\footnote{Simple MC, two states, running example.} Consider the
+%\footnote{Simple MC, two states, running example.} 
+Consider the
 following two state Markov chain, with transition probability $P$
 and initial distribution $p_0$, as follows:
 $$
@@ -55,11 +56,13 @@ later.
 
 \section{State Classification}
 
+We classify the Markov chain given the ability to transition between states. We start by defining \textit{accessible} (or \textit{reachable}) between two states, which capture the fact that the Markov state can transition from one state to another with some positive probability.
+
 \begin{definition}
-    State $j$ is \textit{accessible} (or \textit{reachable}) from $i$  (denoted by $i \to j$) if $p_{i,j}^{(m)} > 0$ for some $m \ge
+    State $j$ is \emph{accessible} (or \emph{reachable}) from $i$  (denoted by $i \to j$) if $p_{i,j}^{(m)} > 0$ for some $m \ge
 1$.
 \end{definition}
-For a finite $X$  we can compute the accessibility property as
+For a finite state space $X$  we can compute the accessibility property as
 follows. Construct a directed graph $G(X,E)$ where the vertices are
 the states $X$ and there is a directed edge $(i,j)$ if $p_{i,j}>0$.
 State $j$ is accessible from state $i$ iff there exists a directed
@@ -70,35 +73,36 @@ i$.\\
 For a finite $X$, this implies that in $G(X,E)$ there is both a
 directed path from $i$ to $j$ and from $j$ to $i$.
 \begin{definition}
-    A \textit{communicating class} (or just
+    A \emph{communicating class} (or just
 \emph{class}) is a maximal collection of states that communicate.
 \end{definition}
-For a finite $X$, this implies that in $G(X,E)$ we have $i$ and $j$
+For a finite state space $X$, this implies that in $G(X,E)$ we have $i$ and $j$
 in the same strongly connected component of the graph. (A strongly
 connected component has a directed path between any pair of
 vertices.)
 \begin{definition}
     The Markov chain is
-\textit{irreducible} if all states belong to a single class (i.e.,
+\emph{irreducible} if all states belong to a single class (i.e.,
 all states communicate with each other).
 \end{definition}
-For a finite $X$, this implies that $G(X,E)$ is strongly
+For a finite state space $X$, this implies that $G(X,E)$ is strongly
 connected.
+
+Next, we define the period of a state in a Markov chain. The period intuitively captures the fact that the time between any two occurrences of the state is always divisible by some integer, which is the period.
 \begin{definition}
-    State $i$ has a \textit{period} $d_i=GCD \{m\geq
+    State $i$ has a \emph{period} $d_i=GCD \{m\geq
 1:p_{i,i}^{(m)}>0\}$, where $GCD$ is the greatest common divisor. A
-state is aperiodic if $d_i=1$.
+state is \emph{aperiodic} if $d_i=1$.
 \end{definition}
 State $i$ is periodic with period $d_i \ge 2$ if  $p_{i,i}^{(m)} =
 0$ for $m \pmod {d_i} \neq 0$ and for any $m$ such that
-$p_{i,i}^{(m)} > 0$ we have $m \pmod {d_i} =0$.\\
+$p_{i,i}^{(m)} > 0$ we have $m \pmod {d_i} =0$.
 If a state $i$ is aperiodic, then there exists an integer $m_0$ such
 that for any $m\geq m_0$ we have $p_{i,i}^{(m)}>0$.
-
 Periodicity is a class property: all states in the same class
 have the same period. Specifically, if some state is
-\textit{a-periodic},
-then all states in the class are a-periodic.
+\emph{aperiodic},
+then all states in the class are aperiodic.
 
 \begin{claim}
 For any two states $i$ and $j$ with periods $d_i$ and $d_j$, in the
@@ -120,16 +124,16 @@ $d_i \pmod {d_j}=0$, which implies that $d_i=d_j$.
 The claim shows that periodicity is a class property, and all the
 states in a class have the same period.
 
-\begin{example}
-Add figures explaining the definitions.
-\end{example}
+% \begin{example}
+% Add figures explaining the definitions.
+% \end{example}
 
 \section{Recurrence}
-We define the following.
+We define the property that a state will reappear in the Markov chain. A \emph{recurrent state} is a state which with probability $1$ will reappear in the Markov chain, otherwise it is a \emph{transient state}. The formal definition is following.
 \begin{definition}
-State $i$ is \textit{recurrent} if ${\cal P}({X_\ttime} = i{
+State $i$ is \emph{recurrent} if ${\cal P}({X_\ttime} = i {
 \textrm{ for some }}\ttime \ge 1|{X_0} = i) = 1$. Otherwise, state $i$ is
-\textit{transient}.    
+\emph{transient}.    
 \end{definition}
 
 We can relate the state property of recurrent and transient to the
@@ -251,11 +255,16 @@ state, then ${T_i} < \infty $ w.p. 1.
 Since otherwise, there is a positive probability that we never
 return to state $i$, and hence state $i$ is not recurrent.  
 \end{proof}
-
+We now would like consider the expected time to return to a state.
+The claim shows that any recurrent state has a finite return time, 
+but this does not imply that the expected return time is finite.
+(For example, consider a random variable $T$ such that $Pr[T=2^k]=2^{-k}$. 
+In this example, $\E[T]=\sum_k 2^k2^{-k}=\sum_k 1 =\infty$.)
 \begin{definition}
-    State $i$ is {\em positive recurrent} if  $\E({T_i}) < \infty $,
+    State $i$ is \emph{positive recurrent} if  $\E({T_i}) < \infty $,
 and null recurrent if $\E({T_i}) = \infty $.
 \end{definition}
+We now show that in the case of finite state space, we do not have null recurrent states.
 \begin{claim}\label{claim:finite_states_positive_recurrent}
     If the state space $X$
 is finite, all recurrent states are positive recurrent.
@@ -345,20 +354,29 @@ Note that this Markov chain is aperiodic.
 
 
 \section{Invariant Distribution} %changed pi to mu since pi is latter a policy!
-The probability vector $\mu  = ({\mu_i})$ is an \textit{invariant
-distribution} (or stationary distribution or steady state
-distribution) for the Markov chain if $\mu^\top P = \mu^\top$,
+
+In general, we have a n expected state distribution of the Markov chain depending on the time and the start state.
+We would like to capture what happens as we run the Markov chain for a long time. 
+Intuitively, we would like to see convergence of the state distribution.
+For this we need the Markov chain to be aperiodic, since otherwise the periodicity will not allow convergence, since a periodic state will switch from zero to non-zero probability.
+We would also like to have the Markov chain irreducible, otherwise some states will have a vanishing but non-zero probability.
+This limit distribution is called in a few different names, all meaning the same concept: invariant
+distribution, stationary distribution, and steady state distribution.
+
+The probability vector $\mu  = ({\mu_i})$ is an \emph{invariant
+distribution} (or \emph{stationary distribution} or \emph{steady state
+distribution}) for the Markov chain if $\mu^\top P = \mu^\top$,
 namely
 \[{\mu_j} = \sum_i {{\mu_i}} {p_{i,j}}\quad \forall j.\]
 Clearly, if ${X_\ttime} \sim \mu $ then ${X_{\ttime + 1}} \sim \mu
 $. If ${X_0} \sim \mu $, then the Markov chain $({X_\ttime})$ is a
-stationary stochastic process.
+\emph{stationary stochastic process}.
 
 
 \begin{theorem}
 \label{Thm:MC-stationary}
  Let $({X_\ttime})$ be an irreducible and
-a-periodic Markov chain over a finite state space $X$ with
+aperiodic Markov chain over a finite state space $X$ with
 transition matrix $P$. Then there is a unique distribution $\mu$
 such that $\mu^\top P = \mu^\top >0$.
 \end{theorem}
@@ -373,7 +391,7 @@ maximal eigenvalue. Since the sets of right and left eigenvalues are
 identical for square matrices, we conclude that there is $x$ such that $x^\top P=x^\top$.
 Our first task is to show that there is such an $x$ with $x\geq0$.
 
-Since the Markov chain is irreducible and a-periodic, there is an
+Since the Markov chain is irreducible and aperiodic, there is an
 integer $m$, such that $P^m$ has all the entries strictly positive.
 Namely, for any $i,j\in X$ we have $p^{(m)}_{i,j}>0$.
 %(Formally,
@@ -393,7 +411,7 @@ This implies that for any weight vector $w>0$ we have $|x^\top w| <
 |x|^\top w$, where $|x|$ is point-wise absolute value. Therefore,
 \[
 \sum_j |x_j|= \sum_j |\sum_i x_i P_{i,j}| < \sum_j \sum_i |x_i|
-P_{i,j}=  \sum_i |x_i| \sum_j P_{i,j}= \sum_j |x_j|,
+P_{i,j}=  \sum_i |x_i| \sum_j P_{i,j}= \sum_i |x_i|,
 \]
 where the first identity follows since $x$ is an eigenvector. The
 second since $P$ is strictly positive.The third is a change of order
@@ -436,13 +454,13 @@ $x=y$, and hence $\mu$ is unique.
 \end{proof}
 
 We define the average fraction that a state $j\in X$ occurs, given
-that we start with an initial state distribution $x_0$,  as follows:
+that we start with an initial state distribution $x_0$ up to time $m$,  as follows:
 \[
 \pi^{(m)}_j=\frac{1}{m}\sum_{t=1}^m \I (X_t=j).
 \]
 
 \begin{theorem}\label{thm:MC_expected_return_time}
-Let $({X_\ttime})$ be an irreducible and  a-periodic Markov chain
+Let $({X_\ttime})$ be an irreducible and  aperiodic Markov chain
 over a finite state space $X$ with transition matrix $P$. Let $\mu$
 be the stationary distribution of $P$. Then, for any $j\in X$ we have,
 \[
@@ -477,20 +495,20 @@ the time between the $k$ and $k+1$ occurrence of state $j$. This
 implies that
 \[
 \lim_{m\rightarrow\infty}\frac{1}{m}\sum_{t=1}^m \I (X_t=j) =
-\lim_{n\rightarrow\infty} \frac{n}{\sum_{k=1}^n T_{k,j}}
+\lim_{n\rightarrow\infty} \frac{n}{\sum_{k=1}^n T_{k,j}}.
 \]
 Note that the $T_{k,j}$ are i.i.d. and equivalent to $T_j$. By the
 law of large numbers we have that $\frac{1}{n}\sum_{k=1}^n T_{k,j}$
 converges to $\E[T_i]$. Therefore,
 \[
-\E[\pi_j]=\frac{1}{\E[T_j]}
+\E[\pi_j]=\frac{1}{\E[T_j]}.
 \]
 \end{proof}
 
 We have established the following general theorem.
 
 \begin{theorem}[\textbf{Recurrence of finite Markov chains}]\label{thm:finite_Markov_chains}
-Let $({X_\ttime})$ be an irreducible,  a-periodic Markov chain over
+Let $({X_\ttime})$ be an irreducible,  aperiodic Markov chain over
 a finite state space $X$.  Then the following properties hold:
 \begin{enumerate}
 \item All states are \textbf{positive recurrent}
@@ -510,7 +528,7 @@ ${\lim _{t \to \infty }}\Pr
 %run is unbounded. This implies that all the states are recurrent.
 %[Need to show {\em positive recurrent}: $\E[T_i]<\infty$]
 %
-%%Since the Markov chain is irreducible and a-periodic,
+%%Since the Markov chain is irreducible and aperiodic,
 %
 %Item (2): We will show that for each state $i$ we have
 %$\mu^*(i)=1/\E[T_i]$. Let $Z_{i,k}$ be the time from the $k-1$ time
@@ -546,18 +564,18 @@ $x_0^\top P^t$ is a distribution, and therefore $\lambda_1 = 1$. This establishe
 Finally, we establish (4) following the proof of Theorem \ref{thm:MC_expected_return_time}:
 \begin{equation}
     \begin{split}
-{\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} f({X_s}) &= {\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} \sum\nolimits_{i}\I (X_s=i)f({X_i})\\
-&=\sum\nolimits_{i}f({X_i}){\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} \I (X_s=i)\\
+{\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} f({X_s}) &= {\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} \sum\nolimits_{i}\I (X_s=i)f({i})\\
+&=\sum\nolimits_{i}f({i}){\lim _{t \to \infty }}\frac{1}{t}\sum\nolimits_{s = 0}^{\ttime - 1} \I (X_s=i)\\
 &= \sum\nolimits_i {\mu_i f(i)}.
     \end{split}
 \end{equation}
 \end{proof}
 
-For countable Markov chains, there are other possibilities.
+For countable Markov chains, unlike finite Markov chains, there are additional possibilities.
 
 \begin{theorem}[\textbf{Countable Markov chains}]
 \label{thm:countableMC}
-Let $({X_\ttime})$ be an irreducible and a-periodic Markov chain
+Let $({X_\ttime})$ be an irreducible and aperiodic Markov chain
 over a countable state space $X$.  Then:
 %\begin{enumerate}
 %\item
@@ -609,7 +627,7 @@ Suppose there exists a probability vector $\mu  = ({\mu_i})$ so that
 \begin{equation}\label{eq:DB}
 {\mu _i}{p_{i,j}} = {\mu _j}{p_{j,i}},\quad \quad i,j \in X.
 \end{equation}
-It is then easy to verify by direct summation that $\mu $ is an
+Then it is easy to verify by direct summation that $\mu $ is an
 invariant distribution for the Markov chain defined by
 $({p_{i,j}})$. This follows since $\sum_i \mu_i p_{i,j}=\sum_i
 p_{j,i}\mu_j=\mu_j$. The equations \eqref{eq:DB} are called the
@@ -646,14 +664,14 @@ distribution of this queue.
 
 
 \subsection{Mixing Time} %Add definition and motivation
-The mixing time measures how fast the Markov chain converges to the steady state distribution. We first define the Total Variation distance between distributions $D_1$ and $D_2$ as:
+The mixing time measures how fast the Markov chain converges to the steady state distribution~\cite{levin2017markov}. We first define the \emph{Total Variation} distance between distributions $D_1$ and $D_2$ as:
 \[
 \|D_1-D_2\|_{TV}=\max_{B\subseteq X} \{ D_1(B)-D_2(B) \}
-=\frac{1}{2}\sum_{x\in X} | D_1 (x) - D_2(x) |
+=\frac{1}{2}\sum_{x\in X} | D_1 (x) - D_2(x) |.
 \]
-The mixing time $\tau$ is defined as the time to reach a total variation of at most $1/4$:
+The \emph{mixing time} $\tau$ is defined as the time to reach a total variation of at most $1/4$:
 \[
-\|s_0 P^{\tau}-\mu\|_{TV}=\|p^{(\tau)}-\mu\|_{TV}\leq \frac{1}{4}\| s_0-\mu\|_{TV}
+\|s_0 P^{\tau}-\mu\|_{TV}=\|p^{(\tau)}-\mu\|_{TV}\leq \frac{1}{4}\| s_0-\mu\|_{TV},
 \]
 where $\mu$ is the steady state distribution and $p^{(\tau)}$ is the state distribution after $\tau$ steps starting with an initial state distribution $s_0$.
 
@@ -665,5 +683,5 @@ In general, after $k\tau$ time steps we have
 \[
 \|s_0 P^{k\tau}-\mu\|_{TV}=\|p^{((k-1)\tau)}P^{\tau}-\mu\|_{TV}\leq \frac{1}{4}\| p^{((k-1)\tau)}-\mu\|_{TV}\leq \frac{1}{4^k}\| s_0-\mu\|_{TV}.
 \]
-where the formal proof is by induction on $k\geq1$.
+where the formal proof follows by induction on $k\geq1$.
 

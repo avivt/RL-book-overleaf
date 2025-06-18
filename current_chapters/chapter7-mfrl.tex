@@ -1,27 +1,27 @@
-In this chapter we consider model-free learning algorithms. The main
+In this chapter, we consider model-free learning algorithms. The main
 idea of model-free algorithms is to avoid learning the MDP model
-directly. The model based methodology was the following. During the
-learning we estimate model of the MDP, and later,  we derive the
+directly. The model-based methodology was the following. During the
+learning, we estimate model of the MDP, and later,  we derive the
 optimal policy of the estimated model. The main point was that an
-optimal policy of a near-accurate MDP is an near-optimal policy in
+optimal policy of a near-accurate MDP is a near-optimal policy in
 the true MDP.
 
-The model-free methodology is going to be different. We will never
+The model-free methodology will be different. We will never
 learn an estimated model, but rather we will directly learn the
 value function of the MDP. The value function can be either the
-$\QValue$-function (as is the case in Q-learning and SARSA) or the
+$\QValue$-function (as is the case in $\QValue$-learning and SARSA) or the
 $\Value$-function (as is the case in Temporal Difference (TD) algorithms
-and the Monte-Carlo approach).
+and the Monte Carlo approach).
 
-We will first look at the case of deterministic MDPs, and develop a Q-learning algorithm that learns the $\QValue$-function directly from interaction with the MDP. We will then extend our approach to general MDPs, where our handling of stochasticity will be based on the \textit{stochastic approximation} technique. We will first look at learning $\Value^{\policy}$ for a fixed policy, using either temporal difference on Monte-Carlo methods, and then look at learning the optimal $\QValue$-function, using the Q-learning and SARSA methods. At the end of the chapter we have a few miscellaneous topics, including,
+We will first look at the case of deterministic MDPs, and develop a $\QValue$-learning algorithm that learns the $\QValue$-function directly from interaction with the MDP. We will then extend our approach to general MDPs, where our handling of stochasticity will be based on the \textit{stochastic approximation} technique. We will first look at learning $\Value^{\policy}$ for a fixed policy, using either temporal difference or Monte-Carlo methods, and then look at learning the optimal $\QValue$-function, using the $\QValue$-learning and SARSA methods. At the end of the chapter we have a few miscellaneous topics, including,
 evaluating one policy while following a different policy (using
 importance sampling) and the actor-critic methodology.
 
 \section{Model Free Learning -- the Situated Agent Setting}
 
-The learning setting we consider involves an agent that sequentially \textit{interacts} with an MDP, where by interaction we mean that at time $\ttime$ the agent can observe the current state $\state_{\ttime}$, the current action $\action_{\ttime}$, the current reward $\reward_{\ttime} = \reward(\state_{\ttime},\action_{\ttime})$, and the resulting next state $\state_{\ttime+1} \sim \transitionkernel(\cdot | \state_{\ttime},\action_{\ttime})$. Throughout the interaction, the agent collects \textit{transition tuples}, $\left(\state_{\ttime}, \action_{\ttime}, \reward_{\ttime}, \state_{\ttime+1} \right)$, which will effectively be the \textit{data} used for learning the value MDP's value function. That is, all our learning algorithms will take as input transition tuples, and output estimates of value functions. For some algorithms, the time index of tuples in the data is not important, and we shall sometimes denote the tuples as $\left(\state, \action, \reward, \state' \right)$, understanding that both notations above are equivalent.
+The learning setting we consider involves an agent that sequentially \textit{interacts} with an MDP, where by interaction we mean that at time $\ttime$ the agent can observe the current state $\state_{\ttime}$, the current action $\action_{\ttime}$, the current reward $\reward_{\ttime} = \reward(\state_{\ttime},\action_{\ttime})$, and the resulting next state $\state_{\ttime+1} \sim \transitionkernel(\cdot | \state_{\ttime},\action_{\ttime})$. Throughout the interaction, the agent collects \textit{transition tuples}, $\left(\state_{\ttime}, \action_{\ttime}, \reward_{\ttime}, \state_{\ttime+1} \right)$, which will effectively be the \textit{data} used for learning the  MDP's value function. That is, all our learning algorithms will take as input transition tuples, and output estimates of value functions. For some algorithms, the time index of tuples in the data is not important, and we shall sometimes denote the tuples as $\left(\state, \action, \reward, \state' \right)$, understanding that both notations above are equivalent.
 
-As with any learning method, the data we learn from has substantial influence on what we can ultimately learn. In our setting, the agent can \textit{control} the data distribution, through its choice of actions. For example, if the agent chooses actions according to a Markov policy $\policy$, we should expect to obtain tuples that roughly follow the stationary distribution of the Markov chain corresponding to $\policy$. If $\pi$ is very different from the optimal policy, for example, this data may not be very useful for estimating $\Value^*$. Therefore, different from the supervised machine learning methodology, in reinforcement learning the agent must consider both how to learn from data, but also how to \textit{collect} it. As we shall see, the agent will need to \textit{explore} the MDP's state space in its data collection, to guarantee that the optimal value function can be learned. In this chapter we shall devise several heuristics for effective exploration. In proceeding chapters we will dive deeper into how to provably explore effectively.
+As with any learning method, the data we learn from has substantial influence on what we can ultimately learn. In our setting, the agent can \textit{control} the data distribution through its choice of actions. For example, if the agent chooses actions according to a Markov policy $\policy$, we should expect to obtain tuples that roughly follow the stationary distribution of the Markov chain corresponding to $\policy$. If $\pi$ is very different from the optimal policy, for example, this data may not be very useful for estimating $\Value^*$. Therefore, different from the supervised machine learning methodology, in reinforcement learning the agent must consider both how to learn from data, but also how to \textit{collect} it. As we shall see, the agent will need to \textit{explore} the MDP's state space in its data collection, to guarantee that the optimal value function can be learned. In this chapter we shall devise several heuristics for effective exploration. In proceeding chapters we will dive deeper into how to provably explore effectively.
 
 
 \section{ $\QValue$-learning: Deterministic Decision Process}\label{sec:q_learning_DDP}
@@ -31,10 +31,10 @@ To demonstrate some key ideas of $\QValue$-learning, we start with a
 simplified learning algorithm that is suitable for a {\em
 Deterministic Decision Process (DDP)} model, namely:
 \begin{align*}
-& \state_{\ttime+1}=f(\state_\ttime,\action_\ttime) \\
-& \reward_\ttime=\reward(\state_\ttime,\action_\ttime)
+& \state_{\ttime+1}=f(\state_\ttime,\action_\ttime) \;\;\;\text{and}\;\;\;
+\reward_\ttime=\reward(\state_\ttime,\action_\ttime).
 \end{align*}
-
+We have already discussed DDPs in Chapter~\ref{chapter:DDP}.
 
 
 We consider the discounted return criterion:
@@ -46,11 +46,11 @@ We consider the discounted return criterion:
 \end{align*}
 where $\Value^*$ is the value function of the optimal policy.
 
-Recall our definition of the $Q$-function (or {\em state-action
+Recall our definition of the $\QValue$-function (or {\em state-action
 value function}), specialized to the present deterministic setting:
 $$
 \QValue^*(\state,\action)=\reward(\state,\action)+\discount
-\Value^*(f(\state,\action))
+\Value^*(f(\state,\action)).
 $$
 The optimality equation is then
 $$
@@ -85,23 +85,27 @@ The $\QValue$-learning algorithm runs as follows:
 \begin{algorithm}
 \caption{Q-learning (for deterministic decision processes)}
 \begin{algorithmic}[1]
-\State \textbf{Initialize:} Set $\widehat{\QValue}(\state,\action) = 0$, for all $\state$, $\action$.
+\State \textbf{Initialize:} Set $\widehat{\QValue}_0(\state,\action) = 0$, for all $\state$, $\action$.
 \State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
     \State \quad Select action $\action_\ttime$
     \State \quad Observe $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})$, where $\state_{\ttime+1} = f(\state_\ttime, \action_\ttime)$.
     \State \quad Update:
-    \[
-    \widehat{\QValue}_{\ttime+1}(\state_\ttime, \action_\ttime) := \reward_\ttime + \discount \max_{\action'} \widehat{\QValue}_\ttime(\state_{\ttime+1}, \action').
-    \]
+    \begin{equation*}
+    \begin{split}
+    \widehat{\QValue}_{\ttime+1}(\state_\ttime, \action_\ttime) &= \reward_\ttime + \discount \max_{\action'} \widehat{\QValue}_\ttime(\state_{\ttime+1}, \action'),
+    \\
+    \widehat{\QValue}_{\ttime+1}(\state, \action) &= \widehat{\QValue}_{\ttime}(\state, \action) \qquad \forall \state, \action \neq \state_\ttime, \action_\ttime.
+    \end{split}
+    \end{equation*}
 \end{algorithmic}
 \end{algorithm}
 
-The update in $\QValue$-learning is an example of a technique that is often termed ``bootstrapping''\footnote{Related to the saying ``to pull oneself up by one's bootstraps''.}, where we use our current, and possibly inaccurate value estimate $\widehat{\QValue}_\ttime$, to improve the accuracy of the same value function. The intuition for why this makes sense comes from the discount factor: since in the update $\reward_\ttime+\discount \max_{\action'}
+The update in $\QValue$-learning is an example of a technique that is often termed ``bootstrapping''\footnote{Related to the saying ``to pull oneself up by one's bootstraps''.}, where we use our current, and possibly inaccurate, value estimate $\widehat{\QValue}_\ttime$, to improve the accuracy of the same value function. The intuition for why this makes sense comes from the discount factor: Since in the update $\reward_\ttime+\discount \max_{\action'}
 \widehat{\QValue}_\ttime(\state_{\ttime+1},\action')$ the first term is accurate (the reward is not estimated), and the second term is multiplied by the discount factor, we expect that if $\discount<1$ our updated value would suffer less from the inaccuracy. 
 
 The $\QValue$-learning algorithm is an off-policy algorithm, namely, it does not specify how to choose the actions
 $\action_\ttime$, and this can be done using various exploration methods.
-To guarantee convergence of $\QValue$-learning, we will need to have some assumption about the
+To guarantee convergence of $\QValue$-learning, we need to have some assumption about the
 sequence of actions selected, as is the case in the theorem below. We shall later discuss exploration methods that satisfy this assumption.
 % The following result is from [Mitchell, Theorem 3.1].
 
@@ -135,7 +139,7 @@ First, at every stage $\ttime$:
 |\widehat{\QValue}_\ttime(\state_{\ttime}',\action') -
 \QValue^*(\state_{\ttime}',\action') | \\
 &\le\; \discount \Delta_\ttime
-\,.
+\,,
 \end{align*}
 where the first inequality uses the fact that $|\max_{x_1} f_1(x_1)-\max_{x_2}f(x_2)|\leq \max_x|f_1(x)-f_2(x)|$, and the second inequality follows from the bound on $\|\widehat{\QValue}_\ttime-\QValue^*\|_\infty =\Delta_t $.
 This implies that the difference at $(\state_\ttime,\action_\ttime)$ is bounded by $\discount\Delta_\ttime$, but this does not imply that $\Delta_{\ttime+1}\leq \discount\Delta_{\ttime}$, since it is the maximum over all state-action pairs.
@@ -263,7 +267,7 @@ we have an accuracy $\varepsilon$ with confidence $1-\delta$.
 
 \section{Monte-Carlo Policy Evaluation}
 \label{sec:MC}
-We shall now investigate model-free learning in MDPs. We shall start with the simplest setting - policy evaluation, using a simple estimation technique that is often termed Monte-Carlo. 
+We shall now investigate model-free learning in MDPs. We shall start with the simplest setting -- policy evaluation, using a simple estimation technique that is often termed Monte-Carlo. 
 
 
 Monte-Carlo methods learn directly from experience in a model free
@@ -275,7 +279,7 @@ the different states, and does not even assume a Markovian
 environment, which is both a plus (less assumptions) and a minus
 (longer time to learn -- a non-Markovian environment could, for
 example, have the reward in a state depend on the number of visits
-to the state in the episode.) We will concentrate on the case of an
+to the state in the episode). We will concentrate on the case of an
 episodic MDP, namely, generating finite length episodes in each
 trajectory. A special case of an episodic MDP is a finite horizon
 return, where all the episodes have the same length.
@@ -309,9 +313,8 @@ We use only the initial state of the episode. Namely, given an
 episode $(\state_1, \action_1, \reward_1, \ldots ,
 \state_k,\action_k,\reward_k)$ we update only
 $\widehat{\Value}^\policy(\state_1)$. This is clearly an unbiased
-estimate, but has many drawbacks. First, most likely it is not the
-case that every state can be an initial state, what do we do with
-such states. Second, it seems very wasteful, updating only a single
+estimate, but has many drawbacks. First, it is most likely not the
+case that every state can be an initial state. Second, it seems very wasteful to update only a single
 state per episode.
 
 \paragraph{First visit}
@@ -359,11 +362,11 @@ state and with probability $p$ move to the terminating state
 $\state_2$. See Figure~\ref{fig:2state}.
 
 The expected value is $\Value(\state_1)=1/p$, which is the expected
-length of an episode. (Note that the return of an episode is its
-length, since all the rewards are $1$.) Assume we observe a single
+duration of an episode. (Note that the return of an episode is its
+length, since all the rewards are $1$.) Assume that we observe a single
 trajectory, $(\state_1,\state_1,\state_1,\state_1,\state_2)$, and
 all the rewards are $1$. What would be a reasonable estimate for the
-expected return from $\state_1$.
+expected return from $\state_1$?
 
 {\tt First visit} takes the naive approach, considers the return from
 the first occurrence of $\state_1$, which is $4$, and uses this as
@@ -387,19 +390,19 @@ $\state$ we have updates $G_1^\state, \ldots , G^\state_m$. Our
 estimate would be
 $\widehat{\Value}^\policy(\state)=(1/m)\sum_{i=1}^m G^\state_i$.
 Since the different $G^\state_i$ are independent, we can use a
-concentration bound, to claim that the error is small. Actually we
+concentration bound to claim that the error is small. Actually we
 will need two different bounds. The first will say that if we run
 $n$ episodes, then with high probability we have at least $m$
 episodes in which state $\state$ appears. The second will say that if
 we have $m$ episodes in which state $\state$ appears, then we will
 have a good approximation of the value function at $\state$. For the first part,
-we clearly will need to depend on the probability of reaching state
+the bound will clearly depend on the probability of reaching state
 $\state$ in an episode. Call a state $\state$ $\alpha$-good if
 the probability that $\policy$ visits $\state$ in an episode is at
 least $\alpha$.
 %This is summarized in t
 The following theorem relates the number of episodes to the accuracy
-is estimating the value function.
+in estimating the value function.
 %summarizes the performance of every visit.
 
 \begin{theorem}
@@ -407,29 +410,33 @@ Assume that we execute $n$ episodes using policy $\policy$ and each
 episode has length at most $H$. Then, with probability $1-\delta$,
 for any $\alpha$-good state $\state$, we have
 $|\widehat{\Value}^\policy(\state)-\Value^\policy(\state)|\leq
-\lambda$, assuming $n\geq (2m/\alpha)\log(2|\States|/\delta)$ and
-$m=(H^2/\lambda^2)\log(2|\States|/\delta)$.
+\lambda$, assuming $n\geq 2m/
+\alpha$ and
+$m=8(H^2/\lambda^2)\log(2|\States|/\delta)$.
 \end{theorem}
 
 \begin{proof}
+The proof shows that if we sample $n$ episodes, then the expected number of episodes in which we visit state $\state$ is at least $2m$, and with high probability at least $m$ episodes visit state $\state$.
+
 Let $p(\state)$ be the probability that policy $\policy$ visits
 state $\state$ in an episode. Since $\state$ is $\alpha$-good, the
 expected number of episodes in which $\state$ appears is
-$p(\state)n\geq 2m\log(2|\States|/\delta)$. Using the relative
-Chernoff--Hoeffding bound (Lemma~\ref{lemma:chernoff}) we have that
+$p(\state)n\geq 2m$. Using the relative
+Chernoff--Hoeffding bound (Lemma~\ref{lemma:chernoff}, with $\epsilon=1/2$) we have that
 the probability that we have at least $m$ samples of state $\state$
-is at least $1-\delta/(2|\States|)$.
+is at least $1-\delta/(2|\States|)$
+%\AT{Yishay can you please clarify this transition? I don't see how it results from Lemma 10.2}\YM{I updated Lemma 10.2 for the relative bound. I changes the constants  of the $n$ and $m$, need to check where we use it . I am confused why I need $2|\States$ and not only $|\States$.}
 
 Given that we have at least $m$ samples from state $\state$ using
 the additive Chernoff--Hoeffding bound (Lemma~\ref{lemma:chernoff})
-we have that with probability at least $1-\delta/(2|\States|)$ that
+we have with probability at least $1-\delta/(2|\States|)$ that
 $|\widehat{\Value}^\policy(\state)-\Value^\policy(\state)|\leq
-\lambda$. (Since episodes have return in the range $[0,H]$ we need
-to normalize by dividing the rewards by $H$, which creates the $H^2$
-term in $m$. A more refine bound can be derived by noticing that the
+\lambda$. 
+(Since episodes have return in the range $[0,H]$ we need to normalize by dividing the rewards by $H$, which creates the $H^2$ term in $m$.)
+\footnote{A more refined bound can be derived by noticing that the
 variance of the return of an episode is bounded by $H$ and not
-$H^2$, and using an appropriate concentration bound, say Bernstein
-inequality.)
+$H^2$, and using an appropriate concentration bound, say, the Bernstein
+inequality.}
 
 Finally, the theorem follows from a union bound over the bad events.
 \end{proof}
@@ -438,15 +445,15 @@ Finally, the theorem follows from a union bound over the bad events.
 Next, we relate the First Visit Monte-Carlo updates to the maximum
 likelihood model for the MDP. Going back to the example of
 Figure~\ref{fig:2state} and observing the sequence
-$(\state_1,\state_1,\state_1,\state_1,\state_2)$. The only unknown
+$(\state_1,\state_1,\state_1,\state_1,\state_2)$, the only unknown
 parameter is $p$.
 
 The maximum likelihood approach would select the value of $p$ that
 would maximize the probability of observing the sequence
 $(\state_1,\state_1,\state_1,\state_1,\state_2)$. The likelihood of
-the sequence is, $(1-p)^3p$. We like to solve for
+the sequence is, $(1-p)^3p$, and we solve for
 \[
-p^* = \arg\max (1-p)^3 p
+p^* = \arg\max (1-p)^3 p.
 \]
 Taking the derivative we have $(1-p)^3-3(1-p)^2p=0$, which give
 $p^*=1/4$.
@@ -464,7 +471,7 @@ each of the remaining episodes, that do include $\state$, we ignore the
 prefix until the first appearance of $\state$. Let us modify the
 sample by deleting those parts (episodes in which $\state$ does not
 appear, and for each episode that $\state$ appears, start it at the
-first appearance of $\state$). Call this the {\em reduced sample}.
+first appearance of $\state$). Call this the {\em reduced sample for state $\state$}.
 %(For more details, see Theorem 5 in \cite{SinghS96})
 
 
@@ -490,21 +497,21 @@ The \emph{Maximum Likelihood model} $M$ has rewards $\widehat{\reward}(\state,\a
 \begin{theorem}
 \label{thm:MC-ML}
 %
-Let $M$ be the maximum likelihood MDP for the reduced sample. The
-expected value of $\state_0$ in $M$, i.e., $\Value(\state;M)$, is
+Let $M$ be the maximum likelihood MDP for the reduced sample for state $\state_0$. The
+expected value of $\state_0$ in $M$, i.e., $\Value(\state_0;M)$, is
 identical to the {\tt First Visit} estimate of $\state_0$, i.e.,
 $\widehat{\Value}^\policy(\state_0)$.
 \end{theorem}
 
 \begin{proof}
-Assume that we have $N$ episodes in the reduced sample and the sum
+Assume that we have $N$ episodes in the reduced sample for state $\state_0$ and the sum
 of the rewards in the $i$-th episode is $G_i$. The First Visit Monte
 Carlo estimate would be
 $\widehat{\Value}^\policy(\state_0)=(1/N)\sum_{i=1}^N G_i$.
 
 Consider the maximum likelihood model. Since we have a fixed
 deterministic policy, we can ignore actions, and define
-$n(\state)=n(\state,\policy(\state))$ and
+$n(\state)=n(\state,\policy(\state))$, $n(\state, \state')=n(\state,\policy(\state), \state')$, and
 $\widehat{\reward}(\state,\policy(\state))=\widehat{\reward}(\state)$.
 We set the initial state $\state_0$ to be the state we are updating.
 
@@ -515,30 +522,30 @@ state $\state_0$ in $M$ would be
 \[
 \Value^\policy(\state_0;M)=\sum_v \mu(v) \widehat{r}(v)=\sum_v
 \frac{n(v)}{N}\frac{1}{n(v)}\sum_{i=1}^{n(v)} \reward_i^v =
-\frac{1}{N}\sum_{j=1}^N G_j
+\frac{1}{N}\sum_{j=1}^N G_j,
 \]
-where the last equality follows by changing the order of summation
+where $\reward_i^v$ is the $i$-th reward observation from state $v$, and the last equality follows by changing the order of summation
 (from states to episodes).
 
 It remains to show that $\mu(\state)=n(\state)/N$. We have the
-following identities. For $v\neq \state_0$:
+following identities. For $\state\neq \state_0$:
 \[
-\mu(v)=\sum_u \widehat(v|u)\mu(u)
+\mu(\state)=\sum_{\state'} \widehat\transitionprob(\state|\state')\mu(\state').
 \]
-For the initial state we have
+For the initial state $\state_0$ we have
 \[
-\mu(\state_0)=1+ \sum_u \widehat(\state_0|u)\mu(u)
+\mu(\state_0)=1+ \sum_{\state'} \widehat\transitionprob(\state_0|\state')\mu(\state').
 \]
-Note that $n(v)=\sum_u n(u,v)$ for $v\neq \state_0$ and
-$n(\state_0)=N+\sum_u n(u,\state_0)$, and recall that
-$\widehat(v|u)=n(u,v)/n(u)$. One can verify the identities by
-plugging in these values.
+Note that $n(\state')=\sum_{\state} n(\state,\state')$ for $\state' \neq \state_0$ and
+$n(\state_0)=N+\sum_{\state} n(\state,\state_0)$, and recall that
+$\widehat\transitionprob(\state'|\state)=n(\state,\state')/n(\state)$. One can verify the identities by
+plugging in $\mu(\state)=n(\state)/N$.
 \end{proof}
 
 \subsection{Every visit}
 
 The {\tt First Visit} updates are unbiased, since the different
-updates are from different episodes. For each episode that update is
+updates are from different episodes. For each episode the update is
 an independent unbiased sample of the return.
 %
 For {\tt Every Visit} the situation is more complicated, since there
@@ -552,16 +559,16 @@ number of episodes.
 One way to average the updates is to average for each episode the
 updates and average across episodes. Namely,
 \[
-\frac{1}{N}\sum_{i=1}^N \frac{1}{n_i} \sum_{j=1}^{n_i} G_{i,j}
+\frac{1}{N}\sum_{i=1}^N \frac{1}{n_i} \sum_{j=1}^{n_i} G_{i,j}.
 \]
 An alternative approach is to sum the updates and divide by the
 number of updates,
 \[
-\frac{\sum_{i=1}^N\sum_{j=1}^{n_i} G_{i,j}}{\sum_{i=1}^N n_i}
+\frac{\sum_{i=1}^N\sum_{j=1}^{n_i} G_{i,j}}{\sum_{i=1}^N n_i}.
 \]
-We will use the latter scheme, but it is worthwhile understanding
-the difference between the two. Consider for example the case that
-we have $10$ episodes, in $9$ we have a single visit to $\state$ and
+We will use the latter scheme, but it is worthwhile to understand
+the difference between the two. Consider for example a case where 
+we have $10$ episodes, in $9$ of them we have a single visit to $\state$ and
 a return of $1$, and in the $10$-th we have $11$ visits to $\state$
 and all the returns are zero. The first averaging would give an
 estimate of $9/10$ while the second would give an estimate of
@@ -570,7 +577,7 @@ $9/20$.
 Consider the case of Figure~\ref{fig:2state}. For a single episode
 of length $k$ we have that the sum of the rewards is $k(k+1)/2$,
 since there are updates of lengths $k, \ldots , 1$ and recall that
-the return equals the length since all rewards are $1$. The number
+the return equals the episode duration since all rewards are $1$. The number
 of updates is $k$, so we have that the estimate of a single episode
 is $(k+1)/2$. When we take the expectation we have that
 $\E[(k+1)/2]=(1/p+1)/2$ which is different from the expected value of
@@ -611,7 +618,7 @@ Figure~\ref{fig:2state-general}.
 \begin{center}
 \includegraphics[width=0.5\linewidth]{figures/2state-general.PNG}    
 \end{center}
-\caption{The situated agent}\label{fig:2state-general}
+\caption{Equivalent MDP for {\tt Every Visit}}\label{fig:2state-general}
 \end{figure}
 
 For this MDP, the value is
@@ -627,21 +634,27 @@ estimate becomes negligible. (For more details, see Theorem 7 in
 
 \subsubsection*{Every visit and squared loss}
 
-Recall that the squared error is summing over all the observation
-the squared error. Assume we have $\state_{i,j}$ as the $j$-th state
+We have related the {\tt First Visit} to the Maximum Likelihood (although on a slightly modified sample).
+In the following we would like to to relate the {\tt Every Visit} to the square loss, showing the benefit in {\tt Every Visit}.
+Actually, the relation is rather general, since the minimizer the square loss is simply the empirical average, which {\tt Every Visit} implicitly computes.
+
+We now formally relate {\tt Every Visit} to squared error estimation. Assume we have $\state_{i,j}$ as the $j$-th state
 in the $i$-th episode, and it has return $G_{i,j}$, i.e., the sum of
 the rewards from in episode $i$ from step $j$ until the end of the
 episode. Let $\widehat{V}(\state_{i,j})$ be the estimate of {\tt
 Every Visit} for state $\state_{i,j}$. (Note that states
 $\state_{i,j}$ are not unique, and we can have
-$\state=\state_{i_1,j_1}=\state_{i_2,j_2}$.) The square error is
+$\state=\state_{i_1,j_1}=\state_{i_2,j_2}$.) The squared error is,
 \[
-SE=\frac{1}{2}\sum_{i,j} (\widehat{V}(\state_{i,j})-G_{i,j})^2
+SE=\frac{1}{2}\sum_{i,j} (\widehat{V}(\state_{i,j})-G_{i,j})^2.
 \]
+%\AT{I don't understand the point of this section - the result is a consequence of how we define the SE. Had we counted only the first visits, we would have gotten first visit. In general, the empirical mean is the minimizer of MSE - is that what we want to say here?}
+%\YM{The point is to show that Every Visit minimizes a fairly natural loss. We have Every Visit run over the entire sample, and not "reduced samples" as we need for the First Visit.}
+
 For a fixed state $\state$ we have
 \[
 SE(\state)=\frac{1}{2}\sum_{i,j:\state=\state_{i,j}}
-(\widehat{V}(\state)-G_{i,j})^2
+(\widehat{V}(\state)-G_{i,j})^2,
 \]
 and the total squared error is $SE=\sum_\state SE(\state)$.
 
@@ -661,16 +674,16 @@ state $\state$.
 We can also use the Monte-Carlo methodology to learn the optimal
 policy.
 %
-The main idea is to learn the $Q^\pi$ function. This is done by
+The main idea is to learn the $\QValue^\pi$ function. This is done by
 simply updating for every $(\state,\action)$. (The updates can be
 either {\tt Every Visit} or {\tt First Visit}.) The problem is that
 we need the policy to be ``exploring'', otherwise we will not have
 enough information about the actions the policy does not perform.
 
-For the control, we can maintain an estimates of the $Q^\policy$
+For the control, we can maintain an estimates of the $\QValue^\policy$
 function, where the current policy is $\policy$. After we have a
-good estimate of $Q^\policy$ we can switch to a policy which is
-greedy with respect to $Q^\policy$. Namely, each time we reach a
+good estimate of $\QValue^\policy$ we can switch to a policy which is
+greedy with respect to $\QValue^\policy$. Namely, each time we reach a
 state $\state$, we select a ``near-greedy'' action, for example, use
 $\varepsilon$-greedy.
 
@@ -678,16 +691,16 @@ We will show that updating from one $\varepsilon$-greedy policy to
 another $\varepsilon$-greedy policy, using policy improvement, does
 increase the value of the policy. This will guarantee that we will not cycle, and eventually converge.
 
-Recall that an $\varepsilon$-greedy policy, can be define in the
+Recall that an $\varepsilon$-greedy policy can be defined in the
 following way. For every state $\state$ there is an action
 $\bar{\action}_\state$, which is the preferred action. The policy
-does the following: (1) with probability $1-\varepsilon$ selects action $\bar{\action}_\state$. (2) with probability $\varepsilon$, selects
+does the following: (1) with probability $1-\varepsilon$ selects action $\bar{\action}_\state$, and (2) with probability $\varepsilon$, selects
 each action $\action \in \Actions$, with probability
 $\varepsilon/|\Actions|$.
 
 Assume we have an $\varepsilon$-greedy policy $\policy_1$. Compute
-$Q^{\policy_1}$ and define $\policy_2$ to be $\varepsilon$-greedy
-with respect to $Q^{\policy_1}$.
+$\QValue^{\policy_1}$ and define $\policy_2$ to be $\varepsilon$-greedy
+with respect to $\QValue^{\policy_1}$.
 
 \begin{theorem}
 For any $\varepsilon$-greedy policy $\policy_1$, the
@@ -697,19 +710,19 @@ $\Value^{\policy_2}\geq \Value^{\policy_1}$.
 
 \begin{proof}
 Let $\bar{\action}_\state=\arg\max_\action
-Q^{\policy_1}(\state,\action)$ be the greedy action w.r.t.
-$Q^{\policy_1}$. We now lower bound the value of $Q^{\policy_2}$.
+\QValue^{\policy_1}(\state,\action)$ be the greedy action w.r.t.
+$\QValue^{\policy_1}$. We first lower bound the expected value of $\QValue^{\policy_1}$ when selecting actions using policy $\policy_2$ and $\bar{\action}_\state\in\arg\max_{\action_\state} \QValue^{\policy_1}(\state,\action_\state) $:
 \begin{align*}
-E_{\action\sim\policy_2(\cdot|\state)}[Q^{\policy_1}(\state,\action)] &= \sum_{\action \in \Actions} \policy_2(\action|\state) Q^{\policy_1}(\state,\action)\\
+\mathbb{E}_{\action\sim\policy_2(\cdot|\state)}[\QValue^{\policy_1}(\state,\action)] &= \sum_{\action \in \Actions} \policy_2(\action|\state) \QValue^{\policy_1}(\state,\action)\\
 &= \frac{\varepsilon}{|\Actions|}\sum_{\action \in \Actions}
-Q^{\policy_1}(\state,\action)+(1-\varepsilon)Q^{\policy_1}(\state,\bar{\action}_\state)\\
+\QValue^{\policy_1}(\state,\action)+(1-\varepsilon)\QValue^{\policy_1}(\state,\bar{\action}_\state)\\
 &\geq \frac{\varepsilon}{|\Actions|}\sum_{\action \in \Actions}
-Q^{\policy_1}(\state,\action)+(1-\varepsilon)\sum_{\action \in
+\QValue^{\policy_1}(\state,\action)+(1-\varepsilon)\sum_{\action \in
 \Actions}
-\frac{\policy_1(\action|\state)-\varepsilon/|\Actions|}{1-\varepsilon}Q^{\policy_1}(\state,\action)\\
-&=\sum_{\action \in \Actions} \policy_1(\action|\state)Q^{\policy_1}(\state,\action)=\Value^{\policy_1}(\state)\\
+\frac{\policy_1(\action|\state)-\varepsilon/|\Actions|}{1-\varepsilon}\QValue^{\policy_1}(\state,\action)\\
+&=\sum_{\action \in \Actions} \policy_1(\action|\state)\QValue^{\policy_1}(\state,\action)=\Value^{\policy_1}(\state).
 \end{align*}
-The inequality follows, since we are essentially concentrating of
+The inequality follows since we are essentially concentrating of
 the action that $\policy_1(\cdot|\state)$ selects with probability
 $1-\varepsilon$, and clearly $\bar{\action}_\state$, by definition,
 guarantees a higher value.
@@ -717,28 +730,29 @@ guarantees a higher value.
 It remains to show, similar to the basic policy improvement, that we have
 $$
 \Value^{\policy_2} (\state)\geq
-\max_\action Q^{\policy_1}(\state,\action)\geq
-E_{\action\sim\policy_2(\cdot|\state)}[Q^{\policy_1}(\state,\action)]
+\max_\action \QValue^{\policy_1}(\state,\action)\geq
+\mathbb{E}_{\action\sim\policy_2(\cdot|\state)}[\QValue^{\policy_1}(\state,\action)]
 \geq \Value^{\policy_1}(\state).
 $$
 
 Basically, we need to re-write the Bellman optimality operator to
 apply to $\varepsilon$-greedy policies as follows:
-\[
-(T^*_\varepsilon V)(\state) = \max_\action
-[(1-\varepsilon)(\reward(\state,\action)+\discount E_{\state'\sim
-p(\cdot |\state,\action)}[V(\state')])+ \varepsilon
+\begin{align*}
+(T^*_\varepsilon \Value)(\state) = \max_\action
+& \Big[(1-\varepsilon)(\reward(\state,\action)+\discount \mathbb{E}_{\state'\sim
+p(\cdot |\state,\action)}[\Value(\state')])\\
+&+ \varepsilon
 (\sum_{\action''}\frac{\varepsilon}{|\Actions|}(\reward(\state,\action'')
-+\discount E_{\state''\sim p(\cdot |s,\action'')}[V(\state'')]))]
-\]
++\discount \mathbb{E}_{\state''\sim p(\cdot |s,\action'')}[V(\state'')]))\Big].
+\end{align*}
 Clearly $T^*_\varepsilon(V)$ is monotone in $V$, and for
 $\Value^{\policy_1}$ we have
 $T^*_\varepsilon(\Value^{\policy_1})=T^{\policy_2}(\Value^{\policy_1})$.
 Since $ T^{\policy_2}(\Value^{\policy_1}) =
-E_{\action\sim\policy_2(\cdot|\state)}[Q^{\policy_1}(\state,\action)]$,
+\mathbb{E}_{\action\sim\policy_2(\cdot|\state)}[\QValue^{\policy_1}(\state,\action)]$,
 this implies that,
 \[
-T^{\policy_2}(\Value^{\policy_1})=T^*_\varepsilon(\Value^\policy_1)
+T^{\policy_2}(\Value^{\policy_1})=T^*_\varepsilon(\Value^{\policy_1})
 \geq T^{\policy_1}(\Value^{\policy_1}) = \Value^{\policy_1}
 \]
 We can continue to apply $T^{\policy_2}$ and due to the monotonicity
@@ -775,14 +789,14 @@ Going back to the Q-learning algorithm in Section \ref{sec:q_learning_DDP}, we s
 \section{Stochastic Approximation}
 \label{sec:stochastic-approximation}
 
-There is a general framework of stochastic approximation algorithms.
-We will outline the main definitions and results of that literature.
-We later use it to show convergence of online learning algorithms.
+In this section we present the general framework of stochastic approximation algorithms.
+We here outline the main definitions and results of that literature.
+We will later use it to show convergence of online learning algorithms.
 
 The stochastic approximation algorithm takes the following general form:
 \begin{equation}\label{eq:stochastic_approx}
 X_{\ttime+1} =
-X_\ttime+\alpha_\ttime((\safunc(X_\ttime)+\omega_\ttime),
+X_\ttime+\alpha_\ttime(\safunc(X_\ttime)+\omega_\ttime),
 \end{equation}
 where $X\in \mathbb{R}^d$ is a vector of parameters that we update, $\safunc$ is a deterministic function, $\alpha_\ttime$ is a step size, and $\omega_\ttime$ is a noise term that is zero-mean and bounded in some sense (that will be defined later).
 
@@ -791,36 +805,43 @@ Without the noise term, Eq.~\ref{eq:stochastic_approx} describes a simple recurr
 
 \subsection{Convergence via Contraction}
 In the flavor of the stochastic approximation we consider here, there is a state space $\States$, and
-the iterates update an approximation $X(\state)$ at each iteration, with $\state \in \States$. 
+the iterates update an approximation $X(\state)$ at each iteration by modifying a single element $X(\state_\ttime)$, where the sequence of state updates $\state_\ttime \in \States$ is chosen arbitrarily. 
 % The updates
 % are in the direction of $(HX)(\state)+\omega$ where is a (possibly
 % non-linear) operator and $\omega$ is a zero mean bounded noise. 
 The iterative algorithm takes the following general form:
 \[
 X_{\ttime+1}(\state) =
-(1-\alpha_\ttime(\state))X_\ttime(\state)+\alpha_\ttime(\state)((HX_\ttime)(\state)+\omega_\ttime(\state)).
+\begin{cases} 
+(1-\alpha_\ttime(\state))X_\ttime(\state)+\alpha_\ttime(\state)((HX_\ttime)(\state)+\omega_\ttime(\state)), & \quad \state = \state_\ttime \\
+X_\ttime(\state), & \quad \textrm{otherwise}
+\end{cases}.
 \]
 %where $H$ is a (possibly non-linear) operator.
-This can be seen as a special case of the general stochastic approximation form in Eq.~\ref{eq:stochastic_approx}, where $\safunc(X) = H(X) - X$.
+This can be seen as a special case of the general stochastic approximation form in Eq.~\ref{eq:stochastic_approx}, where $\safunc(X) = H(X) - X$, and a state-dependent step size that is non-zero only for the current state $\state_\ttime$.
 
-We call a sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is \emph{well formed} if For every $(\state,\action)$ we have (1) $\sum_\ttime
-\alpha_\ttime(\state,\action)
-I(\state_\ttime=\state,\action_\ttime=\action)=\infty $, and (2)
-$\sum_\ttime \alpha_\ttime^2(\state,\action)
-I(\state_\ttime=\state,\action_\ttime=\action)=O(1)$.
+We call a sequence of learning rates $\{\alpha_\ttime(\state)\}$ is \emph{well formed} if for every $\state\in\States$ we have: (1) $\sum_\ttime
+\alpha_\ttime(\state)
+I(\state_\ttime=\state)=\infty $, and (2)
+$\sum_\ttime \alpha_\ttime^2(\state)
+I(\state_\ttime=\state)=O(1)$, with probability $1$.
+
+\begin{remark}
+    The step size rule $\alpha_\ttime(\state)$ may depend on the history. An instance that is particularly useful is $\alpha_\ttime(\state_{\ttime}) = 1 / (\textrm{1+\# visits to state } \state_{\ttime})$. Note also that a sequence that is well formed implicitly implies that every state is visited infinitely often.
+\end{remark}
 
 We will mainly look at {\em $(B,\discount)$ well behaved} iterative
 algorithms, where $B>0$ and $\discount\in(0,1)$, which have the
 following properties:
 \begin{enumerate}
-\item Step size: sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is \emph{well formed}.
+\item Step size: sequence of learning rates $\{\alpha_\ttime(\state)\}$ is \emph{well formed}.
 %For every $(\state,\action)$ we have (1) $\sum_\ttime
 %\alpha_\ttime(\state,\action)
 %I(\state_\ttime=\state,\action_\ttime=\action)=\infty $, and (2)
 %$\sum_\ttime \alpha_\ttime^2(\state,\action)
 %I(\state_\ttime=\state,\action_\ttime=\action)=O(1)$,
 \item Noise: $\E[\omega_\ttime(\state)|h_{\ttime-1}]=0$ and $|\omega_\ttime(\state)|\leq B$, where
-$h_{\ttime-1}$ is the history up to time $\ttime$.
+$h_{\ttime-1}$ is the history up to time $\ttime$, that is $h_{\ttime-1} = \left\{\state_{0}, \omega_0, \dots, \omega_{\ttime-1},\state_{\ttime}\right\}$.
 \item Pseudo-contraction: There exists $X^*$ such that for any $X$ we have $\|HX-X^*\|_\infty
 \leq \discount \|X-X^*\|_\infty$. (This implies that $HX^*=X^*$.
 Note that any contraction operator $H$ is also a pseudo contraction, with $X^*$ being the unique fixed point of $H$, cf.~Theorem \ref{chapter-discount:thm:Banach})
@@ -837,7 +858,7 @@ converges with probability $1$ to $X^*$.
 \end{theorem}
 
 We will not give a proof of this important theorem, but we will try
-to sketch the main proof methodology.
+to sketch the main proof methodology; a complete proof can be found in Proposition 4.4 of \cite{Bertsekas05}.
 
 There are two distinct parts to the iterative algorithms. The part
 $(HX_\ttime)$ is contracting, in a deterministic manner. If we had
@@ -871,6 +892,7 @@ which converges to zero for a well-behaved algorithm, due to the first step size
 % that as the number of phases increases $\lambda_i<
 % ((1+\tilde{\discount}_i)/2)^i$ converges to zero.
 %each phase contracts by a constant and eventually we have convergence.
+
 
 \subsection{Convergence via the ODE method}
 Here we will consider the general stochastic approximation form in Eq.~\ref{eq:stochastic_approx}, and we will not limit ourselves to algorithms that update only certain states, but may update the whole vector $X_\ttime$ at every time step. 
@@ -954,11 +976,11 @@ $h_{\ttime-1}$ is the history up to time $\ttime$,
 \item The ODE $\dot \theta(t) = \safunc(\theta(t))$ has a globally asymptotically stable equilibrium $X^*$,
 \item The sequence $X_\ttime$ is bounded with probability 1.
 \end{enumerate}
-We now give a convergence result.
+We now give a convergence result (Theorem 2 in \citep{borkar2009stochastic}).
 
 \begin{theorem}[Stochastic Approximation: ODE convergence]\ \\
 \label{thm:stoch-approx-ODE}
- Let $X_\ttime$ be a sequence that is generated by a
+Let $X_\ttime$ be a sequence that is generated by a
 $(A,B)$ well behaved iterative algorithm. Then $X_\ttime$
 converges with probability $1$ to $X^*$.
 \end{theorem}
@@ -984,7 +1006,7 @@ to an {\em invariant set} of the ODE (e.g., a limit cycle).
 A major assumption in the last result is the boundedness of $(X_\ttime)$.
 In general this assumption has to be verified independently. However, there
 exist several results that rely on further properties of $\safunc$ to deduce
-boundedness, and hence convergence. One technique is to consider the function $\safunc_c(\theta) = \safunc(c \theta) / c$, $c\geq 1$. If $\safunc_c(\theta) \to \safunc_\infty(\theta)$ uniformly, one can consider the ODE with $\safunc_\infty$ replacing $\safunc$~\cite{borkar2009stochastic}. In particular, for a linear $\safunc$, we have that $\safunc_c = \safunc$, and this result shows that boundedness is guaranteed. We make this explicit in the following theorem.
+boundedness, and hence convergence. One technique is to consider the function $\safunc_c(\theta) = \safunc(c \theta) / c$, $c\geq 1$. If $\safunc_c(\theta) \to \safunc_\infty(\theta)$ uniformly, one can consider the ODE with $\safunc_\infty$ replacing $\safunc$ (Theorem 7 in \cite{borkar2009stochastic}). In particular, for a linear $\safunc$, we have that $\safunc_c = \safunc$, and this result shows that boundedness is guaranteed. We make this explicit in the following theorem.
 \begin{theorem}[Stochastic Approximation: ODE convergence for linear systems]\ \\
 \label{thm:stoch-approx-ODE-linear}
  Let $X_\ttime$ be a sequence that is generated by a
@@ -1004,11 +1026,20 @@ If $\Gamma$ is a bounded set then the estimated sequence $\{X_\ttime\}$ is guara
 to be bounded. However, in this case the corresponding ODE must account for the projection, and is $\dot \theta(t) = \safunc(\theta(t)) + \zeta$, where $\zeta$ is zero in the interior of $\Gamma$, and on the boundary of $\Gamma$, $\zeta$ is the infinitesimal change to $\theta$ required to keep it in $\Gamma$. In this case, to show convergence using Theorem \ref{thm:stoch-approx-ODE}, we must verify that $X^*$ is still a globally asymptotically stable equilibrium, that is, we must verify that the projection did not add a spurious stable point on the boundary of $\Gamma$. A thorough treatment of this idea is presented in \cite{kushner2003stochastic}.
 \end{remark}
 
+% \YM{Maybe add a reference where the proofs of Theorems 11.6 and 11.7 appear}
+
 \subsection{Comparison between the two convergence proof techniques}
 
 The two proof techniques above are qualitatively different, and also require different conditions to be applied. For the contraction approach, establishing that the iterates are bounded with probability 1 is not required, while with the ODE method, this is known to be a big technical difficulty in some applications. For linear ODEs, however, as Theorem \ref{thm:stoch-approx-ODE-linear} shows, this is not an issue. Another important difference is that some recurrence relations may converge even though they are not necessarily contractions. In such cases, the ODE method is more suitable. We next give a simple example of such a system. In Chapter \ref{chapter:function-approximation}, we will encounter a similar case when establishing convergence of an RL algorithm with linear function approximation.
 
+\begin{figure}[t]
+    \centering
+\includegraphics[width=0.7\linewidth]{figures/ode.png}   \caption{Plot for Example~\ref{example:ODE} }
+    \label{fig:example:ODE}
+\end{figure}
+
 \begin{example}
+\label{example:ODE}
     Consider the following linear recurrence equation in $\mathbb{R}^2$, where for simplicity we omit the noise term
     \begin{equation*}
         X_{\ttime+1} =
@@ -1027,13 +1058,11 @@ X_\ttime+\alpha_\ttime A X_\ttime,
 -2 & -3 \\
 2.1 & 2.9
 \end{bmatrix}$. It can be verified that $\|H_{\textrm{contraction}} X\| < \|X\|$ for any $X \neq 0$. However, note that $\|H_{\textrm{no-contraction}} X_0 \| = \| [-3, 2.9] \| > \|[0, 1]\|$, therefore $H_{\textrm{no-contraction}}$ is not a contraction in the Euclidean norm (nor in any other weighted $p$-norm).
-\\
-The next plot shows the evolution of the recurrence when starting from $X_0$, for a constant step size $\alpha_\ttime = 0.2$. Note that both iterates converge to $X^*$, as it is an asymptotically stable fixed point for the ODE $\dot{X} = AX$ for both values of $A$. However, the iterates for $H_{\textrm{contraction}}$ always reduce the distance to $X^*$, while the iterates for $H_{\textrm{no-contraction}}$ do not. Thus, for $H_{\textrm{no-contraction}}$, only the ODE method would have worked for showing convergence.
-\\
-\begin{center}
-\includegraphics[width=0.7\linewidth]{figures/ode.png}
-\end{center}
+
+The  plot  in Figure~\ref{fig:example:ODE} shows the evolution of the recurrence when starting from $X_0$, for a constant step size $\alpha_\ttime = 0.2$. Note that both iterates converge to $X^*$, as it is an asymptotically stable fixed point for the ODE $\dot{X} = AX$ for both values of $A$. However, the iterates for $H_{\textrm{contraction}}$ always reduce the distance to $X^*$, while the iterates for $H_{\textrm{no-contraction}}$ do not. Thus, for $H_{\textrm{no-contraction}}$, only the ODE method would have worked for showing convergence.
 \end{example}
+
+
 
 
 \section{Temporal Difference algorithms}
@@ -1072,11 +1101,10 @@ estimates $\widehat{V}$ for the updates. This implies that unlike
 Monte-Carlo, there will be an interaction between the estimates of
 different states and at different times.
 
-As a starting point, we can recall the {\em value iteration}
-algorithm.
+As a starting point, we can recall the {\em value iteration} algorithm:
 \[
 V_{\ttime+1}(\state)=E^\policy[\reward(\state,\policy(\state))+\discount
-V_\ttime(\state')]
+V_\ttime(\state')].
 \]
 We have shown that value iteration converges, namely $V_\ttime
 \rightarrow_{\ttime\rightarrow\infty} \Value^\policy$.
@@ -1126,30 +1154,32 @@ $[\reward_\ttime+\discount \widehat{V}_\ttime(\state_{\ttime+1})]$.
 \begin{algorithmic}[1]
 \State \textbf{Initialize:} Set $\widehat{V}(\state)$ arbitrarily for all $\state$.
 \State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
-    \State \quad Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime+1})$.
+    \State \quad Observe: $(\state_\ttime, \action_\ttime \sim \policy(\state_\ttime), \reward_\ttime, \state_{\ttime+1})$.
     \State \quad Update:
     \[
-    \widehat{V}(\state_\ttime) = \widehat{V}(\state_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime + \discount \widehat{V}(\state_{\ttime+1}) - \widehat{V}(\state_\ttime)\right]
+    \widehat{V}_{\ttime+1}(\state) = \begin{cases}
+        \widehat{V}_\ttime(\state_\ttime) + \alpha_\ttime(\state_\ttime) \left[\reward_\ttime + \discount \widehat{V}_\ttime(\state_{\ttime+1}) - \widehat{V}(\state_\ttime)\right], & \quad \state = \state_\ttime\\
+        \widehat{V}_\ttime(\state), & \quad \textrm{otherwise}
+    \end{cases},
     \]
-    \quad where $\alpha_\ttime(\state, \action)$ is the step size for $(\state, \action)$ at time $\ttime$.
+    \quad where $\alpha_\ttime(\state)$ is the step size for $\state$ at time $\ttime$.
 \end{algorithmic}
 \end{algorithm}
-
 We define the {\em temporal difference} to be
 \[
 \Delta_\ttime =\reward_\ttime+\discount
-\widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)
+\widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime).
 \]
 The $TD(0)$ update becomes:
 \[
-\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)\Delta_\ttime
+\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime)\Delta_\ttime.
 \]
 
 
 % [[YM: motivating example. Waze?!]]
 
 We would like to compare the $TD(0)$ and the Monte-Carlo (MC)
-algorithms. Here is a simple example with four states
+algorithms. Here is a simple example (taken from \cite{SuttonB98}) with four states
 $S=\{A,B,C,D\}$ where $\{C,D\}$ are terminal states and in $\{A,B\}$
 there is one action (essentially, the policy selects a unique
 action). Assume we observe eight episodes. One episode is
@@ -1173,7 +1203,7 @@ $0.75$. In this case the empirical model agrees with the $TD(0)$
 estimate, we show that this holds in general.
 
 
-\begin{figure}
+\begin{figure}[t]
   % Requires \usepackage{graphicx}
   \begin{centering}
   \includegraphics[width=0.5\textwidth]{figures/L7-ML}\\
@@ -1211,6 +1241,8 @@ $\Value^\policy_{EM}$ be the value function of $\policy$ on the
 empirical model. Then, $\Value^\policy_{TD}=\Value^\policy_{EM}$.
 \end{theorem}
 
+\YM{Need to explain what we mean by convergence, given a fixed sample S. Namely resampling from S.}
+
 \begin{proof}[Proof sketch]
 The update of $TD(0)$ is
 $\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)\Delta_\ttime$,
@@ -1221,8 +1253,8 @@ convergence we have $E[\Delta_\ttime]=0$ and hence,
 \widehat{V}(\state)=\frac{1}{n(\state,\action)}\sum_{\state_{\ttime+1}:\state_\ttime=\state,\action_\ttime=\action}
 \reward_\ttime+\discount
 \widehat{V}(\state_{\ttime+1})=\widehat{\reward}(\state,\action)+\discount
-E_{\state'\sim
-\widehat{\transitionprob}(\cdot|\state,\action)}[\widehat{V}(\state')]
+\E_{\state'\sim
+\widehat{\transitionprob}(\cdot|\state,\action)}[\widehat{V}(\state')],
 \]
 where $\action=\policy(\state)$.
 \end{proof}
@@ -1230,9 +1262,8 @@ where $\action=\policy(\state)$.
 It is worth to compare the above theorem to the case of Monte Carlo
 (Theorem~\ref{thm:MC-ML}). Here we are using the entire sample, and
 we have the same ML model for any state $\state$. In the Monte-Carlo
-case we used a reduced sample, which depends on the state $\state$
-and therefore we have a different ML model for each state, based on
-its reduced sample.
+case we used a reduced sample for state $\state$, which depends on the state $\state$,
+and therefore we have a different ML model for each state, based on its reduced sample.
 
 \paragraph{Convergence:} 
 %The proof of the convergence of $TD(0)$ is very similar to that of $Q$-learning. 
@@ -1248,7 +1279,7 @@ convergence proof will follow from this.
 % every $(\state,\action)$ we have $\sum_\ttime
 % \alpha_\ttime(\state,\action)=\infty $ and $\sum_\ttime
 % \alpha_\ttime^2(\state,\action)=O(1)$, 
-If the sequence of learning rates $\{\alpha_\ttime(\state,\action)\}$ is well formed then $\widehat{V}$ converges
+If the sequence of learning rates $\{\alpha_\ttime(\state)\}$ is well formed then $\widehat{V}$ converges
 to $\Value^\policy$, with probability $1$.
 \end{theorem}
 
@@ -1258,7 +1289,7 @@ stochastic approximation iterative algorithm
 
 We first define a linear operator $H$ for the policy $\policy$,
 \[
-(Hv)(\state)=\reward(\state,\policy(\state))+\discount\sum_{\state'}\transitionprob(\state'|\state,\policy(\state))v(\state')
+(Hv)(\state)=\reward(\state,\policy(\state))+\discount\sum_{\state'}\transitionprob(\state'|\state,\policy(\state))v(\state').
 \]
 Note that $H$ is the operator $T^\policy$ we define in
 Section~\ref{ss:DP_op}. Theorem~\ref{thm:DP_op} shows that the operator $H$ is a $\discount$-contracting.
@@ -1277,7 +1308,7 @@ We now would like to re-write the $TD(0)$ update to be a stochastic
 approximation iterative algorithm. The $TD(0)$ update is,
 \[
 V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\ttime
-\Phi_\ttime
+\Phi_\ttime,
 \]
 where $\Phi_\ttime=\reward_\ttime+\discount
 V_\ttime(\state_{\ttime+1})$. We would like to consider the expected
@@ -1297,7 +1328,7 @@ bounded by $V_{max}$.
 Returning to $TD(0)$, we can write
 \[
 V_{\ttime+1}(\state_\ttime)=(1-\alpha_\ttime)V_\ttime(\state_\ttime)+\alpha_\ttime
-[(HV_\ttime)(\state_\ttime)+\omega_\ttime(\state_\ttime)]
+[(HV_\ttime)(\state_\ttime)+\omega_\ttime(\state_\ttime)].
 \]
 The requirement of the step sizes follows since they are well formed. The noise $\omega_\ttime$ has both
 $E[\omega_\ttime|h_{\ttime-1}]=0$ and $|\omega_\ttime|\leq V_{max}$. The
@@ -1306,7 +1337,7 @@ Therefore, using Theorem~\ref{thm:stoch-approx}, we established
 Theorem~\ref{thm:TD0-conrg}.
 
 \paragraph{Comparing $TD(0)$ and $MC$ algorithms:}
-\footnote{YM: needed to check if the example is from Sutton}
+%\footnote{\YM{YM: needed to check if the example is from Sutton}}
 % When we compare $TD(0)$, to $MC$ and both to  Dynamic Programming
 % (DP) we can view it as different ways of computing the value
 % function.
@@ -1382,9 +1413,14 @@ time $\ttime$. The following is the definition of the algorithm.
 \State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
     \State \quad Observe: $(\state_\ttime, \action_\ttime, \reward_\ttime, \state_{\ttime}')$.
     \State \quad Update:
+    \begin{small}
     \[
-    Q_{\ttime+1}(\state_\ttime, \action_\ttime) := Q_\ttime(\state_\ttime, \action_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime + \gamma \max_{\action'} Q_\ttime(\state_{\ttime}', \action') - Q_\ttime(\state_\ttime, \action_\ttime)\right]
-    \]
+    Q_{\ttime+1}(\state, \action) = \begin{cases}
+        Q_\ttime(\state_\ttime, \action_\ttime) + \alpha_\ttime(\state_\ttime, \action_\ttime) \left[\reward_\ttime + \gamma \max_{\action'} Q_\ttime(\state_{\ttime}', \action') - Q_\ttime(\state_\ttime, \action_\ttime)\right], &  (\state,\action)=(\state_\ttime, \action_\ttime) \\
+        Q_\ttime(\state, \action), & \textrm{otherwise}
+    \end{cases}
+    \]    
+    \end{small}
 \end{algorithmic}
 \end{algorithm}
 
@@ -1400,7 +1436,7 @@ For simplicity assume we already converged,
 $Q_\ttime=\QValue^*$. Then we have that $\E[\Gamma_\ttime]=0$ and (on
 average) we maintain that $Q_\ttime=\QValue^*$.
 %
-Clearly we do not want to assume that we converge, since this is the
+Clearly, we do not want to assume that we converge, since this is the
 entire goal of the algorithm.
 %
 The main challenge in showing the convergence is that in the updates
@@ -1452,7 +1488,7 @@ We first define the operator $H$,
 \[
 (Hq)(\state,\action)=\sum_{\state'}p(\state'|\state,\action)
 [\reward(\state,\action) + \discount \max_{\action'} q (\state',
-\action')]
+\action')].
 \]
 The contraction of $H$ is established as follows,
 \begin{align*}
@@ -1577,8 +1613,8 @@ $Q_0(\state,\action)=1$. We will analyze the convergence with the
 linear step size. Our update is,
 \[
 Q_\ttime =
-(1-\frac{1}{\ttime})Q_{\ttime-1}+\frac{1}{\ttime}[0+\discount
-Q_{\ttime-1}]=(1-\frac{1-\discount}{\ttime})Q_{\ttime-1}
+\left(1-\frac{1}{\ttime}\right)Q_{\ttime-1}+\frac{1}{\ttime}\Big[0+\discount
+Q_{\ttime-1}\Big]\left(1-\frac{1-\discount}{\ttime}\right)Q_{\ttime-1}.
 \]
 When we solve the recursion we get that
 $Q_\ttime=\Theta(1/\ttime^{1-\discount})$.\footnote{$Q_\ttime=\prod_{i=1}^\ttime (1-(1-\discount)/i)\approx
@@ -1592,8 +1628,8 @@ have $Q_\ttime \geq \varepsilon$.
 In contrast, if we use a polynomial step size, we have,
 \[
 Q_\ttime =
-(1-\frac{1}{\ttime^\theta})Q_{\ttime-1}+\frac{1}{\ttime^\theta}[0+\discount
-Q_{\ttime-1}]=(1-\frac{1-\discount}{\ttime^\theta})Q_{\ttime-1}
+\left(1-\frac{1}{\ttime^\theta}\right)Q_{\ttime-1}+\frac{1}{\ttime^\theta}\Big[0+\discount
+Q_{\ttime-1}\Big]=\left(1-\frac{1-\discount}{\ttime^\theta}\right)Q_{\ttime-1}.
 \]
 When we solve the recursion we get that
 $Q_\ttime=\Theta(e^{-(1-\discount)t^{1-\theta}})$. This implies that
@@ -1691,7 +1727,7 @@ approximation $Q_\ttime$ of the optimal $\QValue$ function.
 Given a state $\state$ and a $\QValue$ function $Q$, we first define the
 greedy action in state $\state$ according to $Q$ as
 \[
-\bar{\action}=\arg\max_\action Q(\state,\action)
+\bar{\action}\in\arg\max_\action Q(\state,\action).
 \]
 The first idea might be to simply select the greedy action
 $\bar{\action}$, however this might be devastating. The main issue
@@ -1720,18 +1756,18 @@ all actions a non-zero probability, and thus guarantee exploration.
 %\bar{\action}=\arg\max Q(\state,\action)
 %\]
 
-The \emph{ $\varepsilon_n$-greedy}, has as a parameter a sequence of
+\textbf{$\varepsilon$-greedy: }The \emph{ $\varepsilon_n$-greedy}, has as a parameter a sequence of
 $\varepsilon_n$ and selects the actions as follows. Let
 $n_\ttime(\state)$ be the number of times state $\state$ was visited
 up to time $\ttime$. At time $\ttime$ in state $\state$ policy
 $\varepsilon_n$-greedy (1) with probability $1-\varepsilon_n$ sets
-$\policy(\state;Q)=\bar{\action}$ where $n=n_\ttime(\state)$, and
+$\policy(\state;Q)=\bar{\action}$, where $n=n_\ttime(\state)$, and
 (2) with probability $\varepsilon_n/|\Actions|$, selects
 $\policy(\state;Q)=\action$, for each $\action \in \Actions$. Common
-values for $\varepsilon_n$ are linear, $\varepsilon_\ttime=1/n$, or
+values for $\varepsilon_n$ are linear, $\varepsilon_n=1/n$, or
 polynomial, $\varepsilon_\ttime=1/n^\theta$ for $\theta\in(0.5,1)$.
 
-The {\em soft-max}, has as a parameter a sequence of
+\textbf{Soft-max} The {\em soft-max}, has as a parameter a sequence of
 $\beta_\ttime\geq 0$ and selects $\policy(\state;Q)=\action$, for
 each $\action \in \Actions$, with probability $\frac{e^{\beta_\ttime
 Q(\state,\action)}}{\sum_{\action'\in \Actions}e^{\beta_\ttime
@@ -1754,25 +1790,25 @@ each action appears infinitely often).
 
 We will show the convergence of $Q_\ttime$ to $\QValue^*$ under the $\varepsilon$-greedy policies. First, we will define an appropriate operator
 \begin{align*}
-  (T^{*,\epsilon}q)(\state,\action) =& \reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} q(\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}q(\state',\action')\right] 
+  (T^{*,\epsilon}q)(\state,\action) =& \reward(\state,\action)+\discount \E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} q(\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}q(\state',\action')\right] .
   %\\
   %&+\epsilon[\frac{1}{|\Actions|}\sum_{b\in\Actions}[\reward(\state,b)+\discount E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} q(\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}q(\state',\action')]]  
 \end{align*}
 We claim that $T^{*,\epsilon}$ is a $\discount$-contracting operator. This follows since,
 \begin{align*}
     (T^{*,\epsilon}q_1 -  T^{*,\epsilon}q_1)(\state,\action) =& 
-    \discount(1-\epsilon) E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[\max_{\action'\in\Actions}q_1(\state',\action')-\max_{\action''\in\Actions}q_2(\state',\action'')\right] \\
-    &+\discount\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[q_1(\state',b')-q_2(\state',b')\right]\\ 
+    \discount(1-\epsilon) \E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[\max_{\action'\in\Actions}q_1(\state',\action')-\max_{\action''\in\Actions}q_2(\state',\action'')\right] \\
+    &+\discount\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} \E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[q_1(\state',b')-q_2(\state',b')\right]\\ 
 %    &+\discount(1-\epsilon)\epsilon \frac{1}{|\Actions|}\sum_{b\in\Actions} E_{\state'\sim\transitionprob(\cdot|\state,b)}[\max_{\action'\in\Actions}q_1(\state',\action')-\max_{\action''\in\Actions}q_2(\state',\action'')]\\
  %   & + \discount\epsilon^2  E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} q(\state',b') \\
 %        \leq & \discount(1-\epsilon)\|q_1-q_2\|_\infty +\discount\epsilon \|q_1-q_2\|_\infty   = 
-    \leq & \discount\|q_1-q_2\|_\infty
+    \leq & \discount\|q_1-q_2\|_\infty\;.
 \end{align*}
 Therefore, $T^{*,\epsilon}$ will converge to a fix-point $Q^{*,\epsilon}$. Now we want to relate the fix-point of $Q^{*,\epsilon}$ to the optimal $Q^*$, which is a fixed point of $T^*$.
 For $Q^{*,\epsilon}$, since it is the fix point of $T^{*,\epsilon}$, we have
 \begin{align*}
   Q^{*,\epsilon}(\state,\action) =&
-   \reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon} (\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}Q^{*,\epsilon} (\state',\action')\right] 
+   \reward(\state,\action)+\discount \E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon} (\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}Q^{*,\epsilon} (\state',\action')\right] .
  % &+\epsilon[\frac{1}{|\Actions|}\sum_{b\in\Actions}[\reward(\state,b)+\discount E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon}(\state',b')+ (1-\epsilon)\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')]]  
  % 
 %  (1-\epsilon)[\reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')] \\
@@ -1780,13 +1816,13 @@ For $Q^{*,\epsilon}$, since it is the fix point of $T^{*,\epsilon}$, we have
 \end{align*}
 For $Q^{*}$, since it is the fix point of $T^{*}$, we have
 \[
-  Q^{*}(\state,\action) = \reward(\state,\action)+\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*}(\state',\action')]
+  Q^{*}(\state,\action) = \reward(\state,\action)+\discount \E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*}(\state',\action')].
 \]
 Let $\Delta^\epsilon=\|Q^{*,\epsilon}-Q^*\||_\infty$. We have
 \begin{align*}
     Q^{*,\epsilon}(\state,\action) -Q^{*}(\state,\action) =& %\epsilon(\frac{1}{|\Actions|}\sum_{b\in\Actions}\reward(\state,b)-\reward(\state,\action))\\
-    (1-\epsilon)\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')-\max_{\action''}Q^{*}(\state',\action'')\right] \\
-    & +\epsilon\discount E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{1}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon} (\state',b') - \max_{\action''}Q^{*}(\state',\action'')\right]\\
+    (1-\epsilon)\discount \E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')-\max_{\action''}Q^{*}(\state',\action'')\right] \\
+    & +\epsilon\discount \E_{\state'\sim\transitionprob(\cdot|\state,\action)}\left[ \frac{1}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon} (\state',b') - \max_{\action''}Q^{*}(\state',\action'')\right]\\
 %    &+  \epsilon(1-\epsilon)\discount   ( E_{\state'\sim\transitionprob(\cdot|\state,b)}[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')] - E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*}(\state',\action')])
 %    \\   &+
 %    \epsilon^2\discount (E_{\state'\sim\transitionprob(\cdot|\state,b)}[\frac{\epsilon}{|\Actions|}\sum_{b'\in\Actions} Q^{*,\epsilon}(\state',b') ]-E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action'\in\Actions}Q^{*}(\state',\action')])
@@ -1794,15 +1830,15 @@ Let $\Delta^\epsilon=\|Q^{*,\epsilon}-Q^*\||_\infty$. We have
  %   
 %  &+\epsilon\discount[\frac{1}{|\Actions|}\sum_{b\in\Actions} E_{\state'\sim\transitionprob(\cdot|\state,b)}[\max_{\action'\in\Actions}Q^{*,\epsilon}(\state',\action')]-E_{\state'\sim\transitionprob(\cdot|\state,\action)}[\max_{\action''}Q^{*}(\state',\action'')]  \\
   \leq & 
-   \discount(1-\epsilon) \Delta^\epsilon+\epsilon\discount \Vmax
+   \discount(1-\epsilon) \Delta^\epsilon+\epsilon\discount \Vmax.
 \end{align*}
 Let $(\state,\action)$ be the state-action that determines $\Delta^\epsilon$. Then we have
 \[
-\Delta^\epsilon \leq   \discount \Delta^\epsilon+\epsilon\discount \Vmax
+\Delta^\epsilon \leq   \discount \Delta^\epsilon+\epsilon\discount \Vmax,
 \]
 which implies that 
 \[
-\Delta^\epsilon \leq \epsilon \frac{\discount\Vmax}{1-\discount}
+\Delta^\epsilon \leq \epsilon \frac{\discount\Vmax}{1-\discount}.
 \]
 \begin{theorem}
 Using $\varepsilon$-greedy the SARSA algorithm converges to     $Q^{*,\epsilon}$ and $\|Q^{*,\epsilon} -Q^{*}\|_\infty\leq \epsilon \frac{\discount\Vmax}{1-\discount}$.
@@ -1851,9 +1887,9 @@ $\reward_0=\E[R(\state,\policy(\state))]$ and $\state_1$ is the state
 reached when doing action $\policy(\state)$ in state $\state$. As we
 role out to time $\ttime$ we have,
 \[
-\Value^*(\state)\leq \E[\sum_{i=0}^{\ttime-1} \discount^i
-\reward_i]+\discount^\ttime
-\E[\Value^*(\state_\ttime)]+\sum_{i=1}^\ttime 2\Delta\discount^i
+\Value^*(\state)\leq \E\left[\sum_{i=0}^{\ttime-1} \discount^i
+\reward_i\right]+\discount^\ttime
+\E\left[\Value^*(\state_\ttime)\right]+\sum_{i=1}^\ttime 2\Delta\discount^i,
 \]
 where $\reward_i$ is the reward in time $i$ in state $\state_i$,
 $\state_{i+1}$ is the state reached when doing action
@@ -1895,7 +1931,7 @@ $\|\policy(\cdot|\state)-\policy_\varepsilon(\cdot|\state)\|_1\leq\varepsilon$.
 Then, for any state $\state$ we have
 \[
 |\Value^{\policy_\varepsilon}(\state)-\Value^\policy(\state)|\leq
-\frac{\varepsilon\discount}{(1-\discount)(1-\discount(1-\varepsilon))}\leq \frac{\varepsilon}{(1-\discount)^2}
+\frac{\varepsilon\discount\Rmax}{(1-\discount)(1-\discount(1-\varepsilon))}\leq \frac{\varepsilon\Rmax}{(1-\discount)^2}.
 \]
 %For $\varepsilon\leq 1/2$ we have $|\Value^{\policy_\varepsilon}(\state)-\Value^\policy(\state)|\leq 2\varepsilon\Vmax$
 \end{lemma}
@@ -1959,7 +1995,7 @@ Since $Q_\ttime$ converges to $\QValue^*$, there is a time $\tau_2$ such that fo
 
 Set $\tau=\max\{\tau_1,\tau_2\}$. By
 Lemma~\ref{lemma:epsilon-greedy} the difference between the
-$\varepsilon_n$-greedy policy and the greedy policy differs by at most $2\varepsilon_n/(1-\discount)^2\leq \lambda$. By Lemma
+$\varepsilon_n$-greedy policy and the greedy policy differs by at most $2\varepsilon_n/(1-\discount)^2\leq \lambda/2$. By Lemma
 \ref{lemma:Q-greedy-policy} the difference between the optimal and
 greedy policy is bounded by $2\Delta/(1-\discount)=\lambda/2$. This
 implies that the policies played at time $\ttime>\tau$ are
@@ -2036,7 +2072,7 @@ updates $\Delta^{(n)}_\ttime=R^{(n)}_\ttime(\state_\ttime) -
 We can relate the $\Delta^{(n)}_\ttime$ to the $\Delta_\ttime$ as
 follows:
 \[
-\Delta^{(n)}_\ttime=\sum_{i=0}^{n-1} \discount^i \Delta_{\ttime+i}
+\Delta^{(n)}_\ttime=\sum_{i=0}^{n-1} \discount^i \Delta_{\ttime+i}.
 \]
 This follows since
 \begin{align*}
@@ -2048,7 +2084,7 @@ This follows since
 =&\sum_{i=0}^{n-1} \discount^i
 \reward_{\ttime+i}+\discount^n
 \widehat{V}(\state_{\ttime+n})-\widehat{V}(\state_\ttime)\\
-=&R^{(n)}_\ttime(\state_\ttime)-\widehat{V}(\state_\ttime)=\Delta^{(n)}_\ttime
+=&R^{(n)}_\ttime(\state_\ttime)-\widehat{V}(\state_\ttime)=\Delta^{(n)}_\ttime.
 \end{align*}
 
 
@@ -2061,7 +2097,7 @@ We can view $R^{(n)}_\ttime$ as an operator over $V$, and this operator is
 $\discount^n$-contracting, namely
 \[
 \| R^{(n)}_\ttime(V_1)-R^{(n)}_\ttime(V_2)\|_\infty \leq \discount^n
-\|V_1-V_2\|_\infty
+\|V_1-V_2\|_\infty.
 \]
 
 We can use any parameter $n$ for the $n$-step look-ahead. If the
@@ -2111,18 +2147,18 @@ can aggregate all those updates to a single update. Let,
 \[
 e_\ttime(\state)=\sum_{\tau\leq \ttime: \state_\tau=\state}
 (\discount\lambda)^{\ttime-\tau} = \sum_{\tau=1}^\ttime
-(\discount\lambda)^{\ttime-\tau}I(\state_\tau=\state)
+(\discount\lambda)^{\ttime-\tau}I(\state_\tau=\state).
 \]
 The above $e_\ttime(\state)$ defines the {\em eligibility trace} and
 we can compute it online using
 \[
 e_\ttime(\state)=\discount\lambda
-e_{\ttime-1}(\state)+I(\state=\state_\ttime)
+e_{\ttime-1}(\state)+I(\state=\state_\ttime),
 \]
 which result in the update
 \[
 \widehat{V}_{\ttime+1}(\state)=\widehat{V}_\ttime(\state)+\alpha_\ttime
-e_\ttime(\state)\Delta_\ttime
+e_\ttime(\state)\Delta_\ttime.
 \]
 Note that for $TD(0)$ we have that $\lambda=0$ and the eligibility
 trace becomes $e_\ttime(\state)=I(\state=\state_\ttime)$. This
@@ -2150,7 +2186,7 @@ Monte-carlo updates, and many times achieves superior performance to
 both.
 %
 Similar to $TD(0)$, also  $TD(\lambda)$ can be written as a
-stochastic approximation iterative algorithm, and one can derive its convergence.\footnote{YM: Do we want to add it? Maybe HW?}
+stochastic approximation iterative algorithm, and one can derive its convergence (see \cite{JaakkolaJS94} for details).
 %
 In the next section we show the equivalence of the forward and
 backward $TD(\lambda)$ updates.
@@ -2158,10 +2194,11 @@ backward $TD(\lambda)$ updates.
 
 \subsection{The equivalence of the forward and backward view}
 
-We would like to show that indeed the forward and backward view result in the same overall update.\footnote{YM: should we move to the Harm van Seijen, Richard S. Sutton: True Online TD(lambda). ICML 2014: 692-700}
+We would like to show that indeed the forward and backward view result in the same overall update.
+%\footnote{\YM{should we move to the Harm van Seijen, Richard S. Sutton: True Online TD(lambda). ICML 2014: 692-700}}
 
 Consider the following intuition. Assume that state $\state$ occurs in time $\tau_1$. This occurrence will contribute to the forward view $\sum_{\ttime=0}^\infty \lambda^\ttime\discount^\ttime\Delta_{\tau_1+\ttime} $.
-The same contribution applies to any time $\tau_j$ where state $\state$ occurs. The sum of those contributions would be $\sum_{j=1}^M \lambda^\ttime\discount^\ttime\Delta_{\tau_j+\ttime} $, where $M$ is the number of occurrences of state $\state$. Now we compute the contribution of any update $\Delta_i$. The updates of $\Delta_i$ will  contribute to any update of state $\state$ which occurs at time $\tau_j\leq i$. The total update of $\Delta_i$ would be $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}\Delta_i $. Note that $e_i(\state)$ st time $i$ equals to $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}$, which implies that the update equals $e_i(\state)\Delta_i$.So the sum of the updates should be equivalent. Figure~\ref{fig-TD-lambda-forward-backward} has an illustrative example.
+The same contribution applies to any time $\tau_j$ where state $\state$ occurs. The sum of those contributions would be $\sum_{j=1}^M \lambda^\ttime\discount^\ttime\Delta_{\tau_j+\ttime} $, where $M$ is the number of occurrences of state $\state$. Now we compute the contribution of any update $\Delta_i$. The updates of $\Delta_i$ will  contribute to any update of state $\state$ which occurs at time $\tau_j\leq i$. The total update of $\Delta_i$ would be $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}\Delta_i $. Note that $e_i(\state)$ at time $i$ equals to $\sum_{\tau_j\leq i } (\lambda\discount)^{i-\tau_j}$, which implies that the update equals $e_i(\state)\Delta_i$. So the sum of the updates should be equivalent. Figure~\ref{fig-TD-lambda-forward-backward} has an illustrative example.
 We will derive it more formally in the proof that follows.
 
 \begin{figure}
@@ -2198,7 +2235,7 @@ For any state $\state$
 \[
 \sum_{\ttime=0}^{\infty} \Delta V^B_\ttime
 (\state)=\sum_{\ttime=0}^{\infty} \Delta V_\ttime^F(\state)
-I(\state_\ttime=\state)
+I(\state_\ttime=\state).
 \]
 \end{theorem}
 
@@ -2221,7 +2258,8 @@ Consider the sum of the forward updates for state $\state$:
 %
 &= \sum_{\ttime=0}^\infty \sum_{k=\ttime}^\infty \alpha
 (\discount\lambda)^{k-\ttime} \Delta_k(\state)
-I(\state=\state_\ttime) \label{eq:TD-F}
+I(\state=\state_\ttime), 
+\label{eq:TD-F}
 \end{align}
 where the first identity is the definition, the second identity
 follows since $\Delta_\ttime^{(n)}=\sum_{i=0}^n\discount^i
@@ -2238,7 +2276,7 @@ For the backward view for state $\state$ we have
 &=\sum_{\ttime=0}^{\infty} \alpha
 \Delta_\ttime(\state) \sum_{k=0}^\ttime (\discount\lambda)^{\ttime-k} I(\state=\state_\ttime)\nonumber\\
 &= \sum_{k=0}^\infty \sum_{\ttime=k}^\infty \alpha
-(\discount\lambda)^{\ttime-k}\Delta_\ttime(\state)I(\state=\state_\ttime)
+(\discount\lambda)^{\ttime-k}\Delta_\ttime(\state)I(\state=\state_\ttime).
 \label{eq:TD-B}
 \end{align}
 
@@ -2254,7 +2292,7 @@ $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1},\action_{\ttime+
 the update of SARSA is
 \[
 \reward_\ttime+\discount
-Q_\ttime(\state_{\ttime+1},\action_{\ttime+1})-Q_\ttime(\state_\ttime,\action_\ttime)
+Q_\ttime(\state_{\ttime+1},\action_{\ttime+1})-Q_\ttime(\state_\ttime,\action_\ttime).
 \]
 Similarly, we can define an $n$-step look-ahead
 $q^{(n)}_\ttime=\sum_{i=0}^{n-1}\discount^i \reward_{\ttime+i}
@@ -2277,16 +2315,16 @@ eligibility traces:
 e_0(\state,\action)&=0\\
 e_\ttime(\state,\action)&=\discount\lambda
 e_{\ttime-1}(\state,\action)+ I(\state=\state_\ttime,
-a=\action_\ttime)
+a=\action_\ttime).
 \end{align*}
 For the update we have
 \begin{align*}
 \Delta_\ttime&= \reward_\ttime +\discount Q_\ttime(\state_{\ttime+1},\action_{\ttime+1})-Q_\ttime(\state_\ttime,\action_\ttime)\\
 Q_{\ttime+1}(\state,\action)&=Q_{\ttime}(\state,\action)+\alpha_\ttime
-e_\ttime(\state,\action)\Delta_\ttime
+e_\ttime(\state,\action)\Delta_\ttime.
 \end{align*}
 
-\section{Miscellaneous}
+\section{TODO: on policy vs. off policy}
 
 \subsection{Importance Sampling}
 
@@ -2294,13 +2332,13 @@ Importance sampling is a simple general technique to estimate the
 mean with respect to a given distribution, while sampling from a
 different distribution. To be specific, let $Q$ be the sampling
 distribution and $P$ the evaluation distribution. The basic idea is
-the following
+the following:
 \[
-E_{x\sim P}[f(x)]=\sum_x P(x)f(x)=\sum_x Q(x)\frac{P(x)}{Q(x)}
-f(x)=E_{x\sim Q} [\frac{P(x)}{Q(x)}f(x)]
+\E_{x\sim P}[f(x)]=\sum_x P(x)f(x)=\sum_x Q(x)\frac{P(x)}{Q(x)}
+f(x)=\E_{x\sim Q} [\frac{P(x)}{Q(x)}f(x)].
 \]
 This implies that given a sample $\{x_1, \ldots , x_m\}$ from $Q$,
-we can estimate $E_{x\sim P}[f(x)]$ using $\sum_{i=1}^m
+we can estimate $\E_{x\sim P}[f(x)]$ using $\sum_{i=1}^m
 \frac{P(x_i)}{Q(x_i)}f(x_i)$.
 %
 The importance sampling gives an unbiased estimator, but the
@@ -2316,7 +2354,7 @@ to take the ratio of probabilities under $\rho$ and $\policy$.
 \frac{\rho(\state_1,\action_1,\reward_1,
 \ldots,\state_{T},\action_{T},\reward_T,\state_{T+1})}{\policy(\state_1,\action_1,\reward_1,
 \ldots,\state_{T},\action_{T},\reward_T,\state_{T+1})}=\prod_{\ttime=1}^T
-\frac{\rho(a_\ttime|\state_\ttime)}{\policy(a_\ttime|\state_\ttime)}
+\frac{\rho(a_\ttime|\state_\ttime)}{\policy(a_\ttime|\state_\ttime)},
 \]
 where the equality follows since the reward and transition
 probabilities are identical, and cancel.
@@ -2325,12 +2363,12 @@ For Monte-Carlo, the estimates would be
 \[
 G^{\rho/\policy}=\prod_{\ttime=1}^T
 \frac{\rho(\action_\ttime|\state_\ttime)}{\policy(\action_\ttime|\state_\ttime)}
-(\sum_{\ttime=1}^T \reward_\ttime)
+(\sum_{\ttime=1}^T \reward_\ttime),
 \]
 and we have
 \[
 \widehat{V}^\rho (\state_1) = \widehat{V}^\rho(\state_1) +\alpha(
-G^{\rho/\policy}- \widehat{V}^\rho(\state_1))
+G^{\rho/\policy}- \widehat{V}^\rho(\state_1)).
 \]
 This updates might be huge, since we are multiplying the ratios of
 many small numbers.
@@ -2339,12 +2377,12 @@ For the $TD(0)$ the updates will be
 \[
 \Delta^{\rho/\policy}_\ttime
 =\frac{\rho(\action_\ttime|\state_\ttime)}{\policy(\action_\ttime|\state_\ttime)}\reward_\ttime
-+\discount \widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)
++\discount \widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime),
 \]
 and we have
 \[
 \widehat{V}^\rho (\state_1) = \widehat{V}^\rho(\state_1) +\alpha(
-\Delta^{\rho/\policy}_\ttime- \widehat{V}^\rho(\state_1))
+\Delta^{\rho/\policy}_\ttime- \widehat{V}^\rho(\state_1)).
 \]
 This update is much more stable, since we have only one factor
 multiplying the observed reward.
@@ -2354,13 +2392,13 @@ Consider an MDP with a single state and two actions (also called multi-arm bandi
 
 Using the Monte Carlo approach, when considering complete trajectories, only after expected  $ 2^\tHorizon$ trajectories we have a trajectory in which for $\tHorizon$ times action one was selected. (Note that the update will have weight $2^\tHorizon$.)
 
-Using the $TD(0)$ updates, each time action one is selected by $\pi$ we can do an update the estimates of $\rho$ (with a factor of $2$). 
+Using the $TD(0)$ updates, each time action one is selected by $\pi$ we can update the estimates of $\rho$ (with a factor of $2$). 
 %This implies that in order to have 
 
 To compare the two approaches, consider the number of trajectories required to get an $\epsilon$ approximation for the return of $\rho$. Using Monte-Carlo, we need $O(\tHorizon 2^\tHorizon/\epsilon^2)$ trajectories, in expectation. In contrast, for $TD(0)$ we need only $O(\tHorizon/\epsilon^2)$ trajectories. The huge gap is due to the fact that $TD(0)$ utilizes partial trajectories while Monte-Carlo requires the entire trajectory to agree with $\rho$.
 \end{example}
 
-\subsection{Algorithms for Episodic MDPs}\label{ssec:mfrl_episodic}
+\subsection{Algorithms for Episodic MDPs (MOVE)}\label{ssec:mfrl_episodic}
 Modifying the learning algorithms above from the discounted to the episodic setting requires a simple but important change. We show it here for Q-learning, but the extension to the other algorithms is immediate.
 
 \begin{algorithm}[H]
@@ -2381,31 +2419,29 @@ Modifying the learning algorithms above from the discounted to the episodic sett
 
 Note that we removed the discount factor, and also explicitly used the fact that the value of a goal state is $0$. The latter is critical for the algorithm to converge, under the Assumption \ref{ass:finite_termination_prob} that a goal state will always be reached.
 
-\section{Bibliography Remarks}
+\section{Bibliography Notes}
 
 The Monte-Carlo approach dates back to the 1940's \cite{MetropolisU49}. Monte Carlo methods were introduced to reinforcement learning in \cite{BartoD93}.
 The comparison of the {\tt First Visit} and {\tt Every Visit} of Monte-Carlo algorithms is
 based on \cite{SinghS96}.
 
-The Temporal differences method was introduced in \cite{Sutton88}, where $TD(0)$ is introduced. The $TD(\lambda)$ was analysed in \cite{Dayan92,DayanS94}.
+The Temporal differences method was introduced in \cite{Sutton88}, where $TD(0)$ is introduced. The $TD(\lambda)$ was analyzed in \cite{Dayan92,DayanS94}. A more refined version, termed ``True Online $TD(\lambda)$'' and its analysis appears in \cite{SeijenS14,SeijenMPMS16}.
 
 Q-learning was introduced and first analyzed in \cite{WatkinsD92}.
 %The $Q$-learning outline of the asymptotic convergence and 
 The step size analysis of Q-learning and non-asymptotic convergence rates were derived in \cite{Even-DarM03}.
-
 The asymptotic convergence of Q-learning and Temporal differences was given in \cite{JaakkolaJS94,Tsitsiklis94}.
-
-The SARSA algorithm was introduced in \cite{SinghS96}, and its convergence proved in \cite{SinghJLS00}. 
+The SARSA algorithm was introduced in \cite{rummery1994line,SinghS96}, and its convergence proved in \cite{SinghJLS00}. 
 The expected SARSA was presented in \cite{SeijenHWW09}.
 
 
-The examples of Figure \ref{fig:L7-ML}
-are from Chapter 6 of \cite{SuttonB98}.
+% The examples of Figure \ref{fig:L7-ML}
+% are from Chapter 6 of \cite{SuttonB98}.
 
-The stochastic approximation method was introduced by Robbins and  Monro \cite{RobbinsS51} and developed by Blum \cite{Blum54}. For an extensive survey of this literature ????
-
-
-The ODE method was pioneered by Ljung \cite{Ljung77,LjungS83} and further developed by Kushner \cite{KushnerC78,Kushner84} For an extensive survey of this literature.
+The stochastic approximation method was introduced by Robbins and  Monro \cite{RobbinsS51}. 
+% and developed by Blum \cite{Blum54}. 
+For an extensive survey of this literature we refer to \citep{kushner2003stochastic}.
+The ODE method was pioneered by Ljung \cite{Ljung77,LjungS83} and further developed by Kushner \cite{KushnerC78,Kushner84}. An extensive treatment on stochastic approximation appears in \cite{kushner2003stochastic,benveniste2012adaptive,borkar2009stochastic}
 
 % [[YM: is this correct?!]
 

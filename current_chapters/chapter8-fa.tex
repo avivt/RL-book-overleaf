@@ -1029,14 +1029,16 @@ An alternative heuristic for the exploration bonus that was suggested in the pop
 \caption{Monte-Carlo Tree Search (MCTS)}\label{alg:MCTS}
 \begin{algorithmic}[1]
 \State \textbf{Input:} Simulator $\transitionkernel$, initial state $\state_{\textrm{root}}$, value estimate $\widehat{\Value}(\state)$, horizon $\tHorizon$, budget $K$
-\State Initialize Tree = $\{ \state_{\textrm{root}}\}$
-\State Initialize $\forall \action: \quad $ $W(\state_{\textrm{root}},\action) = 0$, $N(\state_{\textrm{root}},\action) = 0$, 
-$\QValue(\state_{\textrm{root}},\action) = 0$ 
-\State \textbf{For} {$k = 0,\dots,K$ }
-\State \quad \texttt{search}($\state$, 0)
-\State \textbf{Return} $\argmax_\action \QValue(\state_{\textrm{root}},\action)$
-\\
-\Function{\texttt{search}}{$\state,\ttime$}
+ \State Initialize Tree = $\{ \state_{\textrm{root}}\}$
+ \State Initialize $\forall \action: \quad $ $W(\state_{\textrm{root}},\action) = 0$, $N(\state_{\textrm{root}},\action) = 0$, 
+ $\QValue(\state_{\textrm{root}},\action) = 0$ 
+ \State \textbf{For} {$k = 0,\dots,K$ }
+ \State \quad \texttt{search}($\state$, 0)
+ \State \textbf{Return} $\argmax_\action \QValue(\state_{\textrm{root}},\action)$
+ \\
+% \State Function{\texttt{search}}{$\state,\ttime$}
+ \State 
+ \textbf{function} \texttt{search}$(\state,\ttime)$
 \State \quad \textbf{If} $\state \notin \textrm{Tree}$
 \State \quad \quad Add $\state$ to Tree.
 \State \quad \quad Initialize $\forall \action: \quad $ $W(\state,\action) = 0,$ 
@@ -1053,6 +1055,7 @@ $\QValue(\state,\action) = 0$
 \State \quad \textbf{Return} $\QValue(\state, \action)$
 \end{algorithmic}
 \end{algorithm}
+
 
 Finally, we can use the MCTS algorithm \ref{alg:MCTS} as a replacement of the greedy action selection in Line \ref{line:label_generation} of the classification based approximate policy iteration algorithm \ref{alg:CB_API}, as an approximation of a $\tHorizon$-step lookahead action.
 
@@ -1072,7 +1075,6 @@ We start with an online method. For a given policy $\policy$, we can easily modi
 % \end{equation*}
 
 \begin{algorithm}[H]
-\caption{SARSA with Function Approximation}
 \begin{algorithmic}[1]
 \State \textbf{Initialize:} Set $\weights_0 = 0$, $\state_0, \action_0$ arbitrary.
 \State \textbf{For} {$\ttime = 0, 1, 2, \dots$}
@@ -1083,9 +1085,9 @@ We start with an online method. For a given policy $\policy$, we can easily modi
   \[
     \weights_{\ttime+1} = \weights_\ttime + \alpha_\ttime \left( \reward(\state_\ttime,\action_\ttime) + \discount \widehat{Q}(\state_{\ttime+1},\action_{\ttime+1};\weights_\ttime) - \widehat{Q}(\state_{\ttime},\action_{\ttime}; \weights_\ttime) \right) \nabla_{\weights} \widehat{Q}(\state_\ttime,\action_\ttime; \weights_\ttime)\]
 \end{algorithmic}
+\caption{SARSA with Function Approximation}
 \end{algorithm}
 
-\AT{how to get rid of the =0 in the algo??}
 
 The actions in Line \ref{line:sarsa_choose_action} are typically selected according to an $\xi-$greedy or softmax rule. Thus, policy evaluation is interleaved with policy improvement.
 
@@ -1232,7 +1234,7 @@ y_i = \reward_i + \discount \max_\action \widehat{Q}(\state_{i}', \action;\bar{\
 
 As in the Q learning algorithm, action selection in Line \ref{line:dqn_action_selection} of DQN follows  an $\varepsilon-$greedy or softmax rule, to balance exploration and exploitation.
 
-\section{Off-Policy Learning with Function Approximation}
+\section{Off-Policy Learning with Function Approximation (Yishay to Check)}
 \label{sec:off_policy_FA}
 
 We would like to see what is the effect that the samples are generated
@@ -1380,3 +1382,17 @@ local optima. The convergence to the TD appear in Chapter
 an off-policy setting appear in Chapter \ref{sec:off_policy_FA}. The TD
 divergence in the non-linear online setting appears in
 \cite{TsitsiklisVR97}.
+
+
+\section{Bibliography Notes}
+The idea of using function approximation for value functions dates back to the previous century \cite{bellman1959functional,shannon1950xxii,barto1983neuronlike,Tesauro02}.
+The error bounds for approximate value iteration and approximate policy iteration presented here were developed in \cite{BertsekasTsitsiklis96}. Error bounds based on the L$2$ norm were developed by Munos \citep{munos2007performance}.
+
+Least squares regression is a standard statistical method in machine learning~\citep{mohri2018foundations,shalev2014understanding}.
+
+The projected Bellman equation and its analysis can be found in \citep{Bertsekas05}.
+The LSTD algorithm is due to \cite{bradtke1996linear}, and was further investigated in \cite{boyan2002technical}. The LSPI algorithm is by \citep{lagoudakis2003least}. Fitted Q learning and approximate value iteration was proposed in several different studies \citep{gordon1995stable, tsitsiklis1996feature, riedmiller2005neural, ormoneit2002kernel, ernst2005approximate}. The deep Q learning algorithm is by \citep{mnih2015human}.
+The convergence of TD(0) with linear function approximation was established in \citep{tsitsiklis1996analysis}.
+Classification based policy iteration was studied in \cite{lagoudakis2003reinforcement,lazaric2010analysis,scherrer2015approximate}. Approximate PI with multi-step lookahead was proposed in \citep{efroni2018beyond}. 
+
+Monte Carlo Tree Search was developed by \citep{coulom2006efficient,kocsis2006bandit}. Its extension using RL was applied to Go and other board games by \citep{silver2016mastering,silver2018general}.

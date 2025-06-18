@@ -28,7 +28,7 @@ where
 \end{remark}
 \begin{remark}
 The system is, in general, time-varying. It is called \emph{time
-invariant} if ${f_{\ttime}},{\States_{\ttime}},{\Actions_{\ttime}}$
+invariant}, or \emph{stationary}, if ${f_{\ttime}},{\States_{\ttime}},{\Actions_{\ttime}}$
 do not depend on the time $\ttime$. In that case we
     write
 \[{\state_{\ttime + 1}} = f({\state_{\ttime}},{\action_{\ttime}}),\quad \ttime = 0,1,2, \ldots ,\tHorizon - 1;\quad {\state_{\ttime}} \in \States,\;{\action_{\ttime}} \in
@@ -92,7 +92,7 @@ Consider the model specified by Figure \ref{fig:graph_description}. Here:
 \end{itemize}
 \end{example}
 
-\begin{definition}{\textbf{Feasible Path}} \\
+\begin{definition}[Feasible Path]
 A feasible path for the specified system is a sequence
 $({\state_0},{\action_0}, \ldots ,{\state_{\tHorizon -
 1}},{\action_{\tHorizon - 1}},{\state_\tHorizon})$ of states and
@@ -108,6 +108,8 @@ actions, such that ${\action_{\ttime}} \in
 \end{centering}
 \end{definition}
 
+In the above example a feasible path is marked in bold and it is $(1,2,d,\beta,3)$.
+
 \section{The Finite Horizon Decision Problem}
 
 We proceed to define our first and simplest planning problem. For
@@ -118,21 +120,21 @@ model, and the notion of \emph{control policies}.
 
 \paragraph{The cumulative cost:}
 Let ${\thistory_\tHorizon} = ({\state_0},{\action_0}, \ldots
-,{\action_{\tHorizon - 1}},{\state_{\tHorizon -
-1}},{\state_\tHorizon})$ denote a $\tHorizon$-stage feasible path
+,{\state_{\tHorizon -
+1}},{\action_{\tHorizon - 1}},{\state_\tHorizon})$ denote a $\tHorizon$-stage feasible path
 for the system. Each feasible path ${\thistory_\tHorizon}$ is assigned
 some cost ${\Cost_\tHorizon} =
 {\Cost_\tHorizon}({\thistory_\tHorizon})$.
 
 The standard definition of the cost ${\Cost_\tHorizon}$ is through
 the following \emph{cumulative cost functional}:
-\[{\Cost_\tHorizon}({\history_\tHorizon}) = \sum_{\ttime = 0}^{\tHorizon - 1} {{\cost_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {c_\tHorizon}({\state_\tHorizon})} \]
+\[{\Cost_\tHorizon}({\history_\tHorizon}) = \sum_{\ttime = 0}^{\tHorizon - 1} {{\cost_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {\cost_\tHorizon}({\state_\tHorizon})}. \]
 Here:
     \begin{itemize}
     \item
 ${\cost_{\ttime}}({\state_{\ttime}},{\action_{\ttime}})$ is the
 \emph{instantaneous}  cost or \emph{single-stage }cost at stage
-$\ttime$, state $\state_\ttime$ and $\action_\ttime$, and ${\cost_{\ttime}}$ is the instantaneous cost function.
+$\ttime$, state $\state_\ttime$ and action $\action_\ttime$, and ${\cost_{\ttime}}$ is the instantaneous cost function.
     \item
 ${\cost_\tHorizon}({\state_\tHorizon})$ is the \emph{terminal} cost at state $\state_\tHorizon$,
 and ${\cost_\tHorizon}$ is the terminal cost function.
@@ -153,7 +155,7 @@ that goal more formally in the next section.
 It is often more natural to consider \emph{maximizing} reward rather
 than minimizing cost.  In that case, we define the cumulative
 $\tHorizon$-stage return function:
-$${\Value_\tHorizon}({h_\tHorizon}) = \sum_{\ttime = 0}^{\tHorizon - 1} {{\reward_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {\reward_\tHorizon}({\state_\tHorizon})} $$
+$${\Value_\tHorizon}({\thistory_\tHorizon}) = \sum_{\ttime = 0}^{\tHorizon - 1} {{\reward_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {\reward_\tHorizon}({\state_\tHorizon})} .$$
 Here, ${\reward_{\ttime}}$ is the instantaneous reward and
 ${\reward_\tHorizon}$ is the terminal reward. Clearly, minimizing
 ${\Cost_\tHorizon}$ is equivalent to maximizing
@@ -191,16 +193,16 @@ randomization.
 
 
 \begin{definition}[History-dependent deterministic policy]
-    A general or \textbf{history-dependent} control policy $\policy  =
+A general or \textbf{history-dependent} control policy $\policy  =
 {({\policy _\ttime})_{\ttime \in \T}}$ is a mapping from each
 possible history ${\history_\ttime} = ({\state_0},{\action_0},
-\ldots ,{\state_{\ttime-1}},{\action_{\ttime-1}},{\state_\ttime})$,
+\ldots$ $ ,{\state_{\ttime-1}},{\action_{\ttime-1}},{\state_\ttime})$,
 $\ttime \in \T$, to an action ${\action_\ttime} = {\policy
 _\ttime}({\history_\ttime}) \in {\Actions_\ttime}$.  We denote the
 set of general policies by ${\Pi _H}$.
 \end{definition}
 \begin{definition}[Markov deterministic policy]
-    A \textbf{Markov} control policy $\policy $ is allowed to depend only on
+A \textbf{Markov} control policy $\policy $ is allowed to depend only on
 the current state and time: ${\action_\ttime} = {\policy
 _\ttime}({\state_\ttime})$.   We denote the set of Markov policies
 by ${\Pi _M}$.
@@ -222,8 +224,8 @@ The control policies defined above specify deterministically the action to be ta
     A general randomized (stochastic) control policy assigns to each
 possible history ${\history_\ttime}$ a probability distribution
 ${\policy _\ttime}( \cdot |{\history_\ttime})$ over the action set
-${\Actions_\ttime}$. That is,  $\Pr\{ {\action_\ttime} =
-\action|{\history_\ttime}\}  = {\policy
+${\Actions_\ttime}$. That is,  $\Pr_{\history_\ttime\sim \policy}[ \action_\ttime =
+\action|{\history_\ttime}]  = {\policy
 _\ttime}(\action|{\history_\ttime})$. We denote the set of general
 randomized policies by ${\Pi _{HS}}$.
 \end{definition}
@@ -296,24 +298,24 @@ $({\state_0},{\state_1}, \ldots ,{\state_\tHorizon})$.
 \subsection{Reduction between control policies classes}\label{chp2:sec:FH-HS-MD}
 
 We first show a reduction from a general history dependent policies
-to Randomized Markovian policies. The main observation is that the
+to randomized Markovian policies. The main observation is that the
 only influence on the cumulative cost is the expected instantaneous
 cost $\E[\cost_\ttime(\state_\ttime,\action_\ttime)]$. Namely, let
 \[
-\rho^\policy_\ttime(\state,\action)=\Pr_{\history'_{\ttime-1}}
-[\action_\ttime=\action,\state_\ttime=\state]=\E_{\history'_{\ttime-1}}[\I
+\rho^\policy_\ttime(\state,\action)=\Pr_{\history'_{\ttime-1}\sim \policy}
+[\action_\ttime=\action,\state_\ttime=\state]=\E_{\history'_{\ttime-1}\sim \policy}[\I
 [\state_\ttime=\state,\action_\ttime=\action]| \history'_{\ttime-1}],
 \]
 where
 $\history'_{\ttime-1}=(\state_0,\action_0,\ldots,\state_{t-1},\action_{t-1})$
-is the history of the first $\ttime-1$ time steps generated using
+is the history of the first $\ttime-1$ time steps generated using policy
 $\policy$, and the probability and expectation are taken with
 respect to the randomness of the policy $\policy$. Now we can
 rewrite the expected cost to go as,
 \[
 \E[\Cost^\policy(\state_0)]=\sum_{\ttime=0}^{\tHorizon-1}
 \sum_{\action\in \Actions_\ttime,\state\in \States_\ttime}
-\cost_\ttime(\state,\action)\rho^\pi_\ttime(\state,\action),
+\cost_\ttime(\state,\action)\rho^\policy_\ttime(\state,\action),
 \]
 where $\Cost^\policy(\state_0)$ is the random variable of the cost
 when starting at state $\state_0$ and following policy $\policy$.
@@ -351,7 +353,7 @@ $\policy'\in\Pi_{MS}$ as follows. For every state $\state\in
 [\action_\ttime=\action|\state_\ttime=\state]=\frac{\rho^\policy_\ttime(\state,\action)}{\sum_{\action'\in
 \Actions_\ttime} \rho^\policy_\ttime(\state,\action')}.
 \]
-By definition $\policy'$ is Markovian (depends only on the time
+By definition, policy $\policy'$ is Markovian (depends only on the time
 $\ttime$ and the realized state $\state$). 
 
 We now claim that $\rho_\ttime^{\policy}(\state,\action)=\rho_\ttime^{\policy'}(\state,\action)$. 
@@ -392,7 +394,7 @@ Clearly, the theorem follows from the case of $\ttime=0$.
 For the base of the induction we can take $\ttime=\tHorizon$, which
 holds trivially.
 
-For the inductive step, assume that $\policy\in \Pi_{MS}$ is
+For the inductive step, assume that policy $\policy\in \Pi_{MS}$ is
 deterministic in $[\ttime+1,\tHorizon]$.
 
 %For the proof, it would be useful to introduce
@@ -413,13 +415,13 @@ $\ttime'\neq \ttime$. We define $\policy'_\ttime$ for each
 $\state_\ttime\in \States_\ttime$ as follows:
 \begin{equation}
 \label{eq:sec2-MS-MD}
-\policy'_\ttime(\state_\ttime)=\arg\min_{\action\in
+\policy'_\ttime(\state_\ttime)\in\arg\min_{\action\in
 \Actions_\ttime} \cost_{\ttime}(\state_\ttime,\action)+
 \Cost_{\ttime+1}(f_\ttime(\state_\ttime,\action)).
 \end{equation}
 Recall that since we have a Deterministic Decision Process
 $f_\ttime(\state_\ttime,\action)\in \States_{\ttime+1}$ is
-the next state if we take action $\action$ in $\state_\ttime$.
+the next state if we take action $\action$ in state $\state_\ttime$.
 %(Remark: For a stochastic $f_\ttime$ we would simply take the expectation.)
 
 For the analysis, note that $\policy$ and $\policy'$ are identical
@@ -477,7 +479,7 @@ ${\history_\tHorizon}$ from ${\state_0}$.
 
 An alternative definition can be given in terms of policies only.
 For that purpose, let ${\history_\tHorizon}(\policy ;{\state_0})$
-denote the path induced by the policy $\policy $ from ${\state_0}$.
+denote the path induced by the policy $\policy $ from state ${\state_0}$.
 For a given return functional
 ${\Value_\tHorizon}({\history_\tHorizon})$, denote
 ${\Value_\tHorizon}(\policy ;{\state_0}) =
@@ -566,7 +568,7 @@ We can now describe the DP algorithm. Recall that we consider the dynamic system
 $${\state_{\ttime + 1}} = {f_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}),\quad \ttime = 0,1,2, \ldots ,\tHorizon - 1$$
 $${\state_{\ttime}} \in {\States_{\ttime}},\quad {\action_{\ttime}} \in {\Actions_{\ttime}}({\state_{\ttime}})$$
 and we wish to maximize the cumulative return:
-$${\Value_\tHorizon} = \sum_{\ttime = 0}^{\tHorizon - 1} {{\reward_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {\reward_\tHorizon}({\state_\tHorizon})} $$
+$${\Value_\tHorizon} = \sum_{\ttime = 0}^{\tHorizon - 1} {{\reward_{\ttime}}({\state_{\ttime}},{\action_{\ttime}}) + {\reward_\tHorizon}({\state_\tHorizon})} .$$
 The DP algorithm computes recursively a set of \textbf{value
 functions} $\Value_{\ttime}^{}:{\States_{\ttime}} \to \R$ , where
 $\Value_{\ttime}^{}({\state_{\ttime}})$ is the value of an optimal
@@ -620,7 +622,7 @@ The control policy $\policy^* $ computed in Algorithm
 $\tHorizon$-stage Finite Horizon problem.
   \item $\Value_0^{}(\state)$ is the optimal $\tHorizon$-stage return from initial state ${\state_0} = \state$:
 \[{\Value_0}(s) = \mathop {\max }\limits_\policy  {\Valuepi_0}(\state),\;\quad \forall \state \in {\States_0},\]
-where $\Valuepi_0(\state)$ is the expected return of policy $\pi$
+where $\Valuepi_0(\state)$ is the expected return of policy $\policy$
 when started at state $\state$.
 \end{enumerate}
 \end{proposition}
@@ -698,17 +700,17 @@ to $\ttime = \tHorizon$) can be devised. We note that this will not
 be possible for stochastic systems (i.e., the stochastic MDP model).
 \end{remark}
 
-\begin{remark}
-    The celebrated \textbf{Viterbi algorithm} is an important instance
-of finite-horizon DP. The algorithm essentially finds the most
-likely sequence of states in a Markov chain $({\state_{\ttime}})$
-that is partially (or noisily) observed. The algorithm was
-introduced in 1967 for decoding convolution codes over noisy digital
-communication links. It has found extensive applications in
-communications, and is a basic computational tool in Hidden Markov
-Models (HMMs), a popular statistical model that is used extensively
-in speech recognition and bioinformatics, among other areas.
-\end{remark}
+% \begin{remark}
+%     The celebrated \textbf{Viterbi algorithm} is an important instance
+% of finite-horizon DP. The algorithm essentially finds the most
+% likely sequence of states in a Markov chain $({\state_{\ttime}})$
+% that is partially (or noisily) observed. The algorithm was
+% introduced in 1967 for decoding convolution codes over noisy digital
+% communication links. It has found extensive applications in
+% communications, and is a basic computational tool in Hidden Markov
+% Models (HMMs), a popular statistical model that is used extensively
+% in speech recognition and bioinformatics, among other areas.
+% \end{remark}
 % \section{Shortest Paths}
 % We can formulate a DDP problems similar to shortest path problems.
 % Given a directed graph $\graph(\nodes,\edges)$,  there is a set of goal states
@@ -874,6 +876,8 @@ in speech recognition and bioinformatics, among other areas.
 \section{Shortest Path on a Graph
 %\footnote{Students familiar with shortest path algorithms in graph can skip this section.}
 }
+By definition, the finite horizon problem assumes that we know in advance the number of time steps until termination, as reflected in the cumulative $\tHorizon$-stage cost. Some problems, however, are more naturally described by terminating when reaching a particular goal state (not necessarily at a predefined time step). One such class of problems is shortest paths on graphs.
+
 The problem of finding the shortest path over a graph is one of the most fundamental problems in graph theory and computer science. We shall briefly consider here three major algorithms for this problem that are closely related to dynamic programming, namely: The Bellman-Ford algorithm, Dijkstra's algorithm, and A$^*$.
 An extensive presentation of the topic can be found in almost any book on algorithms, such as \cite{cormen2009introduction,KleinbergTardos06,DasguptaPapadimitriouVazirani08}.
 
@@ -936,7 +940,7 @@ This algorithm solves the single destination (or the equivalent single source) s
 \end{algorithmic}
 \end{algorithm}
 
-The output of the algorithm is $d[\nodev] = \minlen(\nodev,\nodev_d)$, the weight of the shortest path from $\nodev$ to $\nodev_d$, and the routing list $\policy$. A shortest path from vertex $\nodev$ is obtained from $\policy $ by following the sequence: ${\nodev_1} = \policy [\nodev], {\nodev_2} = \policy [{\nodev_1}],  \ldots ,\nodev_d = \policy [{\nodev_{k - 1}}]$.
+The output of the algorithm is $d[\nodev] = \minlen(\nodev,\nodev_d)$, the length of the shortest path from $\nodev$ to $\nodev_d$, and the policy (routing list) $\policy$. A shortest path from vertex $\nodev$ is obtained from $\policy $ by following the sequence: ${\nodev_1} = \policy [\nodev], {\nodev_2} = \policy [{\nodev_1}],  \ldots ,\nodev_d = \policy [{\nodev_{k - 1}}]$.
 To understand the algorithm, we observe that after round $i$, $d[\nodev]$ holds the length of the shortest path from $\nodev$ \textbf{in $i$ steps or less}. To see this, observe that the calculations done up to round $i$ are equivalent to the calculations in a finite horizon dynamic programming, where the horizon is $i$. Since the shortest path takes at most $|\nodes| - 1$ steps, the above claim on optimality follows.
 
 The running time of the algorithm is $O(|\nodes|\, \cdot \,|\edges|)$. This is because in each round $i$ of the algorithm, each edge $\edge$ is involved in exactly one update of $d[\nodev]$ for some $\nodev$. If $\{ d[\nodev]:\nodev \in \nodes\}$ does not change at all at some round, then the algorithm may be stopped early.
@@ -982,7 +986,7 @@ The algorithm maintains a set $\vertexset$ of vertices whose minimal distance to
 % \end{enumerate}
 % \end{algorithm_}
 
-\begin{algorithm}
+\begin{algorithm}[h!]
 \caption{Dijkstra's Algorithm}
 \label{Alg:Dijkstra}
 \begin{algorithmic}[1]
@@ -1030,59 +1034,40 @@ By the induction hypothesis, $d[\nodey] = d^*[\nodey]$. Since $\nodex$ is on the
 
 For the single pair problem, Dijkstra's algorithm can be written in the Single Source Problem formulation, and terminated once the destination node is reached, i.e., when it is popped from the queue. From the discussion above, it is clear that the algorithm will terminate exactly when the shortest path between the source and destination is found.
 
-% \begin{algorithm_}\textbf{Dijkstra's Algorithm (Single Pair Problem)}
-% \begin{enumerate}
-% \item{Input:} A weighted directed graph, source node $\nodev_s$, and destination node $\nodev_d$.
+In this case, the algorithm may terminate well before visiting all edges of the graph. Therefore, there is no need to explicitly keep the whole graph in memory, and instead we can grow the set of relevant nodes for comparisons as we go along -- the \textit{open set} $\openset$. Thus, it suffices to have a function that returns the neighbors of a node in the graph, $\texttt{Neighbors}(\nodeu) = \left\{\nodev :  (\nodeu, \nodev) \in \edges\right\}$ and the cost for an edge $\cost(\nodeu, \nodev)$, to run Dijkstra's algorithm even for very large graphs that do not fit in memory.
 
-% \item Initialization:
-% \begin{itemize}
-%   \item[] $d[\nodev_s] = 0$
-%   \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
-%   \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
-%   \item[] $\vertexset = \emptyset $
-% \end{itemize}
-
-% \item while $\vertexset \ne \nodes$,
-
-% \tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value $d[\nodeu]$, add it to $\vertexset$}
-
-% \tab{if $\nodeu == \nodev_d$, break}
-
-% \tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
-
-% \tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
-
-% \tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
-% \item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
-% \end{enumerate}
-% \end{algorithm_}
-
+Note that in the single source formulation, the output $\policy(\nodev)$ contains the node previous to $\nodev$ in the shortest path from the source node $\nodev_s$ to $\nodev$. A shortest path from vertex $\nodev_s$ to $\nodev_d$ is obtained from $\policy $ by following the sequence: $\nodev_d, {\nodev_1} = \policy [\nodev_d], {\nodev_2} = \policy [{\nodev_1}],  \ldots ,\nodev_s = \policy [{\nodev_{k - 1}}]$ in reverse order.
 
 \begin{algorithm}
 \caption{Dijkstra's Algorithm (Single Pair Problem)}
 \label{Alg:DijkstraSinglePair}
 \begin{algorithmic}[1]
-\State \textbf{Input:} A weighted directed graph $\graph$, source node $\nodev_s$, and destination node $\nodev_d$.
+\State \textbf{Input:} \textcolor{blue}{Functions $\texttt{Neighbors}(\nodeu)$, $\cost(\nodeu, \nodev)$}, source node $\nodev_s$, destination node $\nodev_d$.
 
 \State \textbf{Initialization:} 
 \State \quad $d[\nodev_s] = 0$
-\State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_s\}$
-\State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+% \State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_s\}$
+% \State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+\textcolor{blue}{\State \quad $\openset = \{\nodev_s\}$}
 \State \quad $\vertexset = \emptyset$
 
-\While{$\vertexset \neq \nodes$}
-    \State Choose $\nodeu \in \nodes \setminus \vertexset$ with the minimal value $d[\nodeu]$
-    \State Add $\nodeu$ to $\vertexset$
+\While{\textcolor{blue}{$\openset \neq \emptyset$}}
+    \State Choose $\nodeu \in \textcolor{blue}{\openset}$ with the minimal value $d[\nodeu]$
+    \State Add $\nodeu$ to $\vertexset$, \textcolor{blue}{remove $\nodeu$ from $\openset$}
     \State \textcolor{blue}{\textbf{If} {$\nodeu == \nodev_d$}}
         \State \quad \textcolor{blue}{\textbf{break}}
-    \ForAll{$(\nodeu, \nodev) \in \edges$}
-        \State \textbf{If} {$d[\nodev] > d[\nodeu] + \cost(\nodeu, \nodev)$}
+    \ForAll{\textcolor{blue}{$\nodev \in \texttt{Neighbors}(\nodeu), \nodev \notin \vertexset$}}
+        \State \textcolor{blue}{\textbf{If} $\nodev \notin \openset$}
+        \State \textcolor{blue}{\quad Add $\nodev$ to $\openset$}
+        \State \textcolor{blue}{\quad $d[\nodev] = d[\nodeu] + \cost(\nodeu, \nodev)$}
+        \State \textcolor{blue}{\quad $\policy[\nodev] = \nodeu$}
+        \State \textbf{Else if} {$d[\nodev] > d[\nodeu] + \cost(\nodeu, \nodev)$}
             \State \quad $d[\nodev] = d[\nodeu] + \cost(\nodeu, \nodev)$
             \State \quad $\policy[\nodev] = \nodeu$
     \EndFor
 \EndWhile
 
-\State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \nodev \in \nodes\}$
+\State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \nodev \in \vertexset\}$
 \end{algorithmic}
 \end{algorithm}
 
@@ -1092,59 +1077,60 @@ Dijkstra's algorithm expands vertices in the order of their distance from the so
 
 The A$^*$ algorithm implements this idea through the use of a heuristic function $\heur[\nodev]$, which is an estimate of the distance from vertex $\nodev$ to the goal. It then expands vertices in the order of $d[\nodev] + \heur[\nodev]$, i.e., the (estimated) length of the shortest path from $\nodev_s$ to $\nodev_d$ that passes through $\nodev$.
 
-% \begin{algorithm_}\textbf{A$^*$ Algorithm}
-% \begin{enumerate}
-% \item{Input:} A weighted directed graph, source $\nodev_s$, destination $\nodev_d$, and heuristic function $\heur$.
-
-% \item Initialization:
-% \begin{itemize}
-%   \item[] $d[\nodev_s] = 0$
-%   \item[] $d[\nodev] = \infty $ for $\nodev \in \nodes\backslash \{ \nodev_s\} $
-%   \item[] $\policy [\nodev] = \emptyset $ for $\nodev \in \nodes$
-%   \item[] $\vertexset = \emptyset $
-% \end{itemize}
-
-% \item while $\vertexset \ne \nodes$,
-
-% \tab{choose $\nodeu \in \nodes\backslash \vertexset$ with minimal value \textcolor{blue}{$d[\nodeu]+\heur[\nodeu]$}, add it to $\vertexset$}
-
-% \tab{if $\nodeu == \nodev_d$, break}
-
-% \tab{for each vertex $\nodev$ with $(\nodeu,\nodev) \in \edges$,}
-
-% \tab{\tab{if $d[\nodev] > d[\nodeu] + \cost(\nodeu,\nodev)$,}}
-
-% \tab{\tab{\tab{	set  $d[\nodev] = d[\nodeu] + \cost(\nodeu,\nodev)$,  $\policy [\nodev] = \nodeu$ }}}
-% \item return $\{ d[\nodev],\policy [\nodev] \ |\ \nodev \in \nodes\} $
-% \end{enumerate}
-% \end{algorithm_}
-
 \begin{algorithm}
 \caption{A$^*$ Algorithm}
 \label{Alg:ASTAR}
 \begin{algorithmic}[1]
-\State \textbf{Input:} Weighted directed graph $\graph$, source $\nodev_s$, destination $\nodev_d$,  heuristic $\heur$.
+\State \textbf{Input:} Functions $\texttt{Neighbors}(\nodeu)$, $\cost(\nodeu, \nodev)$, source node $\nodev_s$, destination node $\nodev_d$, heuristic $\heur$.
 
 \State \textbf{Initialization:} 
 \State \quad $d[\nodev_s] = 0$
-\State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_s\}$
-\State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+% \State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_s\}$
+% \State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+\State \quad $\openset = \{\nodev_s\}$
 \State \quad $\vertexset = \emptyset$
 
-\While{$\vertexset \neq \nodes$}
-    \State Choose $\nodeu \in \nodes \setminus \vertexset$ with the minimal value \textcolor{blue}{$d[\nodeu] + \heur[\nodeu]$}
-    \State Add $\nodeu$ to $\vertexset$
+\While{$\openset \neq \emptyset$}
+    \State Choose $\nodeu \in \openset$ with the minimal value \textcolor{blue}{$d[\nodeu] + \heur[\nodeu]$}
+    \State Add $\nodeu$ to $\vertexset$, remove $\nodeu$ from $\openset$
     \State \textbf{If} {$\nodeu == \nodev_d$}
         \State \quad \textbf{break}
-    \ForAll{$(\nodeu, \nodev) \in \edges$}
-        \State \textbf{If} {$d[\nodev] > d[\nodeu] + \cost(\nodeu, \nodev)$}
+    \ForAll{$\nodev \in \texttt{Neighbors}(\nodeu), \nodev \notin \vertexset$}
+        \State \textbf{If} $\nodev \notin \openset$
+        \State \quad Add $\nodev$ to $\openset$
+        \State \quad $d[\nodev] = d[\nodeu] + \cost(\nodeu, \nodev)$
+        \State \quad $\policy[\nodev] = \nodeu$
+        \State \textbf{Else if} {$d[\nodev] > d[\nodeu] + \cost(\nodeu, \nodev)$}
             \State \quad $d[\nodev] = d[\nodeu] + \cost(\nodeu, \nodev)$
             \State \quad $\policy[\nodev] = \nodeu$
     \EndFor
 \EndWhile
 
-\State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \nodev \in \nodes\}$
+\State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \nodev \in \vertexset\}$
 \end{algorithmic}
+% \begin{algorithmic}[1]
+% \State \textbf{Input:} Weighted directed graph $\graph$, source $\nodev_s$, destination $\nodev_d$,  heuristic $\heur$.
+
+% \State \textbf{Initialization:} 
+% \State \quad $d[\nodev_s] = 0$
+% \State \quad $d[\nodev] = \infty$ for all $\nodev \in \nodes \setminus \{\nodev_s\}$
+% \State \quad $\policy[\nodev] = \emptyset$ for all $\nodev \in \nodes$
+% \State \quad $\vertexset = \emptyset$
+
+% \While{$\vertexset \neq \nodes$}
+%     \State Choose $\nodeu \in \nodes \setminus \vertexset$ with the minimal value \textcolor{blue}{$d[\nodeu] + \heur[\nodeu]$}
+%     \State Add $\nodeu$ to $\vertexset$
+%     \State \textbf{If} {$\nodeu == \nodev_d$}
+%         \State \quad \textbf{break}
+%     \ForAll{$(\nodeu, \nodev) \in \edges$}
+%         \State \textbf{If} {$d[\nodev] > d[\nodeu] + \cost(\nodeu, \nodev)$}
+%             \State \quad $d[\nodev] = d[\nodeu] + \cost(\nodeu, \nodev)$
+%             \State \quad $\policy[\nodev] = \nodeu$
+%     \EndFor
+% \EndWhile
+
+% \State \textbf{return} $\{(d[\nodev], \policy[\nodev]) \mid \nodev \in \nodes\}$
+% \end{algorithmic}
 \end{algorithm}
 
 
@@ -1182,15 +1168,16 @@ The A$^*$ algorithm is equivalent to running Dijkstra's algorithm (for the singl
 \end{remark}
 
 \section{Average cost criteria}
+\label{sec:ddp-avg-cost}
 
 The average cost criteria considers the limit of the average costs.
 Formally:
 \[
 \Cost_{avg}^\policy=\lim_{\tHorizon\rightarrow \infty}
 \frac{1}{\tHorizon} \sum_{\ttime=0}^{\tHorizon-1}
-\cost_\ttime(\state_\ttime,\action_\ttime)
+\cost_\ttime(\state_\ttime,\action_\ttime),
 \]
-where the trajectory is generated using $\policy$. The aim is to
+where the trajectory is generated using policy $\policy$. The aim is to
 minimize $\E[\Cost^\policy_{avg}]$. This implies that any finite
 prefix has no influence of the final average cost, since its
 influence vanishes as $\tHorizon$ goes to infinity.
@@ -1228,18 +1215,20 @@ assume that there is a policy $\policy'$ that has an average cost
 $\mu^*-\varepsilon$. Consider a sufficiently long run of length
 $\tHorizon$ of $\policy'$, and fix any realization $\theta$ of it.
 We will show that the cumulative cost $\Cost(\theta)\geq
-(\tHorizon-|\States|)\mu^*$, which implies that $\E[\Cost^\policy_{avg}]\geq
-\mu^* -|\States|\mu^*/\tHorizon$.
+(\tHorizon-|\nodes|)\mu^*$, which implies that $\E[\Cost^\policy_{avg}]\geq
+\mu^* -|\nodes|\mu^*/\tHorizon$. Then, for $|\nodes|\mu^*/\tHorizon<\varepsilon$ we have a contradiction.
 
 Given $\theta$, consider the first simple cycle $\omega_1$ in
-$\theta$. The average cost of $\omega$ is $\mu(\omega)\geq\mu^*$ and its length is $|\omega_1|$.
+$\theta$. The average cost of $\omega_1$ is $\mu(\omega_1)\geq\mu^*$ and its length is $|\omega_1|$.
 Delete $\omega_1$ from $\theta$, reducing the number of edges by
-$|\omega_1|$ and the cumulative cost by $\mu(\omega_1)|\omega_1|$. We
-continue the process until there is no remaining cycles, deleting cycles $\omega_1, \ldots , \omega_k$. At the end, since there are no cycles, we have at most $|\States|$ nodes remaining, hence $\sum_{i=1}^k |\omega_i|\geq \tHorizon-|\States|$. The cost of $\theta$ is at least $\sum_{i=1}^k |\omega_i|\mu(\omega_i)\geq(\tHorizon-|\States|)\mu^*$.
+$|\omega_1|$ and the cumulative cost by $\mu(\omega_1)|\omega_1|$. Given that the average cost in $\theta$ is below $\mu^*-\varepsilon$, after deleting $\omega_1$ it will stay below  $\mu^*-\varepsilon$.
+We
+continue the process until there is no remaining cycles, deleting cycles $\omega_1, \ldots , \omega_k$. At the end, since there are no cycles, we have at most $|\nodes|$ nodes remaining, hence $\sum_{i=1}^k |\omega_i|\geq \tHorizon-|\nodes|$. The cost of $\theta$ is at least $\sum_{i=1}^k |\omega_i|\mu(\omega_i)\geq(\tHorizon-|\nodes|)\mu^*$.
 %Therefore, the costs of $\omega$ was at least $(\tHorizon-n)\mu^*$. 
-This implies that the average cost of $\theta$ is at least $\E[\Cost_{avg}^{\policy^{,}}]=\mu^*-\epsilon\geq
-(1-\frac{|\States}{\tHorizon})\mu^*$. For $\epsilon>\mu^* n/\tHorizon$ we
-have a contradiction.
+This implies that the average cost of $\theta$ is at least $\E[\Cost_{avg}^{\policy^{,}}]\geq
+(1-\frac{|\nodes|}{\tHorizon})\mu^*$. For $\varepsilon>\mu^* |\nodes|/\tHorizon$ we
+have $\E[\Cost_{avg}^{\policy^{,}}]\geq
+(1-\frac{|\nodes|}{\tHorizon})\mu^*>\mu^*-\varepsilon$, which is  a contradiction.
 \end{proof}
 
 Next we develop an algorithm for computing the minimum average cost
@@ -1272,7 +1261,7 @@ We start with $\mu^*=0$. This implies that we have in $\graph(\nodes,\edges)$ a
 cycle of weight zero, but no negative cycle. For the theorem it is
 sufficient to show that,
 \[
-\min_{v\in S} \max_{0\leq k \leq n-1} \{d_n(v)-d_{k}(v)\}=0.
+\min_{v\in \nodes} \max_{0\leq k \leq n-1} \{d_n(v)-d_{k}(v)\}=0.
 \]
 
 For every node $v\in \nodes$ there is a path of length $k\in[0,n-1]$ of
@@ -1313,18 +1302,18 @@ implies that for $\Delta=\mu^*$ we have a cycle of cost zero and no
 negative cycles. We now consider the formula,
 \begin{align*}
 0=(\mu')^*=&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
-\{\frac{d'_n(v)-d'_{k}(v)}{n-k}\}\\
+\left\{\frac{d'_n(v)-d'_{k}(v)}{n-k}\right\}\\
 =&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
-\{\frac{d_n(v)-n\Delta-d_{k}(v)+k\Delta}{n-k}\}\\
+\left\{\frac{d_n(v)-n\Delta-d_{k}(v)+k\Delta}{n-k}\right\}\\
 =&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
-\{\frac{d_n(v)-d_{k}(v)}{n-k}-\Delta\}\\
+\left\{\frac{d_n(v)-d_{k}(v)}{n-k}-\Delta\right\}\\
 =&\min_{v\in \nodes} \max_{0\leq k\leq n-1}
-\{\frac{d_n(v)-d_{k}(v)}{n-k}\}-\Delta.
+\left\{\frac{d_n(v)-d_{k}(v)}{n-k}\right\}-\Delta.
 \end{align*}
 Therefore we have,
 \[
 \mu^*=\Delta=\min_{v\in \nodes} \max_{0\leq k\leq n-1}
-\{\frac{d_n(v)-d_{k}(v)}{n-k}\}   
+\left\{\frac{d_n(v)-d_{k}(v)}{n-k}\right\}   
 \]
 which completes the proof.
 \end{proof}
@@ -1354,7 +1343,7 @@ In particular, consider the following problem:
         s.t. \quad & {\state_{\ttime + 1}} = {f_\ttime}({\state_\ttime},{\action_\ttime}), 
     \end{split}
 \end{equation}
-where the initial state $\state_0$ is given. Here $\cost_t$ is a (non-linear) cost function at time $\ttime$, and $f_\ttime$ describes the (non-linear) dynamics  at time $\ttime$. We assume here that $f_\ttime$ and $\cost_\ttime$ are differentiable.
+where $\state_\ttime \in \mathbb{R}^N$, $\action_\ttime \in \mathbb{R}^M$, and the initial state $\state_0$ is given. Here $\cost_t$ is a (non-linear) cost function at time $\ttime$, and $f_\ttime$ describes the (non-linear) dynamics  at time $\ttime$. We assume here that $f_\ttime$ and $\cost_\ttime$ are differentiable.
 
 A simple approach for solving Problem \ref{eq:opt_control} is using gradient based optimization. Note that we can expand the terms in the sum using the known dynamics function and initial state:
 \begin{equation*}
@@ -1378,13 +1367,122 @@ We now restrict our attention to linear-quadratic problems of the form:
         & \cost_\tHorizon = \state_\ttime^\top Q_\tHorizon \state_\ttime.
     \end{split}
 \end{equation}
-where $\state_0$ is given, $Q_\ttime=Q_\ttime^\top \geq 0$ is a symmetric non-negative definite state-cost matrix, and $R_\ttime = R_\ttime^\top > 0 $ is a symmetric positive definite control-cost matrix.
+where $\state_0$ is given, $A_\ttime \in \mathbb{R}^{N \times N}$, $B_\ttime\in \mathbb{R}^{N \times M}$, $Q_\ttime=Q_\ttime^\top \geq 0$ is a symmetric $N \times N$ non-negative definite state-cost matrix, and $R_\ttime = R_\ttime^\top > 0 $ is a symmetric $M \times M$ positive definite control-cost matrix.
+
+\begin{example}[Cart-Pole]
+    Many physical systems can be described by locally-linear equations of motions. The following is a classic control problem.
+\begin{figure}[h!]
+    \centering
+\begin{tikzpicture}[scale=1]
+  % Ground line
+  \draw[thick] (-3,-0.17) -- (3,-0.17);
+  
+  % Cart body with mass label
+  \draw[thick, fill=gray!30] (-1,0) rectangle (1,0.5);
+  \node at (0,0.25) {\(M\)};
+  
+  % Wheels
+  \draw[thick, fill=black] (-0.7,0) circle (0.15);
+  \draw[thick, fill=black] (0.7,0) circle (0.15);
+  
+  % Force F acting on the cart (arrow on the right side)
+  \draw[->, thick, red] (1,0.3) -- (2,0.3) node[midway, above] {\(f\)};
+  
+  % Pivot point (center top of the cart)
+  \coordinate (pivot) at (0,0.5);
+  \draw[thick, fill=white] (pivot) circle (0.05);
+  
+  % Pendulum rod with length \ell and angle \theta relative to vertical
+  % (For demonstration, the rod ends at (1.5,2))
+  \coordinate (pendulumEnd) at (1.5,2);
+  \draw[thick] (pivot) -- (pendulumEnd);
+  
+  % Label the rod length \ell at its midpoint
+  \node at (0.8,1.1) {\(\ell\)};
+  
+  % Pendulum mass (as a circle)
+  \draw[thick, fill=blue!20] (pendulumEnd) circle (0.3);
+  \node at (1.5,2) {\(m\)};
+  
+  % Draw a vertical dashed line from the pivot to serve as a reference
+  \draw[dashed] (pivot) -- ++(0,1.5) coordinate (verticalEnd);
+  
+  % Mark the angle \theta between the vertical and the rod
+  \draw[thick] (pivot) ++(90:0.5cm) arc (90:45:0.5cm);
+  \node at (0.3,1.2) {\(\theta\)};
+  
+\end{tikzpicture}
+    \caption{Cart-Pole system. A horizontal force $f$ can be applied to the cart with mass $M$, and the goal is to maintain the mass-less pole of length $\ell$ with a mass $m$ attached to its tip in an upright position.}
+    \label{fig:cart-pole}
+\end{figure}
+
+    Consider an inverted pendulum on a cart, as depicted in Figure \ref{fig:cart-pole}, where the goal is to stabilize the pendulum in an upright position. Letting $x$ denote the horizontal position of the cart, and $\theta$ being the angle of the pole, the equations of motion for this system are (see Appendix \ref{chapter:ode} for an introduction to differential equations):
+\[
+(M + m)\,\ddot{x} - m\ell\,\ddot{\theta}\cos\theta + m\ell\,\dot{\theta}^2\sin\theta = f,
+\]
+\[
+m\,\ell\,\ddot{\theta} - m\,g\sin\theta = m\,\ddot{x}\cos\theta,
+\]
+where $g$ denotes gravity. The equations of motion are in continuous time. We shall now approximate them as a linear system in discrete time.
+
+We first linearize the system around the equilibrium \(\theta = 0\). Using the small-angle approximations, and assuming small velocities:
+\[
+\sin\theta \approx \theta, \quad \cos\theta \approx 1, \quad \dot{\theta}^2 \approx 0,
+\]
+we obtain a linear system:
+\[
+(M + m)\,\ddot{x} - m\ell\,\ddot{\theta} = f,
+\]
+\[
+\ell\,\ddot{\theta} - \,g\theta = \ddot{x},
+\]
+which can be written as
+\[
+\ddot{x} = \frac{mg}{M}{\theta} + \frac{1}{M}f,
+\]
+\[
+\ddot{\theta} = \frac{g}{\ell}\left(1+\frac{n}{M}\right)\theta + \frac{1}{Ml}f.
+\]
+Define the state and action as:
+\[
+\state = \begin{pmatrix} x \\ \dot{x} \\ \theta \\ \dot{\theta} \end{pmatrix}, \quad \action = f.
+\]
+Plugging in the equations above gives 
+\begin{equation*}
+    \dot{\state} = \begin{pmatrix} 0 & 1 & 0 & 0 \\ 
+    0 & 0 & \frac{mg}{M} & 0 \\
+    0 & 0 & 0 & 1 \\
+    0 & 0 & \frac{g}{\ell}\left(1+\frac{n}{M}\right) & 0\end{pmatrix} \state + 
+    \begin{pmatrix} 
+    0 \\ \frac{1}{M} \\ 0 \\ \frac{1}{Ml}
+    \end{pmatrix} \action.
+\end{equation*}
+Let us now discretize the time into $\Delta t$ units, that is, let $\state_\ttime = \state(\ttime \cdot \Delta t)$. A first-order approximation of the dynamics gives $\state_{\ttime+1} \approx \state_{\ttime} + \dot{\state}_{\ttime} \cdot \Delta t$, therefore
+\begin{equation*}
+    \state_{\ttime+1} = \begin{pmatrix} 1 & \Delta t & 0 & 0 \\ 
+    0 & 1 & \frac{mg\Delta t}{M} & 0 \\
+    0 & 0 & 1 & \Delta t \\
+    0 & 0 & \frac{g}{\ell}\left(1+\frac{n}{M}\right)\Delta t & 1\end{pmatrix} \state_{\ttime} + 
+    \begin{pmatrix} 
+    0 \\ \frac{\Delta t}{M} \\ 0 \\ \frac{\Delta t}{Ml}
+    \end{pmatrix} \action_\ttime.
+\end{equation*}
+Let us now consider the cost function. Choosing
+\begin{equation*}
+    \cost_\ttime = \state_\ttime^\top  \begin{pmatrix} 0 & 0 & 0 & 0 \\ 
+    0 & 0 & 0 & 0 \\
+    0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0\end{pmatrix}\state_\ttime + \action_\ttime^\top \alpha \action_\ttime
+\end{equation*}
+penalizes the angle from an upright position, and the control cost for $\alpha > 0$. Note that we obtained a linear quadratic regulator problem (cf. Equation \ref{eq:lqr}).
+\end{example}
+
 
 We will solve Problem \ref{eq:lqr} using dynamic programming. Let $\Value_\ttime(\state)$ denote the value function of a state at time $\ttime$, that is, 
 $$\Value_\ttime(\state) = \min_{\action_\ttime,\dots,\action_\tHorizon} \sum_{\ttime'=\ttime}^T \cost_{\ttime'}(\state_{\ttime'}, \action_{\ttime'}) \quad \textrm{s.t.} \quad \state_\ttime = \state.$$
 
 \begin{proposition}\label{prop:lqr}
-The value function has a quadratic form: $\Value_\ttime(\state) = \state^\top P_\ttime \state$, and $P_\ttime=P_\ttime^\top$. 
+The value function has a quadratic form: $\Value_\ttime(\state) = \state^\top P_\ttime \state$, and $P_\ttime=P_\ttime^\top$. Furthermore, the optimal policy is a linear function of the state $\policy_\ttime^*(\state) = K_\ttime \state$.
 \end{proposition}
 \begin{proof}
 We prove by induction. For $\ttime=\tHorizon$, this holds by definition, as $\Value_\tHorizon(\state) = \state^\top Q_\tHorizon \state$. Now, assume that $\Value_{\ttime+1}(\state) = \state^\top P_{\ttime+1} \state$. We have that 
@@ -1396,7 +1494,7 @@ We prove by induction. For $\ttime=\tHorizon$, this holds by definition, as $\Va
 \end{split}
 \end{equation*}
 The objective is quadratic in $\action_\ttime$, and solving the minimization gives 
-$$\action_\ttime^* = -(R_\ttime + B_\ttime^\top P_{\ttime+1} B_\ttime)^{-1} B_\ttime^\top P_{\ttime+1} A_\ttime \state. $$ 
+$$\action_\ttime^* = -(R_\ttime + B_\ttime^\top P_{\ttime+1} B_\ttime)^{-1} B_\ttime^\top P_{\ttime+1} A_\ttime \state \triangleq K_\ttime \state. $$ 
 Substituting back $\action_\ttime^*$ in the expression for $\Value_\ttime(\state)$ gives a quadratic expression in $\state$.
 \end{proof}
 
@@ -1440,7 +1538,7 @@ From the construction in the proof of Proposition \ref{prop:lqr} one can recover
 % \end{proof}
 % \end{leftbar}
 
-Note that the DP solution is \emph{globally} optimal for the LQR problem. Interestingly, the computational complexity is polynomial in the \textit{dimension} of the state, and linear in the time horizon. This is in contrast to the curse of dimensionality, which would make a discretization based approach infeasible for high dimensional problem. This efficiency is due to the special structure of the dynamics and cost function in the LQR problem, and does not hold in general.
+Note that the DP solution is \emph{globally} optimal for the LQR problem. Interestingly, the computational complexity is polynomial in the \textit{dimension} of the state, and linear in the time horizon. This is in contrast to the curse of dimensionality, which would make a discretization based approach infeasible for high dimensional problems. This efficiency is due to the special structure of the dynamics and cost function in the LQR problem, and does not hold in general.
 
 \begin{remark}
     Note that the DP computation resulted in a sequence of \textit{linear feedback controllers}. It turns out that these controllers are also optimal in the presence of Gaussian noise added to the dynamics.
@@ -1461,7 +1559,7 @@ $\action_\ttime^* = K_\ttime \state + \kappa_\ttime, $ for some matrices $K_\tti
 
 \subsection{Iterative LQR}
 
-We now return to the original non-linear problem (\ref{eq:opt_control}). If we linearize the dynamics and quadratize the cost -- we can plug in the LQR solution we obtained above. Namely, given some reference trajectory $\hat{\state_0},\hat{\action_0},\dots,\hat{\state_\ttime}, \hat{\action_\tHorizon}$, we apply a Taylor approximation:
+We now return to the original non-linear problem (\ref{eq:opt_control}). If we linearize the dynamics and quadratize the cost -- we can plug in the LQR solution we obtained above. Namely, given some reference trajectory $\hat{\state}_0,\hat{\action}_0,\dots,\hat{\state}_\ttime, \hat{\action}_\tHorizon$, we apply a Taylor approximation:
 \begin{equation}\label{eq:Taylor_approx}
 \begin{split}
     {f_\ttime}({\state_\ttime},{\action_\ttime}) &\approx {f_\ttime}({\hat{\state}_\ttime},{\hat{\action}_\ttime}) + \nabla_{\state_\ttime, \action_\ttime}f_\ttime({\hat{\state}_\ttime},{\hat{\action}_\ttime}) [\state_\ttime - \hat{\state}_\ttime, \action_\ttime - \hat{\action}_\ttime] \\
@@ -1470,7 +1568,7 @@ We now return to the original non-linear problem (\ref{eq:opt_control}). If we l
 \end{split}
 \end{equation}
 
-If we define $\delta_\state = \state - \hat{\state}$, $\delta_\action = \action - \hat{\action}$, then the Taylor approximation gives an LQR problem for $\delta_\state, \delta_\action$. It's optimal controller is $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \kappa_\ttime + \hat{\action}_\ttime.$ By running this controller on the non-linear system, we obtain a new reference trajectory. 
+If we define $\delta_\state = \state - \hat{\state}$, $\delta_\action = \action - \hat{\action}$, then the Taylor approximation gives an LQR problem for $\delta_\state, \delta_\action$. Its optimal controller is $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \kappa_\ttime + \hat{\action}_\ttime.$ By running this controller on the non-linear system, we obtain a new reference trajectory. 
 Also note that the controller $\action_\ttime^* = K_\ttime (\state_\ttime - \hat{\state}_\ttime) + \alpha \kappa_\ttime + \hat{\action}_\ttime$ for $\alpha \in [0,1]$ smoothly transitions from the previous trajectory ($\alpha=0$) to the new trajectory ($\alpha=1$) (show that!). Therefore we can interpret $\alpha$ as a step size, to guarantee that we stay within the Taylor approximation limits.
 
 The iterative LQR algorithm works by applying this approximation iteratively:
@@ -1515,11 +1613,13 @@ In practice, the iLQR algorithm can converge much faster than the simple gradien
 %\end{document}
 
 
-\section{Bibliography notes}
+\section{Bibliography notes (need to move to text)}
 
 Dijkstra's algorithm was published in \cite{dijkstra1959note}. The A$^*$ algorithm is from \cite{hart1968formal}. The Viterbi algorithm was published in \cite{viterbi1967error}. 
 
 A treatment of LQR appears in \cite{khalil1996robust}. Our presentation of the iterative LQR follows \cite{todorov2005generalized}, which is closely related to differential dynamic programming \cite{JacobsonMayne1970}.
+
+In Section~\ref{sec:ddp-avg-cost}, the characterization of the average minimum cost cycle follows \cite{Karp78}. For recovering the optimal policy, one should use \cite{ChaturvediM17}.
 
 % \SM{Include:
 % \begin{itemize}

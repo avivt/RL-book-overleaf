@@ -4,17 +4,17 @@
 
 
 
-This class of problems provides a natural extension of the standard shortest-path problem to stochastic settings. When we view Stochastic Shortest Paths (SSP) as an extension of the graph theoretic notion of shortest paths, we can motivate it by having the edges not completely deterministic, but rather having a probability of ending in a different state.
+Episodic MDPs provide a natural extension of the standard shortest-path problem to stochastic settings. When we view Stochastic Shortest Paths (SSP) as an extension of the graph theoretic notion of shortest paths, we can motivate it by having the edges not completely deterministic, but rather having a probability of ending in a different state.
 %
 Probably a better view, is to think of the edges as general actions, which induce a distribution over the next state.
 %
 The goal state can be either a single state or a set of states, both notions would be equivalent. 
 
-The SSP problem includes an important sub-category, which is {\em episodic MDP}. In an episodic MDP we are guarantee to complete the episode in (expected) finite time, regardless of the policy we employ. This will not be true for a general SSP, as some policies might get `stuck in a loop' and never terminate. 
+The SSP problem includes an important sub-category, which is the {\em episodic MDP} model. In an episodic MDP we are guaranteed to complete the episode in (expected) finite time, regardless of the policy we employ. This will not be true for a general SSP, as some policies might get `stuck in a loop' and never terminate. 
 
 
-Some conditions on the system dynamics and reward function must be imposed for the problem to be well posed (e.g., that a goal state may be reached  with probability one).
-Such problems are known as stochastic shortest path problems, or also episodic planning problems. 
+Some conditions on the system dynamics and reward function must be imposed for the problem to be well posed (e.g., that a goal state may be reached  with probability one). In this chapter we focus on a particular setting; a more extensive treatment can be found in \citep{Bertsekas05}.
+% Such problems are known as stochastic shortest path problems, or also episodic planning problems. 
 
 \section{Definition}
 
@@ -22,11 +22,11 @@ We consider a stationary (time-invariant) MDP, with a finite state
 space $\States$, finite action set $\Actions$, a transition kernel
 $\transitionkernel = \{\transitionprob(\state'|\state,\action)\}$, and rewards $\reward(\state,\action)$.
 
-Stochastic Shortest Path is an important class of planning problems, 
+The SSP model is an important class of planning problems, 
 where the time horizon is not
 set beforehand, but rather the problem continues until a certain
 event occurs. This event can be defined as reaching some goal state.
-Let  ${\States_G} \subset \States$ define the set of \emph{goal
+Let  ${\States_G} \subset \States$ denote the set of \emph{goal
 states}. 
 
 \begin{definition}[Termination time]
@@ -46,17 +46,17 @@ This is similar to the assumption on no negative cycles in deterministic shortes
 We will keep it nonetheless, as it will significantly simplify our analysis. 
 
 The total expected return for Stochastic Shortest Path problem is defined as:
-\[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau }))\]
-Here ${\reward_G}(\state),\;\state \in {\States_G}$ specified the
+\[\Value_{ssp}^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{\tau  - 1} {\reward({\state_\ttime},{\action_\ttime})}  + {\reward_G}({\state_\tau })).\]
+Here ${\reward_G}(\state),\;\state \in {\States_G}$ specifies the
 reward at goal states. 
 Note that the expectation is taken also over the random length of the run $\tau$.
 
-To simplify the notation, in the following we will assume a single goal state $\States_G = \{ \state_G \}$, and that ${\reward_G}({\state_\tau }) = 0$.\footnote{This does not reduce the generality of the problem, as we can modify the MDP by adding another state with deterministic reward $\reward_G$ that transitions to a state in $\States_G$ deterministically.}  We therefore write the value as 
+To simplify the notation, in the following we will assume a single goal state $\States_G = \{ \state_G \}$, and that ${\reward_G}({\state_\tau }) = 0$.\footnote{This does not reduce the generality of the problem, as we can modify the MDP by adding another state with deterministic reward $\reward_G$ that transitions to a state in $\States_G$ with zero reward deterministically.}  We therefore write the value as 
 \begin{equation}\label{eq:ssp_objective}
     \Value_{ssp}^\policy (\state) = \begin{cases}
-        {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^{\tau} {\reward({\state_\ttime},{\action_\ttime})}\right), & \state \neq \state_G\\
-        0, & \state = \state_G
-    \end{cases}.
+        {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^{\tau} {\reward({\state_\ttime},{\action_\ttime})}\right), & \state \neq \state_G ,\\
+        0, & \state = \state_G.
+    \end{cases}
 \end{equation}
 Our objective is to find a policy that maximizes $\Value_{ssp}^\policy (\state)$. Let $\pi^*$ be the optimal policy and let $\Value_{ssp}^*(\state)$ be its value, which is the maximal value from each state $\state$.
 
@@ -78,7 +78,7 @@ Our objective is to find a policy that maximizes $\Value_{ssp}^\policy (\state)$
 
 \section{Relationship to other models}
 
-We now show that the SSP generalizes several previous models we studied.
+We now show that the SSP formulation generalizes several previous models we studied.
 
 \subsection{Finite Horizon Return}
 Stochastic shortest path includes, naturally, the finite horizon case. 
@@ -94,7 +94,7 @@ Clearly, Assumption \ref{ass:finite_termination_prob} is satisfied here.
 
 Stochastic shortest path includes also the discounted infinite
 horizon. To see that, add a new goal state, and from each state with
-probability $1-\discount$ jump to the goal state and terminate. Clearly, Assumption \ref{ass:finite_termination_prob} is satisfied here too. 
+probability $1-\discount$ jump to the goal state and terminate. Clearly, Assumption \ref{ass:finite_termination_prob} is satisfied here too for $\gamma>0$. 
 
 The expected return of a policy would be the same in both models.
 Specifically, we add a state $\state_G$, such that
@@ -116,7 +116,7 @@ identical to the discounted return.
 
 \section{Bellman Equations}\label{sec:ssp-bellman}
 
-We now extend the Bellman equations to the SSP setting. We begin by noting that once the goal state has been reached, we do not care anymore about the state transitions, and therefore, with loss of generality, we can consider an MDP where $\transitionprob(\state_G|\state_G,\action) = 1$ for all $\action$. 
+We now extend the Bellman equations to the SSP setting. We begin by noting that once the goal state has been reached, we do not care anymore about the state transitions, and therefore, without loss of generality, we can consider an MDP where $\transitionprob(\state_G|\state_G,\action) = 1$ for all $\action$. 
 
 Consider a Markov stationary policy $\policy$. Define the column vector ${\reward^\policy } =
 {({\reward^\policy }(\state))_{\state \in \States \setminus \state_G}}$ with components
@@ -174,13 +174,13 @@ We have thus shown that the linear Equation \ref{eq:Bellman_fixed_policy_ssp} ha
 \end{proof}
 
 \begin{remark}
-    At first sight, it seems that Equation \ref{eq:Bellman_fixed_policy_ssp} is simply Bellman's equation for the discounted setting \eqref{eq:PF_Bellman_vector}, just with $\discount=1$. The subtle yet important differences are that Equation \ref{eq:Bellman_fixed_policy_ssp} considers states $\States \setminus \state_G$, and Proposition \ref{prop:bellman_FP_ssp} requires Assumption \ref{ass:finite_termination_prob} to hold, while in the discounted setting the discount factor guaranteed that a solution exists for any MDP.
+    At first sight, it seems that Equation \ref{eq:Bellman_fixed_policy_ssp} is simply Bellman's equation for the discounted setting \eqref{eq:PF_Bellman_vector}, just with $\discount=1$. The subtle yet important differences are that Equation \ref{eq:Bellman_fixed_policy_ssp} considers states $\States \setminus \state_G$, and Proposition \ref{prop:bellman_FP_ssp} requires Assumption \ref{ass:finite_termination_prob} to hold, while in the discounted setting the discount factor guarantees that a solution exists for any MDP.
 \end{remark}
 
 \subsection{Value Iteration}
 Consider the Value Iteration algorithm for SSP, in Algorithm \ref{alg:VI_ssp}.
 \begin{algorithm}
-\caption{Value Iteration (for SSP) }
+\caption{Value Iteration (for SSP problems) }
 \label{alg:VI_ssp}
 \begin{algorithmic}[1]
 \State \textbf{Initialization:} Set $\Value_0 = (\Value_0(\state))_{\state \in \States \setminus \state_G}$ arbitrarily, $\Value_0(\state_G)=0$.
@@ -202,7 +202,7 @@ follows that
 \[{\Value_n}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^{n - 1} {{R_t} + } {\Value_0}({\state_n})).\]
 Since any policy reaches the goal state with probability $1$, and after reaching the goal state the agent stays at the goal and receives $0$ reward, we can write the optimal value function as
 \[{\Value_{ssp}^*}(\state) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\tau  {{R_t}} ) = \mathop {\max }\limits_\policy  {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\infty  {{R_t}} ).\]
-It may be seen that that
+It may be seen  that
     \[\lim_{n \to \infty}|{\Value_n}(\state) - \Value_{ssp}^*(\state)| = \lim_{n \to \infty} \left|\mathop {\max }\limits_\policy  {\E^{\policy ,\state}} \sum\limits_{\ttime = n}^{\infty} {R_t} - {\Value_0}({\state_n})\right| = 0,\]
 where the last equality is since Assumption \ref{ass:finite_termination_prob} guarantees that with probability $1$ the goal state will be reached, and from that time onwards the agent will receive $0$ reward.
 % \footnote{\YM{Here you also assume that $E[\tau]$ is finite, and it is not enough that it is finite with probability $1$.}}
@@ -241,7 +241,7 @@ The following statements hold:
 Let us define the Bellman operators.
 \begin{definition}
 For a fixed stationary policy $\policy :\States \to \Actions$,
-define the Fixed Policy DP Operator $T^\policy:\reals^{|\States|-1}
+define the Fixed Policy Dynamic Programming Operator $T^\policy:\reals^{|\States|-1}
 \to \reals^{|\States|-1}$ as follows: For any $V=(V(\state))\in
 \reals^{|\States|-1}$,
 \[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \sum\nolimits_{\state' \in \States \setminus \state_G} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States \setminus \state_G.\]
@@ -256,13 +256,13 @@ follows: For any $V=(V(\state))\in R^{|\States|-1}$,
 \[(T_{}^*(V))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) +  \sum\nolimits_{\state' \in \States \setminus \state_G} {\transitionprob(\state'|\state,\action)V(\state')} } \right\},\quad \forall \state \in \States\setminus \state_G\]
 \end{definition}
 
-In the discounted MDP setting, we relied on the discount factor to show that the DP operators are contractions. Here, we will use Assumption \ref{ass:finite_termination_prob} to show a weaker contraction-type result.
+In the discounted MDP setting, we relied on the discount factor to show that the dynamic programming operators are contractions. Here, we will use Assumption \ref{ass:finite_termination_prob} to show a weaker contraction-type result.
 
-For any policy $\policy$ (not necessarily stationary), Assumption \ref{ass:finite_termination_prob} means that $\Pr (\state_{\ttime=|\States|} = \state_G | \state_0 = \state) > 0$ for all $\state \in \States$, since otherwise, the Markov chain corresponding to $\policy$ would have a state that is not communicating with $\state_G$. Let
+For any policy $\policy$ (not necessarily stationary), Assumption \ref{ass:finite_termination_prob} means that for $\ttime=|\States|$, we must have that $\Pr (\state_{\ttime} = \state_G | \state_0 = \state) > 0$ for all $\state \in \States$, since otherwise, the Markov chain corresponding to $\policy$ would have a state that is not communicating with $\state_G$. Let
 \begin{equation*}
-    \epsilon = \min_{\policy} \min_{\state} \Pr (\state_{\ttime=|\States|} = \state_G | \state_0 = \state),
+    \epsilon = \min_{\policy} \min_{\state} \Pr (\state_{\ttime} = \state_G | \state_0 = \state),
 \end{equation*}
-which is well defined since the space of policies is compact.
+which is well defined since the space of policies is compact and the occupancy probability at $\ttime$ probability is continuous. Moreover, $\epsilon>0$
 Therefore, we have that for a stationary Markov policy $\policy$,
 \begin{equation}
     \sum_{j}[(\transitionkernel^\policy)^{|\States|}]_{ij} < 1-\epsilon, \forall i \in |\States|-1,
@@ -272,7 +272,7 @@ and, for any set of $|\States|$ Markov stationary policies $\policy_1,\dots,\pol
     \sum_{j}[\prod_{k=1,\dots,|\States|} \transitionkernel^{\policy_k}]_{ij} < 1-\epsilon, \forall i \in |\States|-1.
 \end{equation}
 From these results, we have that both $(\transitionkernel^\policy)^{|\States|}$ and $\prod_{k=1,\dots,|\States|} \transitionkernel^{\policy_k}$ are $(1-\epsilon)$-contractions.
-We are now ready to show the contraction property of the DP operators.
+We are now ready to show the contraction property of the dynamic programing operators.
 
 \begin{theorem}
     Let Assumption \ref{ass:finite_termination_prob} hold. Then $(T^{\policy})^{|\States|}$ and $(T^*)^{|\States|}$ are $(1-\epsilon)$-contractions.
@@ -289,7 +289,7 @@ For $(T^*)^{|\States|}$, note that
 \begin{split}
     ((T^*)^{|\States|}(\Value_1))(\state) = &\argmax_{\action_0,\dots,\action_{|\States|-1}} \reward(\state,\action_0) + \sum_{\state'}\Pr(\state_1=\state'|\state_0=\state,\action_0)\reward(\state',\action_1) \\
     &+ \sum_{\state'}\Pr(\state_2=\state'|\state_0=\state,\action_0,\action_1)\reward(\state',\action_2) + \dots \\
-    &+ \sum_{\state'}\Pr(\state_{|\States|}=\state'|\state_0=\state,\action_0,\dots,\action_{|\States|-1})\Value_1(\state') 
+    &+ \sum_{\state'}\Pr(\state_{|\States|}=\state'|\state_0=\state,\action_0,\dots,\action_{|\States|-1})\Value_1(\state') .
 \end{split}
 \end{equation*}
 

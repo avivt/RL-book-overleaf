@@ -17,13 +17,13 @@ have been used are approximate dynamic programming (ADP), neuro-dynamic programm
 mean the same thing, but focus on a specific collection of techniques that came to grow to the discipline known as ``RL''.
 
  \medskip
-\noindent{\it Origins of reinforcement learning}
+\noindent{\it Origins of reinforcement learning}.
 %
 Reinforcement learning has roots in quite a few disciplines.
 Naturally, by our own indoctrination, we are going to look through the lens of Computer Science
 and Machine Learning. From an engineering perspective, optimal control is 
 the ``mother'' of RL, and many of the concepts that are used in RL naturally come from optimal control. 
-Other notable origins are in Operations Research, where the initial mathematical frameworks have originated.
+Other notable origins are in Operations Research, where the initial mathematical frameworks had originated.
 Additional disciplines include: Neuroscience, Psychology, Statistics and
 Economics.
 
@@ -40,7 +40,7 @@ has been impressively applied for solving challenging RL tasks.
 But for us, the interest comes from the {\em promise} of RL and its
 potential to be an effective tool for control and behavior in dynamic environments.
 
-Over the years, reinforcement learning has proven to be highly
+Over the years, RL  has proven to be highly
 successful for playing board games that require long horizon planning. 
 Early in 1962, Arthur Samuel \cite{Samuel62} developed a checkers game, which was at
 the level of the best human. His original framework included many of
@@ -51,14 +51,14 @@ Tesauro in 1992 developed the TD-gammon \cite{Tesauro95}, which used a two layer
 neural-network to achieve a high performance agent for playing the game of backgammon. The network was trained from scratch, by playing against itself in simulation, and using a temporal differences learning rule. One of the amazing features
 of TD-gammon was that even in the {\em first} move, it played a
 different game move than the typical opening that backgammon grandmasters use. Indeed, this move was later adopted in the backgammon community \cite{Tesauro02}.
-More recently, DeepMind have developed AlphaGo -- a deep neural-network based agent
+More recently, DeepMind has developed AlphaGo -- a deep neural-network based agent
 for playing Go, which was able to beat the best Go players in the world, solving a long-standing challenge for artificial intelligence \cite{SilverHMGSDSAPL16}. 
 
 To complete the picture of computer board games, we should mention
 Deep Blue, from 1996, which was able to beat the world champion then,
 Kasparov \cite{DeepBlue}. This program mainly built on heuristic search and new hardware was developed to support it. Recently, DeepMind's
 AlphaZero matched the best chess
-programs (which are already much better than any human players), using a reinforcement learning approach \cite{silver2017mastering}.
+programs (which are already much better than any human players), using an RL-based approach \cite{silver2017mastering}.
 
 Another domain, popularized by DeepMind, is playing Atari video
 games \cite{mnih2015human}, which were popular in the 1980's. DeepMind were able to
@@ -80,20 +80,20 @@ While the RL implementations in each of the different applications mentioned abo
 
 \section{The Need for This Book}
 
-There are already several books on RL. However, while teaching RL in class, we felt that there is a gap between advanced textbooks that focus on one aspect or another of the art, and more general books that opt for readability rather than rigor. Coming from computer science and electrical engineering backgrounds, we like to teach RL in a rigorous, self-contained manner. This book serves this purpose, and is based on our lecture notes for an advanced undergraduate course that we have taught for over ten years at Tel Aviv University and at Technion.
+There are already several books on RL. However, while teaching RL in class, we felt that there is a gap between advanced textbooks that focus on one aspect or another of the art, and more general books that opt for readability rather than rigor. Coming from computer science and electrical engineering backgrounds, we like to teach RL in a rigorous, self-contained manner. This book serves this purpose, and is based on our lecture notes for an advanced undergraduate course that we have taught for over a decade  at Tel Aviv University and at the Technion.
 
-Complementing this book is a booklet with exercises and exam questions to help students practice the material. These exercised were developed by us and our teaching assistants over the years.
+Complementing this book is a booklet with exercises and exam questions to help students practice the material. These exercises were developed by us and our teaching assistants over the years.
 
 \section{Mathematical Models}
 %
-The main mathematical model we will use is the Markov Decision Process
+The main mathematical model we will use is the celebrated Markov Decision Process
 (MDP). The model tries to capture uncertainty in the dynamics of the
 environment, the actions and our knowledge. The main focus would be
-on sequential decision making, namely, selecting actions. The evaluation would
-consider the long term effect of the actions, trading-off immediate
+on sequential decision making, namely, selecting actions one after the other. The evaluation would
+consider the long-term effect of the actions, trading off immediate
 rewards with long-term gains.
 
-In contrast to Machine Learning, the reinforcement learning model
+In contrast to standard machine learning problems such as regression or classification, the RL model
  has a notion of a {\em state}, and the algorithm influences the state
 through its actions.
 % distribution (as well as the immediate observed rewards).
@@ -112,21 +112,39 @@ There are other models that are useful, such a partially observed MDPs (POMDPs) 
 The book is thematically comprised of two main parts -- \textit{planning} and \textit{learning}. 
 
 \paragraph{Planning:} The planning theme develops the fundamentals of optimal decision making in the face of uncertainty, under the Markov decision process model. The basic assumption in planning is that the MDP model is \textit{known} (yet, as the model is stochastic, uncertainty must still be accounted for in making decisions). In a preface to the planning section, Chapter \ref{chapter-planning-preface}, we motivate the MDP model and relate it to other models in the planning and control literature.
-In Chapter \ref{chapter:DDP} we introduce the problem and basic algorithmic ideas under the deterministic setting. In Chapter \ref{chapter:MC} we review the topic of Markov chains, which the Markov decision process model is based on, and
+In Chapter \ref{chapter:DDP} we introduce the problem and basic algorithmic ideas in the deterministic setting. In Chapter \ref{chapter:MC} we review the topic of Markov chains, which the Markov decision process model is based on, and
 then, in Chapter \ref{chapter:MDP-FH} we introduce the finite horizon MDP model and a fundamental dynamic programming approach. Chapter \ref{chapter:disc} covers the infinite horizon discounted setting, and Chapter \ref{chapter:episodic} covers the episodic setting. Chapter \ref{chapter-LP} covers an alternative approach for solving MDPs using a linear programming formulation.
 % and episodic settings, respectively.
 
 \paragraph{Learning:} The learning theme covers decision making when the MDP model is \textit{not known in advance}. In a preface to the learning section, Chapter \ref{ym-chapter-learning-preface}, we motivate this learning problem and relate it to other learning problems in decision making.
 Chapter \ref{chapter-model-based} introduces the \textit{model-based} approach, where the agent explicitly learns an MDP model from its experience and uses it for planning decisions. Chapter \ref{chapter:learning-model-free} covers an alternative \textit{model-free} approach, where decisions are learned without explicitly building a model. Chapters \ref{chapter:function-approximation} and \ref{chapter:policy-gradient} address learning of approximately optimal solutions in \textit{large} problems, that is, problems where the underlying MDP model is intractable to solve. Chapter \ref{chapter:function-approximation} approaches this topic using approximation of the value function, while Chapter \ref{chapter:policy-gradient} considers policy approximations. In Chapter \ref{chapter:MAB} we consider the special case of Multi-Arm Bandits, which can be viewed as a MDP with a single state and unknown rewards, and study the online nature of decision making in more detail. 
 
+{\bf Acknowledgments.} We are grateful to our colleagues and students who helped us improve this manuscript. In alphabetical 
+order:
+Stav Belogolovsky,
+Esther Derman,
+Yonathan Efroni,
+Uri Gadot,
+Hector Geffner, Navdeep Kumar,
+Tal Lancewicki,
+Orin Levy,
+Nadav Merlis,
+Avinash Mohan,
+Mirco Mutti, 
+Ofir Nabati,
+Benny Pereth,
+Elad Sharony,
+Uri Sherman, and
+Jonathan Somer.
+
 \section{Bibliography notes}
 
 Markov decision processes have a long history. The first works that directly addressed Markov Decision Processes and Reinforcement Learning are due to \cite{Bellman:DynamicProgramming} and \cite{Howard1960}. The book by Bellman \cite{Bellman:DynamicProgramming}, based on a sequence of works by him, introduced the notion of \emph{dynamic programming}, the \emph{principle of optimality} and defined discrete time MDPs. The book of Howard \cite{Howard1960}, building on his PhD thesis, introduced the policy iteration algorithm as well as a clear algorithmic definition of value iteration. A precursor work by Shapely \cite{Shapley53} introduced a discounted MDP model for stochastic games.
 
-There is a variety of books addressing Markov Decision Processes and Reinforcement Learning. Puterman's book \cite{puterman2014markov} gives an extensive exposition of mathematical properties of MDPs, including planning algorithms. Bertsekas and Tsitsiklis \cite{BertsekasTsitsiklis96} give a stochastic processes approach for reinforcement learning. Bertsekas \cite{Bertsekas05} give a detailed exposition of stochastic shortest paths.
+There is a variety of books addressing Markov Decision Processes and Reinforcement Learning. Puterman's book \cite{puterman2014markov} gives an extensive exposition of mathematical properties of MDPs, including planning algorithms. Bertsekas and Tsitsiklis \cite{BertsekasTsitsiklis96} and Bertsekas \cite{Bertsekas05} give a stochastic processes approach for reinforcement learning and control. 
 
-Sutton and Barto \cite{SuttonB98} give a general exposition to modern reinforcement learning, which is more focused on implementation issues less focused on mathematical issues. Szepesvari's monograph \cite{Szepesvari} gives an outline of basic reinforcement learning algorithms. Bertsekas and Tsitsiklis provide a thorough treatment of RL algorithms and theory in \cite{BertsekasTsitsiklis96}.
-
+Sutton and Barto \cite{SuttonB98} give a general exposition to modern reinforcement learning, which is more focused on implementation issues less focused on mathematical issues. They also give an excellent historical account of the development of RL from its infancy. Szepesvari's monograph \cite{Szepesvari} gives an outline of basic reinforcement learning algorithms. 
+% Bertsekas and Tsitsiklis provide a thorough treatment of RL algorithms and theory \cite{BertsekasTsitsiklis96}.
 
 % To complete the picture, Chapter \ref{chapter:tree-based-search} considers online planning using tree-search methods.
 % \section{Markov Decision Process (MDP)}

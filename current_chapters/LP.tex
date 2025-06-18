@@ -10,7 +10,8 @@
 
 An alternative approach to value and policy iteration is the linear programming method. Here the optimal control problem is formulated as a linear program (LP), which can be solved efficiently using standard LP solvers.  
 %
-In this chapter we will briefly overview the Linear Programming in general and the Linear Program approach for planing in reinforcement learning.
+In this chapter we will briefly overview the Linear Programming in general and the Linear Program approach for planning in MDPs. We do not attempt in any way to cover the area of linear programming optimization.
+There are many excellent books that cover linear programming, for example \cite{Karloff-LP,chvatal1983linear,vanderbei1998linear}. 
 
 %There are two formulations: primal and dual. As this method is less related to learning we will only sketch it briefly.
 
@@ -28,7 +29,7 @@ variables arranged as a column vector. The set of linear constraints defines a \
 closed and convex set $U$ that is the intersection of a finite
 number of half-spaces. The set $U$ has a finite number of vertices, which are points that cannot be represented as a convex combination of other points in $U$. If $U$ is bounded, it equals the convex combination of its vertices. It can be seen that an optimal solution (if finite) will be in one of these vertices.
 
-The LP problem has been extensively studied, and many efficient solvers exist. In 1947, Danzig introduced the Simplex algorithm, which essentially moves greedily along neighboring vertices, and may run in time exponential in the number of constraints. In the 1980's effective algorithms (interior point and others) were introduced which had polynomial (in the number of
+The LP problem has been extensively studied, and many efficient solvers exist. In 1947, Danzig introduced the Simplex algorithm, which essentially moves greedily along neighboring vertices, and may run in time exponential in the number of constraints. In the 1980's effective algorithms (interior point and others) were introduced which have polynomial (in the number of
 constraints) time guarantees.
 
 One of the most important notions in a linear program is \textit{duality}, which in many cases allows to gain insight to the solutions of a linear program. The following is the definition of the dual LP.
@@ -158,7 +159,7 @@ the dual is
 % %}
 
 %\begin{leftbar}
-\section{Linear Program for Finite Horizon}
+\section{Linear Program for Finite Horizon MDPs}
 \label{C-MDP-FH:sec:LP}
 %[Good idea to add to get them familiar with the notion and notation for the very simple case.]
 
@@ -178,7 +179,7 @@ The next step is to compute the return of the policy as a \textit{linear functio
 There is a simple fix here, we can define $x(\state,\action)=q(\state )z(\state,\action)$, namely, $x(\state,\action)$ is the probability of reaching state $\state$ and performing action $\action$. Given $x(\state,\action)$ we can define a policy $\policy(\action|\state)=\frac{x(\state,\action)}{\sum_{\action'}x(\state,\action')}$. For the finite horizon return, since we are interested in Markov policies, we will add an index for the time and have $x_\ttime(\state,\action)$ as the probability that in time $\ttime$ we are in state $\state$ and perform action $\action$.
 %
 Recall that in Section \ref{chp2:sec:FH-HS-MD} we saw that a sufficient set of parameters is
-$Pr_{\history'_{\ttime-1}}
+$\Pr_{\history'_{\ttime-1}}
 [\action_\ttime=\action,\state_\ttime=\state]=\E_{\history'_{\ttime-1}}[\I
 [\state_\ttime=\state,\action_\ttime=\action]| \history'_{\ttime-1}],
 $
@@ -312,7 +313,7 @@ solution of the dual linear program one can show that we have
 \end{align*}
 which are the familiar Bellman optimality equations.
 
-\section{Linear Program for discounted return}
+\section{Linear Program for Discounted MDPs}
 \label{chapter-discount:section:LP}
 
 In this section we will use linear programming to derive the optimal
@@ -351,7 +352,7 @@ x(\state',\action')\transitionprob(\state|\state'\action')+\I(\state=\state_0)
 \]
 For the initial state $\state_0$ we add $1$ for the incoming flow, since initially we start in it, and not reach it from another state.
 
-At first sight the dependency on the initial state $\state_0$ might be surprising, since the optimal policy does not depend on the initial state. However, we would be maximizing the discounted return from the initial state, i.e., the optimal value function $\Value^*_\ttime(\state_0)$. Clearly, the optimal value function does depend on the state, which will result in a dependency on the initial state in the LP.
+At first sight the dependency on the initial state $\state_0$ might be surprising, since the optimal policy does not depend on the initial state. However, we would be maximizing the discounted return from the initial state, i.e., the optimal value function $\Value^*(\state_0)$. Clearly, the optimal value function does depend on the state, which will result in a dependency on the initial state in the LP.
 
 Let us verify that indeed the constraints show that when we sum over all states and actions  we get the correct value of $1/(1-\discount)$, which equals the infinite discounted sum $\sum_\ttime\discount^\ttime$.
 If we sum the inequalities over all states, we have
@@ -452,6 +453,45 @@ the dual linear program one can show that we have
 \end{align*}
 which are the familiar Bellman optimality equations.
 
+We conclude this section by extending Example \ref{example:pi_vs_vi} to include the linear programming solution.
+\begin{example}[Example \ref{example:pi_vs_vi} cont'd]
+Consider the 2-state MDP of Example \ref{example:pi_vs_vi}.
+The constraints in the dual linear program here are:
+\begin{equation*}
+    \begin{split}
+        z(\state_1) 
+    \;&\ge\; 0 + 0.5\,z(\state_2),\\
+    z(\state_1) 
+    \;&\ge\; 0 + 0.5\bigl[\,0.1\,z(\state_2) + 0.9\,z(\state_1)\bigr],\\
+    z(\state_2) 
+    \;&\ge\; 1 + 0.5\bigl[\,0.9\,z(\state_2) + 0.1\,z(\state_1)\bigr],
+    \end{split}
+\end{equation*}
+which can be simplified to:
+\begin{equation*}
+    \begin{split}
+    z(\state_1) \;&\ge\; 0.5\,z(\state_2),\\
+    z(\state_2) \;&\le\; 11\,z(\state_1),\\
+    z(\state_2) \;&\ge\; \frac{1}{11} \,z(\state_1) \;+\; \frac{20}{11},
+    \end{split}
+\end{equation*}
+defining the feasible region in \((z(\state_1), z(\state_2))\)–space (the polytope).
+Note that the second constraint is obviated by the first constraint. The unique intersection of the first‐and third‐constraint lines is exactly
+\[
+  z(\state_1) = \frac{20}{21} \approx 0.95, 
+  \quad 
+  z(\state_2) = 2\, z(\state_1) \;=\; \frac{40}{21} \approx 1.90,
+\]
+which is exactly the optimal \((\Value^*(\state_1),\Value^*(\state_2))\) pair. Figure \ref{fig:pi_vs_lp_plot} illustrates the polytope, the optimal value function, and compares with policy iteration. Note in particular that the only intersection between any feasible $z(\state)$ and $\Value^\policy(\state)$ is at the optimal point: $\Value^*(\state)$ is both a lower bound for $z(\state)$ and an upper bound for $\Value^\policy(\state)$. 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/pi_vs_lp.png}
+    \caption{Comparison between LP and PI for the MDP in Figure \ref{fig:vi_vs_pi_example}. We plot the polytope for $z(\state_1), z(\state_2)$ on the same plot of the values $\Value^\policy(\state_1), \Value^\policy(\state_2)$, for every possible policy $\policy$. Note that the polytope intersects with the values only at the optimal policy $\Value^*(\state_1), \Value^*(\state_2)$.}
+    \label{fig:pi_vs_lp_plot}
+\end{figure}
+\end{example}
+
 %
 %
 %\begin{proposition}
@@ -488,15 +528,13 @@ which are the familiar Bellman optimality equations.
 % \input{exercises/MDPs_Purchasing_with_a_Deadline}
 
 
-\section{Bibliography notes}
+\section{Further Notes}
 %Post and Ye \cite{PostY13}.
 
 %Madani et al \cite{MadaniTZ10}.
 
-We do not attemt in any way to cover the area of linear programming optimization.
-There are many excellent books that cover linear programming, for example \cite{Karloff-LP,chvatal1983linear,vanderbei1998linear}. 
-The classical relationship between linear programming and MDPs planning is given in \cite{puterman2014markov}. More reinforcement learning specific approach can be found in \cite{FariasR03}.
+A rigorous treatment of the relationship between linear programming and MDP planning is given in \cite{puterman2014markov}. A more reinforcement learning specific approach can be found in \cite{FariasR03, desai2009smoothed}.
 
-Historically, the work of \cite{d1963probabilistic} was the first to formalize a Linear Programming for the discounted return, and \cite{manne1960linear} for the average cost. 
+% Historically, the work of \cite{d1963probabilistic} was the first to formalize a Linear Programming for the discounted return, and \cite{manne1960linear} for the average cost. 
 
-There are works that use a linear programming approach to derive strongly polynomial algorithms. Specifically, for deterministic MDPs we have polynomial time algorithms which are based on linear programming \cite{MadaniTZ10,PostY13}.
+There are works that use a linear programming approach to derive strongly polynomial algorithms. Specifically, for deterministic MDPs we have polynomial time algorithms which are based on linear programming \cite{MadaniTZ10,PostY13}. An important application of the LP approach is in constrained MDPs \cite{altman2021constrained}.

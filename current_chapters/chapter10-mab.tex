@@ -1,67 +1,83 @@
 
-The multi-arm bandit model (MAB) is a simplified version of the MDP model, and historically predated it. Conceptually, the MAB does not have states (or technically, a single state), but has multiple actions. Conceptually, our uncertainty is regarding the expected rewards of the various actions. This lead naturally to the well known tradeoff between \emph{exploration} and \emph{exploitation}. On the one hand we need to keep exploring the various actions, to reduce the uncertainty regarding their expected rewards, this is the \emph{exploration} part. On the other hand we would like to guarantee a high return by using the information we already gathered, which is the \emph{exploitation} part.
+The multi-arm bandit model (MAB) is a simplified version of the MDP model, and historically predated it. Conceptually, the MAB does not have states (or technically, a single state), but has multiple actions. Conceptually, our uncertainty is regarding the expected rewards of the various actions. This leads naturally to the well-known tradeoff between \emph{exploration} and \emph{exploitation}. On the one hand we need to keep exploring the various actions, to reduce the uncertainty regarding their expected rewards, this is the \emph{exploration} part. On the other hand we would like to guarantee a high return by using the information we already gathered, which is the \emph{exploitation} part.
 
-
-\paragraph{Motivation:} Many natural problems can be modeled as an MAB problems.
+\YM{This looks different than Slivkins.He mentions:
+News website, 
+Dynamic pricing, 
+Investment }
+\paragraph{Motivation:} Many natural problems can be modeled as MAB problems.
 \begin{enumerate}
 \item \textbf{Clinical Trials}: Each patient in the trial is prescribed one treatment out of several possible treatments. Each treatment is viewed as an action, and the reward for each patient is the effectiveness of the prescribed treatment. The goal is to maximize the overall effectiveness of the treatments.
-\item \textbf{Route selection}: Consider a navigation application selecting routes for users. The actions are the various routes from the initial point to the target place. The cost (negative reward) is the time it takes to drive on a given route. The goal is to minimize the total cost of the users.
+\item \textbf{Driving route selection}: Consider a navigation application selecting driving routes for users. The actions are the various routes from the initial point to the target place. The cost (negative reward) is the time it takes to drive on a given route. The goal is to minimize the total cost of the users.
 % \item \textbf{News}: a user visits a news site and is presented with a news header. The user either clicks on this header or not. The goal of
 % the website is to maximize the number of clicks. So each possible
 % header is an action in a bandit problem, and the clicks are the
 % rewards
-\item \textbf{Online advertisement}: In website advertising, a user visits a webpage, and a learning algorithm selects one of many possible advertisements to display to them. If an advertisement is displayed, the website observes whether the user clicks on the advertisement, in which case the advertiser pays
-a prescribed amount (which can depend also on the advertisement). In this case, each advertisement is an action, and the paid amount is the reward.
+\item \textbf{Online advertisement}: In website advertising, a user visits a webpage, and a learning algorithm selects one of many possible advertisements to display to them. If an advertisement is displayed, the website observes whether the user clicks on the advertisement, in which case the advertiser pays the website a prescribed amount (which can depend also on the advertisement). In this case, each advertisement is an action and the paid amount is the reward.
 \item \textbf{Gambling}: The name Multi-Arm Bandits comes from a gambling application. Consider a slot-machine with multiple arms (or alternatively, multiple slot-machines, each with a single arm). Each of the arms has a (slightly) different expected reward. The gambler, at each time, needs to decide which arm to pull. The goal of the gambler is to maximize their return, the sum of the rewards.
 \end{enumerate}
 
 % \chapter{Stochastic Bandits and Regret Minimization}
 % \label{chapter-MAB}
 
-\subsection*{Multi-Arm Bandit Model}
+\section{Multi-Arm Bandit Model}
 
 A MAB is a simplified model of an MDP where there is only a
 single state and a fixed set $\Actions$ of $k$ actions (a.k.a., arms). We consider a finite horizon problem, where the horizon is $\tHorizon$.
-Clearly, the planning problem is trivial, simply select the action with the highest expected reward. We will concentrate on the learning perspective, where the expected reward of each action is unknown. In the learning setting we would have a \emph{single} episode of length $\tHorizon$.
+Clearly, the planning problem is trivial, simply select the action with the highest expected reward. We will concentrate on the learning perspective, where the expected reward of each action is unknown. In the learning setting, we  have a \emph{single} episode of length $\tHorizon$.
 
 At each round $1\leq \ttime\leq \tHorizon$ the learner selects and executes an action. After executing an action, the learner observes the reward of the played action. However, the rewards of the other actions in $\Actions$ are not revealed to the learner.
 
 The reward for action $i$ at round $\ttime$ is denoted by $\reward_{\ttime}(i)\sim D_{i}$, where the support of the reward distribution $D_{i}$ is $[0,1]$. We assume that the rewards are i.i.d. (independent and identically distributed) across time steps, but can be correlated across actions in a single time step.
 
-More formally, we have the following model,
+More formally, we have the following model:
 \begin{itemize}
-\item \textbf{Actions}: A set of actions $\Actions=\left\{ \action_{1}\dots,\action_{k}\right\} $. For simplicity we identify action $\action_i$ with the integer $i$.
+\item \textbf{Actions}: A finite set of actions $\Actions=\left\{ \action_{1},\dots,\action_{k}\right\} $. For simplicity we identify action $\action_i$ with the integer $i$.
 \item \textbf{Rewards}: Each action $\action_{i}$ has a reward distribution $D_{i}$ over $[0,1]$. The expectation of the reward of action $\action_i$ is:
 %of distribution $D_{i}$ is:
 \[
-\mu_{i}=\E_{X\sim D_{i}}\left[X\right]
+\mu_{i}=\E_{\reward(\action_i)\sim D_{i}}\left[\reward(\action_i)\right]
 \]
-The random variable of the reward of action $\action_i$ at time $\ttime$ is denoted by $\reward_\ttime(\action_\ttime)$.
-\item \textbf{Best action}: The maximum expected reward is $\mu^{*}= \max_{i}\mu_{i}$ and the corresponding action is $\action^*\in \arg\max_i\mu_i$.
-\item \textbf{Learner's actions and rewards}: $\action_{\ttime}$ is the action the learner choose at round $\ttime$ and $\reward_\ttime$ is its reward.
+The random variable of the reward of action $\action_i$ at time $\ttime$ is denoted by $\reward_\ttime(\action_i)$.
+\item \textbf{Best action}: The maximum expected reward is $\mu^{*}= \max_{i}\mu_{i}$, and the corresponding action is $\action^*\in \arg\max_i\mu_i$.
+\item \textbf{Learner's actions and rewards}: At round $\ttime$, the learner chooses action $\action_{\ttime}$ and observes its reward $\reward_\ttime(\action_\ttime)$. When clear from the context we use $\reward_\ttime$ for $\reward_\ttime(\action_\ttime)$.
 \item \textbf{Feedback}: The learner observes either full feedback, the reward for each possible action, or bandit feedback, only the reward $\reward_\ttime(\action_\ttime)$ of the selected action $\action_\ttime$. For most of the chapter we will consider the bandit setting.
 \end{itemize}
 
-Next, we need to define the objective of the learner. The simple objective is to maximize the cumulative reward collected during the entire episode, namely $\sum_{\ttime=1}^\tHorizon \reward_\ttime$. Equivalently, We measure the performance by comparing the learner's cumulative reward to the optimal cumulative reward. The difference is called the \emph{regret}. Our goal would be that the average regret would vanish as $\tHorizon$ goes to infinity.
-Formally we define the regret as follows.
+Next, we need to define the objective of the learner. The simple objective is to maximize the cumulative reward collected during the entire episode, namely $\sum_{\ttime=1}^\tHorizon \reward_\ttime$. Equivalently, we measure the performance by comparing the learner's cumulative reward to the optimal cumulative reward. The difference is called the \emph{regret}. Our goal would be to minimize the regret. Specifically, we would like the average regret to vanish as $\tHorizon$ goes to infinity.
+Formally we define the regret as follows,
 \[
 \text{Regret}=\max_{i\in \Actions}{\displaystyle
 \sum_{\ttime=1}^{\tHorizon}\underbrace{\reward_{\ttime}(i)}_{\text{Random variable}}}-{\displaystyle
-\sum_{\ttime=1}^{\tHorizon}\underbrace{\reward_{\ttime}(\action_{\ttime})}_{\text{Random variable}}}
+\sum_{\ttime=1}^{\tHorizon}\underbrace{\reward_{\ttime}(\action_{\ttime})}_{\text{Random variable}}}.
 \]
-The regret as define above is a random variable and we can consider the expected regret, i.e., $\E[\text{Regret}]$. This regret is a somewhat unachievable objective, since even if the learner would have known the complete model, and would have selected the optimal action in each time, it would still have a regret. This would follow from the difference between the expectation and the realizations of the rewards.
-For this reason we would concentrate on the Pseudo Regret, which compares the learner's expected cumulative reward to the maximum expected cumulative reward. 
+The regret as define above is a random variable and we can consider the expected regret, i.e., $\E[\text{Regret}]$. This regret is a somewhat unachievable objective, since if the learner have known the complete model, and  have selected the optimal action at each time, it would still have a regret. This would follow from the difference between the expectation and the realizations of the rewards. \footnote{For example, assume we have two actions, both have a distribution of a Bernoulli r.v. with parameter $1/2$. Any online algorithm will have expectation of $\tHorizon/2$, but the expected realization of the better action would be $\tHorizon/2+\Theta(\sqrt{\tHorizon})$.}
+For this reason, we would concentrate on the Pseudo Regret, which compares the learner's expected cumulative reward to the maximum expected cumulative reward. 
 \[
 \begin{array}{ccl}
 \text{Pseudo Regret} & = & \max_{i}\E\left[ \sum_{\ttime= 1}^{\tHorizon}\reward_{\ttime}(i)\right]-\E\left[ \sum_{\ttime=1}^{\tHorizon}\reward_{\ttime}(\action_{\ttime})\right]\\
 \\
- & = & \mu^{*}\cdot \tHorizon- \E\left[\sum_{\ttime=1}^{\tHorizon}\mu_{\action_{\ttime}}\right]
+ & = & \mu^{*}\cdot \tHorizon- \E\left[\sum_{\ttime=1}^{\tHorizon}\mu_{\action_{\ttime}}\right].
 \end{array}
 \]
-Note that the difference between the regret and the Pseudo Regret is related to the difference between taking the expected maximum (in Regret) versus the maximum expectation (Pseudo Regret). Namely, in regret our benchmark is $\E[\max_i \reward(i)]$ while in pseudo regret the benchmark is $\max_i \E[\reward(i)]$. When considering a horizon $\tHorizon$ the two benchmarks can differ by at most $O(\sqrt{\tHorizon})$, by Lemma~\ref{lem:hoeffding} below.
+Note that the difference between the Regret and the Pseudo Regret is related to the difference between taking the expected maximum (in Regret) versus the maximum expectation (Pseudo Regret). Namely, in regret, our benchmark is $\E[\max_i \reward(i)]$, while in pseudo regret, the benchmark is $\max_i \E[\reward(i)]$. When considering a horizon $\tHorizon$, the two benchmarks can differ by at most $O(\sqrt{\tHorizon})$, by Lemma~\ref{lem:hoeffding} below.
 %
-In this chapter we will only consider pseudo regret (and sometime call it simply regret). 
+In addition, if all the actions have the same expected reward, then any online algorithm would have zero pseudo regret, in contrast, the regret can be non-zero.
+%
+In this chapter, we will only consider pseudo regret (and sometime call it simply regret). 
 
+An alternative way to represent the pseudo regret is using the expected frequency we play each action, as follows,
+%cumulative reward to the maximum expected cumulative reward. 
+\[
+\begin{array}{ccl}
+\text{Pseudo Regret} & = & \mu^{*}\cdot \tHorizon- \E\left[\sum_{\ttime=1}^{\tHorizon}\mu_{\action_{\ttime}}\right]\\
+ & = & \sum_{\ttime=1}^{\tHorizon} \mu^* - \E[\mu_{\action_{\ttime}}] \\
+ & = & \sum_{i=1}^k \E[n_\tHorizon(i)] (\mu^*-\mu_i)\\
+  & = & \sum_{i=1}^k \E[n_\tHorizon(i)] \Delta_i
+\end{array}
+\]
+where $n_\tHorizon(i)$ is the number of times we played action $i$ during the horizon $\tHorizon$, and $\Delta_i=\mu^*-\mu_i$.
+The equivalence follows since each time we play action $i$ we incur a regret of $\mu^*-\mu_i= \Delta_i$
 % \ymignore{
 % \begin{leftbar}
 % \section{Sub-Gaussian Random Variable}
@@ -128,7 +144,7 @@ In this chapter we will only consider pseudo regret (and sometime call it simply
 
 We will use extensively the following concentration bound, which is the additive bound in Lemma~\ref{lemma:chernoff}.
 
-\begin{lemma}[Chernoff-Hoffding]
+\begin{lemma}[Chernoff-Hoeffding]
 \label{lem:hoeffding}
 %
 Given $X_{1},\dots,X_{m}$ i.i.d random
@@ -155,7 +171,7 @@ or alternatively, for $m\geq \frac{1}{2\epsilon^2}\log(1/\delta)$, with probabil
 % \end{leftbar}
 % }
 
-\section{Warmup: Full information, two actions }
+\section{Warmup: Full Information, Two Actions }
 
 We start with a simple case where there are two actions and we
 observe the reward of both actions at each time $\ttime$. We will analyze
@@ -176,70 +192,71 @@ a_{\ttime+1}=\arg\max_{i\in\{1,2\}}\hat{\mu}_{\ttime}(i)
 \end{itemize}
 
 
-We now would like to compute the expected regret of the greedy
-policy. W.l.o.g., we assume that $\mu_{1}\ge\mu_{2}$, and define
+We now would like to compute the expected regret of the greedy policy. 
+With out loss of generality (w.l.o.g.), we assume that $\mu_{1}\ge\mu_{2}$, and define
 $\Delta=\mu_{1}-\mu_{2}\ge0$. Each time we select the sub-optimal action, we incur a pseudo regret. For the greedy algorithm this happens when at time $\ttime$ we have $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$. The expected pseudo regret is,
 \[
 \text{Pseudo Regret}= \sum_{\ttime=1}^{\infty}(\mu_{1}-\mu_{2})
 \Pr\left[\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)\right]
 \]
-Note that the above is an equivalent formulation of the pseudo regret. In each time step that greedy selects the optimal action, clearly the difference is zero, so we can ignore those time steps. In time steps which greedy selects the alternative action, action $2$, it has a regret of $\mu_1-\mu_2$ compared to action $1$. This is why we sum over all time steps, the probability that we select action $2$ time the regret in that case, i.e., $\mu_1-\mu_2$. Since we select action $2$ at time $\ttime$ when $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$, the probability that we select action $2$ is  exactly the probability that $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$.
+Note that the above is an equivalent formulation of the pseudo regret. In each time step that greedy selects the optimal action, clearly the difference is zero, so we can ignore those time steps. In time steps which greedy selects the alternative action, action $2$, it has a pseudo regret of $\mu_1-\mu_2$, compared to action $1$. This is why we sum over all time steps, the probability that we select action $2$ times the regret in that case, i.e., $\mu_1-\mu_2$. Since we select action $2$ at time $\ttime$ when $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$, the probability that we select action $2$ is  exactly the probability of the event $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$.
 
-We would like now to upper bound the probability of $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$. 
+To bound the pseudo regret, we would like  to upper bound the probability of the event $\hat{\mu}_{\ttime}(2)\ge \hat{\mu}_{\ttime}(1)$. 
 Clearly, at any time $\ttime$,
 \[
-E[\hat{\mu}_{\ttime}(2)-\hat{\mu}_{\ttime}(1)]=\mu_{2}-\mu_{1}=-\Delta
+\E[\hat{\mu}_{\ttime}(2)-\hat{\mu}_{\ttime}(1)]=\mu_{2}-\mu_{1}=-\Delta.
 \]
-We can define a random variable $X_{\ttime}=\reward_{\ttime}(2)-\reward_{\ttime}(1)+\Delta$ and have$\E[X_{\ttime}]=0$. Since $(1/\ttime)\sum_{\ttime} X_{\ttime} = \hat{\mu}_{\ttime}(2)- \hat{\mu}_{\ttime}(1)+\Delta$, by
+We can define a random variable $X_{\ttime}=\reward_{\ttime}(2)-\reward_{\ttime}(1)+\Delta$ and have $\E[X_{\ttime}]=0$. Since $(1/\ttime)\sum_{\ttime} X_{\ttime} = \hat{\mu}_{\ttime}(2)- \hat{\mu}_{\ttime}(1)+\Delta$, by
 Lemma~\ref{lem:hoeffding},
 \[
-Pr[\hat{\mu}_\ttime(2)\geq \hat{\mu}_\ttime(1)]= Pr\left[\hat{\mu}_{\ttime}(2)-\hat{\mu}_{\ttime}(1)+\Delta
+\Pr[\hat{\mu}_\ttime(2)\geq \hat{\mu}_\ttime(1)]= \Pr\left[\hat{\mu}_{\ttime}(2)-\hat{\mu}_{\ttime}(1)+\Delta
 \ge\Delta\right]\le e^{-2\Delta^{2}\ttime}
 \]
 We can now bound the expected pseudo regret as follows,
 \begin{align*}
-E\left[\text{Pseudo Regret}\right] & = 
- \sum_{\ttime=1}^{\tHorizon}\Delta\Pr\left[\hat{\mu}_\ttime(2)\geq \hat{\mu}_\ttime(1)\right]\\
- & \le   \sum_{\ttime=1}^{\infty}\Delta e^{-2\Delta^{2}\ttime}\\
- & \le  \int_{0}^{\infty}\Delta e^{-2\Delta^{2}\ttime}dt\\
+\E\left[\text{Pseudo Regret}\right] & = 
+ \sum_{\ttime=1}^{\tHorizon}\Delta\;\Pr\left[\hat{\mu}_\ttime(2)\geq \hat{\mu}_\ttime(1)\right]\\
+ & \le   \sum_{\ttime=1}^{\infty}\Delta \; e^{-2\Delta^{2}\ttime}\\
+ & \le  \int_{0}^{\infty}\Delta\; e^{-2\Delta^{2}\ttime}dt\\
  & =  \left[-\frac{1}{2\Delta}e^{-2\Delta^{2}\ttime}\right]_{0}^{\infty}\\
  & =  \frac{1}{2\Delta}
 \end{align*}
 We have established the following theorem.
 \begin{theorem}
-In the full information two actions multi-arm bandit model, the greedy algorithm guarantees a pseudo regret of at most $1/2\Delta$, where $\Delta=|\mu_1-\mu_2|$.
+In the full information two actions multi-arm bandit model, the greedy algorithm guarantees an expected pseudo regret of at most $1/2\Delta$, where $\Delta=|\mu_1-\mu_2|$.
 \end{theorem}
 
 Notice that this regret bound does not depend on  the horizon $\tHorizon$!
 
-\subsection{Stochastic Multi-Arm Bandits: lower bound}
+\section{Stochastic Multi-Arm Bandits: lower bound}
 
 %\subsection{Bandits}
 
-We will now see that we cannot get a regret that does not depend on $\tHorizon$ for the bandit feedback, when we observe only the reward of the action we selected.
+We now prove that we cannot get a regret that does not depend on $\tHorizon$ for the bandit feedback, that is, when we observe only the reward of the action we selected.
 
-Considering the following example. For action $\action_1$ we have the following distribution,
+Considering the following example. For action $\action_1$, we have the following distribution,
 \[
-\action_{1}\sim Br\left(\frac{1}{2}\right)\]
+\action_{1}\sim Br\left(\frac{1}{2}\right),\]
+where $Br(p)$ is a Bernoulli random variable with parameter $p$.
 
-For action $\action_2$ there are two alternative equally likely  distributions, each with probability $1/2$,
+For action $\action_2$, there are two alternative equally likely  distributions, each with probability $1/2$,
 \[
 \action_{2}\sim Br\left(\frac{1}{4}\right) \left(w.p. \frac{1}{2}\right)
 \qquad or \qquad \action_{2}\sim Br\left(\frac{3}{4}\right) \left(w.p.
-\frac{1}{2}\right)
+\frac{1}{2}\right).
 \]
 
-In this setting, since the distribution of action $\action_1$ is known, the optimal policy will select action $\action_2$ for some time $M$ (potentially, $M=\tHorizon$ is also possible) and then switches to action $\action_1$. The reason is that once we switch to action $\action_1$ we will not receive any new information regarding the optimal action, since the distribution of action $\action_1$ is known. 
+In this setting, since the distribution of action $\action_1$ is known, the optimal policy will select action $\action_2$ for some time $M$ (potentially, $M=\tHorizon$ is also possible) and then potentially switch to action $\action_1$. The reason is that once we switch to action $\action_1$ we will not receive any new information regarding the optimal action, since the distribution of action $\action_1$ is known. 
 
-Let $S_i=\{\ttime:\action_\ttime=i\}$ be the set of times where we played action $i$. 
-Assume by way of contradiction
+%Let $S_i=\{\ttime:\action_\ttime=i\}$ be the set of times where we played action $i$. 
+Assume by way of contradiction,
 \[
-\E\left[ \sum_{i \in \{1,2\}} \Delta_i |S_i|\right] = \E\left[Pseudo Regret\right]=R
+%\E\left[ \sum_{i \in \{1,2\}} \Delta_i |S_i|\right] = 
+\E\left[\text{Pseudo Regret}\right]=R\;,
 \]
-
-where $R$ does not depend on $\tHorizon$. \\ By Markov inequality:
+where $R$ does not depend on $\tHorizon$. By Markov's inequality:
 \[
-Pr\left[Pseudo Regret\ge2R\right]\le\frac{1}{2}
+Pr\left[\text{Pseudo Regret}\ge2R\right]\le\frac{1}{2}
 \]
 
 Since $\mu_1$ is known, an optimal algorithm will first check $\action_2$
@@ -248,251 +265,298 @@ in order to decide which action is better and stick with it.
 Assuming $\mu_2 = \frac{1}{4}$, and the algorithm decided to stop
 playing $\action_2$ after $M$ rounds, Then:
 \[
-Pseudo Regret = \frac{1}{4}M
+\text{Pseudo Regret} = \frac{1}{4}M
 \]
 Thus,
 \[
-Pr\left[Pseudo Regret\ge 2R \right] = Pr\left[ M\ge 8R
-\right]\le\frac{1}{2}
+\Pr\left[\text{Pseudo Regret}\ge 2R |\mu_2 =\frac{1}{4}\right] = Pr\left[ M\ge 8R |\mu_2 =\frac{1}{4} \right]\le\frac{1}{2} \;,
 \]
-And,
+equivalently,
 \[
-Pr\left[M < 8R \right]>\frac{1}{2}
+Pr\left[M < 8R | \mu_2 =\frac{1}{4}\right]>\frac{1}{2}\;.
 \]
 Hence, the probability that after $8R$ rounds, the algorithm will
 stop playing $\action_2$ (if $\mu_2 = \frac{1}{4}$) is at least
 $\frac{1}{2}$. This implies that there is some sequence of $8R$
-outcomes which will result in stopping to try action $\action_2$. For simplicity, assume that the sequence is the all zero sequence. (It is sufficient to note that any sequence of length $8R$ has probability at least $4^{-8R}$.)
+outcomes which will result in stopping to try action $\action_2$. For simplicity, assume that the sequence is the all-zero sequence. (It is sufficient to note that any sequence of length $8R$ has probability at least $4^{-8R}$.)
 
 % \textcolor{red}{Do we need to add that the algorithm is deterministic?}
 
 Assume $\mu_2 = \frac{3}{4}$, but all $8R$ first rounds, playing
 $\action_2$ yield the value zero (which happens with probability
-$\left(\frac{1}{4}\right)^{8R}$). We assumed that after $8R$ zeros
-for action $\action_2$ the algorithm will stop playing $\action_2$, even though
+$\left(\frac{1}{4}\right)^{8R}$). We assumed that after $8R$ zeros for action $\action_2$, the algorithm will stop playing $\action_2$, even though
 it is the preferred action. In this case, we will get:
 \[
-Pseudo Regret = \frac{1}{4} (\tHorizon - M) \approx \frac{1}{4}\tHorizon
+\text{Pseudo Regret} = \frac{1}{4} (\tHorizon - M) \approx \frac{1}{4}\tHorizon.
 \]
-
 The expected Pseudo Regret is,
 \[
-\E\left[Pseudo Regret\right] = R \geq
+\E\left[\text{Pseudo Regret}\right] = R \geq
 \underbrace{\frac{1}{2}}_{\action_{2}\sim Pr(Br\left(\frac{3}{4}\right))}
 \cdot \underbrace{\left(\frac{1}{4}\right)^{8R}}_{Pr(\forall \ttime\leq 8R \; \reward_\ttime= 0 |
 \action_{2}\sim Pr(Br\left(\frac{3}{4}\right))} \cdot (\tHorizon - 8R) \approx
-e^{-O(R)}\tHorizon
+e^{-O(R)}\tHorizon,
 \]
-
-Which implies that:
+which implies that,
 \[
-R=\Omega\left(\log \tHorizon\right)
+R=\Omega\left(\log \tHorizon\right).
 \]
 Contrary to the assumption that $R$ does not depend on $\tHorizon$.
 %\footnote{More formally, after 8R8R steps, there exists some
 %sequence of outcomes that cause the algorithm to switch to action
 %\action2\action_2. The probability of that sequence is at least
 %(14)8R\left(\frac{1}{4}\right)^{8R}.}
+%
+We have established the following theorem,
+\begin{theorem}
+   For each online algorithm, there is a MAB instance for which the expected pseudo regret in $\Omega 
+(\log \tHorizon)$
+\end{theorem}
 
 \topic{Explore-Then-Exploit}{random}
 
-We will now develop an algorithm with a vanishing average regret. The algorithm will have two phases. In the first phase it will explore each action for $M$ times. In the second phase it will exploit the information from the exploration, and will always play on the action with the highest average reward in the first phase.
+In this section, we develop an algorithm with a vanishing average regret. The algorithm  has two phases: In the first phase, which is the \emph{explore}  phase, it  plays each action  $M$ times. In the second phase, which is the \emph{exploit} phase,
+it  exploits the information from the explore phase and  always plays  the action with the highest average reward in the explore phase. Formally,
 
 \begin{enumerate}
 %
-\item We choose a parameter $M$.
+\item \textbf{Explore phase:} Given a parameter $M$,
 % time frame kMkM to explore.
 %
-For $M$ phases we choose each action once (for a total of $kM$
-rounds of exploration).
+for $M$ phases we choose each action once (for a total of $kM$ rounds of exploration).
 %
-\item After $kM$rounds we always choose the action that had highest
-average reward during the explore phase.
+\item \textbf{Exploit phase:} After $kM$ rounds we  choose the action $\hat{\action}^*$ that had highest
+average reward during the explore phase, and always play it, in the remaining $\tHorizon-kM$ rounds.
 \end{enumerate}
+Note that we implicitly assume $k\ M \leq \tHorizon$. 
 
-Define:
+\YM{Make this an algorithm environment}
+
+\paragraph{Analysis:}
+For each action $j\in\Actions$ we define:
 \begin{align*}
 S_{j}&= \left\{ t:\action_{\ttime}=j,t\le k\cdot M\right\}\\
-\hat{\mu}_{j}&=\frac{1}{M} \sum_{\ttime\in S_{j}}\reward_{j}(\ttime)\\
-\mu_{j}&=\E[\reward_{j}(\ttime)]\\
-\Delta_{j}&=\mu^{*}-\mu_{j}
+\hat{\mu}_{j}&=\frac{1}{M} \sum_{\ttime\in S_{j}}\reward_{j}(\ttime),
 \end{align*}
-where $\Delta_j$ is the difference in expected reward of action $j$
-and the optimal action.
+which are the set of rounds where we played action $j$ in the explore phase and the average reward.
+
+Recall that 
+$\mu_{j}=\E[\reward_{j}(\ttime)]$ is the expected reward of action $j$, and 
+$
+\Delta_{j}=\mu^{*}-\mu_{j}$ is the sub-optimality of action $j$.
+%where $\Delta_j$ is the difference in expected reward of action $j$ and the optimal action.
 
 We can now write the regret as a function of those parameters:
 \[
-\E\left[\text{Pseudo regret}\right]=\underbrace{{\displaystyle
+\E\left[\text{Pseudo regret}\right]=\underbrace{
 \sum_{j=1}^{k}\Delta_{j}\cdot
-M}}_{Explore}+\underbrace{\left(\tHorizon-k\cdot M\right){\displaystyle
-\sum_{j=1}^{k}\Delta_{j}Pr\left[j=\arg\max_{i}\hat{\mu}_{i}\right]}}_{Exploit}
+M}_{Explore}+\underbrace{\left(\tHorizon-k M\right)
+\sum_{j=1}^{k}\Delta_{j}\Pr\left[j=\arg\max_{i}\hat{\mu}_{i}\right]}_{Exploit}.
 \]
-
-For the analysis define:
+For the analysis, define:
 \[
-\lambda=\sqrt{\frac{2\log \tHorizon}{M}}
+\lambda=\sqrt{\frac{2\log \tHorizon}{M}}\;.
 \]
-
 By Lemma~\ref{lem:hoeffding} we have
 \[
 \Pr\left[\left|\hat{\mu}_{j}-\mu_{j}\right|\ge\lambda\right]  \le
-2e^{-2\lambda^2 M}=\frac{2}{\tHorizon^{4}}
+2e^{-2\lambda^2 M}=\frac{2}{\tHorizon^{4}}\;,
 \]
 which implies (using the union bound) that
 \[
 \Pr\underbrace{\left[\exists_{j}:\left|\hat{\mu}_{j}-\mu_{j}\right|\ge\lambda\right]}_{B}
- \le  \frac{2k}{\tHorizon^{4}}\underset{for\,k\leq T}{\leq}\frac{2}{\tHorizon^{3}}
+ \le  \frac{2k}{\tHorizon^{4}}\underset{for\,k\leq T}{\leq}\frac{2}{\tHorizon^{3}}\;.
 \]
 
 Define the ``bad event''
 $B=\{\exists_{j}:\left|\hat{\mu}_{j}-\mu_{j}\right|\ge\lambda\}$. If
-$B$ did not happen then for each action $j$, such that
+$B$ did not happen, then for each action $j$, for which
 $\hat{\mu}_{j}\ge\hat{\mu}^{*}$, we have
 \[
-\mu_{j}+\lambda\ge\hat{\mu}_{j}\ge\hat{\mu}^{*}\ge\mu^{*}-\lambda
+\mu_{j}+\lambda\ge\hat{\mu}_{j}\ge\hat{\mu}^{*}\ge\mu^{*}-\lambda\;.
 \]
-therefore:
+Therefore,
 \[
-2\lambda\ge\mu^{*}-\mu_{j}=\Delta_{j}
+2\lambda\ge\mu^{*}-\mu_{j}=\Delta_{j}\;,
 \]
-and therefore:
+and hence,
 \[
-\Delta_{j}\le2\lambda
+\Delta_{j}\le2\lambda\;.
 \]
-
-Then, we can bound the expected regret as follows:
+This implies, given that the bad event $B$ did not occur,
+that the action $\hat{\action}^*$ selected for the exploit phase has a regret of at most $2\lambda$, i.e., $\mu^*-\mu_{\hat{\action}^*}\leq 2\lambda$.
+Now, we can bound the expected regret as follows:
 \begin{align*}
-\E[PseudoRegret] & \leq  \underbrace{\left({\displaystyle
+\E[\text{Pseudo Regret}] & \leq  \underbrace{\left({\displaystyle
 \sum_{j=1}^{k}\Delta_{j}}\right)M}_{Explore}+\underbrace{\left(\tHorizon-k\cdot
 M\right)\cdot2\lambda}_{\text{B didn't
 happen}}+\underbrace{\frac{2}{\tHorizon^{3}}\cdot \tHorizon}_{\text{B happened}}\\
- & \leq  k\cdot M+2\cdot\sqrt{\frac{2\log \tHorizon}{M}}\cdot \tHorizon+\frac{2}{\tHorizon^{2}}
+ & \leq  k\cdot M+2\cdot\sqrt{\frac{2\log \tHorizon}{M}}\cdot \tHorizon+\frac{2}{\tHorizon^{2}}.
 \end{align*}
-
-If we optimize the number of exploration phases $M$ and choose $M=\tHorizon^{\frac{2}{3}}$,
-we get:
+We optimize the number of exploration rounds $M$ and choose $M=\left(\frac{\tHorizon}{k}\right)^{\frac{2}{3}}$, which gives:
 \[
-\E[PseudoRegret]  \leq 
-k\cdot \tHorizon^{\frac{2}{3}}+2\cdot\sqrt{2\log \tHorizon}\cdot
-\tHorizon^{\frac{2}{3}}+\frac{2}{\tHorizon^{2}}
+\E[\text{Pseudo Regret}]  \leq 
+k^{1/3}\cdot \tHorizon^{\frac{2}{3}}+2\cdot\sqrt{2\log \tHorizon}\cdot
+\tHorizon^{\frac{2}{3}}+\frac{2}{\tHorizon^{2}},
 \]
-which is sub-linear but more than the $O(\sqrt{\tHorizon})$ rate we would
-expect.
+which is sub-linear in $\tHorizon$. In the following sections we improve the dependency of the expected  regret on the horizon from $T^{2/3}$ to $T^{1/2}$, which is also the optimal rate.
+
+We have established the following regret bound for the Explore-Exploit algorithm.
+\begin{theorem}
+    The Explore-Exploit algorithm, with parameter $M=\left(\frac{\tHorizon}{k}\right)^{\frac{2}{3}}$, has,
+    \[
+\E[\text{Pseudo Regret}]  \leq 
+k^{1/3}\cdot \tHorizon^{\frac{2}{3}}+2\cdot\sqrt{2\log \tHorizon}\cdot
+\tHorizon^{\frac{2}{3}}+\frac{2}{\tHorizon^{2}}=\Tilde{O} (k^{1/3}T^{2/3}).
+\]
+\end{theorem}
 
 \section{Improved Regret Minimization Algorithms}
 
-We will look at some more advanced algorithms that mix the
-exploration and exploitation.
+We now consider more advanced algorithms that mix the exploration and exploitation.
+We define:
+\begin{description}
+    \item[] 
+$n_{\ttime}(i)$ - the number of times we chose action $i$ by round $\ttime$, including round $\ttime$, i.e., $n_{\ttime}(i)=\sum_{\tau=1}^{\ttime}\mathbb{I}\left(\action_{\tau}=i\right)$. Notice that $n_{\ttime}(i)$ is a random variable and not a number!
 
-Define:
-
-$n_{\ttime}(i)$ - the number of times we chose action $i$ by round $\ttime$
-
+\item
 $\hat{\mu}_{\ttime}(i)$ - the average reward of action $i$ so far, that
 is:
 \[
 \hat{\mu}_{\ttime}(i)=\frac{1}{n_{\ttime}(i)}{\displaystyle
-\sum_{\tau=1}^{\ttime}\reward_{i}(\tau)}\mathbb{I}\left(\action_{\tau}=i\right)
+\sum_{\tau=1}^{\ttime}\reward_{\tau}(i)}\mathbb{I}\left(\action_{\tau}=i\right)
 \]
-Notice that $n_{i}(\ttime)$ is a random variable and not a number!
+\end{description}
 
-We would like to get the following result:
+We would like to get the following result, for each round $\ttime$ and action $i$:
 \[
 \Pr\left[\left|\hat{\mu}_{\ttime}(i)-\mu_{i}\right|\le\underbrace{\sqrt{\frac{2\log
-T}{n_{\ttime}(i)}}}_{\lambda_{\ttime}(i)}\right]\ge1-\frac{2}{\tHorizon^{4}}
+T}{n_{\ttime}(i)}}}_{\lambda_{\ttime}(i)}\right]\ge1-\frac{2}{\tHorizon^{4}}\;.
 \]
 
-We would like to look at the $m^{th}$ time we sampled action $i$:
-\[
-\hat{\mathbb{V}}_{m}(i)=\frac{1}{m} \sum_{\tau=1}^{m}\reward_{i}(\ttime_{\tau})
-\]
-Where the $\ttime_{\tau}$'s are the rounds when we chose action $i$.
+We cannot simply apply the Chernoff-Hoeffding concentration bound (Lemma~\ref{lem:hoeffding}) since $n_\ttime(i)$ is a random variable.
 
-Now we fix $m$ and get:
+Our way to overcome this issue is to pre-sample all the possible rewards, as done in \cite{Slivkins-book-19}. (We give here a sketch of the main idea, more details can be found in \cite{Slivkins-book-19}.)
+
+Consider sampling each action $i$ for $\tHorizon$ times. We can later use this pre-sampling such that when we want to receive the $m$-th sample of action $i$, we consider the $m$-th sample we pre-generated for action $i$. We show that with high probability, for any action $i$ and sample size $m$, the empirical average is close to the true mean.
+
+Consider the $m^{th}$ time we sampled action $i$, the empirical average is 
 \[
-\forall{i}\forall{m}\;\;\;
+\hat{\mathbb{V}}_{m}(i)=\frac{1}{m} \sum_{\tau=1}^{m}\reward_{\ttime_{\tau}^i}(i)\;,
+\]
+where $\ttime_{\tau}^i$ is the round where we chose action $i$ for the $\tau$ time.
+%
+Now we fix action $i$ and sample size $m$ and get:
+\[
+%\forall{i}\forall{m}\;\;\;
 \Pr\left[\left|\hat{\mathbb{V}}_{m}(i)-\mu_{i}\right|\le\sqrt{\frac{2\log
-\tHorizon}{m}}\right]\ge1-\frac{2}{\tHorizon^{4}}
+\tHorizon}{m}}\right]\ge1-\frac{2}{\tHorizon^{4}}\;.
 \]
-and notice that $\hat{\mu}_{\ttime}(i)\equiv\hat{\mathbb{V}}_{i}(m)$ when
+Notice that $\hat{\mu}_{\ttime}(i)\equiv\hat{\mathbb{V}}_{m}(i)$ when
 $m=n_{\ttime}(i)$.
 
 Define the ``good event'' $G$:
 \[
-G=\left\{ \forall_{i}\forall_{\ttime}\left|\hat{\mu}_{\ttime}(i)-\mu_{i}\right|\le\lambda_{\ttime}(i)\right\}.
+G=\left\{ \forall {i}\forall {\ttime}\left|\hat{\mu}_{\ttime}(i)-\mu_{i}\right|\le\lambda_{\ttime}(i)\right\}.
 \]
-The probability of $G$ is,
+The probability of $G$ is
 \[
-Pr\left(G\right)\ge1-\frac{2}{\tHorizon^{2}}.
+\Pr\left[G\right]\ge 1-\frac{2k}{\tHorizon^{3}}\ge 1-\frac{2}{\tHorizon^{2}}.
 \]
 
-\section{Refine Confidence Bound}
+
+
+\subsection{Refined Confidence Bounds}
 
 Define the upper confidence bound:
 \[
-UCB_{\ttime}(i)=\hat{\mu}_{\ttime}(i)+\lambda_{\ttime}(i)
+UCB_{\ttime}(i)=\hat{\mu}_{\ttime}(i)+\lambda_{\ttime}(i)\;,
 \]
 and similarly, the lower confidence bound:
 \[
-LCB_{\ttime}(i)=\hat{\mu}_{\ttime}(i)-\lambda_{\ttime}(i)
+LCB_{\ttime}(i)=\hat{\mu}_{\ttime}(i)-\lambda_{\ttime}(i)\;.
 \]
-if $G$ happened then:
+If $G$ happened then:
 \[
-\forall{i}\forall{\ttime}\;\;\;\mu_{i}\in\left[LCB_{\ttime}(i),UCB_{\ttime}(i)\right]
+\forall{i}\,\forall{\ttime}\;\;\;\mu_{i}\in\left[LCB_{\ttime}(i),UCB_{\ttime}(i)\right]\, .
 \]
 Therefore:
 \[
-Pr\biggl[\forall{i}\forall{\ttime}\;\;\;
-\mu_{i}\in\left[LCB_{\ttime}(i),UCB_{\ttime}(i)\right]\biggr]\ge1-\frac{2}{\tHorizon^{2}}
+Pr\biggl[\forall{i}\,\forall{\ttime}\;\;\;
+\mu_{i}\in\left[LCB_{\ttime}(i),UCB_{\ttime}(i)\right]\biggr]\ge1-\frac{2}{\tHorizon^{2}}\,.
 \]
 
 \subsection{Successive Action Elimination}
 
-We maintain a set of actions S.
 
-Initially $S=\Actions$.
+Our first improved algorithm is Successive Action Elimination. As the name suggests, we will eliminate sub-optimal actions. The main issue is to do it in a conservative way, that would guarantee that once we eliminate an action, it is with high probability a sub-optimal action. For this we will use the UCB and LCB introduced before.
 
-In each phase:
+The Successive Action Elimination algorithm maintains a set of active actions $S_\ttime$ at phase $\ttime$. (This will be the set of actions which have not been eliminated by phase $\ttime$.)
+
+Initially $S_1=\Actions$.
+
+In each phase $\ttime$:
 \begin{itemize}
-\item We try every $i\in S$ once
-\item For each $j\in S$ if there exists $i\in S$ such that:
+\item We play every $i\in S_\ttime$ once
+\item For each action $j\in S_\ttime$, if there exists $i\in S_\ttime$ such that:
 \[
 UCB_{\ttime}(j)<LCB_{\ttime}(i)
 \]
- We remove $j$ from $S,$ that is we update:
+we add $j$ to $J_\ttime$.
+At the end of the phase we remove all the actions in $J_\ttime$, and update:
+% We remove $j$ from $S_\ttime$ that is we update:
 \[
-S\leftarrow S-\left\{ j\right\}
+S_{\ttime+1}\leftarrow S_\ttime-J_\ttime.
 \]
 \end{itemize}
-We will get the following results:
+\YM{Make UCB in an algorithms environment}
+
+
+We maintain the following invariants:
+%get the following results:
 \begin{itemize}
-\item As long as action $i$ is still in $S$, we have tried action $i$ exactly the
-same number of times as all of any other action $j\in S$.
+\item As long as action $i$ is still in $S_\ttime$, we have played action $i$ exactly the
+same number of times as any other action $j\in S_\ttime$, i.e., $\ttime-1$ times.
 \item The best action, under the assumption that the event $G$ holds, is never eliminated
-from $S$.
+from $S_\ttime$, for any phase $\ttime$.
 \end{itemize}
-To see that the best action is never eliminated, under the good event $G$, note the following for time $\ttime$. For the best action we have $\mu^*< UCB_{\ttime}(\action^*)$, and for any action $i$ we have $LCB_\ttime(i)\leq \mu_i$. Since $LCB_\ttime(i)\leq \mu_i\leq \mu^*\leq UCB_\ttime(\action^*)$, the best action $\action^*$ is never eliminated.
+To see that the best action is never eliminated, under the good event $G$, note the following for time $\ttime$. For the best action we have $\mu^*< UCB_{\ttime}(\action^*)$, and for any action $i$ we have $LCB_\ttime(i)\leq \mu_i$. Since $LCB_\ttime(i)\leq \mu_i\leq \mu^*\leq UCB_\ttime(\action^*)$, any optimal action $\action^*$ is never eliminated.
 
-Under the assumption of $G$ we get:
+Under the good event $G$, at phase $\ttime$, for any optimal action $\action^*$ we have,
 \[
-\mu^{*}-2\lambda\le\hat{\mu}^{*}-\lambda=LCB_\ttime(\action^*)<UCB_\ttime(i)=\hat{\mu_{i}}+\lambda\leq\mu_{i}+2\lambda
+\mu^{*}-2\lambda_\ttime(\action^*)\le\hat{\mu}^{*}-\lambda_\ttime(\action^*)=LCB_\ttime(\action^*)\;.
 \]
-Where $\lambda=\lambda_{i}=\lambda^{*}$ because we have chosen action $i$ and the best action the same number of times so far.
-
-Therefore, assuming event $G$ holds,
+Similarly, for any action $i\in S_\ttime$ we have
+\[
+UCB_\ttime(i)=\hat{\mu_{i}}+\lambda_\ttime(i)\leq\mu_{i}+2\lambda_\ttime(i)\;.
+\]
+Since action $i$ is not eliminated, i.e., $i\not\in J_\ttime$, we have
+\[
+LCB_\ttime(\action^*)<UCB_\ttime(i)\;.
+\]
+% \[
+% \mu^{*}-2\lambda\le\hat{\mu}^{*}-\lambda=LCB_\ttime(\action^*)<UCB_\ttime(i)=\hat{\mu_{i}}+\lambda\leq\mu_{i}+2\lambda
+% \]
+Finally, let  $\lambda=\lambda_{\ttime}(i)=\lambda_\ttime({\action^*})$, since we have chosen action $i$ and any best action $\action^*$, the same number of times so far.
+Combining all the inequalities we get
+\[
+ \mu^{*}-2\lambda\le\hat{\mu}^{*}-\lambda=LCB_\ttime(\action^*)<UCB_\ttime(i)=\hat{\mu_{i}}+\lambda\leq\mu_{i}+2\lambda\;.
+\]
+Therefore, assuming the good event $G$ holds,
 \[
 \Delta_{i}=\mu^{*}-\mu_{i}\le4\lambda=4\sqrt{\frac{2\log
-T}{n_{\ttime}(i)}}
+T}{n_{\ttime}(i)}}\;,
 \]
+which implies,
 \[
-\Rightarrow\;\;\; n_{\ttime}(i)\le\frac{32}{\Delta_{i}^{2}}\log \tHorizon
+ n_{\ttime}(i)\le\frac{32}{\Delta_{i}^{2}}\log \tHorizon\;,
 \]
-for any time $\ttime$ where action $\action_i$ is played, and therefore it bounds the total number of times action $\action_i$ is played.
+for any phase $\ttime$ where action $i$ is played, and therefore it bounds the total number of times action $i$ is played.
 
 This implies that we can bound the pseudo regret as follows,
 \begin{align*}
-\E\left[\text{Pseudo Regret}\right]  = &  \sum_{i=1}^{k}\Delta_{i}n_{i}(\ttime)\\
-  \le &  \sum_{i=1}^{k}\frac{32}{\Delta_{i}}\log \tHorizon
+\E\left[\text{Pseudo Regret}\right]  = &  \E\left[\sum_{i=1}^{k}\Delta_{i}n_{\ttime}(i)\right]\\
+  \le &  \sum_{i:\Delta_i>0}\frac{32}{\Delta_{i}}\log \tHorizon
   +\underbrace{\frac{2}{\tHorizon^{2}}\cdot T}_{\text{The bad event}}
 \end{align*}
 
@@ -500,168 +564,170 @@ This implies that we can bound the pseudo regret as follows,
 
 \begin{theorem}
 \label{thm:MAB:SE1}
-The pseudo regret of successive action elimination is bounded by $O(\frac{1}{\Delta_{i}}\log \tHorizon)$
+The pseudo regret of successive action elimination is bounded by $O(\sum_{i:\Delta_i>0}\frac{1}{\Delta_{i}}\log \tHorizon)$.
 \end{theorem}
 
-Note that the bound is  when $\Delta_i\approx 0$. This is not a really issue, since such actions also have very small regret when we use them. Formally, we can partition the action according to $\Delta_i$. Let $\Actions_1=\{i:\Delta_i< \sqrt{k/\tHorizon}\}$ be the set of actions with low $\Delta_i$, and $\Actions_2=\{i:\Delta_i\geq \sqrt{k/\tHorizon}\}$. We can now re-analyze the pseudo regret, as follows,
+Note that the bound is unbounded when $\Delta_i\approx 0$. This is not a really issue, since such actions also have very small regret when we use them. Formally, we can partition the action according to $\Delta_i$. Let $\Actions_1=\{i:\Delta_i< \sqrt{(k\log\tHorizon)/\tHorizon}\}$ be the set of actions with low $\Delta_i$, and $\Actions_2=\{i:\Delta_i\geq \sqrt{(k\log\tHorizon)/\tHorizon}\}$ the remaining actions. We can now re-analyze the pseudo regret, as follows,
 \begin{align*}
-\E\left[\text{Pseudo Regret}\right]  = &  \sum_{i=1}^{k}\Delta_{i}n_{i}(\ttime)\\
-= &  \sum_{i\in \Actions_1}^{k}\Delta_{i}n_{i}(\ttime)+ \sum_{i\in \Actions_2}^{k}\Delta_{i}n_{i}(\ttime)\\
-  \le & \sum_{i\in\Actions_1}\sqrt{\frac{k}{\tHorizon}}n_{i}(\ttime) +\sum_{i\in\Actions_2}\frac{32}{\Delta_{i}}\log \tHorizon
+\E\left[\text{Pseudo Regret}\right]  = &  \sum_{i=1}^{k}\Delta_{i}\E[n_{\ttime}(i)]\\
+= &  \sum_{i\in \Actions_1}^{k}\Delta_{i}\E[n_{i}(\ttime)]+ \sum_{i\in \Actions_2}^{k}\Delta_{i}\E[n_{\ttime}(i)]\\
+  \le & \sum_{i\in\Actions_1}\sqrt{\frac{k\log\tHorizon}{\tHorizon}}\E[n_{\ttime}(i)] +\sum_{i\in\Actions_2}\frac{32}{\Delta_{i}}\log \tHorizon
   +\underbrace{\frac{2}{\tHorizon^{2}}\cdot T}_{\text{The bad event}}\\
-  \leq & \sqrt{\tHorizon}+ 32 k \sqrt{\frac{\tHorizon}{k}}\log\tHorizon+ \frac{2}{\tHorizon}\\
-  \leq & 34  \sqrt{k\tHorizon}\log\tHorizon
+  \leq & \sqrt{k\tHorizon\log\tHorizon}+ 32 k \sqrt{\frac{\tHorizon}{k\log \tHorizon}}\log\tHorizon+ \frac{2}{\tHorizon}\\
+  \leq & 34  \sqrt{k\tHorizon\log\tHorizon}\;.
 \end{align*}
 
-We have established the following regret bound
-
+We have established the following regret bound,
 \begin{theorem}
 \label{thm:MAB:SE2}
-The pseudo regret of successive action elimination is bounded by $O( \sqrt{k\tHorizon}\log\tHorizon)$
+The pseudo regret of successive action elimination is bounded by $O( \sqrt{k\tHorizon\log\tHorizon})$.
 \end{theorem}
 
 
 \subsection{Upper confidence bound (UCB)}
 
-The UCB algorithm simply uses the UCB bound. The algorithm works as
+The UCB algorithm simply selects the actions greedily using the UCB. The most naive method would be to greedily select actions using the empirical mean, but this can lead to very bad performance. (Assume we have two actions, and we play each once. For the first action we observe a reward of $1$ and for the second we observe a reward of $0$. Assuming the rewards are either  $0$ or $1$, if we select greedily using the empirical mean, we will always select action $1$. However, it can be that action $2$ is the optimal action.)
+
+
+The idea behind the UCB approach is that we use \emph{optimism}. When we select the action with the highest UCB it is either due to one of the following: (1) the confidence bound ($\lambda$) is large. In this case we will have an explicit exploration, reducing the confidence bound. (2) the confidence bound ($\lambda$) is small. In this case the empirical mean is large, and we will have an implicit exploitation.
+
+%The UCB algorithm greedily uses the UCB bound, instead of the empirical mean. 
+The UCB  algorithm works as
 follows:
 \begin{itemize}
-\item We try each action once (for a total of $k$ rounds)
-\item Afterwards we choose:
+\item Play each action once (for a total of $k$ rounds)
+\item Afterwards, at round $\ttime$ choose:
 \end{itemize}
 \[
 a_{\ttime}=\arg\max_{i}UCB_{\ttime}(i).
 \]
+\YM{Make UCB in an algorithms environment}
 
-If we chose action $i$ then, assuming $G$ holds, we have
+
+If we choose action $i$, then, assuming the good event $G$ holds, we have
 \[
 UCB_{\ttime}(i)  \ge  UCB_{\ttime}(a^*)\geq\mu^{*},
 \]
-where $a^*$ is the optimal action.
+where $a^*$ is an optimal action.
 
-Using the definition of UCB and the assumption that $G$ holds, we
-have
+Using the definition of UCB, and the assumption that $G$ holds, we have
 \[
-UCB_{\ttime}(i)=\hat{\mu}_{\ttime}(i)+\lambda_{\ttime}(i)\le\mu_{i}+2\lambda_{\ttime}(i)
+UCB_{\ttime}(i)=\hat{\mu}_{\ttime}(i)+\lambda_{\ttime}(i)\le\mu_{i}+2\lambda_{\ttime}(i).
 \]
-Since we selected action $i$ at time $\ttime$ we have
+Since we selected action $i$ at time $\ttime$, we have
 \[
-\mu_{i}+2\lambda_{\ttime}(i)\ge\mu^{*}
+\mu_{i}+2\lambda_{\ttime}(i)\ge \hat{\mu}_\ttime (i)+\lambda_{\ttime}(i)\geq \hat{\mu}_\ttime (\action^*)+\lambda_{\ttime}(\action^*)\geq \mu^{*}.
 \]
 Rearranging, we have,
 \[
-2\lambda_{\ttime}(i)\ge\mu^{*}-\mu_{i}=\Delta_{i}
+2\lambda_{\ttime}(i)\ge\mu^{*}-\mu_{i}=\Delta_{i}.
 \]
-Each time we chose action $i$, we could not have made a very big
-mistake because:
+Each time we chose action $i$, our regret is $\Delta_i $, and is bounded, 
 \[
-\Delta_{i}\leq\text{ }2\cdot\sqrt{\frac{2\log \tHorizon}{n_{\ttime}(i)}}
+\Delta_{i}\leq\text{ }2\cdot\sqrt{\frac{2\log \tHorizon}{n_{\ttime}(i)}}\;.
 \]
 
-And therefore if $i$ is very far off from the optimal action we
+Therefore, if $i$ is very far off from the optimal action, we
 would not choose it too many times. We can bound the number of times
 action $i$ is used by,
 \[
-n_{\ttime}(i)\leq\frac{8}{\Delta_{i}^{2}}\log \tHorizon
+n_{\ttime}(i)\leq\frac{8}{\Delta_{i}^{2}}\log \tHorizon\;,
 \]
-
-And over all we get:
+and overall we get:
 \begin{align*}
 \E\left[\text{Pseudo Regret}\right] & =
 \sum_{i=1}^{k}\Delta_{i}\E\left[n_{\ttime}(i)\right]+\underbrace{\frac{2}{\tHorizon^{2}}\cdot
 \tHorizon}_{\text{The bad event}}
 \\
- & \le  \sum_{i=1}^{k}\frac{c}{\Delta_{i}}\cdot\log \tHorizon+\frac{2}{\tHorizon}
+ & \le  \sum_{i:\Delta_i}\frac{c}{\Delta_{i}}\cdot\log \tHorizon+\frac{2}{\tHorizon}
 \end{align*}
 
 \begin{theorem}
 \label{thm:MAB:UCB1}
-The pseudo regret of UCB is bounded by $O(\frac{1}{\Delta_{i}}\log \tHorizon)$
+The pseudo regret of UCB is bounded by $O(\sum_{i:\Delta_i}\frac{1}{\Delta_{i}}\log \tHorizon)$.
 \end{theorem}
 
-Similar to successive action elimination, we can establish the follwoing instance-independent regret bound. 
+Similar to successive action elimination, we can establish the following instance-independent regret bound. 
 
 \begin{theorem}
 \label{thm:MAB:UCB2}
-The pseudo regret of UCB is bounded by $O( \sqrt{k\tHorizon}\log\tHorizon)$
+The pseudo regret of UCB is bounded by $O( \sqrt{k\tHorizon\log\tHorizon})$.
 \end{theorem}
 
 \section{From Multi-Arm Bandits to MDPs}
 
-Much of the techniques used in the case of Multi-arm bandits, can be extended naturally to the case of MDPs. In this section we sketch a simple extension where the dynamics of the MDPs is known, but the rewards are unknown.
+Much of the techniques used in the case of Multi-arm bandits can naturally be extended  to the case of MDPs. In this section, we sketch a simple extension where the dynamics of the MDPs are known, but the rewards are unknown.
 
-We first need to define the model for the online learning in MDPs, which will be very similar to the one in MAB. We will concentrate on the case of a finite horizon return. The learner interacts with the MDP for $K$ episodes.
+We first need to define the model for the online learning in MDPs, which will be very similar to the one in MAB. We will concentrate on the case of a finite horizon return. The learner interacts with the MDP for $\cK$ episodes.
 
-At each episode $\ttime\in[K]$, the learner selects a policy $\policy_\ttime$ and observes a trajectory $(\state^\ttime_1, \action^\ttime_1,\reward^\ttime_1 \ldots , \state_\tHorizon^\ttime)$, where the actions are selected using $\policy_\ttime$, i.e., $\action_\tau^\ttime=\policy_\ttime(\state_\tau^\ttime)$.
+At each episode $\ttime\in[\cK]$, the learner selects a policy $\policy^\ttime$ and observes a trajectory $(\state^\ttime_1, \action^\ttime_1,\reward^\ttime_1 , \ldots , \state_\tHorizon^\ttime)$, where the actions are selected using $\policy^\ttime$, i.e., $\action_\tau^\ttime=\policy_\ttime(\state_\tau^\ttime)$.
 
 The goal of the learner is to minimize the pseudo regret. Let $\Value^*(\state_1)$ be the optimal value function from the initial state $\state_1$. The pseudo regret is define as,
 \[
-\E[Regret] = \E[\sum_{\ttime\in[K]}\Value^*(\state_1)-\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}]
+\E[\text{Pseudo Regret}] = \E\left[\sum_{\ttime\in[\cK]}\Value^*(\state_1)-\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}\right].
 \]
 
-We now like to introduce a UCB-like algorithm. We will first assume that the learner knows the dynamics, but does not know the rewards. This will imply that the learner, given a reward function, can compute an optimal policy.
+We now would like to introduce a UCB-like algorithm. We   assume that the learner knows the dynamics, but does not know the rewards. This will imply that the learner, given a reward function, can compute an optimal policy.
 
-Let $\mu_{\state,\action}=\E[r_{\state,\action}]$ be the expected reward for $(\state,\action)$.
+Let $\mu_{\state,\action}=\E[r_{\state,\action}]$ be the expected reward for state-action $(\state,\action)$.
 %
-As in the case of UCB we will define an Upper Confidence Bound for each reward. Namely, for each state $\state$ and action $\action$ we will maintain an empirical average $\hat{\mu}^\ttime_{\state,\action}$ and a confidence parameter $\lambda^\ttime_{\state,\action}=\sqrt{\frac{2\log KSA}{n_{\state,\action}^\ttime}}$, where $n_{\state,\action}^\ttime$ is the number of times we visited state $\state$ and performed action $\action$.
+As in the case of UCB we  define an Upper Confidence Bound for each reward. Namely, for each state $\state$ and action $\action$ we will maintain an empirical average $\hat{\mu}^\ttime_{\state,\action}$ and a confidence parameter $\lambda^\ttime_{\state,\action}=\sqrt{\frac{2\log \cK SA}{\max(n_{\state,\action}^\ttime,1)}}$, where $n_{\state,\action}^\ttime$ is the number of times we visited state $\state$ and performed action $\action$.
 
-We define the good event similar to before
+We define the good event similarly to before
 \[
-G=\{\forall\state,\action, \ttime\; |\hat{\mu}^\ttime_{\state,\action}-\mu_{\state,\action}|\leq \lambda_{\state,\action}^\ttime\}
+G=\{\forall\state,\action, \ttime\; |\hat{\mu}^\ttime_{\state,\action}-\mu_{\state,\action}|\leq \lambda_{\state,\action}^\ttime\},
 \]
-and similar to before, we show that it holds with high probability, namely $1-\frac{2}{K^2}$.
+and similar to before, we show that $G$ holds with high probability, namely $1-\frac{2}{\cK^2}$.
 
 \begin{lemma}
-    We have that  $\Pr[G]\geq 1-\frac{2}{K^2}$.
+    We have that  $\Pr[G]\geq 1-\frac{2}{\cK^2}$.
 \end{lemma}
 
 \begin{proof}
-    Similar to the UCB analysis using Chernoff bounds.
+    Similar to the UCB analysis using Chernoff-Hoeffding bounds (Lemma~\ref{lem:hoeffding}).
 \end{proof}
 
-We now describe the UCB-RL algorithm. For each episode $\ttime$ we compute a UCB for each state-action, denote the resulting reward function by $\bar{R}^\ttime$. Recall that $\bar{R}^\ttime(\state,\action)=\hat{\mu}_{\state,\action}^\ttime+\lambda_{\state,\action}^\ttime$.  Let $\policy^\ttime$ the optimal policy with respect to the rewards $\bar{R}^\ttime$ (the UCB rewards).
+We now describe the UCB-RL algorithm. For each episode $\ttime$ we compute a UCB for each state-action, denote the resulting reward function by $\bar{R}^\ttime$, i.e., $\bar{R}^\ttime(\state,\action)=\hat{\mu}_{\state,\action}^\ttime+\lambda_{\state,\action}^\ttime$.  Let $\policy^\ttime$ be the optimal policy with respect to the rewards $\bar{R}^\ttime$ (the UCB rewards).
 
 The following lemma shows that we have ``optimism'', namely the expected value of $\policy^\ttime$ w.r.t. the reward function $\bar{R}^\ttime$ upper bounds the optimal reward function $\Value^*$.
 
-In the following we use the notation $\Value(\cdot|R)$ to imply that we are using the reward function $R$. We denote by $R^*$ the true reward function, i.e., $R^*(\state,\action)=\E[r_{\state,\action}]$.
+In the following, we use the notation $\Value(\cdot|R)$ to imply that we are using the reward function $R$. We denote by $R^*$ the true reward function, i.e., $R^*(\state,\action)=\E[r_{\state,\action}]=\mu_{\state,\action}$.
 
 \begin{lemma}
-    Assume the good event $G$ holds. Then, for any episode $\ttime$ we have that $\Value^{\policy^\ttime}(\state | \bar{R}^\ttime)\geq \Value^*(s|R^*)$.
+\label{MAB:lemma:UCB-RL:rewards}
+    Assume the good event $G$ holds. Then, for any episode $\ttime\in[\cK]$ we have that $\Value^{\policy^\ttime}(\state | \bar{R}^\ttime)\geq \Value^*(s|R^*)$.
     %, where $R^*$ is the true reward function.
     %$\E[\sum_{\tau=1}^\tHorizon R^\ttime$
 \end{lemma}
 
 \begin{proof}
     Since $\policy^\ttime$ is optimal for the rewards $\bar{R}^\ttime$, we have that $\Value^{\policy^\ttime}(\state | \bar{R}^\ttime)\geq \Value^{\policy^*}(\state | \bar{R}^\ttime)$.
-
 Since $\bar{R}^\ttime\geq R^*$, then we have
 $\Value^{\policy^*}(\state | \bar{R}^\ttime)\geq \Value^{\policy^*}(\state | R^*)$.
-
 Combining the two inequalities, yields the lemma.
 \end{proof}
 
-The optimism is very powerful property, as it let's us bound the pseudo regret as a function of quantities we observe, namely $\bar{R}^\ttime$, rather than unknown quantities, such as the true rewards $R^*$ or the unklnown optimal policy $\policy^*$.
+The optimism is a powerful property, as it lets us bound the pseudo regret as a function of quantities we observe, namely $\bar{R}^\ttime$, rather than unknown quantities, such as the true rewards $R^*$ or the unknown optimal policy $\policy^*$.
 
 \begin{lemma}
 \label{MAB:lemma:UCB-RL:optimism}
 Assume the good event $G$ holds. Then,
     \[
-    \E[Regret] \leq \sum_{\ttime\in [K]} \sum_{\tau=1}^\tHorizon
-    \E[2\lambda^\ttime_{\state^\ttime_\tau,\action^\ttime_\tau}]
+    \E[\text{Pseudo Regret}] \leq \sum_{\ttime\in [\cK]} \sum_{\tau=1}^\tHorizon
+    \E[2\lambda^\ttime_{\state^\ttime_\tau,\action^\ttime_\tau}]\;.
     \]
 \end{lemma}
 
 \begin{proof}
     The definition of the pseudo regret is
     \[
-    \E[Regret]= \E[\sum_{\ttime\in [K]} \Value^*(\state_1)-\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}]
+    \E[\text{Pseudo Regret}]= \E[\sum_{\ttime\in [\cK]} \Value^*(\state_1)-\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}]\;.
     \]
-
-Using Lemma~\ref{MAB:lemma:UCB-RL:optimism}, we have that,
+Using Lemma~\ref{MAB:lemma:UCB-RL:rewards}, we have that,
     \[
-    \E[Regret]= \E[\sum_{\ttime\in [K]} \Value^*(\state_1)-\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}]
+    \E[\text{Pseudo Regret}]= \E[\sum_{\ttime\in [\cK]} \Value^*(\state_1)-\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}]
     \leq
-    \sum_{\ttime\in [K]}
+    \sum_{\ttime\in [\cK]}
     \E[\Value^{\policy^\ttime}(\state_1|\bar{R}^\ttime)
     -\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}]
     %\Value^{\policy^\ttime}(\state_1|R^*)]
@@ -669,18 +735,18 @@ Using Lemma~\ref{MAB:lemma:UCB-RL:optimism}, we have that,
 Since the good event $G$ holds, we have 
 % [[YM: needed??]]
 \[
-\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} \geq \sum_{\tau=1}^\tHorizon
- \hat{\mu}_{\state_\tau^\ttime,\action_\tau^\ttime}-\lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}
+\E\left[\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}\right] \geq \sum_{\tau=1}^\tHorizon
+ \hat{\mu}_{\state_\tau^\ttime,\action_\tau^\ttime}-\lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}=\sum_{\tau=1}^\tHorizon\bar{R}^t(\state_\tau^\ttime,\action_\tau^\ttime)-2\lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}\;,
 \]
-Note that
-\[
-\E[\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} ] =\E[\Value^{\policy^\ttime}(\state_1|R^*)]
-\]
+% Note that
+% \[
+% \E\left[\sum_{\tau=1}^\tHorizon \reward^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} \right] =\E\left[\Value^{\policy^\ttime}(\state_1|R^*)\right]
+% \]
 and we have,
 \[
-\E[Regret]\leq \E[\Value^{\policy^\ttime}(\state_1|\bar{R}^\ttime)] -
-\E[\Value^{\policy^\ttime}(\state_1|R^*)]=
-\E[\sum_{\tau=1}^\tHorizon \lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} ]
+\E\left[\text{ Pseudo Regret}\right]\leq \E\left[\Value^{\policy^\ttime}(\state_1|\bar{R}^\ttime)\right] -
+\E\left[\Value^{\policy^\ttime}(\state_1|R^*)\right]=
+\E\left[\sum_{\tau=1}^\tHorizon 2\lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} \right],
 \]
 which completes the proof of the lemma.
 %Combining all the identities yields the lemma.
@@ -692,107 +758,119 @@ We can upper bound this sum regardless of the realization.
 
 \begin{lemma}
     \[
-    \sum_{\ttime\in [K]} \sum_{\tau=1}^\tHorizon
-   % \sqrt{\frac{2\log KSA}{n_{\state,\action}^\ttime}}
+    \sum_{\ttime\in [\cK]} \sum_{\tau=1}^\tHorizon
+   % \sqrt{\frac{2\log \cKSA}{n_{\state,\action}^\ttime}}
 \lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime}
-    \leq \sqrt{KSA\log (KSA)}
+    \leq \sqrt{2\cK SA\log (\cK SA)}.
     \]
 \end{lemma}
 
 \begin{proof}
-    We first change the order of summation to be over state-action pairs.
+    We first change the order of summation to be over state-action pairs, as follows,
     \[
-    \sum_{\ttime\in [K]} \sum_{\tau=1}^\tHorizon
+    \sum_{\ttime\in [\cK]} \sum_{\tau=1}^\tHorizon
 \lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} =
-\sum_{\state,\action} \sum_{\tau=1}^{n_{\state,\action}^K}
-\sqrt{\frac{2\log KSA}{\tau}}
+\sum_{\state,\action} \sum_{\tau=1}^{n_{\state,\action}^\cK}
+\sqrt{\frac{2\log \cK SA}{\max(\tau,1)}}\;.
     \]
 In the above, $\tau$ is the index of the $\tau$-th visit to the state-action pair $(\state,\action)$ at some time $\ttime$. During that visit we have that  $n_{\state,\action}^\ttime=\tau$.
 This explain the expression for the confidence intervals.
 
-Since $1/\sqrt{x}$ is a convex function, we can upper bound the sum using Jensen inequality, and have $\sum_{\tau=1}^N 1/\sqrt{\tau}\leq \sqrt{2N}$, and have
+We are interested in bounding the sum $\sum_{\tau=1}^N 1/\sqrt{\tau}$. We can do it by using the integral $\sum_{\tau=1}^N 1/\sqrt{\tau}\leq 1+ \int_1^N \frac{1}{\sqrt{x}}= 1+[2\sqrt{x}]_1^N\leq 2\sqrt{N}$.
+Therefore,
+
+%Since $1/\sqrt{x}$ is a convex function, we can upper bound the sum using Jensen inequality, and have $\sum_{\tau=1}^N 1/\sqrt{\tau}\leq \sqrt{2N}$, and have
     \[
-    \sum_{\ttime\in [K]} \sum_{\tau=1}^\tHorizon
+    \sum_{\ttime\in [\cK]} \sum_{\tau=1}^\tHorizon
 \lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} \leq
-\sqrt{2\log KSA}
+\sqrt{2\log \cK SA}
 \sum_{\state,\action}
-\sqrt{2 n_{\state,\action}^K}
+\sqrt{2 n_{\state,\action}^\cK }.
     \]
-Recall that $\sum_{\state,\action} n_{\state,\action}^K =K$. This implies that $\sum_{\state,\action}
-\sqrt{2 n_{\state,\action}^K}$ is maximized when all the $n_{\state,\action}^K$ are equal, i.e, $n_{\state,\action}^K=K/(SA)$. Hence,
+Recall that $\sum_{\state,\action} n_{\state,\action}^\cK  =\cK \tHorizon$. This implies that $\sum_{\state,\action}
+\sqrt{2 n_{\state,\action}^\cK }$ is maximized when all the $n_{\state,\action}^\cK $ are equal, i.e., $n_{\state,\action}^\cK =\cK \tHorizon/(SA)$. Hence,
     \[
-    \sum_{\ttime\in [K]} \sum_{\tau=1}^\tHorizon
+    \sum_{\ttime\in [\cK]} \sum_{\tau=1}^\tHorizon
 \lambda^\ttime_{\state_\tau^\ttime,\action_\tau^\ttime} \leq
 2
-\sqrt{SAK\log KSA}
+\sqrt{SA\cK \tHorizon\log \cK SA}\;.
     \]
 \end{proof}
 
 We can now derive the upper bound on the pseudo regret
 \begin{theorem}
     \[
-    \E[Regret] \leq 2\sqrt{KSA\log (KSA)}
+    \E[\text{Pseudo Regret}] \leq 4\sqrt{\cK \tHorizon SA\log (\cK SA)}\;.
     \]
 \end{theorem}
 
 \section{Best Arm Identification}
 
-We would like to identify the best action, or an almost best action.
-We can define the goal in one of two ways.
+We now switch the objective from minimizing the regret to identifying the best action, or a near-best action. The main conceptual difference is that we are not concern with the cumulative reward but rather with the number of rounds that it would take us to identify the near-optimal action. 
+In some sense, this is similar to a supervised learning scenario, where we would like to identify a hypothesis with low error, and our main concern is the sample complexity.
+%We would like to identify the best action, or an almost best action.
+We can define our goal in one of two ways.
 
-\paragraph{PAC criteria }
+\paragraph{PAC Criteria }
 An action $i$ is $\epsilon$-optimal if  $\mu_i\geq \mu^*-\epsilon$. The PAC criteria is
 that, given $\epsilon,\delta>0$, with probability at least
-$1-\delta$, find an $\epsilon$ optimal action.
+$1-\delta$, we find an $\epsilon$ optimal action.
 
-\paragraph{Exact identification}
+\paragraph{Exact Identification}
 Given $\Delta\le\min_{i\neq a^*}\mu^{*}-\mu_{i}$ (for every suboptimal action $i$),
-find the optimal action $\action_{*}$, with probability at least
-$1-\delta$.
+find the optimal action $\action^{*}$, with probability at least
+$1-\delta$.\\
+
+In this section, we  focus on the PAC Criteria, and our goal is to minimize the number of rounds until we output an $\epsilon$-optimal action.
 
 \subsection{Naive Algorithm (PAC criteria):}
 
-We sample each action $i$ for
+The naive approach would simply approximate the expected reward of each action within error at most $\epsilon/2$, and output the action with the highest empirical reward estimate.
+Formally, we sample each action $i$ for
 $m=\frac{8}{\epsilon^{2}}\log\frac{2k}{\delta}$ times, and return
-$a= \arg\max_{i}\hat{\mu}_{i}$ .
+$\hat{\action}^*= \arg\max_{i}\hat{\mu}_{i}$ .
 
 For rewards in $[ 0 ,1]$, then, by Lemma \ref{lem:hoeffding}, for
 every action $i$ we have
 \[
 Pr\left[\underbrace{\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}}_{\text{bad
 event}}\right]\le 2
-e^{-\left(\frac{\epsilon}{2}\right)^{2}m/2}=\frac{\delta}{k}
+e^{-\left(\frac{\epsilon}{2}\right)^{2}m/2}=\frac{\delta}{k}.
 \]
 By union bound we get:
 \[
-Pr\left[\exists_{i}\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}\right]\le\delta
+Pr\left[\exists_{i}\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}\right]\le\delta.
 \]
 
 If the bad event
 $B=\{\exists_{i}\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}\}$
-did not happen, then both: (1)
+did not happen, then: (1)
 $\mu^{*}-\frac{\epsilon}{2}\le\hat{\mu}^{*}$ and (2)
 $\mu_{i}+\frac{\epsilon}{2}\le\hat{\mu}_{i}$.
-
-This implies,
+%
+This implies, given that $\hat{\mu}_i\ge \hat{\mu}^*$, that
 \[
-\Rightarrow\text{ }\mu_{i}+\frac{\epsilon}{2}\ge\hat{\mu}_{i}\ge\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon}{2}
+\mu_{i}+\frac{\epsilon}{2}\ge\hat{\mu}_{i}\ge\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon}{2}\;,
 \]
+and hence,
 \[
-\Rightarrow\text{ }\epsilon\ge\mu^{*}-\mu_{i}
+\epsilon\ge\mu^{*}-\mu_{i}\;.
 \]
 
-And therefore $a={\displaystyle \arg\max_{i}\hat{\mu}_{i}}$ is the
-optimal action in probability $1-\delta$.
+Therefore $\hat{\action}^*= \arg\max_{i}\hat{\mu}_{i}$ is the
+optimal action with probability at least $1-\delta$. We have established the following theorem.
+\begin{theorem}
+    There is an algorithm that samples $\frac{8k}{\epsilon^{2}}\log\frac{2k}{\delta}$ times and returns an $\epsilon$-optimal action with probability at least $1-\delta$.
+\end{theorem}
 
-We would like to slightly improve the sample size of this algorithm
 
-\subsection{Median Algorithm}
+\subsection{Sequential Halving Algorithm}
 
-The idea: the algorithm runs for $l$ phases, after each phase we
+In this section, we would like to slightly improve the sample size of the naive PAC Algorithm from the previous section. Our end result is fairly modest, we  reduce the $ O(\log\frac{2k}{\delta})$ factor to O($\log\frac{1}{\delta})$.
+
+The main idea is as follows. The algorithm runs for $l=O(\log k)$ phases, after each phase we
 eliminate half of the actions. This elimination allows us to sample
-each action more times in the next phase which makes eliminating the
-optimal action less likely.
+each remaining action more times in the next phase, which makes eliminating the optimal action less likely.
 
 % \begin{algorithm_}
 % \textbf{Input}: $\epsilon,\delta>0$
@@ -849,82 +927,81 @@ optimal action less likely.
 \end{algorithmic}
 \end{algorithm}
 
-\paragraph{Complexity:}
+\paragraph{Sample Complexity:}
 
 During phase $l$ we have $\left|S_{l}\right|=\frac{k}{2^{l-1}}$
-actions. We are setting the accuracy and confidence parameters as follows.
+actions. We are setting the accuracy and confidence parameters as follows,
 \[
-\epsilon_{l}=\frac{3}{4}\epsilon_{l-1}=\frac{\epsilon}{4}\left(\frac{3}{4}\right)^{l-1},\;\;\;\delta_{l}=\frac{\delta}{2^{l}}
+\epsilon_{l}=\frac{3}{4}\epsilon_{l-1}=\frac{\epsilon}{4}\left(\frac{3}{4}\right)^{l-1},\;\;\;\delta_{l}=\frac{\delta}{2^{l}}\;.
 \]
-This implies that the sum of the accuracy and confidence parameters over the phases would be,
+This implies that the sum of the accuracy and confidence parameters over all the phases is,
 \[
  \sum_l\epsilon_{l}\le\frac{\epsilon}{4}\left(\frac{3}{4}\right)^{l-1}\le \epsilon, \text{ and } \sum_l\delta_{l}\le\sum_l \frac{\delta}{2^{l}} \le\delta
 \]
 
 In phase $l$ we have $S_l$ as the set of actions. For each action in $S_l$ we sample $m(\epsilon_l,\delta_l)$ samples.
-The total number of samples is therefore:
+The total number of samples is
 
 \begin{align*}
  \sum_l |S_l| \cdot \frac{4}{\epsilon_l^2}\log \frac{3}{\delta_l} &=
 \sum_{l}\frac{k}{2^{l-1}}\frac{64}{\epsilon^{2}}\left(\frac{16}{9}\right)^{l-1}\log\frac{3\cdot2^{l}}{\delta}\\
 & =  {\displaystyle \sum_{l}k\left(\frac{8}{9}\right)^{l-1}\left[c\cdot\frac{\log\frac{1}{\delta}}{\epsilon^{2}}+\frac{\log3}{\epsilon^{2}}+\frac{l}{\epsilon^{2}}\right]}\\
 \\
- & =  O\left(\frac{k}{\epsilon^{2}}\log\frac{1}{\delta}\right)
+ & =  O\left(\frac{k}{\epsilon^{2}}\log\frac{1}{\delta}\right).
 \end{align*}
 
 
 \paragraph{Correctness:}
-The following lemma is the main tool in establishing the correctness of the algorithm. It shows that when we move from phase $l$ to phase $l+1$ with high probability ($1-\delta_l$) the decrease in accuracy is at most $\epsilon_l$
+The following lemma is the main tool in establishing the correctness of the algorithm. It shows that when we move from phase $l$ to phase $l+1$, with high probability (i.e., $1-\delta_l$), the decrease in accuracy is at most $\epsilon_l$.
 
 \begin{lemma}
 Given $S_l$, we have
 $$Pr\left[\underbrace{{\displaystyle \max_{j\in
-S_{l}}\mu_{j}}}_{\text{best action
-\ensuremath{l}}}\le\underbrace{{\displaystyle \max_{j\in
-S_{l+1}}\mu_{j}}}_{\text{best action
-\ensuremath{l+1}}}+\epsilon_{l}\right]\ge1-\delta_{l}$$
+S_{l}}\mu_{j}}}_{\text{best action in 
+\ensuremath{S_l}}}\le\underbrace{{\displaystyle \max_{j\in
+S_{l+1}}\mu_{j}}}_{\text{best action in
+\ensuremath{S_{l+1}}}}+\epsilon_{l}\right]\ge1-\delta_{l}.$$
 \end{lemma}
 
 \begin{proof}
-%We do the proof for $l=1$, general $l$ is similar.
-Let $\mu^*_l=\max_{j\in S_l} \mu_j$, the expected reward of the best action in $S_l$, and $a^*_l=\arg\max_{j\in S_l} \mu_j$ be the best action in $S_l$.
-Define the bad event $E_{l}=\left\{\hat{\mu}^{*}_l<\mu^{*}_l-\frac{\epsilon_{1}}{2}\right\}$. (Note that $E_l$ depends only on the action $a^*_l$. Since we sample $a^*_l$ for $m(\epsilon_l,\delta_l)$ times, we have that $Pr\left[E_{l}\right]\le\frac{\delta_{l}}{3}$. If $E_{l}$ did not happen, we define a bad set of actions:
+Let $\mu^*_l=\max_{j\in S_l} \mu_j$, the expected reward of the best action in $S_l$, and $a^*_l\in\arg\max_{j\in S_l} \mu_j$ be a best action in $S_l$.
+Define the bad event $E_{l}=\left\{\hat{\mu}^{*}_l<\mu^{*}_l-\frac{\epsilon_{1}}{2}\right\}$. (Note that $E_l$ depends only on the action $a^*_l$.) Since we sample $a^*_l$ for $m(\epsilon_l,\delta_l)$ times, we have that $\Pr\left[E_{l}\right]\le\frac{\delta_{l}}{3}$. If $E_{l}$ did not happen, we define a bad set of actions:
 \[
-\text{Bad}=\left\{ j\text{ }:\text{ }\mu^{*}_l-\mu_{j}>\epsilon_{l},\text{ }\hat{\mu}_{j}\ge\hat{\mu}^{*}\right\}
+\text{Bad}=\left\{ j\text{ }:\text{ }\mu^{*}_l-\mu_{j}>\epsilon_{l},\text{ }\hat{\mu}_{j}\ge\hat{\mu}^{*}\right\}\;.
 \]
-The set $Bad$ includes the actions which have a better empirical average than $a_l^*$, and the difference in the expectation is more than $\epsilon_l$. We would like to show that $S_{l+!}\not\subseteq Bad$, and hence includes at least one action which has expectation of at most $\epsilon_l$ from $\mu^*_l$.
+The set $Bad$ includes the actions which have a better empirical average than $a_l^*$, and the difference in the expectation is more than $\epsilon_l$. We would like to show that $S_{l+1}\not\subseteq Bad$, and hence includes at least one action which has expectation of at most $\epsilon_l$ from $\mu^*_l$.
 
 
-Consider an action $j$ such that $\mu^*-\mu_j > \epsilon_l$, then:
+Consider an action $j$ such that $\mu^*_l-\mu_j > \epsilon_l$, then:
 \begin{align*}
-Pr[\hat{\mu}_{j}>
-\hat{\mu}^{*}|\underbrace{\hat{\mu}^{*}_l\ge\mu^{*}-\frac{\epsilon_{l}}{2}}_{\urcorner
-E_{l}}\big] & \le Pr[\hat{\mu}_{j}> \mu^{*}_l-\frac{\epsilon_{l}}{2}]\\
+\Pr\Big[\hat{\mu}_{j}>
+\hat{\mu}^{*}_l|\underbrace{\hat{\mu}^{*}_l\ge\mu^{*}_l-\frac{\epsilon_{l}}{2}}_{\urcorner
+E_{l}}\Big] & \le \Pr\Big[\hat{\mu}_{j}> \mu^{*}_l-\frac{\epsilon_{l}}{2}| \neg E_l\Big]\\
 &\leq
-Pr[\hat{\mu}_{j}\ge\mu_{j}+\frac{\epsilon_{l}}{2}|\urcorner E_{l}]
-\le  \frac{\delta_{1}}{3}
+\Pr\Big[\hat{\mu}_{j}\ge\mu_{j}+\frac{\epsilon_{l}}{2}|\urcorner E_{l}\Big]\\
+&\le  \frac{\delta_{l}}{3},
 \end{align*}
-where the second inequality follows since $\mu^*_l-\epsilon_l/2 > \mu_j+\epsilon_l/2$, which follows since $\mu^*_l-\mu_j>\epsilon_l$.
+where the second inequality follows since $\mu^*_l-\epsilon_l/2 > \mu_j+\epsilon_l/2$, which follows since $\mu^*_l-\mu_j>\epsilon_l$. The last inequality follows from the Chernoff-Hoeffding bound (Lemma~\ref{lem:hoeffding}) and the fact that the samples are independent.
 
 
 
-Note that the failure probability is not negligible, and our main aim is to avoid a union bound which will introduce a $\log k$ factor. We will show that it cannot happen to too many such actions. We will bound the expectation of the size of $Bad$,
+Note that the failure probability is not negligible, and our main aim is to avoid a union bound, which  introduces a $O(\log k)$ factor. We  show that it cannot happen to too many such actions. We  bound the expectation of the size of $Bad$,
 \[
-E[|\text{Bad}||\urcorner E_{l}]\le |Bad|\frac{\delta_{1}}{3}
+\E\Big[|\text{Bad}|\;|\urcorner E_{l}\Big]\le |\text{Bad}|\frac{\delta_{l}}{3},
 \]
  with Markov's inequality we get:
 \[
-Pr\left[\left|\text{Bad}\right|\ge\frac{k}{2}\right|\urcorner E_{l}]
- \le  \frac{E\left|\text{Bad}\right|}{|Bad|/2}
-  =  \frac{2}{3}\delta_{l}
+\Pr\left[\left|\text{Bad}\right|\ge\frac{k}{2}|\urcorner E_{l}\right]
+ \le  \frac{\E\left|\text{Bad}\right|}{|\text{Bad}|/2}
+  =  \frac{2}{3}\delta_{l},
 \]
- with probability $1-\delta_{l}$: $\hat{\mu}^{*}\ge\mu^{*}-\frac{\epsilon_{1}}{2}$ and $\left|\text{Bad}\right|\le\frac{k}{2}$. Therefore: $\exists_{j}\notin\text{Bad}$ and $j\in S_{l+1}$.
+ with probability $1-\delta_{l}$: $\hat{\mu}^{*}_l\ge\mu^{*}-\frac{\epsilon_{l}}{2}$ and $\left|\text{Bad}\right|<\frac{k}{2}$. Therefore, there exists an action $j\in S_{l+1}$ for which $j \notin\text{Bad}$.
 \end{proof}
 
 Given the above lemma, we can conclude with the following theorem.
 
 \begin{theorem}
-The median elimination algorithm guarantees that with probability at least $1-\delta$ we have that $\mu^*-\mu_{\hat{a}}\leq \epsilon$
+The Sequential Halving Algorithm guarantees that, with probability at least $1-\delta$, we have that $\mu^*-\mu_{\hat{a}}\leq \epsilon$.
 \end{theorem}
 
 \begin{proof}
@@ -937,12 +1014,12 @@ this implies that
 \mu^*=\max_{j\in
 A} \mu_{j} \leq \mu_{\hat{a}} \sum_l \epsilon_{l}\leq \mu_{\hat{a}} +\epsilon.
 \]
-Recall that $S_1=A$ and $S_{\log K} =\{\hat{a}\}$.
+Recall that $S_1=A$ and $S_{\log k} =\{\hat{a}\}$.
 \end{proof}
 
-\section{Bibliography Remarks}
+\section{Bibliography Notes}
 
-Multi-arm bandits date back to Robbins \cite{Robbins52} who defines (implicitly) asymptotic vanishing regret for two stochastic actions. The tight regret bounds where given by Lai and Robbins \cite{LaiR85}. The UCB algorithm was presented in \cite{AuerCF02}. The action elimination is from \cite{Even-DarMM06}, as well as the Median algorithm. Our presentation of the analysis of UCB and action elimination borrows from the presentation in  \cite{Slivkins-book-19}.
+Multi-arm bandits date back to Robbins \cite{Robbins52} who defines (implicitly) asymptotic vanishing regret for two stochastic actions. The tight upper and lower asymptotical regret bounds were given by Lai and Robbins \cite{LaiR85}. The UCB algorithm was presented in \cite{AuerCF02}. The action elimination is from \cite{Even-DarMM06}, as well as the Sequential Halving algorithm. Our presentation of the analysis of UCB and action elimination borrows from the presentation in  \cite{Slivkins-book-19}. Regret bounds for MDPs using an extension of the UCB idea were first presented by \citep{auer2008near}. \citep{burnetas1997optimal} developed asymptotic regret bounds for MDPs. A recent manuscript \citep{agarwal2019reinforcement} extensively covers online regret minimization in MDPs.
 
 
-There are multiple books that cover online learning and multi-arm bandit. By now, the classical book of Cesa{-}Bianchi and Lugosi \cite{Cesa-Bianchi-Lugosi-book}, mainly on adversarial online learning. The book of Slivkins \cite{Slivkins-book-19} covers mainly stochastic multi-arm bandits. The book of Lattimore and Szepesv{\'a}ri \cite{Lattimore-Csaba-book-2020} covers many topics of adversarial bandits and online learning.
+There are multiple books that cover online learning and multi-arm bandit. The classical book of Cesa{-}Bianchi and Lugosi \cite{Cesa-Bianchi-Lugosi-book} studies adversarial online learning. The book of Slivkins \cite{Slivkins-book-19} covers mainly stochastic multi-arm bandits. The book of Lattimore and Szepesv{\'a}ri \cite{Lattimore-Csaba-book-2020} covers both adversarial bandits and online learning. The book of \citep{hazan2016introduction} covers online convex optimization.

@@ -65,7 +65,7 @@ Consider a system of linear differential equations represented in matrix form as
 \begin{equation}\label{eq:lin_ODE}    
 \mathbf{y}' = A \mathbf{y} + \mathbf{b},
 \end{equation}
-where $ \mathbf{y} $ is a vector of unknown functions, $ A $ is a matrix of coefficients, and $ \mathbf{b} $ is a vector of constants. This compact form encapsulates a system where each derivative of the component functions in $ \mathbf{y} $ depends linearly on all other functions in $ \mathbf{y} $ and possibly some external inputs $ \mathbf{b} $. We shall now present the general solution to the ODE \eqref{eq:lin_ODE}.
+where $ \mathbf{y} $ is a vector of unknown functions, $ A $ is a matrix of coefficients, and $ \mathbf{b} $ is a vector of constants. This compact form encapsulates a system where each derivative of the component functions in $ \mathbf{y} $ depends linearly on all other functions in $ \mathbf{y} $ and possibly some external inputs $ \mathbf{b} $. We shall now present the general solution to the ODE in Equation \eqref{eq:lin_ODE}.
 
 Let us first define the matrix exponential.
 
@@ -124,20 +124,21 @@ We will be interested in the asymptotic behavior of ODE solutions. In particular
 \begin{definition}[Stability]
 A solution \( y(x) \) of a differential equation is called \textbf{stable} if, for every \( \epsilon > 0 \), there exists a \( \delta > 0 \) such that for any other solution \( \tilde{y}(x) \) with \( |\tilde{y}(0) - y(0)| < \delta \), it holds that \( |\tilde{y}(x) - y(x)| < \epsilon \) for all \( x \geq 0 \).    
 \end{definition}
+
 \begin{definition}[Asymptotic Stability]
-A solution \( y(x) \) of a differential equation is called \textbf{globally asymptotically stable} if for any other solution \( \tilde{y}(x) \), we have  \( \lim_{x \to \infty} |\tilde{y}(x) - y(x)| = 0 \).
+A solution \( y(x) \) of a differential equation is called \textbf{asymptotically stable} if it is stable and additionally, there exists a \( \delta > 0 \) such that if \( |\tilde{y}(0) - y(0)| < \delta \), then \( \lim_{x \to \infty} |\tilde{y}(x) - y(x)| = 0 \).
 \end{definition}
 
-Intuitively, asymptotic stability means that not only do perturbations remain small, but they also decay to zero as $x$ progresses, causing the perturbed solutions to eventually converge to the stable solution. 
+Intuitively, asymptotic stability means that not only do perturbations remain small, but they also decay to zero as $x$ progresses, causing the perturbed solutions to eventually converge to the stable solution. A stronger condition is global asymptotic stability, under which the system converges for every initial condition.
 
 \begin{definition}[Global Asymptotic Stability]
-A solution \( y(x) \) of a differential equation is called \textbf{asymptotically stable} if it is stable and additionally, there exists a \( \delta > 0 \) such that if \( |\tilde{y}(0) - y(0)| < \delta \), then \( \lim_{x \to \infty} |\tilde{y}(x) - y(x)| = 0 \).
+A solution \( y(x) \) of a differential equation is called \textbf{globally asymptotically stable} if for any other solution \( \tilde{y}(x) \), we have  \( \lim_{x \to \infty} |\tilde{y}(x) - y(x)| = 0 \).
 \end{definition}
 
 We have the following result for the system of linear differential equations in \eqref{eq:lin_ODE}.
 
 \begin{theorem}
-Consider the ODE in \eqref{eq:lin_ODE}, and let $A\in \mathbb{R}^{N \times N}$ be diagonizable. If all the eigenvalues of $A$ have a negative real part, and let $\mathbf{y}_p$ such that $A\mathbf{y}_p = -\mathbf{b}$, then $y = \mathbf{y}_p$ is a globally asymptotically stable solution.
+Consider the ODE in Equation \eqref{eq:lin_ODE}, and let $A\in \mathbb{R}^{N \times N}$ be diagonalizable. If all the eigenvalues of $A$ have a negative real part, and let $\mathbf{y}_p$ such that $A\mathbf{y}_p = -\mathbf{b}$, then $y = \mathbf{y}_p$ is a globally asymptotically stable solution.
 \end{theorem}
 
 \begin{proof}

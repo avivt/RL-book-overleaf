@@ -275,7 +275,7 @@ u_i$, and the matrix $[\Delta\Theta]=[\cdots
 \Delta\theta^{(i)},\cdots]^\top$, where the $i$-th row is
 $\Delta\theta^{(i)}$.
 
-We would like to solve for the gradient, i.e,
+We would like to solve for the gradient, i.e.,
 \[
 \Delta J\approx [\Delta \Theta]x\;.
 \]
@@ -337,7 +337,7 @@ $\policy$, rather than summing over all actions.
 
 Consider the following simple identity,
 \begin{equation}\label{eq:log_likelihood_trick}
-\nabla f(x)=f(x)\frac{\nabla f(x)}{f(x)}=f(x)\nabla \log f(x)
+\nabla f(x)=f(x)\frac{\nabla f(x)}{f(x)}=f(x)\nabla \log f(x).
 \end{equation}
 This implies that we can restate the Policy Gradient Theorem as the
 following corollary,
@@ -410,7 +410,7 @@ and the policy gradient theorem gives us the same expression,
 \policy(\action_1;\theta)+\reward_2 \nabla
 \policy(\action_2;\theta)=\reward_1 \begin{pmatrix} p_1(1-p_1)\\
 -p_1(1-p_1)\end{pmatrix} + \reward_2 \begin{pmatrix} -p_1(1-p_1)\\
-p_1(1-p_1)\end{pmatrix}
+p_1(1-p_1)\end{pmatrix},
 \]
 where we used the fact that there is only a single state $\state$,
 and that $\QValue^\policy(\state,\action_i)=\reward_i$.
@@ -437,9 +437,8 @@ $J(\theta)=p_1p_2$. We can also compute the gradient and have
 \[
 \nabla J(\theta)=\begin{pmatrix}p_1(1-p_1)p_2\\
 -p_1(1-p_1)p_2 \\  p_1 p_2 (1-p_2) \\ -p_1 p_2 (1-p_2)\end{pmatrix}= p_1 p_2\begin{pmatrix}(1-p_1)\\
--(1-p_1) \\  (1-p_2) \\ - (1-p_2)\end{pmatrix}
+-(1-p_1) \\  (1-p_2) \\ - (1-p_2)\end{pmatrix}.
 \]
-
 The policy gradient theorem will use the following ingredients. The
 $\QValue^\policy$ is: $\QValue^\policy(\state_0,\action_1)=p_2$,
 $\QValue^\policy(\state_1,\action_1)=1$ and all the other entries are
@@ -451,31 +450,29 @@ state is:
 \nabla \policy(\action_1|\state_0;\theta)=
 p_1\begin{pmatrix}1\\0\\0\\0\end{pmatrix} - p^2_1
 \begin{pmatrix}1\\0\\0\\0\end{pmatrix} - p_1(1-p_1)
-\begin{pmatrix}0\\1\\0\\0\end{pmatrix} = p_1(1-p_1)\begin{pmatrix}1\\-1\\0\\0\end{pmatrix}
+\begin{pmatrix}0\\1\\0\\0\end{pmatrix} = p_1(1-p_1)\begin{pmatrix}1\\-1\\0\\0\end{pmatrix}.
 \]
 Similarly
 \[
 \nabla \policy(\action_1|\state_1;\theta)=
 p_2\begin{pmatrix}0\\0\\1\\0\end{pmatrix} - p_2^2
 \begin{pmatrix}0\\0\\1\\0\end{pmatrix} - p_2(1-p_2)
-\begin{pmatrix}0\\0\\0\\1\end{pmatrix} = p_2(1-p_2)\begin{pmatrix}0\\0\\1\\-1\end{pmatrix}
+\begin{pmatrix}0\\0\\0\\1\end{pmatrix} = p_2(1-p_2)\begin{pmatrix}0\\0\\1\\-1\end{pmatrix}.
 \]
 The policy gradient theorem states that the expected return gradient
 is
-
 \[
 \discdist^{\policy}(\state_0)\QValue^\policy(\state_0,\action_1)\policy(\action_1|\state_0;\theta)
 \nabla \log \policy(\action_1|\state_0;\theta) +
 \discdist^{\policy}(\state_1)\QValue^\policy(\state_1,\action_1)\policy(\action_1|\state_1;\theta)
-\nabla \log \policy(\action_1|\state_1;\theta)
+\nabla \log \policy(\action_1|\state_1;\theta),
 \]
-
-where we dropped all the terms that evaluate to zero. plugging in
+where we dropped all the terms that evaluate to zero. Plugging in
 our values we have
 \[
 p_2 p_1 (1-p_1)\begin{pmatrix}1\\-1\\0\\0\end{pmatrix} + p_1 p_2
 (1-p_2)\begin{pmatrix}0\\0\\1\\-1\end{pmatrix} = p_1 p_2\begin{pmatrix}(1-p_1)\\
--(1-p_1) \\  (1-p_2) \\ - (1-p_2)\end{pmatrix}
+-(1-p_1) \\  (1-p_2) \\ - (1-p_2)\end{pmatrix},
 \]
 which is identical to $\nabla J(\theta)$.
 \end{example}
@@ -495,8 +492,8 @@ Using Corollary \ref{thm:policy-gradient-corr}, we calculate:
 \begin{equation*}
     \begin{split}
         \nabla \log \policy(\action) &= \frac{\action - \theta}{\sigma^2}, \\
-        \nabla J(\theta) &= \mathbb{E}^{\policy} \left[\frac{\action(\action - \theta)}{\sigma^2}\right] \\
-        &= \frac{1}{\sigma^2} \left(\mathbb{E}^{\policy} [\action^2] - (\mathbb{E}^{\policy} [\action])^2\right) = 1.
+        \nabla J(\theta) &= \mathbb{E}^{\policy} \left[\frac{\action(\action - \theta)}{\sigma^2}\right] 
+        = \frac{1}{\sigma^2} \left(\mathbb{E}^{\policy} [\action^2] - (\mathbb{E}^{\policy} [\action])^2\right) = 1.
     \end{split}
 \end{equation*}
 Note the intuitive interpretation of the policy gradient here: we average the difference of an action from the mean action $\action-\theta$ and the value it yields $\QValue^\policy(\state,\action)=\action$. In this case, actions above the mean lead to higher reward, thereby `pushing' the mean action $\theta$ to increase. Note that indeed the optimal value of $\theta$ is infinite.
@@ -537,7 +534,7 @@ For the log-linear policy class,  we have
 \[
 \nabla_{\theta_{\state,\action}} \log
 \policy(\action|\state;\theta) = \nabla \log \theta_{\state,\action} - \nabla\log \sum_b \theta_{\state,b}=
-\frac{1}{\theta_{\state,\action}}-\frac{1}{\sum_b \theta_{\state,b}}.
+\frac{1}{\theta_{\state,\action}}-\frac{1}{\sum_b \theta_{\state,b}},
 \]
 and for $b'\neq \action$,
 \[
@@ -610,17 +607,31 @@ Given this, we can restate the Policy Gradient Theorem as,
 (\state,\action) - b(\state)\right)\nabla \log \policy(\action|\state).
 \]
 This gives us a degree of freedom to select $b(\state)$. Note that
-by setting $b(\state)=0$ we get the original theorem. In many cases
-it is reasonable to use for $b(\state)$ the value of the state,
-i.e., $b(\state)=\Value^\policy(\state)$. The motivation for this is
-to reduce the variance of the estimator. If we assume that the
-magnitude of the gradients $\|\nabla
-\log \policy(\action|\state)\|$ is similar for all actions
-$\action\in \Actions$, we are left with $\mathbb{E}^\policy
-[(Q^\policy(\state,\action)-b(\state))^2]$ which is minimized by
+by setting $b(\state)=0$ we get the original theorem. However, we can select $b(\state)$ in a way that makes estimating the gradient easier, for example, by reducing the variance of the estimator.
+\begin{proposition}
+    The variance of $\nabla J(\theta)$ is minimized by $b(\state) = \frac{\sum_{\action\in\Actions} \policy(\action|\state) \left(\nabla \log \policy(\action|\state)\right)^2 \QValue^\policy(\state,\action)}{\sum_{\action\in\Actions} \policy(\action|\state) \left(\nabla \log \policy(\action|\state)\right)^2}$.
+\end{proposition}
+\begin{proof}
+Consider the random variable $\left(\QValue^\policy(\state,\action) - b(\state)\right)\nabla \log \policy(\action|\state)$. Its expectation is $\nabla J(\theta)$, for any $b(\state)$. Its variance is $$
+\sum_{\state \in \States} \discdist^{\policy}(\state) \sum_{\action\in\Actions} \policy(\action|\state) \left(\left(\QValue^\policy(\state,\action) - b(\state)\right)\nabla \log \policy(\action|\state)\right)^2 - \left(\nabla J(\theta)\right)^2.
+$$
+Taking a gradient with respect to $b(\state)$ and equating to $0$ gives:
+\begin{equation*}    
+\begin{split}
+    0 &= \discdist^{\policy}(\state) \sum_{\action\in\Actions} \policy(\action|\state) \left(\nabla \log \policy(\action|\state)\right)^2 2 \left(b(\state) - \QValue^\policy(\state,\action)\right) \\
+    b(\state) &= \frac{\sum_{\action\in\Actions} \policy(\action|\state) \left(\nabla \log \policy(\action|\state)\right)^2 \QValue^\policy(\state,\action)}{\sum_{\action\in\Actions} \policy(\action|\state) \left(\nabla \log \policy(\action|\state)\right)^2}.
+\end{split}
+\end{equation*}
+\end{proof}
+In many cases it is reasonable to use for $b(\state)$ the value of the state,
+i.e., $b(\state)=\Value^\policy(\state)$. If we assume that the
+magnitude of the gradients $|\nabla
+\log \policy(\action|\state)|$ is similar for all actions
+$\action\in \Actions$, the variance is minimized 
+% we are left with $\mathbb{E}^\policy[(Q^\policy(\state,\action)-b(\state))^2]$ which is minimized 
+by
 $b(\state)=\mathbb{E}^\policy[Q^\policy(\state,\action)]=\Value^\policy(\state)$.
-
-The following example shows this explicitly.
+The following example shows an explicit case for this.
 \begin{example}
     Consider the bandit setting of Example \ref{example:gaussian_bandit}, where we recall that
 $        \reward(\action) = \action, \quad
@@ -641,9 +652,8 @@ and we can calculate the variance
         &=\frac{1}{\sigma^4}\mathbb{E}\left[(\action-\theta)^4 + (\theta-b)^2(\action - \theta)^2 - 1\right],
 \end{split}
 \end{equation*}
-which is minimized for $b=\theta = \Value(\state)$.
+which is minimized for $b=\theta = \Value^{\policy}(\state)$.
 \end{example}
-
 
 We are left with the challenge of approximating
 $\Value^\policy(\state)$. On the one hand this is part of the
@@ -686,11 +696,11 @@ $b(\state)$. Note that now we have two parameter vectors: $\theta$ for the polic
 \State \quad Set $\Gamma_\ttime = R_{\ttime:\tau}-V(\state_\ttime;\weight_j)$
 \State \quad Update policy parameters:
 \[
-\theta_{j+1} = \theta_j + \alpha \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_\theta \log \policy(\action_\ttime | \state_\ttime; \theta_j)
+\theta_{j+1} = \theta_j + \alpha \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_\theta \log \policy(\action_\ttime | \state_\ttime; \theta_j).
 \]
 \State \quad Update value parameters:
 \[
-\weight_{j+1} = \weight_j + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight_j)
+\weight_{j+1} = \weight_j + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight_j).
 \]
 \end{algorithmic}
 \end{algorithm}
@@ -728,13 +738,12 @@ thats we will not have such a bias.
 
 Let the expected square error of $\weight$ is
 \[
-SE(\weight)=\frac{1}{2}\mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))^2]
+SE(\weight)=\frac{1}{2}\mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))^2].
 \]
-
 A value function is {\em compatible} if,
 \[
 \nabla_\weight Q(\state,\action;\weight)= \nabla_\theta
-\log \policy(\action|\state;\theta)
+\log \policy(\action|\state;\theta).
 \]
 
 
@@ -754,7 +763,7 @@ Since $\weight$ minimizes $SE(\weight)$ we have
 &= \nabla_\weight \mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))^2]\\
 &=
 \mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))\nabla_\weight
-Q(\state,\action;\weight)]
+Q(\state,\action;\weight)].
 \end{align*}
 Since $Q$ is compatible, we have $\nabla_\weight
 Q(\state,\action;\weight)= \nabla_\theta \log
@@ -762,17 +771,17 @@ Q(\state,\action;\weight)= \nabla_\theta \log
 \begin{align*}
 0&=
 \mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))\nabla_\theta
-\log \policy(\action|\state;\theta)]
+\log \policy(\action|\state;\theta)],
 \end{align*}
 and have
 \begin{align*}
- \mathbb{E}^\policy[Q^\policy(\state,\action)\nabla_\theta \log \policy(\action|\state;\theta)] = \mathbb{E}^\policy[Q(\state,\action;\weight)\nabla_\theta \log \policy(\action|\state;\theta)]
+\mathbb{E}^\policy[Q^\policy(\state,\action)\nabla_\theta \log \policy(\action|\state;\theta)] = \mathbb{E}^\policy[Q(\state,\action;\weight)\nabla_\theta \log \policy(\action|\state;\theta)].
 \end{align*}
 This implies that by substituting $Q$ in the policy gradient theorem
 we have
 \[
 \nabla_\theta J(\theta) = \sum_{\ttime=1}^\tau \mathbb{E}^\policy[Q(\state,\action;\weight)
-\nabla \log \policy(\action|\state;\theta)]
+\nabla \log \policy(\action|\state;\theta)].
 \]
 \end{proof}
 
@@ -822,7 +831,7 @@ Convex functions do not have local minima. However, as the following example sho
 \end{figure}
 
 \begin{example}\label{example:non_convex}
-    A convex function $f(x)$ satisfies $f(\lambda x_1 + (1-\lambda) x_2) \leq \lambda f(x_1) + (1-\lambda) x_2$. A concave function satisfies $f(\lambda x_1 + (1-\lambda) x_2) \geq \lambda f(x_1) + (1-\lambda) x_2$.
+    A convex function $f(x)$ satisfies $f(\lambda x_1 + (1-\lambda) x_2) \leq \lambda f(x_1) + (1-\lambda) f(x_2)$. A concave function satisfies $f(\lambda x_1 + (1-\lambda) x_2) \geq \lambda f(x_1) + (1-\lambda) f(x_2)$.
     We will show that MDPs are not necessarily convex or concave in the policy.
 
     Consider an MDP with two states $\state_1, \state_2$. In $\state_1$, taking action $\action_1$ transitions to $\state_2$ with 0 reward, while action $\action_2$ terminates with 0 reward. In state $\state_2$, taking action $\action_1$ terminates with reward $0$, and taking action $\action_2$ terminates with reward $10$. Consider two policies: $\policy_1$ chooses $\action_1$ in both states, and $\policy_2$ chooses $\action_2$ in both states. We have that $\Value^{\policy_1}(\state_1) = 0$ and $\Value^{\policy_2}(\state_1) = 0$. 
@@ -882,7 +891,7 @@ $$\policy^*(\action|\state) = \begin{cases}
 Consider any $\theta^*$ such that for all $\state,\action$ satisfies $$\theta^*_{\state,\action} = \begin{cases}
         >0 & \text{if } \QValue^{\policy^*}(\state,\action) = \Value^{\policy^*}(\state), \\
 0 & \text{else }.
-\end{cases}.$$ 
+\end{cases}$$ 
 By the above, we have that for the optimal action $\frac{\partial J(\theta)}{\partial \theta_{\state,\action}} = 0$, and for non-optimal actions $\QValue^{\policy^*}(\state,\action) - \Value^{\policy^*}(\state) < 0$, therefore, $\frac{\partial J(\theta)}{\partial \theta_{\state,\action}} < 0$ and $\tilde{\frac{\partial J(\theta)}{\partial \theta_{\state,\action}}} = 0$.
 % Therefore, if $\theta_{\state,\action} \neq 0$, we have that $\frac{\partial J(\theta)}{\partial \theta_{\state,\action}} = 0$ only if $\QValue^{\policy}(\state,\action) = \Value^{\policy}(\state)$
 
@@ -958,7 +967,7 @@ For each state $\state$ we have
 \nabla \Value^\policy(\state_2)\\
 =& \sum_{\state\in
 \States}\sum_{t=0}^\infty \Pr(\state_t = \state | \state_0 = \state, \policy) \sum_\action
-\QValue^\policy(\state,\action)\nabla\policy(\action|\state)
+\QValue^\policy(\state,\action)\nabla\policy(\action|\state),
 \end{align*}
 where the first identity follows since by averaging $Q^\policy(\state,\action)$ over the actions $\action$, with the
 probabilities induce by $\policy(\action|\state)$, we have both correct expectation of the immediate reward and the next state is distributed correctly. The second equality follows from the gradient of a multiplication, i.e., $\nabla AB=A\nabla B+B\nabla A$. The third follows since 
@@ -975,7 +984,7 @@ Using this we have
 \nabla J(\theta) &= \nabla \sum_{\state} \initdist(\state) \Value^\policy (\state)\\
 &= \sum_\state \initdist(\state) \left(\sum_{t=0}^\infty \Pr(\state_t = \state | \state_0 = \state, \policy) \right) \sum_\action \QValue^\policy (\state,\action) \nabla\policy(\action|\state) \\
 &= \sum_\state \left(\sum_{t=0}^\infty \Pr(\state_t = \state | \initdist, \policy) \right) \sum_\action \QValue^\policy (\state,\action) \nabla\policy(\action|\state) \\
-&= \sum_\state \discdist^{\policy}(\state) \sum_\action \nabla\policy(\action|\state) \QValue^\policy (\state,\action) \\
+&= \sum_\state \discdist^{\policy}(\state) \sum_\action \nabla\policy(\action|\state) \QValue^\policy (\state,\action) ,
 \end{align*}
 where the last equality is by definition of $\discdist^{\policy}$.
 \end{proof}
@@ -991,7 +1000,7 @@ We begin by denoting by $\rollout$ a random rollout from the policy, $\rollout =
 \end{equation}
 We therefore have that
 \begin{equation*}
-    J(\theta) = \mathbb{E}^{\policy}\left[ \reward(\rollout) \right] = \sum_{\rollout} \Pr(\rollout) \reward(\rollout)
+    J(\theta) = \mathbb{E}^{\policy}\left[ \reward(\rollout) \right] = \sum_{\rollout} \Pr(\rollout) \reward(\rollout),
 \end{equation*}
 and, by using a similar trick to \eqref{eq:log_likelihood_trick}, we have that 
 \begin{equation*}
@@ -1034,7 +1043,7 @@ which is equivalent to the expression in Corollary \ref{thm:policy-gradient-corr
 
 \paragraph{Partially Observed States} We note that the derivation of \eqref{eq:pg_score_1} follows through if we consider policies that cannot access the state, but only some encoding $\phi$ of it, $\policy(\action|\phi(\state))$. Even though the optimal Markov policy in an MDP is deterministic, the encoding may lead to a system that is not Markovian anymore, by
 coalescing certain states which have identical encoding. Considering stochastic policies and using a policy gradient approach can be beneficial in such situations, as demonstrated in the following example. 
-\begin{example}[Aliased Grid-world]
+\begin{example}[Aliased Grid-world from David Silver's course \cite{DavidSilver-course}]
     Consider the example in Figure~\ref{fig:L9-grid-world}. The green
 state is the good goal and the red ones are the bad. The encoding of
 each state is the location of the walls. In each state we need to
@@ -1144,11 +1153,11 @@ The policy difference lemma is due to  \cite{kakade2002approximately}, and the p
 
 The policy gradient theorem originated in \cite{SuttonMSM99}, and the proof in Section \ref{sec:alternative_proof} follows the original derivation. Alternative formulations of the theorem appear in \cite{MarbachT01,MarbachT03} and \cite{BaxterB01}.
 
-The REINFORCE algorithm is from \cite{Williams92}, which introduced also the baseline functions. Convergence properties of the REINFORCE algorithm were studied in \cite{PhansalkarT95}. Optimal variance reduction using baseline functions was studied in \cite{greensmith2004variance}.
-
+The REINFORCE algorithm is from \cite{Williams92}, which introduced also the baseline functions. Earlier investigations of related ideas in the operations research literature include \cite{glynn1990likelihood,fu1994optimization}. Convergence properties of the REINFORCE algorithm were studied in \cite{PhansalkarT95,baxter2001infinite,marbach2002simulation}. Optimal variance reduction using baseline functions was studied in \cite{greensmith2004variance}.
 The PPO algorithm is from \cite{schulman2017proximal}.
 
-The \emph{aliased grid world} example follows David Silver course \cite{DavidSilver-course}.
+Convergence of policy gradient and convergence rates were developed in \citep{shani2020adaptive,bhandari2024global}. The simplified analysis here is to our knowledge novel.
+% The \emph{aliased grid world} example follows David Silver course \cite{DavidSilver-course}.
 %\AT{If the aliased grid world is from David silver, mention it}
 % The Grid world example follows the example from David Silver class notes \cite{SilverClass}.
 

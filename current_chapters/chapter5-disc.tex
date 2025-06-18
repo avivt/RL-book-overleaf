@@ -24,27 +24,27 @@ solution in some detail.
 \section{Problem Statement} \label{sec:inf_horizon_prob}
 
 We consider a stationary (time-invariant) MDP, with a finite state
-space $\States$, finite action set $\Actions$, and transition kernel
+space $\States$, finite action set $\Actions$, a fixed reward function $r(s,a)$, and a fixed transition kernel
 $\transitionkernel = \{\transitionprob(\state'|\state,\action)\}$ over  the infinite time horizon
 ${\T} = \{ 0,1,2, \ldots \} $.
 
 Our goal is to maximize the expected discounted return, which is
 defined for each control policy $\policy $ and initial state
-${\state_0} = s$ as follows:
+${\state_0} = \state$ as follows:
 \begin{align*}
-\Value_\discount ^\policy (\state) &= {\E^\policy }(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} |{\state_0} = \state)\\
- &\equiv {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} )
+\Value_\discount ^\policy (\state) &= {\E^\policy }\left(\left. \sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} \right|{\state_0} = \state\right)\\
+ &\equiv {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} \right),
 \end{align*}
 where $\E^{\policy ,\state}$ uses the distribution induced by policy
 $\policy$ starting at state $\state$. Here,
 \begin{itemize}
-  \item $\reward : \States \times \Actions \to \mathbb R$ is the (running, or instantaneous) expected reward function, i.e., $\reward(\state,\action)=\E[R|\state,\action]$.
+  \item $\reward : \States \times \Actions \to \mathbb R$ is the (running, immediate, or instantaneous) expected reward function, i.e., $\reward(\state,\action)=\E[R|\state,\action]$.
   \item $\discount  \in (0,1)$ is the discount factor.
 \end{itemize}
 
 We observe that $\discount  < 1$  ensures convergence of the
 infinite sum (since the rewards
-$\reward({\state_\ttime},{\action_\ttime})$ are uniformly bounded).
+$\reward({\state_\ttime},{\action_\ttime})$ are uniformly bounded because $\States$ and $\Actions$ are finite).
 With $\discount  = 1$ we obtain the total return criterion, which is
 harder to handle due to possible divergence of the sum.
 
@@ -58,14 +58,14 @@ Our goal is to find an optimal control policy ${\policy ^*}$ that
 attains that maximum (for all initial states), and compute the
 numeric value of the optimal return $\Value_\discount ^*(\state)$.
 As we shall see, for this problem there always exists an optimal
-policy which is a  (deterministic) stationary policy.
+deterministic stationary policy.
 
 \begin{remark}
     As usual, the discounted performance criterion can be defined in terms of cost:
 \[\Cost_\discount ^\policy (\state) = {\E^{\policy ,\state}}(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\cost({\state_\ttime},{\action_\ttime})} )\;,\]
 where $\cost(\state,\action)$ is the running cost function. Our goal
 is then to minimize the discounted cost $\Cost_\discount ^\policy
-(\state)$.
+(\state)$. Since minimizing cost and maximizing reward are equivalent, we will focus on maximizing rewards throughout the book.
 \end{remark}
 
 
@@ -74,10 +74,11 @@ is then to minimize the discounted cost $\Cost_\discount ^\policy
 We start the analysis by defining and computing the value function for a fixed stationary policy. This intermediate step is required for later analysis of our optimization problem,  and also serves as a gentle introduction to the value iteration approach.
 
 For a stationary policy $\policy :\States \to \Actions$, we define
-the value function $\Value_{}^\policy (\state),\;\state \in \States$
+the value function $\Value_\discount^\policy (\state),\;\state \in \States$
 simply as the corresponding discounted return:
-\[\Value_{}^\policy (\state) \buildrel \Delta \over = {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} \right)=\Value_\discount ^\policy (\state),   \quad \forall \state \in  \States\]
-
+\[\Value_{\discount}^\policy (\state) \buildrel \Delta \over = {\E^{\policy ,\state}}\left(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} \right),   \quad \forall \state \in  \States\].
+To reduce clutter we will omit the $\discount$ subscript in the following and abbreviate 
+$\Value_{\discount}^\policy (\state)$ as $\Value^\policy (\state)$
 \begin{lemma}\label{lem:FP_Bellman}
 For $\policy\in\Pi_{SD}$, the value function $\Value_{}^\policy $
 satisfies the following set of $|\States|$ linear equations:
@@ -93,7 +94,7 @@ satisfies the following set of $|\States|$ linear equations:
 \Value_{}^\policy (\state) &\buildrel \Delta \over = {\E^\policy }(\sum\limits_{\ttime = 0}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},{\action_\ttime})} |{\state_0} = \state)\\
  &= {\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^{t - 1}}\reward({\state_\ttime},{\action_\ttime})} |{\state_1} = \state),
 \end{align*}
-since both the model and the policy are stationary. Now,
+since both the model and the policy are stationary and in particular time invariant. Now,
 \begin{align*}
 \Value_{}^\policy (\state) &= \reward(\state,\policy (\state)) + {\E^\policy }(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_0} = \state)\\
 &= \reward(\state,\policy (\state)) + {\E^\policy }\left[\left.{\E^\policy }\left(\sum\limits_{\ttime = 1}^\infty  {{\discount ^\ttime}\reward({\state_\ttime},\policy ({\state_\ttime}))} |{\state_0} = \state, \state_1=\state'\right)\right|{\state_0} = s\right]\\
@@ -106,9 +107,9 @@ second equality follows from the law of total expectation,
 conditioning $\state_1 = \state'$ and taking the expectation over
 it. By definition ${\action_\ttime} = \policy ({\state_\ttime})$.
 The third equality follows similarly to the finite-horizon case
-(Lemma \ref{lem:finite_horizon_VI}, in Chapter~\ref{Alg:FHDP-DDP}).
+(Lemma \ref{lem:finite_horizon_VI}, in Chapter~\ref{chapter:MDP-FH}).
 The fourth is simple algebra, taking one multiple of the discount
-factor $\discount$ outside. The last by the observation in the
+factor $\discount$ outside. The last, by the observation in the
 beginning of the proof.
 \end{proof}
 
@@ -123,11 +124,12 @@ ${\Value^\policy }(\state)$. Then \eqref{eq:FP_Bellman} is
 equivalent to the linear equation set
 \begin{equation}\label{eq:PF_Bellman_vector}
 {\Value^\policy } = {\reward^\policy } + \discount {\transitionkernel^\policy
-}{\Value^\policy }
+}{\Value^\policy }.
 \end{equation}
 
 \begin{lemma}\label{lem:FP_Bellman_sol}
-The set of linear equations \eqref{eq:FP_Bellman} or
+For any policy $\pi \in \Pi_{SD}$ 
+the set of linear equations \eqref{eq:FP_Bellman} or
 \eqref{eq:PF_Bellman_vector}, with ${\Value^\policy }$ as variables,
 has a unique solution ${\Value^\policy }$, which is given by
 \[{\Value^\policy } = {(I - \discount {\transitionkernel^\policy })^{ -
@@ -137,18 +139,18 @@ has a unique solution ${\Value^\policy }$, which is given by
 We only need to show that the square matrix $I - \discount
 {\transitionkernel^\policy }$ is non-singular.  Let $({\lambda _i})$ denote the
 eigenvalues of the matrix ${\transitionkernel^\policy }$. Since ${\transitionkernel^\policy }$ is a
-stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$ (See the proof of Theorem~\ref{Thm:MC-stationary}).
+stochastic matrix (row sums are 1), then $|{\lambda _i}| \le 1$ (see the proof of Theorem~\ref{Thm:MC-stationary}).
 Now, the eignevalues of $I - \discount {\transitionkernel^\policy }$ are $(1 -
 \discount {\lambda _i})$, and satisfy $|1 - \discount {\lambda _i}|
 \ge 1 - \discount  > 0$.
 \end{proof}
 
-Combining Lemma \ref{lem:FP_Bellman} and Lemma \ref{eq:PF_Bellman_vector}, we obtain
+Combining Lemma \ref{lem:FP_Bellman} and Lemma \ref{eq:PF_Bellman_vector}, we obtain the following.
 
 \begin{proposition}\label{prop:FP_Bellman}
-Let $\pi\in \Pi_{SD}$. The value function ${\Value^\policy } =
-[{\Value^\policy }(\state)]$ is the unique solution of equation
-\eqref{eq:PF_Bellman_vector}, given by \[{\Value^\policy } = {(I -
+For any $\pi\in \Pi_{SD}$. The value function ${\Value^\policy } =
+[{\Value^\policy }(\state)]$ is the unique solution of Equation
+\eqref{eq:PF_Bellman_vector}, and is given by \[{\Value^\policy } = {(I -
 \discount {\transitionkernel^\policy })^{ - 1}}{\reward^\policy }.\]
 \end{proposition}
 
@@ -175,13 +177,13 @@ computing $\Value_{}^\policy$.
 \begin{algorithmic}[1]
 \State \textbf{Initialization:} Set $\Value_0 = (\Value_0(\state))_{\state \in \States}$ arbitrarily.
 \State \textbf{For} {$n = 0, 1, 2, \ldots$}
-    \State \quad Set $\Value_{n + 1}(\state) = \reward(\state, \policy(\state)) + \discount \sum_{\state' \in \States} \transitionprob(\state'|\state, \policy(\state)) \Value_n(\state') \quad \forall \state \in \States$
+    \State \label{alg:fixed_policy_VI:line3} \quad Set $\Value_{n + 1}(\state) = \reward(\state, \policy(\state)) + \discount \sum_{\state' \in \States} \transitionprob(\state'|\state, \policy(\state)) \Value_n(\state') \quad \forall \state \in \States$
     % \State Or, equivalently,
     % \State $\Value_{n + 1} = \reward^\policy + \discount \transitionkernel^\policy \Value_n$.
 \end{algorithmic}
 \end{algorithm}
 
-Note that Line 3 in Algorithm \ref{alg:fixed_policy_VI} can equivalently be written in matrix form as:
+Note that Line \ref{alg:fixed_policy_VI:line3} in Algorithm \ref{alg:fixed_policy_VI} can equivalently be written in matrix form as:
 \begin{equation*}
     \Value_{n + 1} = \reward^\policy + \discount \transitionkernel^\policy \Value_n.
 \end{equation*}
@@ -190,11 +192,11 @@ Note that Line 3 in Algorithm \ref{alg:fixed_policy_VI} can equivalently be writ
 %\[{\lim _{n \to \infty }}{\Value_n}(\state) = \Value_{}^\policy (\state),\quad \;\state \in \States\]
 
 \begin{proposition}[\textbf{Convergence of fixed-policy value iteration}]\label{prop:FP_VI}
-We have ${\Value_n} \to \Value_{}^\policy$ component-wise, that is,
+We have that ${\Value_n} \to \Value_{}^\policy$ component-wise, that is,
 \[{\lim _{n \to \infty }}{\Value_n}(\state) = \Value_{}^\policy (\state),\quad \;\forall \state \in \States.\]
 \end{proposition}
 \begin{proof}
-Note first that,
+Note that,
 \begin{align*}
 {\Value_1}{\kern 1pt} (\state) &= \reward(\state,\policy (\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value_0^{}{\kern 1pt} (\state')} \;\\
  &= {\E^\policy }(\reward({\state_0},{\action_0}) + \discount {\Value_0}({\state_1})|{\state_0} = \state).
@@ -230,7 +232,7 @@ Similarly,    ${\Value^\policy } = \sum\limits_{\ttime = 0}^\infty
 
 \section{Overview: The Main DP Algorithms}
 
-We now return to the optimal planning problem defined in Section
+We now return to the optimal planning problem formulated in Section
 \ref{sec:inf_horizon_prob}. Recall that  $\Value_\discount
 ^*(\state) = {\sup _{\policy  \in \Pi }}_{_{HS}}\Value_\discount
 ^\policy (\state)$ is the optimal discounted return. We further
@@ -351,7 +353,7 @@ The following statements hold:
 \begin{enumerate}
   \item Each policy ${\policy _{k + 1}}$ is improving over the previous one ${\policy _k}$, in the sense that ${\Value^{{\policy _{k + 1}}}} \ge {\Value^{{\policy _k}}}$ (component-wise).
   \item ${\Value^{{\policy _{k + 1}}}} = {\Value^{{\policy _k}}}$ if and only if ${\policy _k}$ is an optimal policy.
-  \item Consequently, since the number of stationary policies is finite, ${\policy _k}$ converges to the optimal policy after a finite number of steps.
+  \item Consequently, since the number of stationary deterministic policies is finite, ${\policy _k}$ converges to the optimal policy after a finite number of steps.
 \end{enumerate}
 \end{theorem}
 
@@ -384,6 +386,7 @@ Common examples are the p-norm $||x|{|_p} = (\sum\nolimits_{i = 1}^d
 {{{|{x_i}|}^p}{)^{1/p}}} $ for $p \ge 1$, and in particular the
 Euclidean norm ($p = 2$). Here we will mostly use the max-norm:
 \[||x|{|_\infty } = {\max _{1 \le i \le d}}|{x_i}|.\]
+Unless otherwise mentioned, we will omit the $\infty$ and use $\|\cdot\| $ to abbreviate the max-norm throughout the book.
 
 Let $T:\mathbb R^d \to \mathbb R^d$  be a vector-valued function
 over $\mathbb R^d$   ($d \ge 1$).
@@ -398,18 +401,19 @@ R^d$. Thus, $T(v) \in \mathbb R^d$ for any $v \in \mathbb R^d$. We
 also denote ${T^n}(v) = T({T^{n - 1}}(v))$ for  $n \ge 2$. For
 example, ${T^2}(v) = T(T(v))$.
 
-\begin{definition} The operator $T$ is called a contraction operator if there exists $\beta  \in (0,1)$ (the contraction coefficient) such that
+\begin{definition} The operator $T$ is called a contraction operator with respect to a norm $\|\cdot \|$, if there exists $\beta  \in (0,1)$ (the contraction coefficient) such that
                             \[||T({v_1}) - T({v_2})|| \le \beta ||{v_1} - {v_2}||,\]
-                            for all $v_1,v_2 \in \mathbb R^d$. Similarly, such operator $T$ is called a $\beta$-contraction operator.
+                            for all $v_1,v_2 \in \mathbb R^d$. In which case,  $T$ is called a $\beta$-contraction operator.
 \end{definition}
+When the norm is clear from the context, we will omit explicit mentioning of it.
 
 \subsection{The Banach Fixed Point Theorem}
-The following celebrated result applies to contraction operators. While we quote the result for $\mathbb R^d$, we note that it applies in much greater generality to any Banach space (a complete normed space), or even to any complete metric space, with essentially the same proof.
+The following celebrated result applies to contraction operators. While we quote the result for $\mathbb R^d$, we note that it applies in much greater generality to any Banach space (a complete normed space), with essentially the same proof.
 
 \begin{theorem}[\textbf{Banach's fixed point theorem}]
 \label{chapter-discount:thm:Banach}
  Let $T:\mathbb R^d \to \mathbb R^d$  be a
-contraction operator. Then
+contraction operator with respect to some norm $\|\cdot \|$. Then
 \begin{enumerate}
   \item The equation $T(v) = v$ has a unique solution  $\Value^*\in \mathbb R^d$.
   \item For any $v_0 \in \mathbb R^d$,  ${\lim _{n \to \infty }}{T^n}({v_0}) = {\Value^*}$.
@@ -439,13 +443,13 @@ Since the coefficient decreases as $n$ increases, for any $ \epsilon
 > 0$ there exists   $N
 > 0$  such that for all $ n,m \geq N$, we have $\|v_{n+m}-v_n\| <
 \epsilon$. This implies that the sequence is a Cauchy sequence, and
-hence the sequence $v_n$ has a limit. Let us call this limit
+hence the sequence $v_n$ has a limit because the space is complete. Let us call this limit
 ${v^*}$. Next we show that ${v^*}$ is a fixed point of the operator
 $T$.
 
 \bigskip
 \noindent{\bf The limit $v^*$ is a fixed point}\\
-We need to show that $T(v^*)=v^*$, or equivalently
+We need to show that $T(v^*)=v^*$, or equivalently by the third property of norms we need to show that
 $\|T(v^*)-v^*\|=0$.
 \begin{eqnarray*}
 0 & \leq & \|T(v^*)-v^*\|\\
@@ -464,7 +468,7 @@ Thus, $v^*$ is a fixed point of the operator $T$.
 
 \bigskip
 \noindent{\bf Uniqueness of $v^*$}\\
-Assume that $T(v_1) = v_1$, and $T(v_2) = v_2$, and $v_1 \neq v_2$.
+Assume that $T(v_1) = v_1$,  $T(v_2) = v_2$, and $v_1 \neq v_2$.
 Then
 \begin{eqnarray*}
   \|v_1-v_2\|=\|T(v_1)-T(v_2)\| \leq \beta\|v_1-v_2\|
@@ -488,30 +492,30 @@ unique.
 
 
 \subsection{The Dynamic Programming Operators}\label{ss:DP_op}
-We next define the basic Dynamic Programming operators, and show that they are in fact contraction operators.
+We next define the basic dynamic programming operators, and show that they contraction operators.
 
 \begin{definition}
     For a fixed stationary policy $\policy :\States \to \Actions$,
-define the \textbf{Fixed Policy DP Operator} $T^\policy:\reals^{|\States|}
-\to \reals^{|\States|}$ as follows: For any $V=(V(\state))\in
+define the \textbf{Fixed Policy Dynamic Programming Operator} $T^\policy:\reals^{|\States|}
+\to \reals^{|\States|}$ as follows: For any $\Value=(\Value(\state))\in
 \reals^{|\States|}$,
-\[(T_{}^\policy (V))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))V(\state')} ,\quad\forall \state \in \States .\]
+\[(T_{}^\policy (\Value))(\state) = \reward(\state,\policy(\state)) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\policy (\state))\Value(\state')} ,\quad\forall \state \in \States .\]
 \end{definition}
 In our column-vector notation, this is equivalent to  $T^\policy
-(V) = {\reward^\policy } + \discount {\transitionkernel^\policy }V$.
+(\Value) = {\reward^\policy } + \discount {\transitionkernel^\policy }\Value$.
 
 \begin{definition}
     Define the discounted-return \textbf{Dynamic Programming
 Operator}  $T^*:\mathbb R^{|\States|} \to \mathbb R^{|\States|}$ as
-follows: For any $V=(V(\state))\in R^{|\States|}$,
-\[(T_{}^*(V))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)V(\state')} } \right\},\quad \forall \state \in \States\]
+follows: For any $\Value=(\Value(\state))\in R^{|\States|}$,
+\[(T_{}^*(\Value))(\state) = \mathop {\max }\limits_{\action \in \Actions} \left\{ {\reward(\state,\action) + \discount \sum\nolimits_{\state' \in \States} {\transitionprob(\state'|\state,\action)\Value(\state')} } \right\},\quad \forall \state \in \States\]
 \end{definition}
 
 We note that $T_{}^\policy $ is a linear operator, while $T_{}^*$ is
 generally non-linear due to the maximum operation.
 
-Let $||V|{|_\infty } \buildrel \Delta \over = {\max _{\state \in
-\States}}|V(\state)|$ denote the max-norm of $V$.  Recall that $0 <
+Let $||\Value|{|_\infty } \buildrel \Delta \over = {\max _{\state \in
+\States}}|\Value(\state)|$ denote the max-norm of $\Value$.  Recall that $0 <
 \discount < 1$.
 
 \begin{theorem}[\textbf{Contraction property}]
@@ -605,7 +609,7 @@ The following statements hold:
 \end{enumerate}
 \end{theorem*}
 We observe that the Optimality equation in part 1 is equivalent to
-$V = {T^*}(V)$ where ${T^*}$ is the optimal DP operator from the
+$\Value = {T^*}(\Value)$ where ${T^*}$ is the optimal DP operator from the
 previous section, which was shown to be a contraction operator with
 coefficient $\discount $.  The proof also uses the value iteration
 property of Theorem \ref{thm:_VI}.
@@ -645,10 +649,10 @@ We prove each part.
 \begin{enumerate}
 \item
 As $T_{}^*$ is a contraction operator, existence and uniqueness of
-the solution to $V = T_{}^*(V)$ follows from the Banach fixed point
+the solution to $\Value = T_{}^*(\Value)$ follows from the Banach fixed point
 theorem (Theorem \ref{chapter-discount:thm:Banach}). Let $\widehat{V}$
-denote that solution. It also follows by that theorem  (Theorem
-\ref{chapter-discount:thm:Banach}) that ${(T_{}^*)^n}({\Value_0})
+denote that solution. It also follows by Theorem
+\ref{chapter-discount:thm:Banach} that ${(T_{}^*)^n}({\Value_0})
 \to \widehat{V}$ for any ${\Value_0}$. By Theorem \ref{thm:_VI} we have
 that ${(T_{}^*)^n}({\Value_0}) \to \Value_{}^*$, hence $\widehat{V} =
 \Value_{}^*$,  so that $\Value_{}^*$ is indeed the unique solution
@@ -656,9 +660,9 @@ of  $V = T_{}^*(V)$.
 %
   \item By definition of  ${\policy ^*}$ we have
 \[T_{}^{\policy^*}(\Value_{}^*) = T_{}^*(\Value_{}^*) = \Value_{}^*,\]
-where the last equality follows from part 1. Thus the optimal value
-function satisfied the equation $T_{}^{\policy^*}(\Value_{}^*) =
-\Value_{}^*$. But we already know (from Proposition~\ref{prop:FP_VI}) that
+where the last equality follows from part 1. Thus, the optimal value
+function satisfies the equation $T_{}^{\policy^*}(\Value_{}^*) =
+\Value_{}^*$. But we already know (from Proposition~\ref{prop:FP_Bellman}) that
 $\Value_{}^{\policy^*}$ is the unique solution of that equation,
 hence $\Value_{}^{\policy^*} = \Value_{}^*$. This implies that
 ${\policy ^*}$ achieves the optimal value (for any initial state),
@@ -688,10 +692,10 @@ ${\Value_n} \to \Value_{}^*$, exponentially fast. %The proof follows.
 
 
 
-\subsection{Error bounds and stopping rules:}
+\subsection{Error bounds and stopping rules}
 
 While we showed an exponential convergence rate, it is important to
-have a criteria that would depend only on the observed quantities.
+have a criterion that depends only on the observed quantities. That is, we wish to bound the difference between $\Value_{n}$ and $\Value^*$ (which is unobserved) in terms of $\Value_{\ell}$ for different $\ell$ which are observed. 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\subtopic{Correctness of Value Iteration Algorithm}{} In the
 %following theorem we show that the algorithm finds an
@@ -701,45 +705,44 @@ have a criteria that would depend only on the observed quantities.
 \begin{lemma}
  If $\|\Value_{n+1}-\Value_{n}\|_\infty < \varepsilon \cdot \frac{1-\discount}{2\discount}$ then $\|\Value_{n+1} -
 \Value^{*}\|_\infty < \frac{\varepsilon}{2}$ and
-$\|\Value^{\policy_{n+1}}-\Value^*\|\leq \varepsilon$, where
-$\policy_{n+1}$ is the greedy policy w.r.t. $\Value_{n+1}$.
+$\|\Value^{\policy_{n+2}}-\Value^*\|\leq \varepsilon$, where
+$\policy_{n+2}$ is the greedy policy w.r.t. $\Value_{n+1}$.
 \end{lemma}
 \begin{proof}
 Assume that $\|\Value_{n+1}-\Value_{n}\| < \varepsilon \cdot
 \frac{1-\discount}{2\discount}$, we show that
-$\|\Value^{\policy_{n+1}} - \Value^{*}\| < \varepsilon$, which would
-make the policy $\policy_{n+1}$ $\varepsilon$-optimal. We bound the
-difference between $\Value^{\policy_{n+1}}$ and $\Value^*$. (All the
-norms are max-norm.) We consider the following:
+$\|\Value^{\policy_{n+2}} - \Value^{*}\| < \varepsilon$, which would
+make the policy $\policy_{n+2}$ $\varepsilon$-optimal. We bound the
+difference between $\Value^{\policy_{n+2}}$ and $\Value^*$.  We consider the following:
 \begin{eqnarray}
-\|\Value^{\policy_{n+1}} - \Value^{*}\| \leq
-\|\Value^{\policy_{n+1}} - \Value_{n+1}\| + \|\Value_{n+1} -
-\Value^{*}\| \label{L6:epopeq}
+\|\Value^{\policy_{n+2}} - \Value^{*}\| \leq
+\|\Value^{\policy_{n+2}} - \Value_{n+1}\| + \|\Value_{n+1} -
+\Value^{*}\|. \label{L6:epopeq}
 \end{eqnarray}
 We now bound each part of the sum separately:
 \begin{eqnarray*}
-\|\Value^{\policy_{n+1}} - \Value_{n+1}\| & = &
-\|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) - \Value_{n+1}\| \ \ \ \
-\ (because\ \Value^{\policy_{n+1}}\ is\ the\ fixed\ point\
-of\ T^{\policy_{n+1}})\\
-& \leq & \|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) -
-T^*(\Value_{n+1})\| + \|T^*(\Value_{n+1}) - \Value_{n+1}\|
+\|\Value^{\policy_{n+2}} - \Value_{n+1}\| & = &
+\|T^{\policy_{n+2}}(\Value^{\policy_{n+2}}) - \Value_{n+1}\| \ \ \ \
+\ (because\ \Value^{\policy_{n+2}}\ is\ the\ fixed\ point\
+of\ T^{\policy_{n+2}})\\
+& \leq & \|T^{\policy_{n+2}}(\Value^{\policy_{n+2}}) -
+T^*(\Value_{n+1})\| + \|T^*(\Value_{n+1}) - \Value_{n+1}\|.
 \end{eqnarray*}
-Since $\policy_{n+1}$ is maximal over the actions using
-$\Value_{n+1}$, it implies that $T^{\policy_{n+1}}(\Value_{n+1}) =
+Since $\policy_{n+2}$ is maximal over the actions using
+$\Value_{n+1}$, it implies that $T^{\policy_{n+2}}(\Value_{n+1}) =
 T^*(\Value_{n+1})$ and we conclude that:
 \begin{eqnarray*}
-\|\Value^{\policy_{n+1}} - \Value_{n+1}\| & \leq &
-\|T^{\policy_{n+1}}(\Value^{\policy_{n+1}}) -
-T^{\policy_{n+1}}(\Value_{n+1})\| + \|T^*(\Value_{n+1}) - T^*(\Value_{n})\| \ \ \\
-& \leq & \discount\|\Value^{\policy_{n+1}} - \Value_{n+1}\| +
-\discount\|\Value_{n+1} - \Value_{n}\|
+\|\Value^{\policy_{n+2}} - \Value_{n+1}\| & \leq &
+\|T^{\policy_{n+2}}(\Value^{\policy_{n+2}}) -
+T^{\policy_{n+2}}(\Value_{n+1})\| + \|T^*(\Value_{n+1}) - T^*(\Value_{n})\| \ \ \\
+& \leq & \discount\|\Value^{\policy_{n+2}} - \Value_{n+1}\| +
+\discount\|\Value_{n+1} - \Value_{n}\|.
 \end{eqnarray*}
 Rearranging, this implies that,
-\begin{eqnarray*} \|\Value^{\policy_{n+1}} -
+\begin{eqnarray*} \|\Value^{\policy_{n+2}} -
 \Value_{n+1}\| \leq \frac{\discount}{1-\discount}\|\Value_{n+1} -
 \Value_{n}\|< \frac{\discount}{1-\discount} \cdot \epsilon \cdot
-\frac{1-\discount}{2\discount} =\frac{\epsilon}{2}
+\frac{1-\discount}{2\discount} =\frac{\epsilon}{2}.
 \end{eqnarray*}
 For the second part of the sum we derive similarly that:
 \begin{eqnarray*}
@@ -755,11 +758,11 @@ and therefore
 \end{eqnarray*}
 Returning to inequality (\ref{L6:epopeq}), it follows:
 \begin{eqnarray*}
-\|\Value^{\policy_{n+1}} - \Value^{*}\| \leq
+\|\Value^{\policy_{n+2}} - \Value^{*}\| \leq
 \frac{2\discount}{1-\discount}\|\Value_{n+1} - \Value_{n}\| <
-\epsilon
+\epsilon .
 \end{eqnarray*}
-Therefore the selected policy $\policy_{n+1}$ is $\epsilon$-optimal.
+Therefore, the selected policy $\policy_{n+2}$ is $\epsilon$-optimal.
 \end{proof}
 
 
@@ -804,7 +807,7 @@ computes an optimal policy ${\policy ^*}$ in a finite number of
 steps. This number is typically small (on the same order as
 $|\States|$). There is a significant body of work to bound the number of iterations as a function of the number of states and actions, for more, see the bibliography remarks in Chapter~\ref{disc:bib}.
 
-The basic principle behind Policy Iteration is Policy Improvement.
+The basic principle behind PI is {\em policy improvement}.
 Let $\policy$ be a stationary policy, and let $\Value_{}^\policy $
 denote its value function. A stationary policy $\bar \policy $ is
 called $\policy$- improving if it is a greedy policy with respect to
@@ -821,7 +824,7 @@ if and only if $\policy $ is an optimal policy.
 \end{lemma}
 
 \begin{proof} Observe first that
-\[{\Value^\policy } = T_{}^\policy ({\Value^\policy }) \le T_{}^*({\Value^\policy }) = T_{}^{\bar \policy }({\Value^\policy })\]
+\[{\Value^\policy } = T_{}^\policy ({\Value^\policy }) \le T_{}^*({\Value^\policy }) = T_{}^{\bar \policy }({\Value^\policy }).\]
 The first equality follows since ${\Value^\policy }$ is the value
 function for the policy $\policy $, the inequality follows because
 of the maximization in the definition of  $T_{}^*$, and the last
@@ -836,7 +839,7 @@ therefore gives
 \begin{equation}\label{eq:PI_monotonicity_proof}
   {\Value^\policy } \le T_{}^{\bar \policy }({\Value^\policy }) \le {(T_{}^{\bar \policy })^2}({\Value^\policy }) \le  \cdots  \le \mathop {\lim }\limits_{n \to \infty } {(T_{}^{\bar \policy })^n}({\Value^\policy }) = {\Value^{\bar \policy }},  
 \end{equation}
-where the last equality follows by Theorem~\ref{thm:_VI}.
+where the last equality follows by Proposition~\ref{prop:FP_VI}.
 %value iteration.
 This establishes the first claim.
 %The equality claim is left as an \textbf{exercise}g.
@@ -925,21 +928,21 @@ $$
 Since $VI_n \leq PI_n$, and $T^{\policy'}$ is monotonic it follows
 that:
 \begin{eqnarray*}
-T^{\policy'}(VI_{n}) & \leq &T^{\policy'}(PI_{n})
+T^{\policy'}(VI_{n}) & \leq &T^{\policy'}(PI_{n}).
 \end{eqnarray*}
 Since $T^*$ is upper bounding any $T^\policy$:
 \begin{eqnarray*}
-T^{\policy'}(PI_{n}) & \leq & T^*(PI_{n})
+T^{\policy'}(PI_{n}) & \leq & T^*(PI_{n}).
 % = T^{\policy_n}(PI_{n})
 \end{eqnarray*}
 The policy determined by PI algorithm in iteration $n+1$ is
 $\policy_{n+1}$ and we have:
 \begin{eqnarray*}
-T^*(PI_{n})=T^{\policy_{n+1}}(PI_{n})
+T^*(PI_{n})=T^{\policy_{n+1}}(PI_{n}).
 \end{eqnarray*}
 From the definition of $\policy_{n+1}$ (cf. Eq.~\ref{eq:PI_monotonicity_proof}), we have
 \begin{eqnarray*}
-T^{\policy_{n+1}}(PI_{n}) &\leq& \Value^{\policy_{n+1}}=PI_{n+1}
+T^{\policy_{n+1}}(PI_{n}) &\leq& \Value^{\policy_{n+1}}=PI_{n+1}.
 \end{eqnarray*}
 %From the definition of $PI_{n+1}$ we have:
 %\begin{eqnarray*}
@@ -953,7 +956,96 @@ $PI_{n+1}=\Value^{\policy_{n+1}}$, it implies that $PI_{n+1}\leq
 %v^*_\lambda$ and therefore $u_{n+1} \leq v_{n+1} \leq v^*_\lambda$.
 \end{proof}
 
+The next example demonstrates several important differences between value iteration and policy iteration.
+\begin{example}\label{example:pi_vs_vi}
+We consider an 2-state MDP as depicted in Figure \ref{fig:vi_vs_pi_example}, with action selection only at state $\state_1$, and a discount factor \(\gamma = 0.5\). 
+\begin{figure}
+    \centering
+    \begin{tikzpicture}[node distance=7cm, auto]
+    % Nodes
+    \node[draw, circle, inner sep=2pt] (S1) {\(\state_1, \reward=0\)};
+    \node[draw, circle, inner sep=2pt, right of=S1] (S2) {\(\state_2, \reward=1\)};
+    
+    % Edges from S1
+    \draw[->, bend left] (S1) to node[midway, above] {\(\action_2, p=0.1\)} (S2);
+    \draw[->, right] (S1) to node[midway, below] {\(\action_1\)} (S2);
+    \draw[->] (S1) edge[loop above] node {\(\action_2,\;p=0.9\)} (S1);
+    
+    % Edges from S2
+    \draw[->] (S2) edge[loop above] node {\(p=0.9\)} (S2);
+    \draw[->, bend left] (S2) to node[midway, below] {\(p=0.1\)} (S1);
+\end{tikzpicture}
+    \caption{Example MDP}
+    \label{fig:vi_vs_pi_example}
+\end{figure}
+Let the policy in state \(\state_1\) be parametrized by $x$:
+\[
+x = \policy(\action_1), \quad \text{and hence} \quad \policy(\action_2) = 1-x.
+\]
+The corresponding Bellman equations for the value functions are:
 
+\[
+\begin{aligned}
+\Value^\policy(\state_1) &= \gamma \Bigl[ x\,\Value^\policy(\state_2) + (1-x)\Bigl(0.1\,\Value^\policy(\state_2) + 0.9\,\Value^\policy(\state_1)\Bigr)\Bigr], \\
+\Value^\policy(\state_2) &= 1 + \gamma \Bigl[0.9\,\Value^\policy(\state_2) + 0.1\,\Value^\policy(\state_1)\Bigr].
+\end{aligned}
+\]
+Thus, substituting \(\gamma = 0.5\):
+\[
+\Value^\policy(\state_1) = 0.5 \Bigl[(0.9x+0.1)\Value^\policy(\state_2) + 0.9(1-x)\Value^\policy(\state_1)\Bigr].
+\]
+Rearranging, we obtain
+\[
+\Value^\policy(\state_1) = \frac{0.5(0.9x+0.1)}{0.55+0.45x}\,\Value^\policy(\state_2).
+\]
+Now, substitute into the \(\state_2\) equation to obtain:
+\[
+\Value^\policy(\state_2) = \frac{11+9x}{6+4.5x}, \quad
+\Value^\policy(\state_1) = \frac{9x+1}{6+4.5x}.
+\]
+\textbf{Policy Iteration:} we compute PI iterates starting from a policy $\policy_0$ that chooses \(\action_2\) in \(\state_1\), i.e., \(x=0\). Thus,
+\[
+\begin{aligned}
+\Value^{\policy_0}(\state_1) &= \frac{9\cdot 0 + 1}{6 + 4.5\cdot 0} = \frac{1}{6} \approx 0.16667,\\[1mm]
+\Value^{\policy_0}(\state_2) &= \frac{11 + 9\cdot 0}{6 + 4.5\cdot 0} = \frac{11}{6} \approx 1.83333.
+\end{aligned}
+\]
+Using the value function for \(\pi_0\), we compute the action-value functions in \(\state_1\):
+\[
+\begin{aligned}
+\QValue^{\policy_0}(\state_1,\action_1) &= 0 + 0.5\,\Value^{\policy_0}(\state_2) \approx 0.5 \times 1.83333 = 0.91667,\\[1mm]
+\QValue^{\policy_0}(\state_1,\action_2) &= 0 + 0.5\Bigl[0.1\,\Value^{\policy_0}(\state_2)+0.9\,\Value^{\policy_0}(\state_1)\Bigr] \\
+           &\approx 0.5\Bigl[0.18333 + 0.15\Bigr] \approx 0.16667.
+\end{aligned}
+\]
+Since \(\QValue^{\policy_0}(\state_1,\action_1) > \QValue^{\policy_0}(\state_1,\action_2)\), the improved policy \(\pi_1\) chooses \(\action_1\) (i.e., \(x=1\)). Then,
+\[
+\begin{aligned}
+\Value^{\policy_1}(\state_1) &= \frac{9\cdot 1 + 1}{6 + 4.5\cdot 1} = \frac{10}{10.5} \approx 0.95238,\\[1mm]
+\Value^{\policy_1}(\state_2) &= \frac{11 + 9\cdot 1}{6 + 4.5\cdot 1} = \frac{20}{10.5} \approx 1.90476.
+\end{aligned}
+\]
+Policy $\policy_1$ is optimal, therefore PI will halt after one iteration. \\
+\textbf{Value Iteration:}
+the VI updates are as follows. 
+\[
+V_{k+1}(\state_1) = \max\Bigl\{ 0.5\,V_k(\state_2),\, 0.5\Bigl[0.1\,V_k(\state_2) + 0.9\,V_k(\state_1)\Bigr] \Bigr\},
+\]
+\[
+V_{k+1}(\state_2) = 1 + 0.5\Bigl[0.9\,V_k(\state_2) + 0.1\,V_k(\state_1)\Bigr].
+\]
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/vi_vs_pi.png}
+    \caption{Comparison between VI and PI for the MDP in Figure \ref{fig:vi_vs_pi_example}. PI starts with a policy $x=0$, and VI is initialized with $V_0(\state_1) = 5, V_0(\state_2) = -1$.}
+    \label{fig:vi_vs_pi_plot}
+\end{figure}
+In Figure \ref{fig:vi_vs_pi_plot} we illustrate the differences between the VI and PI algorithms for this MDP, by inspecting the values obtained during the algorithm runs. First, in the green line, we plot the values of all possible policies in this MDP (by varying $x$ in $[0,1]$). Note that the two policy iteration steps correspond to the two end points on this line. Next, we plot the VI iterates. We color in red the iterates for which the greedy policy (with respect to $V_k$) is optimal, while an orange color indicates otherwise. We make several important observations:
+\begin{itemize}
+    \item While the values of PI steps correspond to values of actual policies, the VI iterates $V_k$ do not necessarily correspond to any possible value functions (in the example, the VI iterates do not intersect the green line). Recall that we are only guaranteed that VI \textit{converges} to the value of an optimal policy. 
+    \item Note that the greedy policy with respect to VI iterate converges to an optimal policy before the VI algorithm converged (in this case, already at $k=2$). Still, PI converges faster.
+\end{itemize}
+\end{example}
 % \section{Variants on Value Iteration and Policy Iteration}
 
 % \subsection{Value Iteration - Gauss Seidel Iteration}
@@ -1171,16 +1263,16 @@ $PI_{n+1}=\Value^{\policy_{n+1}}$, it implies that $PI_{n+1}\leq
 % \input{exercises/MDPs_nonlinear_objective}
 % \input{exercises/MDPs_Purchasing_with_a_Deadline}
 
-\section{Bibliography notes}
+\section{Further Remarks on Policy Iteration}
 \label{disc:bib}
 
-The value iteration method dates back to to Bellman \cite{Bellman:DynamicProgramming}.
-The computational complexity analysis of value iteration first explicitly appeared in \cite{LittmanDK95}.
+% The value iteration method dates back  to Bellman \cite{Bellman:DynamicProgramming}.
+% The computational complexity analysis of value iteration first explicitly appeared in \cite{LittmanDK95}.
 %
-The work of Blackwell \cite{blackwell1965discounted} introduces the contracting operators and the fixed point for the analysis of MDPs.
+% The work of Blackwell \cite{blackwell1965discounted} introduces the contracting operators and the fixed point for the analysis of MDPs.
 
-The policy iteration originated in the work of Howard \cite{Howard1960}.
-There has been significant interest in bounding the number of iteration of policy iterations, with a dependency only on the number of states and actions. A simple upper bound is the number of policies, $|\Actions|^{|\States|}$, since each policy is selelcted at most once.
+Policy iteration originated in the work of Howard \cite{Howard1960}.
+There has been significant interest in bounding the number of iteration of policy iterations, with a dependency only on the number of states and actions. A simple upper bound is the number of policies, $|\Actions|^{|\States|}$, since each policy is selected at most once.
 The work of \cite{MelekopoglouC94} shows a lower bound of $\Omega(2^{|\States|/2})$ for a special class of policy iteration, where only a single state of all improving states is updated and two actions.
 The work of \cite{MansourS99} shows that if the policy iteration updates with all the improving states (as it is define here) then the number of iterations is at most $O(|\Actions|^{|\States|}/|\States|)$.
 The work of \cite{Fearnley10} shows a $n$-state and $\Theta(n)$ action MDP for which the policy iteration requires $\Omega(2^{n/7})$ iterations for the average cost return, and \cite{HollandersDJ12} for the discounted return. Surprisingly, for a constant discount factor, the bound on the number of iterations is polynomial \cite{Ye11,HansenMZ13}.
