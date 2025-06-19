@@ -84,7 +84,7 @@ Writing the result in matrix notation gives the first result. For the second res
 
 To deal with large state spaces, as we did in previous chapters, we will want to use sampling to approximate quantities that depend on all states. Note that expectations over the state visitation frequencies can be approximated by sampling from policy rollouts.
 \begin{proposition}\label{prop:rollout_sampling}
-    Consider a random rollout from the policy $\state_0,\action_0,\reward_0,\dots,\state_\termtime, \action_\termtime, \reward_\termtime$, where $\state_0 \sim \initdist$, $\action_\ttime\sim \policy(\cdot|\state_\ttime,\theta)$, $\state_{\ttime+1} \sim \transitionkernel (\cdot | \state_\ttime, \action_\ttime)$, and $\termtime$ is the termination time. For some function of states and actions $g(\state)$, we have that:
+    Consider a random rollout from the policy $\state_0,\action_0,\reward_0,\dots,\state_\termtime, \action_\termtime, \reward_\termtime$, where $\state_0 \sim \initdist$, $\action_\ttime\sim \policy(\cdot|\state_\ttime,\theta)$, $\state_{\ttime+1} \sim \transitionkernel (\cdot | \state_\ttime, \action_\ttime)$, and $\termtime$ is the termination time. For some function of states $g(\state)$, we have that:
     \begin{equation*}
         \sum_{\state} \discdist^{\policy}(\state) g(\state) = \mathbb{E}^{\policy}\left[ \sum_{\ttime=0}^\tau g(\state_\ttime)\right].
     \end{equation*}
@@ -659,13 +659,13 @@ We are left with the challenge of approximating
 $\Value^\policy(\state)$. On the one hand this is part of the
 learning. On the other hand we have developed tools to address this
 in the previous chapter on value function approximation (Chapter~\ref{chapter:function-approximation}). We can use
-$\Value^\policy(\state)\approx V(\state;\weight)=b(\state)$. The
+$\Value^\policy(\state)\approx \widehat{\Value}(\state;\weight)=b(\state)$. The
 good news is that any $b(\state)$ will keep the estimator unbiased,
-so we do not depend on $V(\state;\weight)$ to be unbiased.
+so we do not depend on $\widehat{\Value}(\state;\weight)$ to be unbiased.
 
 We can now describe the REINFORCE algorithm with baseline function.
 We will use a Monte-Carlo sampling to estimate
-$\Value^\policy(\state)$ using a class of value approximation functions $V(\cdot;\weight)$ and this will define our baseline function
+$\Value^\policy(\state)$ using a class of value approximation functions $\widehat{\Value}(\cdot;\weight)$ and this will define our baseline function
 $b(\state)$. Note that now we have two parameter vectors: $\theta$ for the policy, and $\weight$ for the value function.
 % We will update using $U-b(\state)$ where
 % $E[U]=Q^\policy(\state,\action)$. More specifically, our algorithm
@@ -693,19 +693,19 @@ $b(\state)$. Note that now we have two parameter vectors: $\theta$ for the polic
 \State \textbf{For} $j = 0,1,2,\dots$
 \State \quad Sample rollout $(\state_0, \action_0, \reward_0, \ldots, \state_\tau, \action_\tau, \reward_\tau)$ using policy $\policy_{\theta_j}$.
 \State \quad Set $R_{\ttime:\tau} = \sum_{i=\ttime}^\tau \reward_i$
-\State \quad Set $\Gamma_\ttime = R_{\ttime:\tau}-V(\state_\ttime;\weight_j)$
+\State \quad Set $\Gamma_\ttime = R_{\ttime:\tau}-\widehat{\Value}(\state_\ttime;\weight_j)$
 \State \quad Update policy parameters:
 \[
 \theta_{j+1} = \theta_j + \alpha \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_\theta \log \policy(\action_\ttime | \state_\ttime; \theta_j).
 \]
 \State \quad Update value parameters:
 \[
-\weight_{j+1} = \weight_j + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight_j).
+\weight_{j+1} = \weight_j + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} \widehat{\Value}(\state_\ttime;\weight_j).
 \]
 \end{algorithmic}
 \end{algorithm}
 
-Note that the update for $\theta$ follows the policy gradient theorem with a baseline $V(\state_\ttime;\weight)$, and the update for $\weight$ is a stochastic gradient descent on the mean squared error with step size $\beta$.
+Note that the update for $\theta$ follows the policy gradient theorem with a baseline $\widehat{\Value}(\state_\ttime;\weight)$, and the update for $\weight$ is a stochastic gradient descent on the mean squared error with step size $\beta$.
 
 % for each $\ttime\in [1,\tHorizon]$ we
 % compute the $R_{\ttime:\tHorizon}$ during the times $[\ttime,\tHorizon]$, i.e.,
@@ -723,36 +723,67 @@ Note that the update for $\theta$ follows the policy gradient theorem with a bas
 
 
 \subsection{TD Updates and Compatible Value Functions}
-We can extend the policy gradient algorithm to handle also TD updates, using an
-actor-critic approach. We will use $Q$-value updates for this
-(but can be done similarly with $V$-values).
 
-The critic maintains an approximate $Q$ function $Q(\state,\action;\weight)$. For each time $\ttime$ it defines the TD error to be $\Gamma_\ttime = \reward_\ttime +Q(\state_{\ttime+1},\action_{\ttime+1};\weight)-Q(\state_\ttime,\action_\ttime;\weight)$. The update will be $\Delta w=\alpha\Gamma_\ttime \nabla Q(\state_\ttime,\action_\ttime;\weight)$. The critic send the actor the TD error $\Gamma_\ttime$.
+In the REINFORCE algorithm above, the term $R_{\ttime:\tau}$ can be a very noisy estimate of $\QValue^\policy
+(\state_{\ttime},\action_{\ttime})$, due to the stochasticity of the state transitions and action selections at times $\ttime:\tau$. A natural alternative that reduces this variance is to use bootstrapping, i.e., $\reward_{\ttime} + \Value^{\policy}(\state_{\ttime+1})$, which variance is only due to the stochasticity of the state transition at time $\ttime$. Of course, we cannot expect to have an accurate estimate of $\Value^{\policy}(\state_{\ttime+1})$ and must approximate it which, as we shall see, may induce a bias. In this section we investigate this approach, also known as the actor-critic algorithm.
 
-The actor maintains a policy $\policy$ which is parameterized by $\theta$. Given a TD error $\Gamma_\ttime$ it updates $\Delta \theta= \beta \Gamma_\ttime \nabla \log \policy(\action_\ttime|\state_\ttime;\theta)$. Then it selects $\action_{\ttime+1}\sim \policy(\cdot|\state_{\ttime+1};\theta)$.
+% We can extend the policy gradient algorithm to handle also TD updates, using an
+% actor-critic approach. We will use $\QValue$-value updates for this
+% (but can be done similarly with $\Value$-values).
 
-We need to be careful in the way we select the function
-approximation $Q(\cdot;\weight)$ since it might introduce a bias (note that here we use the function approximation to estimate $\QValue(\state,\action)$ directly, and not the baseline as in the REINFORCE method above).
-The following theorem identifies a special case which guarantee
-thats we will not have such a bias.
+The critic maintains an approximate value function $\widehat{\Value}(\state;\weight)$. For each time $\ttime$ it defines the TD error to be $\Gamma_\ttime = \reward_\ttime +\widehat{\Value}(\state_{\ttime+1};\weight)-\widehat{\Value}(\state_\ttime;\weight)$. The critic's update of the value function parameters, following the TD(0) algorithm will be $\Delta w=\alpha\Gamma_\ttime \nabla \widehat{\Value}(\state_\ttime;\weight)$. The critic sends the TD error to the actor, which maintains a policy $\policy$ parameterized by $\theta$. Given a TD error $\Gamma_\ttime$, the actor updates the policy parameters by $\Delta \theta= \beta \Gamma_\ttime \nabla \log \policy(\action_\ttime|\state_\ttime;\theta)$. 
 
-Let the expected square error of $\weight$ is
+\begin{algorithm}[H]
+\caption{ACTOR-CRITIC}\label{alg:actor_critic}
+\begin{algorithmic}[1]
+\State \textbf{Input} step sizes $\alpha,\beta$
+\State \textbf{Initialize} $\theta_0, \weight_0$ arbitrarily
+\State \textbf{For} $j = 0,1,2,\dots$
+\State \quad Sample rollout $(\state_0, \action_0, \reward_0, \ldots, \state_\tau, \action_\tau, \reward_\tau)$ using policy $\policy_{\theta_j}$.
+\State \quad Set $\Gamma_\ttime = \reward_\ttime + \widehat{\Value}(\state_{\ttime+1};\weight_j) -\widehat{\Value}(\state_\ttime;\weight_j)$
+\State \label{line:actor_update}\quad ACTOR: Update policy parameters:
 \[
-SE(\weight)=\frac{1}{2}\mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))^2].
+\theta_{j+1} = \theta_j + \alpha \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_\theta \log \policy(\action_\ttime | \state_\ttime; \theta_j).
+\]
+\State \quad CRITIC: Update value parameters:
+\[
+\weight_{j+1} = \weight_j + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} \widehat{\Value}(\state_\ttime;\weight_j).
+\]
+\end{algorithmic}
+\end{algorithm}
+
+% The critic maintains an approximate $\QValue$ function $\widehat{\QValue}(\state,\action;\weight)$. For each time $\ttime$ it defines the TD error to be $\Gamma_\ttime = \reward_\ttime +\widehat{\QValue}(\state_{\ttime+1},\action_{\ttime+1};\weight)-\widehat{\QValue}(\state_\ttime,\action_\ttime;\weight)$. The update will be $\Delta w=\alpha\Gamma_\ttime \nabla \widehat{\QValue}(\state_\ttime,\action_\ttime;\weight)$. The critic sends the actor the TD error $\Gamma_\ttime$.
+
+% The actor maintains a policy $\policy$ which is parameterized by $\theta$. Given a TD error $\Gamma_\ttime$ it updates $\Delta \theta= \beta \Gamma_\ttime \nabla \log \policy(\action_\ttime|\state_\ttime;\theta)$. Then it selects $\action_{\ttime+1}\sim \policy(\cdot|\state_{\ttime+1};\theta)$.
+
+% We need to be careful in the way we select the function
+% approximation $\widehat{\QValue}(\cdot;\weight)$ since it 
+
+Note that in contrast to REINFORCE that used the function approximation to estimate only a baseline, here our estimate of  $\reward_{\ttime} + \widehat{\Value}(\state_{\ttime+1};\weight)$ is used to estimate $\QValue^\policy
+(\state_{\ttime},\action_{\ttime})$ directly, and therefore might introduce a bias due to an inaccurate approximation.
+% (note that here we use the function approximation to estimate $\QValue(\state,\action)$ directly, and not the baseline as in the REINFORCE method above).
+
+
+Interestingly, there is a special case for which it is guaranteed
+that we will not have such a bias. The following theorem established this result; for simplicity we use an approximation of $\widehat{\QValue}(\state_{\ttime}, \action_{\ttime};\weight)$ instead of $\reward_{\ttime} + \widehat{\Value}(\state_{\ttime+1};\weight)$.
+
+Let the expected square error of $\weight$ be
+\[
+SE(\weight)=\frac{1}{2}\mathbb{E}^\policy[(\QValue^\policy(\state,\action)-\widehat{\QValue}(\state,\action;\weight))^2].
 \]
 A value function is {\em compatible} if,
 \[
-\nabla_\weight Q(\state,\action;\weight)= \nabla_\theta
+\nabla_\weight \widehat{\QValue}(\state,\action;\weight)= \nabla_\theta
 \log \policy(\action|\state;\theta).
 \]
 
 
 \begin{theorem}
-Assume that $Q$ is compatible and $\weight$ minimizes $SE(\weight)$,
+Assume that $\widehat{\QValue}$ is compatible and $\weight$ minimizes $SE(\weight)$,
 then,
 \[
-\nabla_\theta J(\theta)=\sum_{\ttime=1}^\tau \mathbb{E}^\policy[Q(\state_\ttime,\action_\ttime;\weight)
-\nabla \log \policy(\action_\ttime|\state_\ttime;\theta)]
+\nabla_\theta J(\theta)=\sum_{\ttime=1}^\tau \mathbb{E}^\policy[\widehat{\QValue}(\state_\ttime,\action_\ttime;\weight)
+\nabla \log \policy(\action_\ttime|\state_\ttime;\theta)].
 \]
 \end{theorem}
 
@@ -760,47 +791,66 @@ then,
 Since $\weight$ minimizes $SE(\weight)$ we have
 \begin{align*}
 0 & = \nabla_\weight SE(\weight)\\
-&= \nabla_\weight \mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))^2]\\
+&= \nabla_\weight \mathbb{E}^\policy[(\QValue^\policy(\state,\action)-\widehat{\QValue}(\state,\action;\weight))^2]\\
 &=
-\mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))\nabla_\weight
-Q(\state,\action;\weight)].
+\mathbb{E}^\policy[(\QValue^\policy(\state,\action)-\widehat{\QValue}(\state,\action;\weight))\nabla_\weight
+\widehat{\QValue}(\state,\action;\weight)].
 \end{align*}
-Since $Q$ is compatible, we have $\nabla_\weight
-Q(\state,\action;\weight)= \nabla_\theta \log
+Since $\widehat{\QValue}$ is compatible, we have $\nabla_\weight
+\widehat{\QValue}(\state,\action;\weight)= \nabla_\theta \log
 \policy(\action|\state;\theta)$ which implies,
 \begin{align*}
 0&=
-\mathbb{E}^\policy[(Q^\policy(\state,\action)-Q(\state,\action;\weight))\nabla_\theta
+\mathbb{E}^\policy[(\QValue^\policy(\state,\action)-\widehat{\QValue}(\state,\action;\weight))\nabla_\theta
 \log \policy(\action|\state;\theta)],
 \end{align*}
 and have
 \begin{align*}
-\mathbb{E}^\policy[Q^\policy(\state,\action)\nabla_\theta \log \policy(\action|\state;\theta)] = \mathbb{E}^\policy[Q(\state,\action;\weight)\nabla_\theta \log \policy(\action|\state;\theta)].
+\mathbb{E}^\policy[\QValue^\policy(\state,\action)\nabla_\theta \log \policy(\action|\state;\theta)] = \mathbb{E}^\policy[\widehat{\QValue}(\state,\action;\weight)\nabla_\theta \log \policy(\action|\state;\theta)].
 \end{align*}
-This implies that by substituting $Q$ in the policy gradient theorem
+This implies that by substituting $\QValue$ in the policy gradient theorem
 we have
 \[
-\nabla_\theta J(\theta) = \sum_{\ttime=1}^\tau \mathbb{E}^\policy[Q(\state,\action;\weight)
+\nabla_\theta J(\theta) = \sum_{\ttime=1}^\tau \mathbb{E}^\policy[\widehat{\QValue}(\state,\action;\weight)
 \nabla \log \policy(\action|\state;\theta)].
 \]
 \end{proof}
 
-We can summarize the various updates for the policy gradient as
-follows:
-\begin{itemize}
-\item REINFORCE (which is a Monte-Carlo estimate) uses
-$\mathbb{E}^\policy[R_\ttime \nabla\log\policy(\action|\state;\theta) ]$.
-\item Q-function with actor-critic uses
-$\mathbb{E}^\policy[Q(\action_\ttime|\state_\ttime;\weight)
-\nabla\log\policy(\action|\state;\theta) ]$.
-\item A-function with actor-critic uses
-$\mathbb{E}^\policy[A(\action_\ttime|\state_\ttime;\weight)
-\nabla\log\policy(\action|\state;\theta) ]$, where
-$A(\action|\state;\weight)=Q(\state,\action;\weight)-V(\state;\weight)$. The A-function is also called the \emph{Advantage function}.
-\item TD with actor-critic uses
-$\mathbb{E}^\policy[\Gamma\nabla\log\policy(\action|\state;\theta) ]$, where
-$\Gamma$ is the TD error.
-\end{itemize}
+For non-compatible function approximation, we can combine the zero-bias, high-variance REINFORCE update with the biased but low-variance ACTOR-CRITIC update using the idea of TD with multi-step lookahead (see Chapter \ref{sec:TD_lambda}). Recall that we defined multi-step TD as:
+\begin{equation*}
+    \begin{split}
+        \Gamma^{(0)}_\ttime &= \reward_{\ttime} + \widehat{\Value}(\state_{\ttime+1};\weight) - \widehat{\Value}(\state_{\ttime};\weight), \\
+        \Gamma^{(1)}_\ttime &= \reward_{\ttime} + \reward_{\ttime+1} + \widehat{\Value}(\state_{\ttime+2};\weight) - \widehat{\Value}(\state_{\ttime};\weight), \\
+        & \dots \\
+        \Gamma^{(n)}_\ttime &= \reward_{\ttime} + \reward_{\ttime+1} + \dots + \reward_{\ttime+n-1} + \widehat{\Value}(\state_{\ttime+n};\weight) - \widehat{\Value}(\state_{\ttime};\weight),
+    \end{split}
+\end{equation*}
+and the TD($\lambda$) update in this case can defined as 
+$\Gamma^{\lambda}_\ttime = \frac{1}{Z_\ttime}\sum_{n=1}^{\tau - \ttime}
+\lambda^{n-1}\Gamma^{(n)}_\ttime,$ where the normalizing constant $Z_\ttime = \sum_{n=1}^{\tau - \ttime}
+\lambda^{n-1}$.  
+
+Note that for $\lambda = 0$ we obtain the standard ACTOR-CRITIC update above, while for $\lambda = 1$ the update puts almost all of the weight on $\Gamma^{(n)}_\ttime$, which is equivalent to REINFORCE (since we consider an episodic MDP and not a discounted setting, the horizon is not infinite and therefore the equivalence of TD($1$) to REINFORCE is only an approximation). By choosing $\lambda$ between $0$ and $1$ we can balance between bias and variance. Using $\Gamma^{\lambda}_\ttime$ instead of $\Gamma_\ttime$ in the actor update (line \ref{line:actor_update} in Algorithm \ref{alg:actor_critic}) is also known as \textit{generalized advantage estimation}.
+
+
+
+
+% We can summarize the various updates for the policy gradient as
+% follows:
+% \begin{itemize}
+% \item REINFORCE (which is a Monte-Carlo estimate) uses
+% $\mathbb{E}^\policy[R_\ttime \nabla\log\policy(\action|\state;\theta) ]$.
+% \item $\QValue$-function with actor-critic uses
+% $\mathbb{E}^\policy[\widehat{\QValue}(\action_\ttime|\state_\ttime;\weight)
+% \nabla\log\policy(\action|\state;\theta) ]$.
+% \item A-function with actor-critic uses
+% $\mathbb{E}^\policy[A(\action_\ttime|\state_\ttime;\weight)
+% \nabla\log\policy(\action|\state;\theta) ]$, where
+% $A(\action|\state;\weight)=\widehat{\QValue}(\state,\action;\weight)-\widehat{\Value}(\state;\weight)$. The A-function is also called the \emph{Advantage function}.
+% \item TD with actor-critic uses
+% $\mathbb{E}^\policy[\Gamma\nabla\log\policy(\action|\state;\theta) ]$, where
+% $\Gamma$ is the TD error.
+% \end{itemize}
 
 \section{Convergence of Policy Gradient}
 
@@ -1153,8 +1203,7 @@ The policy difference lemma is due to  \cite{kakade2002approximately}, and the p
 
 The policy gradient theorem originated in \cite{SuttonMSM99}, and the proof in Section \ref{sec:alternative_proof} follows the original derivation. Alternative formulations of the theorem appear in \cite{MarbachT01,MarbachT03} and \cite{BaxterB01}.
 
-The REINFORCE algorithm is from \cite{Williams92}, which introduced also the baseline functions. Earlier investigations of related ideas in the operations research literature include \cite{glynn1990likelihood,fu1994optimization}. Convergence properties of the REINFORCE algorithm were studied in \cite{PhansalkarT95,baxter2001infinite,marbach2002simulation}. Optimal variance reduction using baseline functions was studied in \cite{greensmith2004variance}.
-The PPO algorithm is from \cite{schulman2017proximal}.
+The REINFORCE algorithm is from \cite{Williams92}, which introduced also the baseline functions. Earlier investigations of related ideas in the operations research literature include \cite{glynn1990likelihood,fu1994optimization}. Convergence properties of the REINFORCE algorithm were studied in \cite{PhansalkarT95,baxter2001infinite,marbach2002simulation}. Optimal variance reduction using baseline functions was studied in \cite{greensmith2004variance}. Actor critic algorithms were studied in \cite{konda1999actor,bhatnagar2007incremental}, and multi-step lookahead TD updates for the actor was proposed in \cite{castro2010convergent} and the popular generalized advantage estimation method of \cite{schulman2015high}. The PPO algorithm is from \cite{schulman2017proximal}.
 
 Convergence of policy gradient and convergence rates were developed in \citep{shani2020adaptive,bhandari2024global}. The simplified analysis here is to our knowledge novel.
 % The \emph{aliased grid world} example follows David Silver course \cite{DavidSilver-course}.

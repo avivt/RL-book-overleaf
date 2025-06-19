@@ -1237,6 +1237,8 @@ As in the Q learning algorithm, action selection in Line \ref{line:dqn_action_se
 \section{Off-Policy Learning with Function Approximation (Yishay to Check)}
 \label{sec:off_policy_FA}
 
+\YM{The first part is from Sutton 11.2 and the second part is from Example 11.1 attributed to Tsitsiklis and Van Roy}
+
 We would like to see what is the effect that the samples are generated
 following a different policy, namely, an off-policy setting. There
 is no issue for Monte-Carlo, and the same logic would still be
@@ -1258,10 +1260,10 @@ Consider the following part of an MDP (see Figure
 the first to the second, with reward $0$. The main issue is that the
 linear approximation gives the first node a weight $\weight$ and the
 second $2\weight$. Assume we start with some value $\weight_0>0$.
-Each time we have an update for the two states we have
+Each time we have an update for the two states we have,
 \[
 \weight_{\ttime+1}=\weight_\ttime +\alpha[0+\gamma
-(2\weight_\ttime)-\weight_\ttime]=[1+\alpha(2\gamma-1)]\weight_\ttime=[1+\alpha(2\gamma-1)]^\ttime\weight_1
+(2\weight_\ttime)-\weight_\ttime]=[1+\alpha(2\gamma-1)]\weight_\ttime=[1+\alpha(2\gamma-1)]^\ttime\weight_1.
 \]
 For $\gamma>0.5$ we have $\alpha(2\gamma-1)>0$, and $\weight_\ttime$
 diverges.
@@ -1288,31 +1290,31 @@ with probability $p$.
 
 Again, assume that we start with some $\weight_0>0$ We have three
 types of updates, one per possible transition. When we transition
-from the initial state to the second state we have
+from the initial state to the second state we have,
 \[
 \Delta \weight= \alpha[0+\gamma
 (2\weight_\ttime)-\weight_\ttime]\cdot
-1=\alpha(2\gamma-1)\weight_\ttime
+1=\alpha(2\gamma-1)\weight_\ttime.
 \]
 The transition from the second state back to itself has an update,
 \[
 \Delta \weight= \alpha[0+\gamma
 (2\weight_\ttime)-(2\weight_\ttime)]\cdot 2
-=-4\alpha(1-\gamma)\weight_\ttime
+=-4\alpha(1-\gamma)\weight_\ttime.
 \]
 The transition to the terminal state we have
 \[
 \Delta \weight= \alpha[0+\gamma 0 -(2\weight_\ttime)]\cdot
-2=-4\alpha \weight_\ttime
+2=-4\alpha \weight_\ttime.
 \]
 
 
 
 When we use on-policy, we have all transitions. Assume that the
-second transition happens $n\geq 0$ times. Then we have
+second transition happens $n\geq 0$ times. Then we have,
 \[
 \frac{\weight_{\ttime+1}}{\weight_\ttime}=(1+\alpha(2\gamma-1))(1-4\alpha(1-\gamma))^n(1-4\alpha)<
-1-\alpha
+1-\alpha.
 \]
 This implies that $\weight_\ttime$ converges to zero, as desired.
 
@@ -1321,7 +1323,7 @@ transitions of the second state, where $n\ll 1/p$, and in addition
 $\gamma> 1-1/(40n)$. This implies that in most updates we do not
 reach the terminal state and we have
 \[
-\frac{\weight_{\ttime+1}}{\weight_\ttime}=(1+\alpha(2\gamma-1))(1-4\alpha(1-\gamma))^n>1
+\frac{\weight_{\ttime+1}}{\weight_\ttime}=(1+\alpha(2\gamma-1))(1-4\alpha(1-\gamma))^n>1,
 \]
 and therefore, for some setting of $n$ we have that the weight
 $\weight_\ttime$ diverges.
@@ -1331,22 +1333,22 @@ TD updates. We can consider an algorithm that in each iteration
 minimizes the square error. Namely,
 \[
 \weight_{\ttime+1}=\arg\min_\weight\sum_s
-[\widehat{\Value}(\state_\ttime;\weight)-E^\policy[\reward_\ttime+\gamma\widehat{\Value}(\state_{\ttime+1};\weight_\ttime)]]^2
+[\widehat{\Value}(\state_\ttime;\weight)-E^\policy[\reward_\ttime+\gamma\widehat{\Value}(\state_{\ttime+1};\weight_\ttime)]]^2.
 \]
-
 For the MDP example of Figure~\ref{fig:L8-3state} we have that:
 \begin{align*}
- \weight_{\ttime+1} &= \arg\min_\weight (\weight-\gamma(2\weight_\ttime))^2+(2\weight-(1-p)\gamma(2\weight_\ttime))^2
+ \weight_{\ttime+1} &= \arg\min_\weight (\weight-\gamma(2\weight_\ttime))^2+(2\weight-(1-p)\gamma(2\weight_\ttime))^2.
 \end{align*}
 Solving for $\weight_{\ttime+1}$ we have
 \begin{align*}
 0&=  2(\weight_{\ttime+1}-\gamma(2\weight_\ttime))+4(2\weight_{\ttime+1}-(1-p)\gamma(2\weight_\ttime)\\
   10 \weight_{\ttime+1}&=4\gamma \weight_\ttime + 8\gamma(1-p)\weight_\ttime\\
-  \weight_{\ttime+1}&=\frac{6-4p}{5}\gamma \weight_\ttime
+  \weight_{\ttime+1}&=\frac{6-4p}{5}\gamma \weight_\ttime.
 \end{align*}
 So for $\gamma(6-4p)>5$ we have divergence. (Recall that
-$\gamma\approx 1-\varepsilon$ and $p\approx \varepsilon$ is a very
-important setting.\AT{what is $\varepsilon$ here?})
+$\gamma\approx 1-\lambda$ and $p\approx \lambda$ for some small $\lambda>0$ is a very
+important setting.)
+%\AT{what is $\varepsilon$ here?})
 
 Note that if we have taken in to account the influence of
 $\weight_{\ttime+1}$ on $\Value$ and use
@@ -1355,7 +1357,10 @@ $\widehat{\Value}(\state_{\ttime+1};\weight_\ttime)$, this specific
 problem would have disappeared, since $\weight_{\ttime+1}=0$ would
 be the minimizer.
 
-\subsubsection{Summary of convergence results} Here is a summary of the known convergence and divergence results in
+\subsubsection{Summary of convergence results} 
+\YM{While I am sure this is taken exactly from somewhere, I did not find it in Sutton book (1st or 2nd edition)}
+
+Here is a summary of the known convergence and divergence results in
 the literature:
 \begin{center}
   \begin{tabular}{ | l | c | c|c|c| }

@@ -260,6 +260,10 @@
 \newcommand{\AT}[1]{\textcolor{red}{AT: #1}}
 \newcommand{\YM}[1]{\textcolor{purple}{YM: #1}}
 
+\newcommand{\nb}[3]{{\colorbox{#2}{\bfseries\sffamily\scriptsize\textcolor{white}{#1}}}{\textcolor{#2}{\sf\small\textit{#3}}}}
+\newcommand{\esq}[1]{\nb{question:}{teal}{#1}}
+\newcommand{\esr}[1]{\nb{revise:}{orange}{#1}}
+\newcommand{\esc}[1]{\nb{correct:}{purple}{#1}}
 
 \definecolor{lightgray}{rgb}{0.9,0.9,0.9}
 \newmdenv[backgroundcolor=lightgray]{commentary}

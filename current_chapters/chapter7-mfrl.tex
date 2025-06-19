@@ -1231,7 +1231,7 @@ The following theorem states that the value of the policy $\policy$ on the maxim
 empirical model, is identical to that of $TD(0)$ (running on the
 sample until convergence, namely, continuously sampling uniformly
 $t\in[1,T]$ and using $(\state_\ttime,
-\action_r,\reward_\ttime,\state_{\ttime+1})$ for the $TD(0)$
+\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ for the $TD(0)$
 update).
 
 \begin{theorem}
@@ -1248,7 +1248,7 @@ The update of $TD(0)$ is
 $\widehat{V}(\state_\ttime)=\widehat{V}(\state_\ttime)+\alpha_\ttime(\state_\ttime,\action_\ttime)\Delta_\ttime$,
 where $\Delta_\ttime=\reward_\ttime+\discount
 \widehat{V}(\state_{\ttime+1})-\widehat{V}(\state_\ttime)$. At
-convergence we have $E[\Delta_\ttime]=0$ and hence,
+convergence we have $\mathbb{E}[\Delta_\ttime]=0$ and hence,
 \[
 \widehat{V}(\state)=\frac{1}{n(\state,\action)}\sum_{\state_{\ttime+1}:\state_\ttime=\state,\action_\ttime=\action}
 \reward_\ttime+\discount
@@ -2047,7 +2047,7 @@ $\lambda$-optimal.
 
 \end{advanced}
 
-\subsection{TD: Multiple look-ahead}
+\subsection{TD: Multiple look-ahead}\label{sec:TD_lambda}
 
 The $TD(0)$ uses only the current reward and state. Given
 $(\state_\ttime,\action_\ttime,\reward_\ttime,\state_{\ttime+1})$ it
