@@ -1,7 +1,6 @@
-This chapter continues looking at the case where the MDP models are
-large state space. In the previous chapter we looked at
-approximating the value function. In this chapter we will consider
-learning directly a policy and optimizing it.
+This chapter continues looking at the case where the MDP models have a large state space. In the previous chapter, we looked at
+approximating the value function. In this chapter, we will consider
+learning a policy directly and optimizing it.
 
 \section{Problem Setting}
 
@@ -9,14 +8,14 @@ To describe the problem formally, we shall make an assumption about the policy s
 % We will assume that each state $\state$ has an encoding
 % $\phi(\state)\in \mathbb{R}^{d_1}$. 
 The policy will have a
-parametrization $\theta\in \mathbb{R}^{d}$, and we denote by 
+parametrization $\theta\in \mathbb{R}^{d}$ and we denote by 
 $\policy(\action|\state,\theta)$ the probability of
 selecting action $\action$ when observing state $\state$, and having a policy parametrization
 $\theta$. 
 
 For technical ease, we consider the stochastic shortest path objective described in Chapter \ref{chapter:episodic}:
 \[\Value^\policy(\state) = \mathbb E^{\pi }\left[\left.\sum\limits_{\ttime = 0}^\termtime {{\reward_\ttime}} \right|\state_0 = \state\right],\]
-where $\termtime$ is the termination time, which we will assume to bounded with probability one, i.e., Assumption \ref{ass:finite_termination_prob} holds.
+where $\termtime$ is the termination time, which we will assume to be bounded with probability one, i.e., Assumption \ref{ass:finite_termination_prob} holds.
 We are given a distribution over the initial state of the MDP, $\initdist(\state_0)$, and define $J(\theta) \triangleq \mathbb{E}\left[ \Value^\policy(\state_0)\right] = \initdist^\top \Value^\policy$ to be the expected value of the policy (where the expectation is with respect to $\initdist$).
 
 The optimization problem we consider is:
@@ -29,21 +28,21 @@ The optimization problem we consider is:
 % initial state $\state_0$.
 %
 This maximization problem can be solved in multiple ways. We will
-mainly explore gradient based methods.
+mainly explore gradient-based methods.
 
 In the setting that the MDP is not known, we shall assume that we are allowed to simulate `rollouts' from a given policy, $\state_0,\action_0,\reward_0,\dots,\state_\termtime, \action_\termtime, \reward_\termtime$, where $\state_0 \sim \initdist$, $\action_\ttime\sim \policy(\cdot|\state_\ttime,\theta)$, and $\state_{\ttime+1} \sim \transitionkernel (\cdot | \state_\ttime, \action_\ttime)$. We shall devise algorithms that use such rollouts to modify the policy parameters $\theta$ in a way that increases $J(\theta)$.
 
 \section{Policy Representations}
 We start with a few examples on how to parameterize the policy.
 \paragraph{Log linear policy} We will assume a feature encoding
-of the state and action pairs, i.e., $\phi(\state,\action)\in \mathbb{R}^{d}$. Given the parameter $\theta$, the linear part will compute $\xi(\state,\action)=\phi(\state,\action)^\top \theta$. Given the values of $\xi(\state,\action)$ for each $\action\in \Actions$, the policy selects action $\action$ with probability proportional to
+of the state-action pairs, i.e., $\phi(\state,\action)\in \mathbb{R}^{d}$. Given the parameter $\theta$, the linear part will compute $\xi(\state,\action)=\phi(\state,\action)^\top \theta$. Given the values of $\xi(\state,\action)$ for each $\action\in \Actions$, the policy selects action $\action$ with probability proportional to
 $e^{\xi(\state,\action)}$. Namely,
 \[
 \policy(\action|\state,\theta)=
 \frac{e^{\xi(\state,\action)}}{\sum_{b\in
 \Actions}e^{\xi(\state,b)}}
 \]
-Note that this is essentially a soft-max selection over $\xi(\state,\action)$.
+Note that this is essentially a softmax selection over $\xi(\state,\action)$.
 
 \paragraph{Gaussian linear policy} This policy representation applies when the action
 space is a real number, i.e., $\Actions=\mathbb{R}$. The encoding of states is $\phi(\state)\in \mathbb{R}^{d}$. Given a state $\state$,
@@ -51,15 +50,15 @@ we compute $\xi(\state)=\phi(\state)^\top\theta$. We select an
 action $\action$ from the normal distribution with mean
 $\xi(\state)$ and variance $\sigma^2$, that is, $\mathcal{N}(\xi(\state),\sigma^2)$ (the Gaussian policy has an additional parameter $\sigma$). For an action space with dimension larger than 1, we can consider such a policy with a different parameter vector $\theta$ for every dimension.
 
-\paragraph{Non-linear policy} Note that in both the log linear and Gaussian linear policies above, the dependence of $\xi$ on $\theta$ was linear. It is straightforward to extend these policies such that $\xi$ depends on $\theta$ in a more expressive and non-linear manner. A popular parametrization is a feed-forward neural network, also called a multi-layered perceptron (MLP). An MLP with $d$ inputs, 2 hidden layers of sizes $h_1$, $h_2$, and $k$ outputs has parameters $\theta_0 \in \mathbb{R}^{d \times h_1}$, $\theta_1 \in \mathbb{R}^{h_1 \times h_2}$, $\theta_2 \in \mathbb{R}^{h_2 \times k}$. The MLP computes $\xi\in \mathbb{R}^{k}$ as follows:
+\paragraph{Non-linear policy} Note that in both the log-linear and Gaussian-linear policies above, the dependence of $\xi$ on $\theta$ was linear. It is straightforward to extend these policies such that $\xi$ depends on $\theta$ in a more expressive and non-linear manner. A popular parametrization is a feedforward neural network, also called a multi-layer perceptron (MLP). An MLP with $d$ inputs, 2 hidden layers of sizes $h_1$, $h_2$, and $k$ outputs has parameters $\theta_0 \in \mathbb{R}^{d \times h_1}$, $\theta_1 \in \mathbb{R}^{h_1 \times h_2}$, $\theta_2 \in \mathbb{R}^{h_2 \times k}$. The MLP computes $\xi\in \mathbb{R}^{k}$ as follows:
 \begin{equation*}
     \xi(\state) = \theta_2^T f_{nl}\left(\theta_1^T\left( f_{nl}\left(\theta_0^T \phi\left(\state \right)\right)\right)\right) \in \mathbb{R}^{k},
 \end{equation*}
-where $f_{nl}$ is some non-linear function that is applied element-wise to each component of a vector, for example the Rectified Linear Unit (ReLU) defined as $\text{ReLU}(x) = \max(0, x)$. Once $\xi$ is computed, selecting an
+where $f_{nl}$ is some non-linear function that is applied element-wise to each component of a vector, for example, the Rectified Linear Unit (ReLU) defined as $\text{ReLU}(x) = \max(0, x)$. Once $\xi$ is computed, selecting an
 action proceeds similarly as above, e.g., by sampling from the normal distribution with mean
 $\xi(\state)$ and variance $\sigma^2$.
 
-\paragraph{Simplex policy} This policy representation will be used mostly for pedagogical reasons, and can express any Markov stochastic policy. For a finite state and action space, let $\theta \in [0,\infty)^{\States \times \Actions}$, and denote $\theta_{\state,\action}$ the parameter corresponding to state $\state$ and action $\action$. We define $\policy(\action|\state,\theta) = \frac{\theta_{\state,\action}}{\sum_{\action'} \theta_{\state,\action'}}$. Clearly, any Markov policy $\tilde{\policy}$ can be represented by setting $\theta_{\state,\action} = \tilde{\policy}(\action|\state)$.
+\paragraph{Simplex policy} This policy representation will be used mostly for pedagogical reasons and can express any Markov stochastic policy. For a finite state and action space, let $\theta \in [0,\infty)^{\States \times \Actions}$, and denote $\theta_{\state,\action}$ the parameter corresponding to state $\state$ and action $\action$. We define $\policy(\action|\state,\theta) = \frac{\theta_{\state,\action}}{\sum_{\action'} \theta_{\state,\action'}}$. Clearly, any Markov policy $\tilde{\policy}$ can be represented by setting $\theta_{\state,\action} = \tilde{\policy}(\action|\state)$.
 
 \section{The Policy Performance Difference Lemma}
 
@@ -118,17 +117,17 @@ We now state the performance difference lemma.
         &=(I - \transitionkernel^{\policy'})^{-1} \left(\reward +\transitionkernel^{\policy'}\Value^\policy - \Value^\policy \right).
     \end{split}
     \end{equation*}
-    Multiplying both sides by $\initdist$, and by Proposition \ref{prop:visitation_freq} $\discdist^{\policy'}=\initdist (I - \transitionkernel^{\policy'})^{-1}$, this gives
+    Multiplying both sides by $\initdist$, and by Proposition \ref{prop:visitation_freq}, $\discdist^{\policy'}=\initdist (I - \transitionkernel^{\policy'})^{-1}$, this gives
     \begin{equation*}
         J(\theta') - J(\theta) = \discdist^{\policy'}\left(\reward +\transitionkernel^{\policy'}\Value^\policy - \Value^\policy \right).
     \end{equation*}
     Finally, note that $\sum_\action \policy'(\action|\state) \QValue^{\policy}(\state,\action) = \reward(\state) + \sum_{\state'}\transitionkernel^{\policy'}(\state'|\state)\Value^{\policy}(\state')$.
 \end{proof}
 
-Given some policy $\policy(\action|\state)$, an improved policy $\policy'(\action|\state)$ must satisfy that the right hand side of Eq.~\ref{eq:policy_perf_diff} is positive.
-Let us try to intuitively understand this criterion. First, consider the simplex policy parametrization above, which can express any Markov policy.  Consider the policy iteration update $\policy'(\state) = \argmax_{\action} \QValue^{\policy}(\state,\action)$. Substituting in the right hand side of Eq.~\ref{eq:policy_perf_diff} yields a non-negative value for every $\state$, and therefore an improved policy as expected.
+Given some policy $\policy(\action|\state)$, an improved policy $\policy'(\action|\state)$ must satisfy that the right-hand side of Eq.~\ref{eq:policy_perf_diff} is positive.
+Let us try to intuitively understand this criterion. First, consider the simplex policy parametrization above, which can express any Markov policy.  Consider the policy iteration update $\policy'(\state) = \argmax_{\action} \QValue^{\policy}(\state,\action)$. Substituting in the right-hand side of Eq.~\ref{eq:policy_perf_diff} yields a non-negative value for every $\state$, and therefore an improved policy as expected.
 
-For some policy parametrizations, however, the terms in the sum in Eq.~\ref{eq:policy_perf_diff} cannot be made positive for all $\state$. To obtain policy improvement, the terms need to be balanced such that a positive sum is obtained. This is not straightforward for two reasons. First, for large state spaces, it is not tractable to compute the sum over $\state$, and sampling must be used to approximate this sum. However, straightforward sampling of states from a fixed policy will not work, as the weights in the sum, $\discdist^{\policy'}(\state)$, \textit{depend on the policy $\policy'$}! 
+For some policy parametrizations, however, the terms in the sum in Eq.~\ref{eq:policy_perf_diff} cannot be made positive for all $\state$. To obtain policy improvement, the terms need to be balanced such that a positive sum is obtained. This is not straightforward for two reasons. First, for large state spaces, it is not tractable to compute the sum over $\state$, and sampling must be used to approximate this sum. However, straightforward sampling of states from a fixed policy will not work, as the weights in the sum, $\discdist^{\policy'}(\state)$, \textit{depend on the policy $\policy'$!}.
 The basic insight is that when we modify $\policy$, we directly influence the action distribution, but we also indirectly change the state distribution, which influences the expected reward.
 
 The following example shows that indeed, balancing the sum with respect to weights that correspond to \textit{the current policy} $\policy$ does not necessarily lead to a policy improvement. 
@@ -145,14 +144,14 @@ The following example shows that indeed, balancing the sum with respect to weigh
             &\QValue^{\policy}(\state_1, right) - \Value^{\policy}(\state_1) = -1/8. 
     \end{align*}
 
-    We want to maximize $\sum_{\state} \discdist^{\policy}(\state) \sum_\action \policy'(\action|\state)\left( \QValue^{\policy}(\state,\action) - \Value^{\policy}(\state)\right)$. We now need to plug in the three states. For state $\state_1$ we have $\theta_1 (3/4-3/8)+(1-\theta_1)(1/4-3/8)=\frac{\theta_1}{2}-\frac{1}{8}$. For state $\state_2$ we have $\frac{1}{4}\left(\frac{-3}{4}\theta_2+(1-\theta_2)\frac{1}{4}\right)=\frac{1}{16}-\frac{\theta_2}{4}$. For state $\state_3$ we have $\frac{3}{4}\left(\frac{3}{4}\theta_2+(1-\theta_2)\frac{-1}{4}\right)=\frac{3\theta_2}{4}-\frac{3}{16}$. Maximizing over $\theta$ we have,
+    We want to maximize $\sum_{\state} \discdist^{\policy}(\state) \sum_\action \policy'(\action|\state)\left( \QValue^{\policy}(\state,\action) - \Value^{\policy}(\state)\right)$. We now need to plug in the three states. For state $\state_1$, we have $\theta_1 (3/4-3/8)+(1-\theta_1)(1/4-3/8)=\frac{\theta_1}{2}-\frac{1}{8}$. For state $\state_2$ we have $\frac{1}{4}\left(\frac{-3}{4}\theta_2+(1-\theta_2)\frac{1}{4}\right)=\frac{1}{16}-\frac{\theta_2}{4}$. For state $\state_3$ we have $\frac{3}{4}\left(\frac{3}{4}\theta_2+(1-\theta_2)\frac{-1}{4}\right)=\frac{3\theta_2}{4}-\frac{3}{16}$. Maximizing over $\theta$, we have,
 \begin{equation*}
         \argmax_{\theta_1} \left\{\frac{\theta_1}{2}-\frac{1}{8}+\frac{1}{16}-\frac{\theta_2}{4}+  \frac{3\theta_2}{4}-\frac{3}{16}\right\} = \argmax_{\theta_1} \frac{\theta_1}{2} = 1.
     \end{equation*}
     \begin{equation*}
           \argmax_{\theta_2} \left\{\frac{\theta_1}{2}-\frac{1}{8}+\frac{1}{16}-\frac{\theta_2}{4}+  \frac{3\theta_2}{4}-\frac{3}{16}\right\} = \argmax_{\theta_2} \frac{\theta_2}{2} = 1.
     \end{equation*}
-    However, for $\policy'$ that corresponds to $\theta' = [1, 1]$ we have that $\Value^{\policy'}(\state_1) = 0 < \Value^{\policy}(\state_1)$.
+    However, for $\policy'$ that corresponds to $\theta' = [1, 1]$, we have that $\Value^{\policy'}(\state_1) = 0 < \Value^{\policy}(\state_1)$.
     % If we maximize ∑\state\discdist\policy(\state)∑\action\policy′(\action|\state)(\QValue\policy(\state,\action)−\Value\policy(\state))\sum_{\state} \discdist^{\policy}(\state) \sum_\action \policy'(\action|\state)\left( \QValue^{\policy}(\state,\action) - \Value^{\policy}(\state)\right), we have:
     % \begin{equation*}
     %     \argmax_{\theta_1} \left\{ \frac{3}{4}\left(\frac{3}{4}\theta_1+(1-\theta_1)\frac{-1}{4}\right)+\frac{1}{4}\left(\frac{-3}{4}\theta_1+(1-\theta_1)\frac{1}{4}\right)\right\} = \argmax_{\theta_1} \frac{\theta_1}{2} = 1.
@@ -181,7 +180,7 @@ The following example shows that indeed, balancing the sum with respect to weigh
     \label{fig:policy-diff-example}
 \end{figure}
 
-Intuitively, we expect that if the difference $\pi' - \pi$ is `small', then the difference in the state visitation frequencies $\discdist^{\policy'} - \discdist^{\policy}$ would also be `small', allowing us to safely replace $\discdist^{\policy'}$ in the right hand side of Eq.~\ref{eq:policy_perf_diff} with $\discdist^{\policy}$. This is the route taken by several algorithmic approaches, which differ in the way of defining a `small' policy perturbation. Of particular interest to us is the case of an infinitesimal perturbation, that is, the \textit{policy gradient} $\nabla_{\theta} J(\theta)$. In the following, we shall describe in detail several algorithms for estimating the policy gradient.
+Intuitively, we expect that if the difference $\pi' - \pi$ is `small', then the difference in the state visitation frequencies $\discdist^{\policy'} - \discdist^{\policy}$ would also be `small', allowing us to safely replace $\discdist^{\policy'}$ in the right-hand side of Eq.~\ref{eq:policy_perf_diff} with $\discdist^{\policy}$. This is the route taken by several algorithmic approaches, which differ in the way of defining a `small' policy perturbation. Of particular interest to us is the case of an infinitesimal perturbation, that is, the \textit{policy gradient} $\nabla_{\theta} J(\theta)$. In the following, we shall describe in detail several algorithms for estimating the policy gradient.
 
 % \begin{theorem}\label{thm:policy_gradient_direct}
 %     We have that
@@ -226,12 +225,12 @@ In the following, we shall explore several different approaches for calculating 
 These methods can be used even when we do not have a representation
 of the gradient of the policy or even the policy itself. This may
 arise many times when we have, for example, access to an
-off-the-shelf robot for which the software is encoded already in the
-robot. In such cases we can estimate the gradient by introducing
+off-the-shelf robot for which the software is already encoded in the
+robot. In such cases, we can estimate the gradient by introducing
 perturbations in the parameters.
 
 The simplest case is component-wise gradient estimates, which is also named \emph{coordinate ascent} . Let $e_i$ be
-a unit vector, i.e., has in the $i$-th entry a value $1$ and a value
+a unit vector, i.e., it has a value $1$ in the $i$-th entry and a value
 $0$ in all the other entries. The perturbation that we will add is
 $\delta e_i$ for some $\delta >0$. We will use the following
 approximation:
@@ -239,7 +238,7 @@ approximation:
 \frac{\partial}{\partial \theta_i}J(\theta)\approx
 \frac{\hat{J}(\theta+\delta e_i)-\hat{J}(\theta)}{\delta},
 \]
-where $\hat{J}(\theta)$ is unbiased estimator of $J(\theta)$. A more
+where $\hat{J}(\theta)$ is an unbiased estimator of $J(\theta)$. A more
 symmetric approximation is sometimes better,
 \[
 \frac{\partial}{\partial \theta_i}J(\theta)\approx
@@ -249,19 +248,19 @@ symmetric approximation is sometimes better,
 
 The problem is that we need to average many samples of
 $\hat{J}(\theta\pm\delta e_i)$ to overcome the noise. Another
-weakness is that we need to do the computation per dimension. In
+weakness is that we need to perform the computation per dimension. In
 addition, the selection of $\delta$ is also critical. A small
 $\delta$ might have a large noise rate that we need to overcome (by
-using many samples). A large $\delta$ run the risk of facing the
+using many samples). A large $\delta$ runs the risk of facing the
 non-linearity of $J$.
 
-Rather then performing separately the computation and optimization per dimension, we can perform a more global approach and use a least squares estimation of the gradient.
+Rather than performing  the computation and optimization separately per dimension, we can perform a more global approach and use a least-squares estimation of the gradient.
 Consider a random vector $u_i$, then we have
 \[
 J(\theta+\delta u_i)\approx J(\theta)+\delta u_i^\top \nabla
 J(\theta) \;.
 \]
-We can define the following least square problem,
+We can define the following least-square problem,
 \[
 G= \arg\min_x \sum_i (J(\theta+\delta u_i)- J(\theta)-\delta
 u_i^\top x)^2,
@@ -279,17 +278,17 @@ We would like to solve for the gradient, i.e.,
 \[
 \Delta J\approx [\Delta \Theta]x\;.
 \]
-This is a standard least square problem and the solution is
+This is a standard least-square problem and the solution is
 \[
 G=([\Delta \Theta]^\top [\Delta \Theta])^{-1} [\Delta\Theta]^\top
 \Delta J\;.
 \]
 
-One issue that we neglected is that we actually do not a have the
-value of $J(\theta)$. The solution is to solve also for the value of
+One issue that we neglected is that we actually do not have the
+value of $J(\theta)$. The solution is to also solve  for the value of
 $J(\theta)$.
 %
-We can define a matrix $M=[1, [\Delta\Theta]]$, i.e., adding a column of ones, a vector of unknowns $x=[J(\theta), \nabla J(\theta)]$, and have the target be $z=[\cdots, J(\theta+\delta u_i),\cdots]$. We can now solve for $z\approx Mx$, and this will recover an estimate also for $J(\theta)$.
+We can define a matrix $M=[1, [\Delta\Theta]]$, i.e., adding a column of ones, a vector of unknowns $x=[J(\theta), \nabla J(\theta)]$, and have the target be $z=[\cdots, J(\theta+\delta u_i),\cdots]$. We can now solve for $z\approx Mx$, and this will also recover an estimate for $J(\theta)$.
 
 
 \section{Policy Gradient Theorem}
@@ -303,7 +302,7 @@ The gradient $\nabla
 \end{assumption}
 
 We will mainly try to make sure
-that we are able to use it to get estimates, and the quantities
+that we are able to use it to get estimates, and that the quantities
 would be indeed observable by the learner.
 
 \begin{theorem}\label{thm:policy_gradient_direct}
@@ -313,8 +312,8 @@ would be indeed observable by the learner.
     \end{equation*}
 \end{theorem}
 \begin{proof}
-    For simplicity we consider that $\theta$ is a scalar; the extension to the vector case is immediate.
-    By definition we have that
+    For simplicity, we consider that $\theta$ is a scalar; the extension to the vector case is immediate.
+    By definition, we have that
     \begin{equation*}
         \begin{split}
             \frac{\partial J(\theta)}{\partial \theta} &= \lim_{\delta \theta \to 0} \frac{J(\theta+ \delta \theta) - J(\theta)}{\delta \theta} \\
@@ -323,15 +322,15 @@ would be indeed observable by the learner.
             &= \sum_{\state} \discdist^{\policy}(\state) \sum_\action \frac{\partial \policy(\action|\state)}{\partial \theta} \QValue^{\policy}(\state,\action),
         \end{split}
     \end{equation*}
-\sloppy where the second equality uses Lemma \ref{lemma:perf_diff} and the third equality is since $\sum_\action \policy_{\theta+ \delta \theta}(\action|\state)\Value^{\policy_{\theta}}(\state) = \Value^{\policy_{\theta}}(\state)$, and $\Value^{\policy_{\theta}}(\state) = \sum_{\action} \policy_{\theta}(\action|\state) \QValue^{\policy_{\theta}}(\state,\action)$. The fourth equality holds by definition of the derivative, and using Assumption \ref{ass:differentiable_policy}. Note that Assumption \ref{ass:differentiable_policy} guarantees that $\policy$ is continuous in $\theta$, and therefore $P^{\policy}$ is continuous in $\theta$, and by Proposition \ref{prop:visitation_freq} we must have $\lim_{\delta \theta \to 0} \discdist^{\policy_{\theta+ \delta \theta}}(\state) = \discdist^{\policy}(\state)$.
+\sloppy where the second equality uses Lemma \ref{lemma:perf_diff} and the third equality is since $\sum_\action \policy_{\theta+ \delta \theta}(\action|\state)\Value^{\policy_{\theta}}(\state) = \Value^{\policy_{\theta}}(\state)$, and $\Value^{\policy_{\theta}}(\state) = \sum_{\action} \policy_{\theta}(\action|\state) \QValue^{\policy_{\theta}}(\state,\action)$. The fourth equality holds by definition of the derivative, and using Assumption \ref{ass:differentiable_policy}. Note that Assumption \ref{ass:differentiable_policy} guarantees that $\policy$ is continuous in $\theta$, and therefore $P^{\policy}$ is continuous in $\theta$. By Proposition \ref{prop:visitation_freq} we must have $\lim_{\delta \theta \to 0} \discdist^{\policy_{\theta+ \delta \theta}}(\state) = \discdist^{\policy}(\state)$.
 \end{proof}
 
 The Policy Gradient Theorem gives us a way to compute the gradient.
 We can sample states from the distribution $\discdist^{\policy}$ using the
 policy $\policy$. We still need to resolve the sampling of the
 action. We are going to observe the outcome of only one action in
-state $\state$, and the theorem requires summing over all of them!
-In the following we will slightly modify the theorem so that we will
+state $\state$, but the theorem requires summing over all of them!
+In the following, we will slightly modify the theorem so that we will
 be able to use only the action $\action$ selected by the policy
 $\policy$, rather than summing over all actions.
 
@@ -354,15 +353,15 @@ following corollary,
 \end{equation*}
 \end{corollary}
 \begin{proof}
-    The first equality is by the identity above, and the second is by definition of $\discdist^{\policy}(\state)$, similarly to Proposition \ref{prop:rollout_sampling}.
+    The first equality is by the identity above, and the second is by definition of $\discdist^{\policy}(\state)$, similar to Proposition \ref{prop:rollout_sampling}.
 \end{proof}
-Note that in the above corollary both the state $\state$ and action
-$\action$ are sampled using the policy $\policy$. This avoids the need to sum over all actions, and leaves only the action selected by the policy.
+Note that in the above corollary, both the state $\state$ and action
+$\action$ are sampled using the policy $\policy$. This avoids the need to sum over all actions and leaves only the action selected by the policy.
 
 We next provide some examples for the policy gradient theorem.
 
 \begin{example}\label{example:mab_pg}
-Consider an MDP with a single state $\state$ (which is also called
+Consider an MDP with a single state $\state$ (which is also called a
 Multi-Arm Bandit, see
 % , and is discussed in 
 Chapter \ref{chapter:MAB}).
@@ -370,14 +369,14 @@ Assume we have only two actions, action $\action_1$ has expected
 reward $\reward_1$ and action $\action_2$ has expected reward
 $\reward_2$.
 
-The policy $\policy$ is define with a parameter
+The policy $\policy$ is defined with a parameter
 $\theta=(\theta_1,\theta_2)$, where $\theta_i\in \reals$. Given
-$\theta$ the probability of action $\action_i$ is
+$\theta$, the probability of action $\action_i$ is
 $p_i=e^{\theta_i}/(e^{\theta_1}+e^{\theta_2})$. We will also select
 a horizon of length one, i.e., $\tHorizon=1$. This implies that
 $\QValue^\policy(\state,\action_i)=\reward_i$.
 
-In this simple case we can compute directly $J(\theta)$ and $\nabla
+In this simple case, we can compute directly $J(\theta)$ and $\nabla
 J(\theta)$. The expected return is simply,
 \[
 J(\theta)=p_1 \reward_1 + p_2 \reward_2 =
@@ -395,7 +394,7 @@ p_1(1-p_1)\end{pmatrix} = (\reward_1-\reward_2) p_1(1-p_1) \begin{pmatrix}+1\\
 \]
 Updating in the direction of the gradient, in the case that
 $\reward_1>\reward_2$, would increase $\theta_1$ and decrease
-$\theta_2$, and eventually $p_1$ will converge to $1$.
+$\theta_2$ and eventually $p_1$ will converge to $1$.
 
 To apply the Policy gradient theorem we need to compute the
 gradient,
@@ -421,18 +420,17 @@ Consider the following deterministic MDP. We have states
 $\States=\{\state_0,\state_1,\state_2,\state_3\}$ and actions
 $\Actions=\{\action_0,\action_1\}$. We start at $\state_0$. Action
 $\action_0$ from any state leads to $\state_3$. Action $\action_1$
-moves from $\state_0$ to $\state_1$, from $\state_1$ to $\state_2$ and from $\state_2$ to $\state_3$. All the rewards are zero except the terminal reward at
-$\state_2$ which is $1$. The horizon is $\tHorizon=2$. This implies
-that the optimal policy performs in each state $\action_1$ and has a
-return of $1$.
+moves from $\state_0$ to $\state_1$, from $\state_1$ to $\state_2$, and from $\state_2$ to $\state_3$. All the rewards are zero except the terminal reward at
+$\state_2$, which is $1$. The horizon is $\tHorizon=2$. This implies
+that the optimal policy performs action $\action_1$ in each state and has a return of $1$.
 
 We have a log-linear policy parameterized by $\theta\in\reals^4$. In
-state $\state_0$ it selects action $\action_1$ with probability
+state $\state_0$, it selects action $\action_1$ with probability
 $p_1=e^{\theta_1}/(e^{\theta_1}+e^{\theta_2})$, and in state
 $\state_1$ it selects action $\action_1$ with probability
 $p_2=e^{\theta_3}/(e^{\theta_3}+e^{\theta_4})$.
 
-For this simple MDP we can specify the expected return
+For this simple MDP, we can specify the expected return
 $J(\theta)=p_1p_2$. We can also compute the gradient and have
 \[
 \nabla J(\theta)=\begin{pmatrix}p_1(1-p_1)p_2\\
@@ -980,7 +978,7 @@ To optimize the PPO objective using a sample rollout, we let $\Gamma_\ttime$ den
 \State \textbf{For} $j = 0,1,2,\dots$
 \State \quad Sample rollout $(\state_0, \action_0, \reward_0, \ldots, \state_\tau, \action_\tau, \reward_\tau)$ using policy $\policy$.
 \State \quad Set $R_{\ttime:\tau} = \sum_{i=\ttime}^\tau \reward_i$
-\State \quad Set $\Gamma_\ttime = R_{\ttime:\tau}-V(\state_\ttime;\weight)$
+\State \quad Set $\Gamma_\ttime = R_{\ttime:\tau}-\widehat{\Value}(\state_\ttime;\weight)$
 \State \quad Set $\theta_{prev} = \theta$
 \State \quad \textbf{For} $k=1,\dots,K$
 \State \quad \quad \quad Update policy parameters:
@@ -989,7 +987,7 @@ To optimize the PPO objective using a sample rollout, we let $\Gamma_\ttime$ den
 \]
 \State \quad Update value parameters:
 \[
-\weight := \weight + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} V(\state_\ttime;\weight)
+\weight := \weight + \beta \sum_{\ttime=0}^{\tau} \Gamma_\ttime \nabla_{\weight} \widehat{\Value}(\state_\ttime;\weight)
 \]
 \end{algorithmic}
 \end{algorithm}

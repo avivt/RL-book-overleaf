@@ -1373,7 +1373,7 @@ $\state_1$.
   \end{centering}
 \end{figure}
 
-\subsection{Q-learning: Markov Decision Process}
+\subsection{$\QValue$-learning: Markov Decision Process}
 
 
 We now extend the $\QValue$-learning algorithm from DDP to MDP. The main
@@ -1407,7 +1407,7 @@ time $\ttime$. The following is the definition of the algorithm.
 
 
 \begin{algorithm}[H]
-\caption{Q-learning}
+\caption{$\QValue$-learning}
 \begin{algorithmic}[1]
 \State \textbf{Initialize:} Set $Q_0(\state,\action) = 0$, for all $\state$, $\action$.
 \State \textbf{For} {$\ttime = 0, 1, 2, \dots$}

@@ -38,7 +38,7 @@ In planning, it is assumed that all the components are known. The objective of t
 
 As should be clear from the points above, the MDP model is agnostic to the structure that certain problems may possess, and more specialized models may exploit. The reader may question, therefore, why study such a model for planning. As it turns out, the simplicity and generality of the MDP model is actually a blessing when using it for \textit{learning}, which is the main focus of this book. The reason is that the structure of a specific problem may be implicitly picked up by the learning algorithm, which is designed to identify patterns in data. This strategy has proved to be very valuable in computing decision making policies for problems where structure exists, but is hard to define manually, which is often the case in practice. Indeed, many recent RL success stories, such as mastering the game of Go, managing resources in the complex game of StarCraft, and state-of-the-art continuous control of racing drones, have all used the simple MDP model combined with powerful deep learning methods~\cite{silver2016mastering,vinyals2019grandmaster,kaufmann2023champion}.
 
-There are two other strong modelling assumptions in the MDP model:  (1) all uncertainty in decision making is limited to the randomness of the (Markov) state transitions, and (2) the objective can only be specified using rewards. We next discuss these two design choices in more detail.
+There are two other strong modelling assumptions in the MDP model:  (1) all uncertainty in decision making is limited to the randomness of the (Markov) state transitions, and (2) the objective can only be specified using rewards. Next, we discuss these two design choices in more detail.
 
 %randomness
 
@@ -50,11 +50,11 @@ A main objective of planning and learning is to facilitate reasoning under uncer
 % \AT{I think we should work on connecting this section better to the preceding text. Right now it's not clear to me. Is it supposed to answer: "Why do we assume that we know the model?" and the answer is either: "we don't, and this uncertainty is part of the stochasticity of the MDP" or "we don't, and in the learning chapter we'll show you what you can do to learn the model". If this is what you meant, then we can clarify it this way.}
 
 
-Here we list common types of uncertainty, and afterwards discuss how they relate to planning with MDPs. 
+Here we list common types of uncertainty and, afterwards, discuss how they relate to planning with MDPs. 
 
-    {\em Aleatoric\footnote{The term comes from the Latin word ``alea'', which means dice or a game of chance.} uncertainty}: Handling inherent randomness that is part of the model. For example, a model can contain an event which happens with a given probability. For example, in the board game backgammon, the probability of a move is given by throwing two dices.
+    {\em Aleatoric\footnote{The term comes from the Latin word ``alea'', which means dice or a game of chance.} uncertainty}: Handling inherent randomness that is part of the model. For example, a model can contain an event which occurs with a given probability. For example, in the board game backgammon, the probability of a move is given by throwing two dices.
     
-    {\em Epistemic\footnote{The term is derived from the Greek word ``episteme'', meaning knowledge.} uncertainty}: Dealing with lack of knowledge about the model parameters. Sometimes we do not know what are the exact model parameters because more interaction is needed to learn them (this is addressed in the learning part of this book). Sometimes we have a nominal model and the true parameters are only  revealed at runtime (this is addressed within the robust MDP framework; see \cite{nilim2005robust}). Sometimes our model is too coarse or simply incorrect -- this is known as {\em model misspecification}.
+    {\em Epistemic\footnote{The term is derived from the Greek word ``episteme'', meaning knowledge.} uncertainty}: Dealing with a lack of knowledge about the model parameters. Sometimes we do not know what the exact model parameters are because more interaction is needed to learn them (this is addressed in the learning part of this book). Sometimes we have a nominal model and the true parameters are only revealed at runtime (this is addressed within the robust MDP framework; see \cite{nilim2005robust}). Sometimes our model is too coarse or simply incorrect -- this is known as {\em model misspecification}.
     
     % {\em Model misspecification}: Addressing incorrect assumptions. In many cases, we do not know what is the true model and not just the parameters. In these cases, we have to deal with model misspecification. 
     

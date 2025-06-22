@@ -807,22 +807,22 @@ We can now derive the upper bound on the pseudo regret
 
 \section{Best Arm Identification}
 
-We now switch the objective from minimizing the regret to identifying the best action, or a near-best action. The main conceptual difference is that we are not concern with the cumulative reward but rather with the number of rounds that it would take us to identify the near-optimal action. 
-In some sense, this is similar to a supervised learning scenario, where we would like to identify a hypothesis with low error, and our main concern is the sample complexity.
+We now switch the objective from minimizing the regret to identifying the best action, or a near-best action. The main conceptual difference is that we are not concerned with the cumulative reward but rather with the number of rounds it would take us to identify the near-optimal action. 
+In some sense, this is similar to a supervised learning scenario, where we aim to identify a hypothesis with low error, and our main concern is the sample complexity.
 %We would like to identify the best action, or an almost best action.
 We can define our goal in one of two ways.
 
 \paragraph{PAC Criteria }
-An action $i$ is $\epsilon$-optimal if  $\mu_i\geq \mu^*-\epsilon$. The PAC criteria is
+An action $i$ is $\epsilon$-optimal if  $\mu_i\geq \mu^*-\epsilon$. The PAC criterion is
 that, given $\epsilon,\delta>0$, with probability at least
-$1-\delta$, we find an $\epsilon$ optimal action.
+$1-\delta$, we find an $\epsilon$-optimal action.
 
 \paragraph{Exact Identification}
 Given $\Delta\le\min_{i\neq a^*}\mu^{*}-\mu_{i}$ (for every suboptimal action $i$),
-find the optimal action $\action^{*}$, with probability at least
+find the optimal action $\action^{*}$ with probability at least
 $1-\delta$.\\
 
-In this section, we  focus on the PAC Criteria, and our goal is to minimize the number of rounds until we output an $\epsilon$-optimal action.
+In this section, we  focus on the PAC Criterion, and our goal is to minimize the number of rounds until we output an $\epsilon$-optimal action.
 
 \subsection{Naive Algorithm (PAC criteria):}
 
@@ -838,7 +838,7 @@ Pr\left[\underbrace{\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}}_{\tex
 event}}\right]\le 2
 e^{-\left(\frac{\epsilon}{2}\right)^{2}m/2}=\frac{\delta}{k}.
 \]
-By union bound we get:
+By union bound, we get:
 \[
 Pr\left[\exists_{i}\left|\hat{\mu}_{i}-\mu_{i}\right|>\frac{\epsilon}{2}\right]\le\delta.
 \]
@@ -867,9 +867,9 @@ optimal action with probability at least $1-\delta$. We have established the fol
 
 \subsection{Sequential Halving Algorithm}
 
-In this section, we would like to slightly improve the sample size of the naive PAC Algorithm from the previous section. Our end result is fairly modest, we  reduce the $ O(\log\frac{2k}{\delta})$ factor to O($\log\frac{1}{\delta})$.
+In this section, we aim to slightly improve the sample size of the naive PAC algorithm from the previous section. Our end result is fairly modest, we  reduce the $ O(\log\frac{2k}{\delta})$ factor to O($\log\frac{1}{\delta})$.
 
-The main idea is as follows. The algorithm runs for $l=O(\log k)$ phases, after each phase we
+The main idea is as follows. The algorithm runs for $l=O(\log k)$ phases; after each phase, we
 eliminate half of the actions. This elimination allows us to sample
 each remaining action more times in the next phase, which makes eliminating the optimal action less likely.
 
@@ -930,17 +930,17 @@ each remaining action more times in the next phase, which makes eliminating the 
 
 \paragraph{Sample Complexity:}
 
-During phase $l$ we have $\left|S_{l}\right|=\frac{k}{2^{l-1}}$
+During phase $l$, we have $\left|S_{l}\right|=\frac{k}{2^{l-1}}$
 actions. We are setting the accuracy and confidence parameters as follows,
 \[
 \epsilon_{l}=\frac{3}{4}\epsilon_{l-1}=\frac{\epsilon}{4}\left(\frac{3}{4}\right)^{l-1},\;\;\;\delta_{l}=\frac{\delta}{2^{l}}\;.
 \]
-This implies that the sum of the accuracy and confidence parameters over all the phases is,
+This implies that the sum of the accuracy and confidence parameters over all phases is,
 \[
  \sum_l\epsilon_{l}\le\frac{\epsilon}{4}\left(\frac{3}{4}\right)^{l-1}\le \epsilon, \text{ and } \sum_l\delta_{l}\le\sum_l \frac{\delta}{2^{l}} \le\delta
 \]
 
-In phase $l$ we have $S_l$ as the set of actions. For each action in $S_l$ we sample $m(\epsilon_l,\delta_l)$ samples.
+In phase $l$, we have $S_l$ as the set of actions. For each action in $S_l$, we sample $m(\epsilon_l,\delta_l)$ samples.
 The total number of samples is
 
 \begin{align*}
@@ -965,12 +965,12 @@ S_{l+1}}\mu_{j}}}_{\text{best action in
 \end{lemma}
 
 \begin{proof}
-Let $\mu^*_l=\max_{j\in S_l} \mu_j$, the expected reward of the best action in $S_l$, and $a^*_l\in\arg\max_{j\in S_l} \mu_j$ be a best action in $S_l$.
+Let $\mu^*_l=\max_{j\in S_l} \mu_j$ be the expected reward of the best action in $S_l$, and $a^*_l\in\arg\max_{j\in S_l} \mu_j$ be a best action in $S_l$.
 Define the bad event $E_{l}=\left\{\hat{\mu}^{*}_l<\mu^{*}_l-\frac{\epsilon_{1}}{2}\right\}$. (Note that $E_l$ depends only on the action $a^*_l$.) Since we sample $a^*_l$ for $m(\epsilon_l,\delta_l)$ times, we have that $\Pr\left[E_{l}\right]\le\frac{\delta_{l}}{3}$. If $E_{l}$ did not happen, we define a bad set of actions:
 \[
 \text{Bad}=\left\{ j\text{ }:\text{ }\mu^{*}_l-\mu_{j}>\epsilon_{l},\text{ }\hat{\mu}_{j}\ge\hat{\mu}^{*}\right\}\;.
 \]
-The set $Bad$ includes the actions which have a better empirical average than $a_l^*$, and the difference in the expectation is more than $\epsilon_l$. We would like to show that $S_{l+1}\not\subseteq Bad$, and hence includes at least one action which has expectation of at most $\epsilon_l$ from $\mu^*_l$.
+The set $Bad$ includes the actions that have a better empirical average than $a_l^*$, and the difference in the expectation is more than $\epsilon_l$. We would like to show that $S_{l+1}\not\subseteq Bad$, and hence includes at least one action that has expectation of at most $\epsilon_l$ from $\mu^*_l$.
 
 
 Consider an action $j$ such that $\mu^*_l-\mu_j > \epsilon_l$, then:
@@ -986,17 +986,17 @@ where the second inequality follows since $\mu^*_l-\epsilon_l/2 > \mu_j+\epsilon
 
 
 
-Note that the failure probability is not negligible, and our main aim is to avoid a union bound, which  introduces a $O(\log k)$ factor. We  show that it cannot happen to too many such actions. We  bound the expectation of the size of $Bad$,
+Note that the failure probability is not negligible, and our main aim is to avoid a union bound, which  introduces an $O(\log k)$ factor. We  show that it cannot happen to too many such actions. We  bound the expectation of the size of $Bad$,
 \[
-\E\Big[|\text{Bad}|\;|\urcorner E_{l}\Big]\le |\text{Bad}|\frac{\delta_{l}}{3},
+\E\Big[|\text{Bad}|\;|\urcorner E_{l}\Big]\le |\text{Bad}|\frac{\delta_{l}}{3}.
 \]
- with Markov's inequality we get:
+With Markov's inequality we get:
 \[
 \Pr\left[\left|\text{Bad}\right|\ge\frac{k}{2}|\urcorner E_{l}\right]
  \le  \frac{\E\left|\text{Bad}\right|}{|\text{Bad}|/2}
-  =  \frac{2}{3}\delta_{l},
+  =  \frac{2}{3}\delta_{l}.
 \]
- with probability $1-\delta_{l}$: $\hat{\mu}^{*}_l\ge\mu^{*}-\frac{\epsilon_{l}}{2}$ and $\left|\text{Bad}\right|<\frac{k}{2}$. Therefore, there exists an action $j\in S_{l+1}$ for which $j \notin\text{Bad}$.
+With probability $1-\delta_{l}$: $\hat{\mu}^{*}_l\ge\mu^{*}-\frac{\epsilon_{l}}{2}$ and $\left|\text{Bad}\right|<\frac{k}{2}$. Therefore, there exists an action $j\in S_{l+1}$ for which $j \notin\text{Bad}$.
 \end{proof}
 
 Given the above lemma, we can conclude with the following theorem.
@@ -1006,7 +1006,7 @@ The Sequential Halving Algorithm guarantees that, with probability at least $1-\
 \end{theorem}
 
 \begin{proof}
-With probability at least $1- \sum_l \delta_l \geq 1-\delta$ we have that during each phase $l$, it holds that $\max_{j\in
+With probability at least $1- \sum_l \delta_l \geq 1-\delta$, we have that during each phase $l$, it holds that $\max_{j\in
 S_{l}}\mu_{j} \leq \max_{j\in S_{l+1}}\mu_{j}+ \epsilon_{l}$.
 
 By summing all the inequalities of the different phases,
@@ -1020,7 +1020,7 @@ Recall that $S_1=A$ and $S_{\log k} =\{\hat{a}\}$.
 
 \section{Bibliography Notes}
 
-Multi-arm bandits date back to Robbins \cite{Robbins52} who defines (implicitly) asymptotic vanishing regret for two stochastic actions. The tight upper and lower asymptotical regret bounds were given by Lai and Robbins \cite{LaiR85}. The UCB algorithm was presented in \cite{AuerCF02}. The action elimination is from \cite{Even-DarMM06}, as well as the Sequential Halving algorithm. Our presentation of the analysis of UCB and action elimination borrows from the presentation in  \cite{Slivkins-book-19}. Regret bounds for MDPs using an extension of the UCB idea were first presented by \citep{auer2008near}. \citep{burnetas1997optimal} developed asymptotic regret bounds for MDPs. A recent manuscript \citep{agarwal2019reinforcement} extensively covers online regret minimization in MDPs.
+Multi-arm bandits date back to Robbins \cite{Robbins52}, who defined (implicitly) asymptotic vanishing regret for two stochastic actions. The tight upper and lower asymptotic regret bounds were given by Lai and Robbins \cite{LaiR85}. The UCB algorithm was presented in \cite{AuerCF02}. The action elimination is from \cite{Even-DarMM06}, as is the Sequential Halving algorithm. Our presentation of the analysis of UCB and action elimination borrows from the presentation in  \cite{Slivkins-book-19}. Regret bounds for MDPs using an extension of the UCB idea were first presented by \citep{auer2008near}. \citep{burnetas1997optimal} developed asymptotic regret bounds for MDPs. A recent manuscript \citep{agarwal2019reinforcement} extensively covers online regret minimization in MDPs.
 
 
-There are multiple books that cover online learning and multi-arm bandit. The classical book of Cesa{-}Bianchi and Lugosi \cite{Cesa-Bianchi-Lugosi-book} studies adversarial online learning. The book of Slivkins \cite{Slivkins-book-19} covers mainly stochastic multi-arm bandits. The book of Lattimore and Szepesv{\'a}ri \cite{Lattimore-Csaba-book-2020} covers both adversarial bandits and online learning. The book of \citep{hazan2016introduction} covers online convex optimization.
+There are multiple books that cover online learning and multi-arm bandits. The classical book of Cesa{-}Bianchi and Lugosi \cite{Cesa-Bianchi-Lugosi-book} studies adversarial online learning. The book of Slivkins \cite{Slivkins-book-19} covers mainly stochastic multi-arm bandits. The book of Lattimore and Szepesv{\'a}ri \cite{Lattimore-Csaba-book-2020} covers both adversarial bandits and online learning. The book of \citep{hazan2016introduction} covers online convex optimization.
